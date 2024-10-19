@@ -65,5 +65,5 @@ program _pea_gen_b40, rclass
 	gen _popB40_`welf' = `wvar' if _B40_`welf'==1 & `touse'
 	gen _popT60_`welf' = `wvar' if _B40_`welf'==0 & `touse'
 	return local _pea_gen_b40 = 1
-	return local outvars "__quintile _WELFMEAN_`welf' _B40_`welf' _T60_`welf' _popB40_`welf' _popT60_`welf'"
+	return local outvars "__quintile _WELFMEAN_`welf' _B40_`welf' _T60_`welf' _popB40_`welf'"
 end

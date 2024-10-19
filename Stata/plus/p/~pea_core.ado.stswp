@@ -16,8 +16,8 @@
 
 cap program drop pea_core
 program pea_core, rclass
-	version 18.0
-	syntax [if] [in] [aw pw fw], [* setting(string)]	
+	version 16.0
+	syntax [if] [in] [aw pw fw], [* setting(strin)]	
 
 	//house cleaning
 	//variable checks
