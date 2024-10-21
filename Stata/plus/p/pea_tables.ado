@@ -17,18 +17,7 @@
 cap program drop pea_tables
 program pea_tables, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) missing]	
-	
-	//fgtvars(varlist numeric) using(string) linesorted
-	/*
-	if "`using'"~="" {
-		cap use "`using'", clear
-		if _rc~=0 {
-			noi di in red "Unable to open the data"
-			exit `=_rc'
-		}
-	}
-	*/
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) missing]	
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -51,6 +40,11 @@ program pea_tables, rclass
 		else local excelout "`excel'"
 	}
 	
+	//load setting
+	if "`setting'"=="GMD" {
+		
+	}
+	
 	qui {
 		//order the lines
 		if "`ppppovlines'"~="" {
@@ -58,7 +52,6 @@ program pea_tables, rclass
 			local ppppovlines `=r(sorted_line)'
 			foreach var of local ppppovlines {
 				local lbl`var' `=r(lbl`var')'
-				*return local lbl`var' "`lbl`var''"
 			}
 		}
 		
@@ -115,6 +108,10 @@ program pea_tables, rclass
 	use `data1', clear
 	pea_table2 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') byind(`byind') fgtvars linesorted excel(`excelout') `missing'
 
+	//table 3
+	use `data1', clear
+	pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout') age(`age') male(`male') hhhead(`hhhead') edu(`edu') `missing'
+	
 	shell start excel "`excelout'"
 	
 end

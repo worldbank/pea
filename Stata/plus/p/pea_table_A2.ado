@@ -16,10 +16,10 @@
 
 //Table 2 and 3. Core poverty indicators - test
 
-cap program drop pea_table2
-program pea_table2, rclass
+cap program drop pea_table_A2
+program pea_table_A2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) fgtvars using(string) Year(varname numeric) byind(varlist numeric) core setting(string) linesorted excel(string) save(string) missing]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) fgtvars using(string) Year(varname numeric) byind(varlist numeric) core setting(string) linesorted excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) missing]
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -47,11 +47,11 @@ program pea_table2, rclass
 	}
 	
 	if "`missing'"~="" { //show missing
-		foreach var of local byind {
+		foreach var of varlist `byind' `male' `edu' {
 			su `var'
 			local miss = r(max)
 			replace `var' = `=`miss'+10' if `var'==.
-			local varlbl : value label subnatvar
+			local varlbl : value label `var'
 			la def `varlbl' `=`miss'+10' "Missing", add
 		}
 	}
@@ -78,7 +78,6 @@ program pea_table2, rclass
 		else {
 			foreach var of varlist `natpovlines' `ppppovlines' {
 				local lbl`var' : variable label `var'
-				local lbl`var' `=r(lbl`var')'
 			}
 		}
 		
@@ -110,6 +109,20 @@ program pea_table2, rclass
 	}
 	
 	//variable checks
+	if "`age'"!="" {
+		su `age',d
+		if r(N)>0 {
+			gen agecatind = 1 if `age'>=0 & `age'<=14
+			replace agecatind = 2 if `age'>=15 & `age'<=64
+			replace agecatind = 3 if `age'>=65 & `age'<=.
+			la def agecatind 1 "Children (less than age 15)" 2 "Adults (age 15 to 64)" 3 "Elderly (age 65 and older)" 
+			la val agecatind agecatind
+			la var agecatind "By age group"
+			clonevar _eduXind = `edu' if `age'>=16 & `age'~=.
+			la var _eduXind "By education (age 16+)"				
+		} //rn
+	} //age
+	
 	//trigger some sub-tables
 	tempfile data1 data2
 	save `data1', replace
@@ -117,8 +130,11 @@ program pea_table2, rclass
 	save `data2', replace emptyok
 	
 	//FGT
+	local byind agecatind `male' _eduXind `byind'
 	foreach var of local byind {
 		use `data1', clear
+		local lbl0`var' : variable label `var'
+		if "`lbl0`var''"=="" local lbl0`var' "`var'"
 		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year' `var')
 		ren `var' lbl`var'
 		append using `data2'
@@ -133,6 +149,7 @@ program pea_table2, rclass
 	*label define combined_label
 	foreach var of local byind {
 		replace group = `j' if lbl`var'	~=.
+		la def group `j' "`lbl0`var''", add
 		local label1 : value label lbl`var'		
 		levelsof lbl`var', local(levels1)
 		
@@ -146,7 +163,9 @@ program pea_table2, rclass
 		local j = `j'+1
 	}	
 	label values combined_var combined_label
-	reshape long _fgt0_ _fgt1_ _fgt2_ , i(`year' _pop combined_var) j(_varname) string
+	label val group group
+	
+	reshape long _fgt0_ _fgt1_ _fgt2_ , i(`year' _pop combined_var group) j(_varname) string
 	split _varname, parse("_")
 	drop _varname1
 	gen npoor = _fgt0_*_pop
@@ -189,22 +208,24 @@ program pea_table2, rclass
 	la var npoor "Number of poor `xtxt'"
 	la var share_poor "Share of poor"
 	
-	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl
+	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl group
 
 	ren _fgt0_ value1
 	ren share_poor value2
 	ren npoor value3
 
-	reshape long value, i( `year' combined_var indicatorlbl ) j(ind)
+	reshape long value, i( `year' combined_var indicatorlbl group) j(ind)
 	la def ind 1 "Poverty rate" 2 "Share of poor" 3 "Number of poor `xtxt'"
 	la val ind ind
+	drop if group==.
+	drop if ind==2
 	
 	collect clear
-	qui collect: table (indicatorlbl combined_var) (ind `year'), stat(mean value) nototal nformat(%20.2f) missing
-	collect style header indicatorlbl combined_var ind `year', title(hide)
+	qui collect: table ( group combined_var) (ind `year') (indicatorlbl), stat(mean value) nototal nformat(%20.2f) missing
+	collect style header indicatorlbl group combined_var ind `year', title(hide)
 	*collect style header subind[.], level(hide)
 	*collect style cell, result halign(center)
-	collect title `"Table 2. Core poverty and equity indicators"'
+	collect title `"Table A.2. Poverty indicators by subgroup"'
 	collect notes 1: `"Source: ABC"'
 	collect notes 2: `"Note: The global ..."'
 	collect style notes, font(, italic size(10))
@@ -212,10 +233,10 @@ program pea_table2, rclass
 	*set trace on
 	
 	if "`excel'"=="" {
-		collect export "`dirpath'\\Table2.xlsx", sheet(Table2) replace 	
-		shell start excel "`dirpath'\\Table2.xlsx"
+		collect export "`dirpath'\\TableA2.xlsx", sheet(TableA2) replace 	
+		shell start excel "`dirpath'\\TableA2.xlsx"
 	}
 	else {
-		collect export "`excelout'", sheet(Table2, replace) modify 
+		collect export "`excelout'", sheet(TableA2, replace) modify 
 	}
 end

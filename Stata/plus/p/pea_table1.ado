@@ -237,6 +237,8 @@ program pea_table1, rclass
 		replace indicatorlbl = 94 if _varname2=="Max"
 		replace indicatorlbl = 95 if _varname2=="SD"		
 		la def indicatorlbl 90 "Income/consumption (LCU)" 91 "Mean" 92 "Median" 93 "Min" 94 "Max" 95 "SD", add
+		local tabtitle "Table 1. Core poverty indicators"
+		local tabname Table1
 	}
 	else {
 		*replace indicatorlbl = 50 if indicatorlbl=="Poverty vulnerability"
@@ -250,6 +252,8 @@ program pea_table1, rclass
 		replace indicatorlbl = 90 if _varname2=="mB40"
 		la def indicatorlbl 90 "Mean income/consumption (LCU)", add		
 		drop if subind>=11 & subind<=15
+		local tabtitle "Table A.1. Core poverty and equity indicators"
+		local tabname TableA1
 	}
 	la val indicatorlbl indicatorlbl
 	drop if indicatorlbl==.
@@ -258,7 +262,7 @@ program pea_table1, rclass
 	qui collect: table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.2f) missing
 	collect style header indicatorlbl subind `year', title(hide)
 	collect style header subind[.], level(hide)
-	collect title `"Table A.1. Core poverty and equity indicators"'
+	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: ABC"'
 	collect notes 2: `"Note: The global ..."'
 	collect style notes, font(, italic size(10))
@@ -266,10 +270,10 @@ program pea_table1, rclass
 	*set trace on
 	
 	if "`excel'"=="" {
-		collect export "`dirpath'\\Table1.xlsx", sheet(Table1) replace 	
+		collect export "`dirpath'\\Table1.xlsx", sheet("`tabname'") replace 	
 		shell start excel "`dirpath'\\Table1.xlsx"
 	}
 	else {
-		collect export "`excelout'", sheet(Table1, replace) modify 
+		collect export "`excelout'", sheet("`tabname'", replace) modify 
 	}
 end

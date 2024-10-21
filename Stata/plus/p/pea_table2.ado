@@ -51,7 +51,7 @@ program pea_table2, rclass
 			su `var'
 			local miss = r(max)
 			replace `var' = `=`miss'+10' if `var'==.
-			local varlbl : value label subnatvar
+			local varlbl : value label `var'
 			la def `varlbl' `=`miss'+10' "Missing", add
 		}
 	}
@@ -145,7 +145,7 @@ program pea_table2, rclass
 		local j = `j'+1
 	}	
 	label values combined_var combined_label
-	reshape long _fgt0_ _fgt1_ _fgt2_ , i(`year' _pop combined_var) j(_varname) string
+	reshape long _fgt0_ _fgt1_ _fgt2_ , i(`year' _pop combined_var group) j(_varname) string
 	split _varname, parse("_")
 	drop _varname1
 	gen npoor = _fgt0_*_pop
