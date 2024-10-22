@@ -16,8 +16,8 @@
 
 //Table 13
 
-cap program drop pea_table13
-program pea_table13, rclass
+cap program drop pea_table14
+program pea_table14, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) core setting(string)  excel(string) save(string) missing age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) missing]
 	
@@ -147,7 +147,7 @@ program pea_table13, rclass
 	
 	if "`hhhead'"~="" {
 		if "`male'"~="" {
-			gen female_head = 1 if `hhhead'==1 & `male'==0
+			gen female_head = 100 if `hhhead'==1 & `male'==0
 			replace female_head = 0 if `hhhead'==1 & `male'==1
 			la var female_head "Household head is female (%)"
 			local headvars "`headvars' female_head"	
@@ -155,7 +155,7 @@ program pea_table13, rclass
 		}
 		
 		if "`married'"~="" {
-			gen married_head = 1 if `hhhead'==1 & `married'==1
+			gen married_head = 100 if `hhhead'==1 & `married'==1
 			replace married_head = 0 if `hhhead'==1 & `married'==0
 			la var married_head "Household head is married (%)"
 			local headvars "`headvars' married_head"
@@ -172,7 +172,7 @@ program pea_table13, rclass
 			levelsof edu_head, local(edulvl)
 			local label1 : value label edu_head	
 			foreach lvl of local edulvl {
-				gen edu_head`lvl' = edu_head==`lvl' if edu_head~=.
+				gen edu_head`lvl' = 100*(edu_head==`lvl') if edu_head~=.
 				local labelname1 : label `label1' `lvl'				
 				la var edu_head`lvl' "`labelname1'"
 				local headvars "`headvars' edu_head`lvl'"
@@ -193,7 +193,7 @@ program pea_table13, rclass
 			levelsof industry_head, local(industrylvl)
 			local label1 : value label industry_head	
 			foreach lvl of local industrylvl {
-				gen industry_head`lvl' = industry_head==`lvl' if industry_head~=.
+				gen industry_head`lvl' = 100*(industry_head==`lvl') if industry_head~=.
 				local labelname1 : label `label1' `lvl'				
 				la var industry_head`lvl' "`labelname1'"
 				local headvars "`headvars' industry_head`lvl'"
@@ -204,7 +204,7 @@ program pea_table13, rclass
 		}
 		
 		if "`lstatus'"~="" {
-			gen doesnotwork_head = `lstatus'==0 if `hhhead'==1 
+			gen doesnotwork_head = 100*(`lstatus'==0) if `hhhead'==1 
 			la var doesnotwork_head "Does not work (unemployed or out of labor force)"
 			local headvars "`headvars' doesnotwork_head"
 			local doesnotwork_head doesnotwork_head
@@ -221,7 +221,7 @@ program pea_table13, rclass
 			levelsof empstat_head, local(empstatlvl)
 			local label1 : value label empstat_head	
 			foreach lvl of local empstatlvl {
-				gen empstat_head`lvl' = empstat_head==`lvl' if empstat_head~=.
+				gen empstat_head`lvl' = 100*(empstat_head==`lvl') if empstat_head~=.
 				local labelname1 : label `label1' `lvl'				
 				la var empstat_head`lvl' "`labelname1'"
 				local headvars "`headvars' empstat_head`lvl'"
@@ -232,6 +232,7 @@ program pea_table13, rclass
 
 	}
 	la var `urban' "Household lives in urban area (%)"
+	for var `urban' `services' `assets': replace X = 100 if X==1
 	
 	local demographics `urban' `age_head' `female_head' `married_head' `edu_head' `age6t18_sch_ratio' `hhsize' `age6t18_sh' `age65p_sh' `dep_ratio'
 	local headactivity `industry_head' `doesnotwork_head' `empstat_head'
@@ -297,29 +298,40 @@ program pea_table13, rclass
 	la def group2 1 "Household head's highest level of education" 
 	la val group2 group2
 	
+	foreach var of local edu_head {
+		replace varlab = "Household head's highest level of education: " + varlab if name=="`var'"
+	}
+	
 	local i = 1
 	gen order = .
 	foreach var in `demographics' `services' `assets' `headactivity' {
 		replace order = `i' if name=="`var'"
 		local i = `i' + 1
 	}
-	s
+	if "`core'"=="" {
+		local tabtitle "Table 14a. Profiles of the poor"
+		local tbt Table14
+	}
+	else {
+		local tabtitle "Table A.4. Poverty profiles"	
+		local tbt TableA4
+	}
 	collect clear
-	qui collect: table (group1 order group2  varlab) (`year' _bygroup2), statistic(mean value) nototal nformat(%20.2f) missing	
-	collect style header group1 order group2  varlab year _bygroup2, title(hide)
-	collect title `"Table 14a. Profiles of the poor"'
-	collect style header group2[.], level(hide)
+	qui collect: table (group1 order   varlab) (`year' _bygroup2), statistic(mean value) nototal nformat(%20.2f) missing	
+	collect style header group1 order   varlab `year' _bygroup2, title(hide)
+	collect title `"`tabtitle'"'
+	*collect style header group2[.], level(hide)
 	collect style header order, level(hide)
 	collect notes 1: `"Source: ABC"' 
 	collect notes 2: `"Note: The global ..."' 
 	collect style notes, font(, italic size(10))
 
 	if "`excel'"=="" {
-		collect export "`dirpath'\\Table13.xlsx", sheet(Table13a) modify 	
-		shell start excel "`dirpath'\\Table13.xlsx"
+		collect export "`dirpath'\\`tbt'.xlsx", sheet("`tbt'") modify 	
+		shell start excel "`dirpath'\\`tbt'.xlsx"
 	}
 	else {
-		collect export "`excelout'", sheet(Table13a, replace) modify 
+		collect export "`excelout'", sheet(Table14, replace) modify 
 	}
 	
 	

@@ -17,7 +17,7 @@
 cap program drop pea_tables
 program pea_tables, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) missing]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) missing ONELine(varname numeric)]	
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -111,6 +111,12 @@ program pea_tables, rclass
 	//table 3
 	use `data1', clear
 	pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout') age(`age') male(`male') hhhead(`hhhead') edu(`edu') `missing'
+	
+	//table 14
+	use `dataori', clear	
+	if "`oneline'"~="" local maxline `oneline'
+	else local maxline = word("`ppppovlines'", -1)	
+	pea_table14 [aw=weight_p], welfare(`pppwelfare') povlines(`maxline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') excel(`excelout')
 	
 	shell start excel "`excelout'"
 	
