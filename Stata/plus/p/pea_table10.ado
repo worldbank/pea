@@ -22,6 +22,7 @@ program pea_table10, rclass
 	syntax [if] [in] [aw pw fw], [PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) BENCHmark(string) excel(string)]
 	
 	//GDP
+	//https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.
 	pip tables, table(gdp) clear
 	ren country_code code
 	keep if data_level=="national"
