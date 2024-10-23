@@ -17,7 +17,7 @@
 cap program drop pea_core
 program pea_core, rclass
 	version 18.0	
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) missing]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) missing]	
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -107,17 +107,17 @@ program pea_core, rclass
 	
 	//table 2
 	use `dataori', clear	
-	if "`oneline'"~="" local maxline `oneline'
-	else local maxline = word("`ppppovlines'", -1)
-	pea_table_A2 [aw=`wvar'], pppw(`pppwelfare') pppp(`maxline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel(`excelout')
+	*if "`oneline'"~="" local maxline `oneline'
+	*else local maxline = word("`ppppovlines'", -1)
+	pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel(`excelout')
 	
 	//table 3
 	
 	//table 4
 	use `dataori', clear	
-	if "`oneline'"~="" local maxline `oneline'
-	else local maxline = word("`ppppovlines'", -1)	
-	pea_table14 [aw=weight_p], welfare(`pppwelfare') povlines(`maxline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') core excel(`excelout')
+	*if "`oneline'"~="" local maxline `oneline'
+	*else local maxline = word("`ppppovlines'", -1)	
+	pea_table14 [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') core excel(`excelout')
 	
 	shell start excel "`excelout'"
 	
