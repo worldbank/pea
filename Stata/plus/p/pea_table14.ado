@@ -331,7 +331,7 @@ program pea_table14, rclass
 		shell start excel "`dirpath'\\`tbt'.xlsx"
 	}
 	else {
-		collect export "`excelout'", sheet(Table14, replace) modify 
+		collect export "`excelout'", sheet("`tbt'", replace) modify 
 	}
 	
 	

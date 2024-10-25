@@ -17,7 +17,7 @@
 cap program drop pea_core
 program pea_core, rclass
 	version 18.0	
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) missing]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) missing Country(string) latest within3 BENCHmark(string)]	
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -42,10 +42,23 @@ program pea_core, rclass
 	
 	//load setting
 	if "`setting'"=="GMD" {
-		
+		_pea_vars_set, setting(GMD)
+		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
+		foreach st of local vlist {
+			local `st' "${pea_`st'}"
+		}		
 	}
 	
+	if "`latest'"~="" & "`within3'"~="" {
+		noi dis as error "Either latest or wtihin3, not both options"
+		error 1
+	}
+	if "`latest'"=="" & "`within3'"=="" local latest latest
+	
 	qui {
+		local country "`=upper("`country'")'"
+		cap drop code
+		gen code = "`country'"
 		//order the lines
 		if "`ppppovlines'"~="" {
 			_pea_pline_order, povlines(`ppppovlines')
@@ -92,6 +105,7 @@ program pea_core, rclass
 	if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 	_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
 	clonevar _Gini_`distwelf' = `distwelf' if `touse'
+	gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
 	gen double _pop = `wvar'
 	
 	tempfile data1 data2
@@ -112,7 +126,9 @@ program pea_core, rclass
 	pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel(`excelout')
 	
 	//table 3
-	
+	use `dataori', clear
+	pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted fgtvars excel(`excelout') core
+
 	//table 4
 	use `dataori', clear	
 	*if "`oneline'"~="" local maxline `oneline'

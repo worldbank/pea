@@ -19,7 +19,7 @@
 cap program drop pea_table1
 program pea_table1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) fgtvars using(string) Year(varname numeric) core setting(string) linesorted excel(string) save(string)]	
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) fgtvars using(string) Year(varname numeric) core setting(string) linesorted excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
 	//fgtvars(varlist numeric)
 	*max=1 varlist
 	//load data if defined
@@ -79,7 +79,17 @@ program pea_table1, rclass
 				local lbl`var' : variable label `var'
 			}
 		}
-	
+		
+		if "`oneline'"~="" {
+			su `oneline',d
+			if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
+			else {
+				local lbloneline `oneline'
+				*local lbloneline : variable label `oneline'
+				*if "`lbloneline'"=="" local lbloneline `oneline'	
+			}
+		}
+		
 		//Weights
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
@@ -114,6 +124,8 @@ program pea_table1, rclass
 		
 		gen double _pop = `wvar'
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
+		gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
+		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	}
 	* gini(a1) theil(a2)
 	*clonevar _Gini_`distwelf' = `distwelf' if `touse'
@@ -121,7 +133,7 @@ program pea_table1, rclass
 	save `data1', replace
 	
 	//FGT
-	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) gini(_Gini_`distwelf') rawsum(_pop _popB40_`distwelf' _popT60_`distwelf') by(`year')
+	groupfunction  [aw=`wvar'] if `touse', mean(_fgt* _prosgap_`pppwelfare' _vulpov_`onewelfare'_`oneline') gini(_Gini_`distwelf') rawsum(_pop _popB40_`distwelf' _popT60_`distwelf') by(`year')
 	save `data2', replace
 	
 	//mean, min, max, sd
@@ -189,7 +201,7 @@ program pea_table1, rclass
 		local xtxt "(in millions)"
 	}
 	replace value = value/`xscale' if _varname2=="npoor0"
-	replace value = value*100 if _varname2=="fgt0"|_varname2=="fgt1"|_varname2=="fgt2"
+	replace value = value*100 if _varname2=="fgt0"|_varname2=="fgt1"|_varname2=="fgt2"|_varname2=="vulpov"
 	gen subind = .
 	replace subind = 1 if _varname2=="fgt0"
 	replace subind = 2 if _varname2=="fgt1"
@@ -241,11 +253,11 @@ program pea_table1, rclass
 		local tabname Table1
 	}
 	else {
-		*replace indicatorlbl = 50 if indicatorlbl=="Poverty vulnerability"
+		replace indicatorlbl = 50 if _varname2=="vulpov"
 		replace indicatorlbl = 60 if _varname2=="Gini"
-		*replace indicatorlbl = 70 if indicatorlbl=="Prosperity Gap"
+		replace indicatorlbl = 70 if _varname2=="prosgap"
 		*replace indicatorlbl = 80 if indicatorlbl=="Multidimensional poverty"
-		la def indicatorlbl 50 "Poverty vulnerability" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty" , add
+		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty" , add
 	
 		replace indicatorlbl = 90 if _varname2 =="WELFMEAN"
 		replace indicatorlbl = 90 if _varname2=="mT60"

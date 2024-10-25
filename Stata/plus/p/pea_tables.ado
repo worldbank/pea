@@ -17,7 +17,7 @@
 cap program drop pea_tables
 program pea_tables, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric)]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) latest within3 BENCHmark(string)]	
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -40,6 +40,12 @@ program pea_tables, rclass
 		else local excelout "`excel'"
 	}
 	
+	if "`latest'"~="" & "`within3'"~="" {
+		noi dis as error "Either latest or wtihin3, not both options"
+		error 1
+	}
+	if "`latest'"=="" & "`within3'"=="" local latest latest
+	
 	//load setting
 	if "`setting'"=="GMD" {
 		
@@ -47,6 +53,9 @@ program pea_tables, rclass
 	//check oneline and onewelfare goes together?
 	
 	qui {
+		local country "`=upper("`country'")'"
+		cap drop code
+		gen code = "`country'"
 		//order the lines
 		if "`ppppovlines'"~="" {
 			_pea_pline_order, povlines(`ppppovlines')
@@ -113,9 +122,17 @@ program pea_tables, rclass
 	use `data1', clear
 	pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout') age(`age') male(`male') hhhead(`hhhead') edu(`edu') `missing'
 	
+	//table 7
+	use `data1', clear
+	pea_table7 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') excel(`excelout') 
+	
 	//table 8
 	use `data1', clear
 	pea_table8 [aw=`wvar'], welfare(`onewelfare') year(`year') excel(`excelout') missing
+	
+	//table 10
+	use `dataori', clear
+	pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel(`excelout') 
 	
 	//table 14
 	use `dataori', clear	
