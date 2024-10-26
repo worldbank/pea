@@ -48,7 +48,11 @@ program pea_tables, rclass
 	
 	//load setting
 	if "`setting'"=="GMD" {
-		
+		_pea_vars_set, setting(GMD)
+		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
+		foreach st of local vlist {
+			local `st' "${pea_`st'}"
+		}	
 	}
 	//check oneline and onewelfare goes together?
 	
@@ -102,6 +106,8 @@ program pea_tables, rclass
 	if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 	_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
 	clonevar _Gini_`distwelf' = `distwelf' if `touse'
+	gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
+	gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'	
 	gen double _pop = `wvar'
 	
 	tempfile data1 data2
@@ -112,7 +118,7 @@ program pea_tables, rclass
 	//order the lines , then pass sorted line to table commands
 	//table 1
 	use `data1', clear
-	pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout')
+	pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout') oneline(`oneline') onewelfare(`onewelfare')
 	
 	//table 2
 	use `data1', clear
@@ -121,6 +127,12 @@ program pea_tables, rclass
 	//table 3
 	use `data1', clear
 	pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout') age(`age') male(`male') hhhead(`hhhead') edu(`edu') `missing'
+	
+	//table 6
+	if "`setting'"=="GMD" {
+		use `data1', clear
+		pea_table6 [aw=`wvar'], c(`country') welfare(`pppwelfare') year(`year')  benchmark(`benchmark') last3 excel(`excelout')
+	}
 	
 	//table 7
 	use `data1', clear

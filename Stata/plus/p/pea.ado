@@ -43,25 +43,61 @@ program pea, rclass
 	else if ("`subcmd'"=="table2") {
 		pea_table2 `0'		
     }
-	else if ("`subcmd'"=="register") {
-		primus_register `0'		
+	else if ("`subcmd'"=="tableA2") {
+		pea_table_A2 `0'		
     }
-	else if ("`subcmd'"=="roles") {
-		primus_roles `0'		
+	else if ("`subcmd'"=="table3") {
+		pea_table3 `0'		
+    }
+	else if ("`subcmd'"=="table4") {
+		pea_table4 `0'		
+    }
+	else if ("`subcmd'"=="table5") {
+		pea_table5 `0'		
+    }
+	else if ("`subcmd'"=="table6") {
+		pea_table6 `0'		
+    }
+	else if ("`subcmd'"=="table7") {
+		pea_table7 `0'		
+    }
+	else if ("`subcmd'"=="table8") {
+		pea_table8 `0'		
+    }
+	else if ("`subcmd'"=="table9") {
+		pea_table9 `0'		
+    }
+	else if ("`subcmd'"=="table10") {
+		pea_table10 `0'		
+    }
+	else if ("`subcmd'"=="table11") {
+		pea_table11 `0'		
+    }
+	else if ("`subcmd'"=="table12") {
+		pea_table12 `0'		
+    }
+	else if ("`subcmd'"=="table13") {
+		pea_table13 `0'		
+    }
+	else if ("`subcmd'"=="table14") {
+		pea_table14 `0'		
+    }
+	else if ("`subcmd'"=="table15") {
+		pea_table15 `0'		
     }
 	else { //none of the above
 		if ("`subcmd'"=="") {
 			di as smcl as err "syntax error"
 			di as smcl as err "{p 4 4 2}"
 			di as smcl as err "{bf:pea} must be followed by a subcommand."
-			di as smcl as err "You might type {bf:pea upload}, or {bf:primus query}, or {bf:primus action}, etc."			
+			di as smcl as err "You might type {bf:pea table1}, or {bf:pea graphs}, or {bf:primus action}, etc."			
 			di as smcl as err "{p_end}"
 			exit 198
 		}
-		capture which primus_`subcmd'
+		capture which pea_`subcmd'
 		if (_rc) { 
 			if (_rc==1) exit 1
-			di as smcl as err "unrecognized subcommand:  {bf:primus `subcmd'}"
+			di as smcl as err "unrecognized subcommand:  {bf:pea `subcmd'}"
 			exit 199
 			/*NOTREACHED*/
 		}

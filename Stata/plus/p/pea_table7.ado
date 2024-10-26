@@ -79,16 +79,16 @@ program pea_table7, rclass
 	//FGT
 	gen _vulpovl15_`welfare'_`povlines' = (`welfare' < 1.5*`povlines') if `welfare'~=. & `touse'
 	gen _vulpov2_`welfare'_`povlines' = (`welfare' < 2*`povlines') if `welfare'~=. & `touse'
-	gen double _pop = `wvar'
+	gen double _pop1 = `wvar'
 	
 	//FGT
 	tempfile data2
-	groupfunction  [aw=`wvar'] if `touse', mean(_vulpov*) rawsum(_pop) by(`year')
+	groupfunction  [aw=`wvar'] if `touse', mean(_vulpov*) rawsum(_pop1) by(`year')
 	ren _* var_*
 	reshape long var_, i(year) j(_varname) string
 	ren var_ value
-	replace value = value*100 if _varname1=="vulpovl15"|_varname1=="vulpov2"
 	split _varname, parse("_")
+	replace value = value*100 if _varname1=="vulpovl15"|_varname1=="vulpov2"
 	
 	gen indicatorlbl = .
 	replace indicatorlbl = 1 if _varname1=="vulpovl15"
@@ -113,7 +113,4 @@ program pea_table7, rclass
 	else {
 		collect export "`excelout'", sheet("Table7", replace) modify 
 	}
-	
-	*save `data2', replace
-	
 end

@@ -106,6 +106,7 @@ program pea_core, rclass
 	_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
 	clonevar _Gini_`distwelf' = `distwelf' if `touse'
 	gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
+	gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	gen double _pop = `wvar'
 	
 	tempfile data1 data2
@@ -117,7 +118,7 @@ program pea_core, rclass
 	//order the lines , then pass sorted line to table commands
 	//table 1
 	use `data1', clear
-	pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout') core
+	pea_table1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel(`excelout') core oneline(`oneline') onewelfare(`onewelfare')
 	
 	//table 2
 	use `dataori', clear	

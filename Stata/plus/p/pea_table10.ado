@@ -30,7 +30,7 @@ program pea_table10, rclass
 	gen code = "`country'"
 	
 	if "`latest'"~="" & "`within3'"~="" {
-		noi dis as error "Either latest or wtihin3, not both options"
+		noi dis as error "Either latest or within3, not both options"
 		error 1
 	}
 	if "`latest'"=="" & "`within3'"=="" local latest latest

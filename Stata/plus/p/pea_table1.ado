@@ -19,7 +19,7 @@
 cap program drop pea_table1
 program pea_table1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) fgtvars using(string) Year(varname numeric) core setting(string) linesorted excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
+	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) fgtvars using(string) Year(varname numeric) core setting(string) linesorted excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
 	//fgtvars(varlist numeric)
 	*max=1 varlist
 	//load data if defined
@@ -145,6 +145,19 @@ program pea_table1, rclass
 	drop _merge
 	save `data2', replace
 	
+	//MPM WB
+	if "`core'"~="" {
+		*tempfile mpmwb
+		use `data1', clear
+		_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`pppwelfare') 
+		keep `year' mdpoor_i1
+		replace mdpoor_i1 = mdpoor_i1*100
+		ren mdpoor_i1 _mpmwb_`pppwelfare'
+		merge 1:1 `year' using `data2'
+		drop _merge
+		save `data2', replace
+	}
+	
 	//Quintile
 	use `data1', clear
 	collapse (mean) _WELFMEAN_`distwelf' [aw=`wvar'] if `touse', by(`year' __quintile)
@@ -256,8 +269,8 @@ program pea_table1, rclass
 		replace indicatorlbl = 50 if _varname2=="vulpov"
 		replace indicatorlbl = 60 if _varname2=="Gini"
 		replace indicatorlbl = 70 if _varname2=="prosgap"
-		*replace indicatorlbl = 80 if indicatorlbl=="Multidimensional poverty"
-		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty" , add
+		replace indicatorlbl = 80 if _varname2=="mpmwb"
+		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
 	
 		replace indicatorlbl = 90 if _varname2 =="WELFMEAN"
 		replace indicatorlbl = 90 if _varname2=="mT60"
