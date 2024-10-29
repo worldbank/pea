@@ -17,7 +17,7 @@
 cap program drop pea_tables
 program pea_tables, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) latest within3 BENCHmark(string)]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) latest within3 BENCHmark(string) spells(string)]	
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -146,6 +146,10 @@ program pea_tables, rclass
 	use `dataori', clear
 	pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel(`excelout') 
 	
+	//table 11
+	use `dataori', clear
+	pea_table11 [aw=`wvar'], welfare(`onewelfare') spells(`spells') year(`year') by(`urban') graph excel(`excelout')
+
 	//table 14
 	use `dataori', clear	
 	*if "`oneline'"~="" local maxline `oneline'
