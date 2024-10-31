@@ -19,7 +19,7 @@
 cap program drop pea_table7
 program pea_table7, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) core setting(string) excel(string) save(string) missing]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string) excel(string) save(string) MISSING]
 	
 	//load data if defined
 	if "`using'"~="" {

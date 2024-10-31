@@ -1,6 +1,6 @@
 *! version 0.1.1  12Sep2014
 *! Copyright (C) World Bank 2017-2024 
-
+*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
@@ -21,7 +21,7 @@
 cap program drop pea_table8
 program pea_table8, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) byind(varlist numeric) core setting(string) excel(string) save(string) missing]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) byind(varlist numeric) CORE setting(string) excel(string) save(string) MISSING]
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -126,7 +126,8 @@ program pea_table8, rclass
 				qui: ineqdeco `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), welfare
 				*local grp = `grp'		
 				//need to add in the missing indicator: palma, watts, bottom20share, and post result here
-				
+				//bottom20share: define quintile, su welfare [weight] --> r(r_sum) of q1/total
+				//palma
 				* Post the results to the frame
 				frame ineq_results {  
 					frame post ineq_results ("`var'") (`grp') (`y') (`r(N)') (`r(sumw)')	///

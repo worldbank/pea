@@ -1,6 +1,6 @@
 *! version 0.1.1  12Sep2014
 *! Copyright (C) World Bank 2017-2024 
-
+*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
@@ -19,8 +19,8 @@
 cap program drop pea_table11
 program pea_table11, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) core setting(string) excel(string) save(string) missing by(varname numeric) graph]
-	//spells(varlist numeric)
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) CORE setting(string) excel(string) save(string) missing by(varname numeric) GRAPH NOOUTPUT]
+	
 	//load data if defined
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -29,8 +29,15 @@ program pea_table11, rclass
 			exit `=_rc'
 		}
 	}
-	
-	if "`save'"=="" tempfile saveout
+		
+	if "`save'"=="" {
+		tempfile saveout
+		local save `saveout'
+	}
+	if "`nooutput'"~="" & "`excel'"~="" {
+		noi dis as error "Cant have both nooutput and excel() options"
+		error 1
+	}
 	if "`spells'"=="" {
 		noi dis as error "Need at least two years, i.e. 2000 2004"
 		error 1
@@ -183,46 +190,55 @@ program pea_table11, rclass
 			}
 		}
 		sort var_order group_order percentile
+		return local vargic = "`vargic'"
+		return local varlbl = `"`varlbl'"'
 		
-		if "`excel'"=="" {
-			local excelout2 "`dirpath'\\Table11.xlsx"
-			local act replace
+		if "`nooutput'"~="" {
+			save `save', replace
+			if "`graph'"!~="" {
+			}
 		}
-		else {
-			local excelout2 "`excelout'"
-			local act modify
-		}
-		
-		local u =1
-		if "`graph'"!~="" {	
-			putexcel set "`excelout2'", `act'
-			levelsof group_order, local(grlist)
-			foreach gr of local grlist {
-				tempfile graph`gr'
-				local lbltitle : label group_order `gr'	
-				twoway (connected `vargic' percentile) if group_order==`gr' & percentile>=1 & percentile<=99, scheme(white_tableau) ///
-					legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
-					xtitle(Percentile) ytitle("Annualized growth, %") title("`lbltitle'") name(ngraph`gr', replace)
-				
-				putexcel set "`excelout2'", modify sheet(Graph11_`gr', replace)
-				graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)
-				putexcel A`u' = image("`graph`gr''")
-				putexcel save
-				*local u = `u' + 25
-			}			
-		}
-		
-		sort var_order group_order percentile
-		
-		if "`excel'"=="" {
-			if "`graph'"!~="" local act2 
-			else  			  local act2 replace
-			export excel var_order group_order percentile gic_* using "`dirpath'\\Table11.xlsx", sheet("Table11", replace) `act2' keepcellfmt firstrow(variables)	
-			shell start excel "`dirpath'\\Table11.xlsx"
-		}
-		else {
-			export excel var_order group_order percentile gic_* using "`excelout'", sheet("Table11", replace) keepcellfmt firstrow(variables)
-		}
+		else {	
+			if "`excel'"=="" {
+				local excelout2 "`dirpath'\\Table11.xlsx"
+				local act replace
+			}
+			else {
+				local excelout2 "`excelout'"
+				local act modify
+			}
+			
+			local u =1
+			if "`graph'"!~="" {	
+				putexcel set "`excelout2'", `act'
+				levelsof group_order, local(grlist)
+				foreach gr of local grlist {
+					tempfile graph`gr'
+					local lbltitle : label group_order `gr'	
+					twoway (connected `vargic' percentile) if group_order==`gr' & percentile>=1 & percentile<=99, scheme(white_tableau) ///
+						legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
+						xtitle(Percentile) ytitle("Annualized growth, %") title("`lbltitle'") name(ngraph`gr', replace)
+					
+					putexcel set "`excelout2'", modify sheet(Graph11_`gr', replace)
+					graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)
+					putexcel A`u' = image("`graph`gr''")
+					putexcel save					
+				}		
+				cap graph close	
+			}
+			
+			sort var_order group_order percentile
+			
+			if "`excel'"=="" {
+				if "`graph'"!~="" local act2 
+				else  			  local act2 replace
+				export excel var_order group_order percentile gic_* using "`dirpath'\\Table11.xlsx", sheet("Table11", replace) `act2' keepcellfmt firstrow(variables)	
+				shell start excel "`dirpath'\\Table11.xlsx"
+			}
+			else {
+				export excel var_order group_order percentile gic_* using "`excelout'", sheet("Table11", replace) keepcellfmt firstrow(variables)
+			}
+		} //excel
 	} //qui	
 	
 end

@@ -1,6 +1,6 @@
 *! version 0.1.1  12Sep2014
 *! Copyright (C) World Bank 2017-2024 
-
+*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
@@ -19,7 +19,7 @@
 cap program drop pea_table10
 program pea_table10, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Povlines(varlist numeric) Year(varname numeric) BENCHmark(string) core setting(string) linesorted excel(string) save(string) fgtvars latest within3 fgtvars]
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Povlines(varlist numeric) Year(varname numeric) BENCHmark(string) CORE setting(string) LINESORTED excel(string) save(string) FGTVARS LATEST WITHIN3]
 	//Country
 	if "`country'"=="" {
 		noi dis as error "Please specify the country code of analysis"
@@ -96,10 +96,9 @@ program pea_table10, rclass
 	} //qui
 	
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
-		//FGT
 		if "`welfare'"~="" & "`povlines'"~="" _pea_gen_fgtvars if `touse', welf(`welfare') povlines(`povlines')		
 	}	
-	drop _fgt1* _fgt2*	
+	cap drop _fgt1* _fgt2*	
 	clonevar _Gini_`welfare' = `welfare' if `touse'
 	gen double _prosgap_`welfare' = 25/`welfare' if `touse'
 	
@@ -274,19 +273,19 @@ program pea_table10, rclass
 	
 	//regional
 	tempfile regional regdata
-	pip wb, region(all)  ppp(2017) povline(2.15) 
+	pip wb, region(all)  ppp(2017) povline(2.15) clear
 	ren headcount headcount215		
 	keep region_name region_code year  headcount215 pg 
 	save `regional', replace
 	
-	pip wb, region(all)  ppp(2017) povline(3.65) 
+	pip wb, region(all)  ppp(2017) povline(3.65) clear
 	ren headcount headcount365		
 	keep region_code year  headcount365
 	merge 1:1 region_code year using `regional'
 	drop _merge
 	save `regional', replace
 	
-	pip wb, region(all)  ppp(2017) povline(6.85) 
+	pip wb, region(all)  ppp(2017) povline(6.85) clear
 	ren headcount headcount685	
 	keep region_code year  headcount685
 	merge 1:1 region_code year using `regional'

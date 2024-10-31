@@ -19,7 +19,7 @@
 cap program drop pea_table_A2
 program pea_table_A2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) fgtvars using(string) Year(varname numeric) byind(varlist numeric) core setting(string) linesorted excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) missing]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) CORE setting(string) LINESORTED excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) MISSING]
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
