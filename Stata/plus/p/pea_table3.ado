@@ -83,7 +83,7 @@ program pea_table3, rclass
 	
 		//missing observation check
 		marksample touse
-		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind'"'
+		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind' `age'"'
 		markout `touse' `flist' 
 		
 		tempfile dataori datalbl
@@ -199,15 +199,12 @@ program pea_table3, rclass
 		*collect style header subind[.], level(hide)
 		*collect style cell, result halign(center)
 		collect title `"Table 3a. Subgroup poverty rates (`ymax')"'
-		collect notes 1: `"Source: ABC"'
-		collect notes 2: `"Note: The global ..."'
+		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
 		collect style notes, font(, italic size(10))
-		*collect preview
-		*set trace on
-		
+				
 		if "`excel'"=="" {
-			collect export "`dirpath'\\Table3.xlsx", sheet(Table3a) replace 	
-			*shell start excel "`dirpath'\\Table3.xlsx"
+			collect export "`dirpath'\\Table3.xlsx", sheet(Table3a) replace 				
 		}
 		else {
 			collect export "`excelout'", sheet(Table3a, replace) modify 
@@ -249,13 +246,12 @@ program pea_table3, rclass
 		*collect style header subind[.], level(hide)
 		*collect style cell, result halign(center)
 		collect title `"Table 3b. Subgroup poverty rates (age 16+)"'
-		collect notes 1: `"Source: ABC"'
-		collect notes 2: `"Note: The global ..."'
+		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
 		collect style notes, font(, italic size(10))
 			
 		if "`excel'"=="" {
-			collect export "`dirpath'\\Table3.xlsx", sheet(Table3b) modify 	
-			*shell start excel "`dirpath'\\Table3.xlsx"
+			collect export "`dirpath'\\Table3.xlsx", sheet(Table3b) modify 				
 		}
 		else {
 			collect export "`excelout'", sheet(Table3b, replace) modify 
@@ -274,8 +270,7 @@ program pea_table3, rclass
 			drop if `age'<18
 			local lbl0`var' : variable label `var'
 			if "`lbl0`var''"=="" local lbl0`var' "`var'"
-			groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year' `var')
-			*gen vsd = "`var'"
+			groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year' `var')			
 			ren `var' lbl`var'
 			append using `data2'
 			save `data2', replace
@@ -335,8 +330,8 @@ program pea_table3, rclass
 		*collect style header subind[.], level(hide)
 		*collect style cell, result halign(center)
 		collect title `"Table 3c. Subgroup poverty rates of household head"'
-		collect notes 1: `"Source: ABC"'
-		collect notes 2: `"Note: The global ..."'
+		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
 		collect style notes, font(, italic size(10))
 			
 		if "`excel'"=="" {
@@ -345,8 +340,7 @@ program pea_table3, rclass
 		}
 		else {
 			collect export "`excelout'", sheet(Table3c, replace) modify 
-		}
-		
+		}		
 	} //3c
 		
 end 

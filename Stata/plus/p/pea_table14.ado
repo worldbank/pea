@@ -39,7 +39,7 @@ program pea_table14, rclass
 	}
 	
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `hhhead' `edu' {
+		foreach var of varlist `male' `hhhead' `edu' `industrycat4' `empstat' {
 			su `var'
 			local miss = r(max)
 			replace `var' = `=`miss'+10' if `var'==.
@@ -50,8 +50,12 @@ program pea_table14, rclass
 	
 	qui {
 		//order the lines
-		local lbl`povlines' : variable label `povlines'
-				
+		local lbl`povlines' : variable label `povlines'		
+		su `povlines',d
+		if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
+		else local lbloneline `oneline'	
+		local lbloneline `=trim("`lbloneline'")'
+		
 		//Weights
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
@@ -62,6 +66,7 @@ program pea_table14, rclass
 	
 		//missing observation check
 		marksample touse
+		*local flist `"`wvar' `welfare' `povlines' `year' `hhid' `pid'"'
 		local flist `"`wvar' `welfare' `povlines' `year'"'
 		markout `touse' `flist' 
 		
@@ -75,14 +80,14 @@ program pea_table14, rclass
 	//check values	
 	local tmp
 	foreach var of local services {
-		su `var',d
+		su `var' if `touse',d
 		if r(N)>0 local tmp "`tmp' `var'"
 	}
 	local services `tmp'
 	
 	local tmp
 	foreach var of local assets {
-		su `var',d
+		su `var' if `touse',d
 		if r(N)>0 local tmp "`tmp' `var'"
 	}
 	local assets `tmp'
@@ -90,18 +95,18 @@ program pea_table14, rclass
 	//FGT
 	gen _fgt0_`welfare'_`povlines' = (`welfare' < `povlines') if `welfare'~=. & `touse'
 	
-	gen double _pop = `wvar'
+	gen double _pop = `wvar' if `touse'
 		
-	gen _total = 1
+	gen _total = 1 if `touse'
 	la def _total 1 "Total"
 	la val _total _total
 	
 	//variable checks
 	if "`age'"!="" {
-		su `age',d
+		su `age' if `touse',d
 		if r(N)>0 {
 			gen age0t14 = 1 if `age'<=14
-			gen age65p  = 1 if `age'>=65 & `age'<=.
+			gen age65p  = 1 if `age'>=65 & !missing(`age')
 			gen age15t64 = 1 if `age'>=15 & `age'<=64
 			gen age6t18 = 1 if `age'>=6 & `age'<=18
 			
@@ -110,7 +115,7 @@ program pea_table14, rclass
 			bys `year' `hhid' (`pid'): egen age15t64sum = total(age15t64)
 			bys `year' `hhid' (`pid'): egen age6t18sum = total(age6t18)
 			bys `year' `hhid' (`pid'): gen _hhx = _N
-			
+						
 			egen depnum = rowtotal(age0t14sum age65psum), missing
 			gen dep_ratio = (depnum/age15t64sum)*100
 			gen age6t18_sh = (age6t18sum/_hhx)*100
@@ -141,7 +146,6 @@ program pea_table14, rclass
 				local headvars age_head
 				local age_head age_head
 			}
-			
 		} //rn
 	} //age
 	
@@ -178,7 +182,6 @@ program pea_table14, rclass
 				local headvars "`headvars' edu_head`lvl'"
 				local edu_head "`edu_head' edu_head`lvl'"
 			}
-			
 			*local headvars "`headvars' edu_head"
 		}
 		
@@ -199,12 +202,11 @@ program pea_table14, rclass
 				local headvars "`headvars' industry_head`lvl'"
 				local industry_head "`industry_head' industry_head`lvl'"
 			}
-			
 			*local headvars "`headvars' industry_head"
 		}
 		
 		if "`lstatus'"~="" {
-			gen doesnotwork_head = 100*(`lstatus'==0) if `hhhead'==1 
+			gen doesnotwork_head = 100*(`lstatus'==0) if `hhhead'==1 & `lstatus'~=.
 			la var doesnotwork_head "Does not work (unemployed or out of labor force)"
 			local headvars "`headvars' doesnotwork_head"
 			local doesnotwork_head doesnotwork_head
@@ -229,7 +231,6 @@ program pea_table14, rclass
 			}			
 			*local headvars "`headvars' industry_head"
 		}
-
 	}
 	la var `urban' "Household lives in urban area (%)"
 	for var `urban' `services' `assets': replace X = 100 if X==1
@@ -237,6 +238,9 @@ program pea_table14, rclass
 	local demographics `urban' `age_head' `female_head' `married_head' `edu_head' `age6t18_sch_ratio' `hhsize' `age6t18_sh' `age65p_sh' `dep_ratio'
 	local headactivity `industry_head' `doesnotwork_head' `empstat_head'
 	
+	//bys `year' `hhid' (`pid'): egen double hhwgt = total(`wvar')
+	//household can have more than one head, that is data problem, we dont fix this.
+	//the indicators are defined at the household level, thus using weight.
 	tempfile data1 data2 data3 datalbl
 	save `data1', replace
 	des, clear replace
@@ -322,8 +326,8 @@ program pea_table14, rclass
 	collect title `"`tabtitle'"'
 	*collect style header group2[.], level(hide)
 	collect style header order, level(hide)
-	collect notes 1: `"Source: ABC"' 
-	collect notes 2: `"Note: The global ..."' 
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
+	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined as those with less than $`lbloneline' per person per day (in 2017 purchasing power parity dollars)."' 
 	collect style notes, font(, italic size(10))
 
 	if "`excel'"=="" {

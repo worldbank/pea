@@ -18,8 +18,20 @@ cap program drop pea_core
 program pea_core, rclass
 	version 18.0	
 	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) LATEST WITHIN3 BENCHmark(string) spells(string)]	
+		
+	//load setting
+	qui if "`setting'"=="GMD" {
+		_pea_vars_set, setting(GMD)
+		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
+		foreach st of local vlist {
+			local `st' "${pea_`st'}"
+		}		
+	}
 	
 	//house cleaning
+	
+	//variable checks
+	//missing rate of key variables
 	qui if "`excel'"=="" {
 		tempfile xlsxout 	
 		local path "`xlsxout'"		
@@ -41,15 +53,6 @@ program pea_core, rclass
 			error `=_rc'	
 		}
 		else local excelout "`excel'"
-	}
-	
-	//load setting
-	qui if "`setting'"=="GMD" {
-		_pea_vars_set, setting(GMD)
-		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
-		foreach st of local vlist {
-			local `st' "${pea_`st'}"
-		}		
 	}
 	
 	if "`latest'"~="" & "`within3'"~="" {
@@ -115,15 +118,14 @@ program pea_core, rclass
 		save `data1', replace
 	} //qui
 	
-	//house cleaning
-	//variable checks
+	
 	//trigger
 	
 	//table 1
 	qui use `data1', clear
 	cap pea_table1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") core oneline(`oneline') onewelfare(`onewelfare')
 	if _rc==0 {
-		noi dis in white "Table A.1....... Done"
+		noi dis in green "Table A.1....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.1....... Not done"
@@ -134,7 +136,7 @@ program pea_core, rclass
 	*else local maxline = word("`ppppovlines'", -1)
 	cap pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel("`excelout'")
 	if _rc==0 {
-		noi dis in white "Table A.2....... Done"
+		noi dis in green "Table A.2....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.2....... Not done"
@@ -143,7 +145,7 @@ program pea_core, rclass
 	qui use `dataori', clear	
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") core
 	if _rc==0 {
-		noi dis in white "Table A.3....... Done"
+		noi dis in green "Table A.3....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.3....... Not done"
@@ -152,7 +154,7 @@ program pea_core, rclass
 	qui use `dataori', clear		
 	cap pea_table14 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') core excel("`excelout'")
 	if _rc==0 {
-		noi dis in white "Table A.4....... Done"
+		noi dis in green "Table A.4....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.4....... Not done"
@@ -177,7 +179,7 @@ program pea_core, rclass
 		putexcel A25 = image("`graph2'")
 		putexcel save
 		cap graph close		
-		noi dis in white "Graph A.1....... Done"
+		noi dis in green "Graph A.1....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Graph A.1....... Not done"
@@ -198,7 +200,7 @@ program pea_core, rclass
 		putexcel A25 = image("`graph1'")
 		putexcel save
 		cap graph close	
-		noi dis in white "Graph A.2....... Done"
+		noi dis in green "Graph A.2....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Graph A.2....... Not done"
@@ -206,7 +208,7 @@ program pea_core, rclass
 	//Final open	
 	if `ok'==1 {
 		shell start excel "`excelout'"
-		noi dis in white "Tables and Graphs are done....... Loading the Excel file!"
+		noi dis in green "Tables and Graphs are done....... Loading the Excel file!"
 	}
 	else {
 		noi dis in red "No tables and graphs are produced"

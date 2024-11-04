@@ -20,8 +20,7 @@ cap program drop pea_table1
 program pea_table1, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
-	//fgtvars(varlist numeric)
-	*max=1 varlist
+	
 	//load data if defined
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -57,8 +56,7 @@ program pea_table1, rclass
 		//order the lines
 		if "`linesorted'"=="" {
 			if "`ppppovlines'"~="" {
-				_pea_pline_order, povlines(`ppppovlines')
-				//sorted_pppline
+				_pea_pline_order, povlines(`ppppovlines')			
 				local ppppovlines `=r(sorted_line)'
 				foreach var of local ppppovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -67,7 +65,6 @@ program pea_table1, rclass
 			
 			if "`natpovlines'"~="" {
 				_pea_pline_order, povlines(`natpovlines')
-				//sorted_natline
 				local natpovlines `=r(sorted_line)'
 				foreach var of local natpovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -98,8 +95,6 @@ program pea_table1, rclass
 			local wvar `w'
 		}
 		
-		*tempvar  _pop
-		
 		//missing observation check
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
@@ -127,8 +122,7 @@ program pea_table1, rclass
 		gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	}
-	* gini(a1) theil(a2)
-	*clonevar _Gini_`distwelf' = `distwelf' if `touse'
+	
 	tempfile data1 data2
 	save `data1', replace
 	
@@ -146,8 +140,7 @@ program pea_table1, rclass
 	save `data2', replace
 	
 	//MPM WB
-	if "`core'"~="" {
-		*tempfile mpmwb
+	if "`core'"~="" {		
 		use `data1', clear
 		_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`pppwelfare') 
 		keep `year' mdpoor_i1
@@ -160,8 +153,7 @@ program pea_table1, rclass
 	
 	//Quintile
 	use `data1', clear
-	collapse (mean) _WELFMEAN_`distwelf' [aw=`wvar'] if `touse', by(`year' __quintile)
-	*ren _welfLCU 
+	collapse (mean) _WELFMEAN_`distwelf' [aw=`wvar'] if `touse', by(`year' __quintile)	
 	reshape wide _WELFMEAN_`distwelf', i(`year') j(__quintile)
 	merge 1:1 `year' using `data2'
 	drop _merge
@@ -184,24 +176,7 @@ program pea_table1, rclass
 	ren d value
 	split _varname, parse("_")
 	drop _varname1
-	/*
-	gen label = ""
-	//add label welfare
-	ren _varname3 name
-	merge m:1 name using `datalbl', keepus(varlab)
-	drop if _merge==2
-	replace label = varlab if _merge==3
-	drop _merge varlab
-	ren name _varname3 
 	
-	//add label povlines
-	ren _varname4 name
-	merge m:1 name using `datalbl', keepus(varlab)
-	drop if _merge==2
-	replace label = varlab if _merge==3
-	drop _merge varlab
-	ren name _varname4
-	*/
 	su value if _varname2=="npoor0"
 	local xmin = r(min)
 	local xmax = r(max)
@@ -288,11 +263,9 @@ program pea_table1, rclass
 	collect style header indicatorlbl subind `year', title(hide)
 	collect style header subind[.], level(hide)
 	collect title `"`tabtitle'"'
-	collect notes 1: `"Source: ABC"'
-	collect notes 2: `"Note: The global ..."'
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
 	collect style notes, font(, italic size(10))
-	*collect preview
-	*set trace on
 	
 	if "`excel'"=="" {
 		collect export "`dirpath'\\Table1.xlsx", sheet("`tabname'") replace 	

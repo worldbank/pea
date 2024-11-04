@@ -65,8 +65,7 @@ program pea_table12, rclass
 		//order the lines
 		if "`linesorted'"=="" {
 			if "`ppppovlines'"~="" {
-				_pea_pline_order, povlines(`ppppovlines')
-				//sorted_pppline
+				_pea_pline_order, povlines(`ppppovlines')				
 				local ppppovlines `=r(sorted_line)'
 				foreach var of local ppppovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -74,8 +73,7 @@ program pea_table12, rclass
 			}
 			
 			if "`natpovlines'"~="" {
-				_pea_pline_order, povlines(`natpovlines')
-				//sorted_natline
+				_pea_pline_order, povlines(`natpovlines')				
 				local natpovlines `=r(sorted_line)'
 				foreach var of local natpovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -238,11 +236,10 @@ program pea_table12, rclass
 			collect style header decomp indicatorlbl subind spell, title(hide)
 			*collect style header value[.], level(hide)
 			collect title `"Table 12b. Decomposition of poverty changes: growth and redistribution - Datt-Ravallion decomposition"'
-			collect notes 1: `"Source: ABC"'
-			collect notes 2: `"Note: The global ..."'
+			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
+			collect notes 2: `"Note: The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution."'
 			collect style notes, font(, italic size(10))
-			*collect preview
-				
+			
 			local tabname Table12b
 			if "`excel'"=="" {
 				collect export "`dirpath'\\Table12.xlsx", sheet("`tabname'") replace 	
@@ -259,10 +256,9 @@ program pea_table12, rclass
 				collect style header decomp indicatorlbl subind spell, title(hide)
 				*collect style header value[.], level(hide)
 				collect title `"Table 12c. Decomposition of poverty changes: growth and redistribution - Shorrocks-Kolenikov decomposition"'
-				collect notes 1: `"Source: ABC"'
-				collect notes 2: `"Note: The global ..."'
-				collect style notes, font(, italic size(10))
-				*collect preview
+				collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
+				collect notes 2: `"Note: The Shorrocks-Kolenikov decomposition decomposes changes in poverty into income or consumption growth, redistribution and price changes."'
+				collect style notes, font(, italic size(10))				
 					
 				local tabname Table12c
 				if "`excel'"=="" {

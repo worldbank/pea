@@ -20,6 +20,10 @@ cap program drop pea_table10
 program pea_table10, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Povlines(varlist numeric) Year(varname numeric) BENCHmark(string) CORE setting(string) LINESORTED excel(string) save(string) FGTVARS LATEST WITHIN3]
+	
+	local persdir : sysdir PERSONAL	
+	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
+	
 	//Country
 	if "`country'"=="" {
 		noi dis as error "Please specify the country code of analysis"
@@ -114,32 +118,25 @@ program pea_table10, rclass
 	ren _Gini_welfppp gini
 	save `data2', replace
 	
-	//obtain the data then move to frames so next time running is faster
-	//GDP https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.
-	pip tables, table(gdp) clear
-	ren country_code code
-	keep if data_level=="national"
-	ren value gdppc
-	tempfile gdppc
-	save `gdppc', replace
-	keep if code=="`country'" & year==`ymax'
-	if _N==0 {
-		noi dis in y "Warning: no GDPPC data or wrong country code"
-		local gdpv .
-	}
-	else {
-		local gdpv `=gdppc[1]'
-	}
-	
+	//obtain the data then move to cache so next time running is faster	
 	//country list and region_code
-	tempfile codereglist
-	pip tables, table(countries) clear
-	ren country_code code
-	replace region_code = africa_split_code if africa_split_code~=""
-	save `codereglist'
-	
+	local nametodo = 0
+	cap confirm file "`persdir'pea/PIP_list_name.dta"
+	if _rc==0 {
+		cap use "`persdir'pea/PIP_list_name.dta", clear	
+		if _rc~=0 local nametodo = 1	
+	}
+	else local nametodo = 1
+	if `nametodo'==1 {
+		cap pea_dataupdate, datatype(LIST) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(LIST) update"
+			exit `=_rc'
+		}
+	}
+		
+	use "`persdir'pea/PIP_list_name.dta", clear
 	keep if code=="`country'"
-	
 	if _N==0 {
 		noi dis in y "Warning: wrong country code"
 		error 1
@@ -149,53 +146,43 @@ program pea_table10, rclass
 		local ctryname `=country_name[1]'
 	}
 	
-	//PIP poverty and pros gap
+	//PIP poverty and pros gap and all data from PIP	
+	local nametodo = 0
+	cap confirm file "`persdir'pea/PIP_all_country.dta"
+	if _rc==0 {
+		cap use "`persdir'pea/PIP_all_country.dta", clear	
+		if _rc~=0 local nametodo = 1	
+	}
+	else local nametodo = 1
+	if `nametodo'==1 {
+		cap pea_dataupdate, datatype(PIP) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(PIP) update"
+			exit `=_rc'
+		}
+	}
+	
+	//From here, all PIP data should be available.
+	//GDP https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.
+	use "`persdir'pea/PIP_all_GDP.dta", clear
+	keep if code=="`country'" & year==`ymax'
+	if _N==0 {
+		noi dis in y "Warning: no GDPPC data for `ymax' yet or wrong country code"
+		local gdpv .
+	}
+	else {
+		local gdpv `=gdppc[1]'
+	}
+	
+	//Survey year estimates
 	clear
-	tempfile povdata povben
+	tempfile povben
 	save `povben', replace emptyok
 	
-	pip, country(all) year(all) ppp(2017) povline(2.15) clear
-	ren headcount headcount215	
-	drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-	keep country_code country_name year headcount215 pg gini survey_acronym welfare_type
-	save `povdata', replace
-	
-	pip, country(all) year(all) ppp(2017) povline(3.65) clear
-	ren headcount headcount365	
-	drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-	keep country_code year headcount365 survey_acronym welfare_type
-	merge 1:1 country_code year survey_acronym welfare_type using `povdata'
-	ta _merge
-	drop _merge
-	save `povdata', replace
-	
-	pip, country(all) year(all) ppp(2017) povline(6.85) clear
-	ren headcount headcount685
-	drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-	keep country_code year headcount685 survey_acronym welfare_type
-	merge 1:1 country_code year survey_acronym welfare_type using `povdata'
-	ta _merge
-	drop _merge
-	
-	gen code = country_code
-	gen welfaretype= "CONS" if welfare_type==1
-	replace welfaretype= "INC" if welfare_type==2
-	for var headcount*: replace X = X*100
-	
-	merge m:1 code year using `gdppc', keepus(gdppc)
-	drop if _merge==2
-	drop _merge
-	save `povdata', replace
-	
+	use "`persdir'pea/PIP_all_country.dta", clear
 	foreach cc of local benchmark {
 		local cc "`=upper("`cc'")'"
-		use `povdata' if code=="`cc'", clear
+		use "`persdir'pea/PIP_all_country.dta" if code=="`cc'", clear
 		if "`latest'"~="" {
 			su year,d			
 			local ymax1 = r(max)
@@ -203,97 +190,49 @@ program pea_table10, rclass
 			ren country_name name
 			keep name code year survey_acronym headcount* gini pg gdppc
 			append using `povben'
-			save `povben', replace
+			save `povben', replace			
+			if _N>0 local povb = 1
 		}
 		
 		if "`within3'"~="" {
 			keep if year>=`=`ymax'-3' & year<=`=`ymax'+3'
 			if _N==0 {
-				noi dis in y "No data for `code'."
+				noi dis in y "No data for `code' within +-3 years from `ymax' of `country'."				
 			}
 			else if _N==1 {
 				ren country_name name
 				keep name code year survey_acronym headcount* gini pg gdppc
 				append using `povben'
-				save `povben', replace
+				save `povben', replace				
+				if _N>0 local povb = 1
 			}
 			else {
 				gen diff = abs(year - `ymax')
 				su diff,d
 				local rmin = r(min)
 				keep if diff==`rmin'
-				*if _N==1 {
+				*if _N==1 { //showing whatevery is available
 					ren country_name name
 					keep name code year survey_acronym headcount* gini pg gdppc
 					append using `povben'
-					save `povben', replace
+					save `povben', replace	
+					if _N>0 local povb = 1
 				*}
 			} //else
 		} //within3		
 	} //benchmark
 	
-	//lineup estimates
-	tempfile povlineup	
-	pip, country(all) year(all) ppp(2017) povline(2.15) clear fillgap
-	ren headcount headcount215	
-	drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-	keep country_code year  headcount215 pg   welfare_type
-	save `povlineup', replace
+	//lineup estimates `povlineup'
+	*save `povlineup', replace
 	
-	pip, country(all) year(all) ppp(2017) povline(3.65) clear fillgap
-	ren headcount headcount365
-	*ren pg pg365
-	drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-	keep country_code year  headcount365   welfare_type
-	merge 1:1 country_code year  welfare_type using `povlineup'
-	ta _merge
-	drop _merge
-	save `povlineup', replace
-	
-	pip, country(all) year(all) ppp(2017) povline(6.85) clear fillgap
-	ren headcount headcount685
-	*ren pg pg685
-	drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
-	drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-	keep country_code year  headcount685   welfare_type
-	merge 1:1 country_code year  welfare_type using `povlineup'
-	ta _merge
-	drop _merge
-	
-	gen code = country_code
-	gen welfaretype= "CONS" if welfare_type==1
-	replace welfaretype= "INC" if welfare_type==2
-	for var headcount*: replace X = X*100
-	save `povlineup', replace
-	
-	//regional
-	tempfile regional regdata
-	pip wb, region(all)  ppp(2017) povline(2.15) clear
-	ren headcount headcount215		
-	keep region_name region_code year  headcount215 pg 
-	save `regional', replace
-	
-	pip wb, region(all)  ppp(2017) povline(3.65) clear
-	ren headcount headcount365		
-	keep region_code year  headcount365
-	merge 1:1 region_code year using `regional'
-	drop _merge
-	save `regional', replace
-	
-	pip wb, region(all)  ppp(2017) povline(6.85) clear
-	ren headcount headcount685	
-	keep region_code year  headcount685
-	merge 1:1 region_code year using `regional'
-	drop _merge
-	for var headcount*: replace X = X*100
-	save `regional', replace
-	
-	keep if region_code=="`regcode'" & year==`ymax'
+	//regional, get the closest regional number
+	tempfile regdata	
+	use "`persdir'pea/PIP_regional_estimate.dta", clear
+	keep if region_code=="`regcode'" //& year==`ymax'
+	gen diff = abs(year - `ymax')
+	su diff,d
+	local rmin = r(min)
+	keep if diff==`rmin'
 	ren region_name name
 	ren region_code code
 	keep code name year headcount* pg
@@ -306,13 +245,14 @@ program pea_table10, rclass
 	gen name = "`ctryname'"
 	
 	append using `regdata'
+	*if `povb'==1 append using `povben'
 	append using `povben'
 	
 	drop region_code
 	ren * var_*
 	ren var_code code
 	ren var_survey_acronym survey_acronym
-	replace var_name = "Country of analysis" if code=="`country'"
+	*replace var_name = "Country of analysis" if code=="`country'"
 	replace var_name = "Peer " + var_name if code~="`regcode'" & code~="`country'"
 	gen name = var_name + " (" + string(var_year) +")" if code=="`regcode'" | code=="`country'"
 	replace name = var_name + " (" + survey_acronym + "," + string(var_year) +")" if code~="`regcode'" & code~="`country'"
@@ -359,8 +299,8 @@ program pea_table10, rclass
 	collect style header group[0], level(hide)
 	*collect style cell, result halign(center)
 	collect title `"`tbltxt'"'
-	collect notes 1: `"Source: ABC"'
-	collect notes 2: `"Note: The global ..."'
+	collect notes 1: `"Source: World Bank calculations using survey data accessed from the Global Monitoring Database and the World Development Indicators."'
+	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Prosperity Gap captures how far a society is from $25 per person per day (expressed in 2017 purchasing power parity dollars), which is close to the average per capita household income when countries reach high-income status."'
 	collect style notes, font(, italic size(10))
 	collect preview
 	
@@ -370,8 +310,5 @@ program pea_table10, rclass
 	}
 	else {
 		collect export "`excelout'", sheet(`tblname', replace) modify 
-	}
-
-	
-		
+	}	
 end
