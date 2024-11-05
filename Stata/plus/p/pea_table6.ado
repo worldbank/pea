@@ -89,7 +89,30 @@ program pea_table6, rclass
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 		
-	*use "`persdir'pea/WLD_GMI_MPM.dta", clear
+	//Update MPM data
+	local returnfile "`persdir'pea/WLD_GMI_MPM.dta"
+	cap confirm file "`returnfile'"
+	if _rc==0 {
+		cap use "`returnfile'", clear	
+		if _rc==0 {
+			local dtadate : char _dta[version]			
+			if (date("$S_DATE", "DMY")-date("`dtadate'", "DMY")) > 30 local dl 1
+			else return local cachefile "`returnfile'"
+		}
+		else local dl 1
+	}
+	else {
+		cap mkdir "`persdir'pea"
+		local dl 1
+	}
+	
+	if `dl'==1 {
+		cap pea_dataupdate, datatype(MPM) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(MPM) update"
+			exit `=_rc'
+		}
+	}
 	
 	foreach cc of local benchmark {
 		local cc "`=upper("`cc'")'"
