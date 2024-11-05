@@ -90,6 +90,7 @@ program pea_table6, rclass
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 		
 	//Update MPM data
+	local dl 0
 	local returnfile "`persdir'pea/WLD_GMI_MPM.dta"
 	cap confirm file "`returnfile'"
 	if _rc==0 {
@@ -116,11 +117,9 @@ program pea_table6, rclass
 	
 	foreach cc of local benchmark {
 		local cc "`=upper("`cc'")'"
-		use "`persdir'pea/WLD_GMI_MPM.dta" if countrycode=="`cc'", clear
+		use "`persdir'pea/WLD_GMI_MPM.dta" if code=="`cc'", clear
 		if "`all'"~="" {
-			if _N>0 {
-				*ren country_name name
-				ren countrycode code
+			if _N>0 {				
 				ren dep_infra_impw2 dep_infra_impw
 				keep code year dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 survname welftype
 				append using `dataori'
@@ -132,8 +131,7 @@ program pea_table6, rclass
 			gsort -year
 			gen x = _n
 			keep if x<=3
-			if _N>0 {
-				ren countrycode code
+			if _N>0 {				
 				ren dep_infra_impw2 dep_infra_impw
 				keep code year dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 survname welftype	
 				append using `dataori'

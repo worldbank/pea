@@ -206,7 +206,7 @@ program pea_table14, rclass
 		}
 		
 		if "`lstatus'"~="" {
-			gen doesnotwork_head = 100*(`lstatus'==0) if `hhhead'==1 & `lstatus'~=.
+			gen doesnotwork_head = 100*(`lstatus'==1) if `hhhead'==1 & `lstatus'~=.
 			la var doesnotwork_head "Does not work (unemployed or out of labor force)"
 			local headvars "`headvars' doesnotwork_head"
 			local doesnotwork_head doesnotwork_head
