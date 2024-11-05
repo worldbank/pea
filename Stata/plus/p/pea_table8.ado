@@ -119,19 +119,19 @@ program pea_table8, rclass
 						_ebin `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), nquantiles(10) gen(qwlf)
 							
 							su `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y') 
-							sca totwelf =  r(sum)
+							local totwelf =  r(sum)
 							
 							su `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y' & qwlf <= 2)
-							sca b20welf =  r(sum)
+							local b20welf =  r(sum)
 					
 							su `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y' & qwlf <= 4) 
-							sca b40welf =  r(sum)
+							local b40welf =  r(sum)
 					
 							su `welfare' [w=`wvar']  if (`var' == `grp' & `year'==`y' & qwlf == 10)
-							sca t10welf =  r(sum)
+							local t10welf =  r(sum)
 							
-							local b20share = b20welf/totwelf
-							local palma = t10welf/b40welf 
+							local b20share = `b20welf'/`totwelf'
+							local palma = `t10welf'/`b40welf' 
 
 							drop qwlf
 				
