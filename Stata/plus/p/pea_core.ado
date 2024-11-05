@@ -131,17 +131,14 @@ program pea_core, rclass
 	else noi dis in red "Table A.1....... Not done"
 	
 	//table 2
-	qui use `dataori', clear	
-	*if "`oneline'"~="" local maxline `oneline'
-	*else local maxline = word("`ppppovlines'", -1)
-	pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel("`excelout'")
-	/*
+	qui use `dataori', clear		
+	cap pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Table A.2....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.2....... Not done"
-	*/
+	
 	//table 3
 	qui use `dataori', clear	
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") core
@@ -173,7 +170,9 @@ program pea_core, rclass
 		tempfile graph2	
 		twoway (connected `vargic' percentile) if  percentile>=1 & percentile<=99, scheme(white_tableau) ///
 			legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
-			xtitle(Percentile) ytitle("Annualized growth, %") name(gr_gic, replace)
+			note(Source: World Bank calculations using survey data accessed through the Global Monitoring Database., size(small)) ///
+			caption("Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods.", size(small)) ///
+			xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) name(gr_gic, replace)
 		
 		putexcel set "`excelout'", modify sheet("Figure A.1. GIC", replace)
 		graph export "`graph2'", replace as(png) name(gr_gic) wid(3000)
@@ -194,8 +193,10 @@ program pea_core, rclass
 		putexcel set "`excelout'", modify
 		tempfile graph1
 		local note : label indicatorlbl 1	
-		graph bar value if decomp=="Datt-Ravallion" & subind<=3, over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty in percentage point") name(gr_decomp, replace) scheme(white_tableau) title("Datt-Ravallion decomposition") note("Using `note'") blabel(bar, position(center) format(%9.2f))
-		
+		graph bar value if decomp=="Datt-Ravallion" & subind<=3, over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty in percentage point", size(medium)) name(gr_decomp, replace) scheme(white_tableau) title("Datt-Ravallion decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) ///
+		note("Source: World Bank calculations using survey data accessed through the Global Monitoring Database", size(small)) ///
+		caption("Note: The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to" "income or consumption growth and redistribution using `note'", size(small))
+			
 		putexcel set "`excelout'", modify sheet("Figure A2 Datt-Ravallion", replace)
 		graph export "`graph1'", replace as(png) name(gr_decomp) wid(3000)
 		putexcel A25 = image("`graph1'")

@@ -91,11 +91,8 @@ program pea_table1, rclass
 		if "`oneline'"~="" {
 			su `oneline',d
 			if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
-			else {
-				local lbloneline `oneline'
-				*local lbloneline : variable label `oneline'
-				*if "`lbloneline'"=="" local lbloneline `oneline'	
-			}
+			else local lbloneline `oneline'
+			local lbloneline `=trim("`lbloneline'")'
 		}
 		
 		//Weights
@@ -291,7 +288,7 @@ program pea_table1, rclass
 		replace indicatorlbl = 60 if _varname2=="Gini"
 		replace indicatorlbl = 70 if _varname2=="prosgap"
 		replace indicatorlbl = 80 if _varname2=="mpmwb"
-		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 55 "Percentage of people at high risk from climate-related hazards in 2021" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
+		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 55 "Percentage of people at high risk from climate-related hazards (2021*)" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
 	
 		replace indicatorlbl = 90 if _varname2 =="WELFMEAN"
 		replace indicatorlbl = 90 if _varname2=="mT60"
