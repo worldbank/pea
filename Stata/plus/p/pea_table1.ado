@@ -21,6 +21,9 @@ program pea_table1, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
 	
+	local persdir : sysdir PERSONAL	
+	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
+	
 	//load data if defined
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -53,6 +56,14 @@ program pea_table1, rclass
 	//check plines are not overlapped.
 	//trigger some sub-tables
 	qui {
+		su `year',d
+		local ymax = r(max)
+		levelsof `year', local(ylist)
+		local atrisk0 2021		
+		local atcheck : list ylist & atrisk0
+		if "`atcheck'"=="" local yatrisk `ymax'
+		else local yatrisk `atcheck'
+		
 		//order the lines
 		if "`linesorted'"=="" {
 			if "`ppppovlines'"~="" {
@@ -151,6 +162,38 @@ program pea_table1, rclass
 		save `data2', replace
 	}
 	
+	//At risk indicator
+	tempfile atriskdata
+	local nametodo = 0
+	cap confirm file "`persdir'pea/CSC_atrisk2021.dta"
+	if _rc==0 {
+		cap use "`persdir'pea/CSC_atrisk2021.dta", clear	
+		if _rc~=0 local nametodo = 1	
+	}
+	else local nametodo = 1
+	if `nametodo'==1 {
+		cap pea_dataupdate, datatype(SCORECARD) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(SCORECARD) update"
+			exit `=_rc'
+		}
+	}
+	
+	use "`persdir'pea/CSC_atrisk2021.dta", clear
+	keep if code=="`country'"
+	if _N==0 {
+		noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
+		local atriskdo = 0
+	}
+	else {
+		ren atrisk value
+		gen indicatorlbl = 55
+		replace year = `yatrisk'
+		keep year value indicatorlbl
+		save `atriskdata', replace
+		local atriskdo = 1		
+	}
+	
 	//Quintile
 	use `data1', clear
 	collapse (mean) _WELFMEAN_`distwelf' [aw=`wvar'] if `touse', by(`year' __quintile)	
@@ -228,6 +271,7 @@ program pea_table1, rclass
 	
 	//setup	
 	if "`core'"=="" {
+		drop if _varname2=="vulpov"
 		*replace indicatorlbl = 90 if indicatorlbl=="Income/consumption (LCU)"
 		replace indicatorlbl = 91 if _varname2=="WELFMEAN"
 		replace indicatorlbl = 91 if _varname2=="mT60"
@@ -241,11 +285,13 @@ program pea_table1, rclass
 		local tabname Table1
 	}
 	else {
+		if `atriskdo'==1 append using `atriskdata'
 		replace indicatorlbl = 50 if _varname2=="vulpov"
+		replace indicatorlbl = 55 if _varname2=="atrisk"
 		replace indicatorlbl = 60 if _varname2=="Gini"
 		replace indicatorlbl = 70 if _varname2=="prosgap"
 		replace indicatorlbl = 80 if _varname2=="mpmwb"
-		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
+		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 55 "Percentage of people at high risk from climate-related hazards in 2021" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
 	
 		replace indicatorlbl = 90 if _varname2 =="WELFMEAN"
 		replace indicatorlbl = 90 if _varname2=="mT60"

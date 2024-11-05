@@ -238,6 +238,19 @@ program pea_table10, rclass
 	keep code name year headcount* pg
 	save `regdata', replace
 	
+	//income group
+	tempfile povincgr	
+	use "`persdir'pea/PIP_incgroup_estimate.dta", clear
+	keep if code=="`country'" //& year==`ymax'
+	gen diff = abs(year - `ymax')
+	su diff,d
+	local rmin = r(min)
+	keep if diff==`rmin'
+	ren incgroup_historical name	
+	replace code = "Incgroup"
+	keep code name year headcount*
+	save `povincgr', replace
+	
 	//Bring all back
 	use `data2', clear	
 	replace gdppc = `gdpv'
@@ -247,15 +260,16 @@ program pea_table10, rclass
 	append using `regdata'
 	*if `povb'==1 append using `povben'
 	append using `povben'
+	append using `povincgr'
 	
 	drop region_code
 	ren * var_*
 	ren var_code code
 	ren var_survey_acronym survey_acronym
 	*replace var_name = "Country of analysis" if code=="`country'"
-	replace var_name = "Peer " + var_name if code~="`regcode'" & code~="`country'"
-	gen name = var_name + " (" + string(var_year) +")" if code=="`regcode'" | code=="`country'"
-	replace name = var_name + " (" + survey_acronym + "," + string(var_year) +")" if code~="`regcode'" & code~="`country'"
+	replace var_name = "Peer " + var_name if code~="`regcode'" & code~="`country'" & code~="Incgroup"
+	gen name = var_name + " (" + string(var_year) +")" if code=="`regcode'" | code=="`country'" | code=="Incgroup"
+	replace name = var_name + " (" + survey_acronym + "," + string(var_year) +")" if code~="`regcode'" & code~="`country'" & code~="Incgroup"
 	
 	drop var_year var_name
 	reshape long var_, i(code name survey_acronym) j(var) string

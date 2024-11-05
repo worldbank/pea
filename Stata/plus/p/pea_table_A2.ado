@@ -96,7 +96,7 @@ program pea_table_A2, rclass
 	
 		//missing observation check
 		marksample touse
-		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind'"'
+		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind' `age'"'
 		markout `touse' `flist' 
 		
 		tempfile dataori datalbl

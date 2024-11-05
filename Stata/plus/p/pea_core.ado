@@ -134,13 +134,14 @@ program pea_core, rclass
 	qui use `dataori', clear	
 	*if "`oneline'"~="" local maxline `oneline'
 	*else local maxline = word("`ppppovlines'", -1)
-	cap pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel("`excelout'")
+	pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel("`excelout'")
+	/*
 	if _rc==0 {
 		noi dis in green "Table A.2....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.2....... Not done"
-	
+	*/
 	//table 3
 	qui use `dataori', clear	
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") core

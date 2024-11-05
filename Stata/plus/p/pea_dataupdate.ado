@@ -109,9 +109,27 @@ program pea_dataupdate, rclass
 		//PIP
 		if "`datatype'"=="PIP" {
 			clear
-			tempfile gdppc codereglist povdata povben
+			tempfile gdppc codereglist povdata povben inc_pop inc_group
 			save `povben', replace emptyok
 			
+			* Get population on reporting level
+			pip tables, clear table(pop) 
+			rename value pop
+			rename (country_code data_level) (code reporting_level)			
+			keep code year pop reporting_level
+			save	`inc_pop', replace
+			
+			* Get income groups
+			use "`persdir'pea/CLASS.dta", clear
+			rename ( year_data) ( year)
+			keep code year incgroup_historical region_pip
+			save	`inc_group'
+			* Add 2024 as year 
+			keep if year == 2023
+			replace year = 2024
+			append using `inc_group'			
+			save	`inc_group', replace
+	
 			//GDP https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.
 			pip tables, table(gdp) clear
 			ren country_code code
@@ -120,9 +138,7 @@ program pea_dataupdate, rclass
 			char _dta[version] $S_DATE			
 			save "`persdir'pea/PIP_all_GDP.dta", replace
 			save `gdppc', replace
-				
-			//Income class, FCS etc
-			
+							
 			//Country Pov data
 			tempfile povdata1 povdata2 povdata3
 			if `pppyear'==2017 local nlines 215 365 685
@@ -160,7 +176,7 @@ program pea_dataupdate, rclass
 			char _dta[version] $S_DATE			
 			save "`persdir'pea/PIP_all_country.dta", replace
 			
-			//PIP lineup data
+			/* /PIP lineup data
 			tempfile povlineup	
 			local j = 1
 			foreach line of local nlines {
@@ -190,6 +206,53 @@ program pea_dataupdate, rclass
 			for var headcount*: replace X = X*100			
 			char _dta[version] $S_DATE
 			save "`persdir'pea/PIP_all_countrylineup.dta", replace
+			*/
+			
+			//Income group average by historical class
+			* Get poverty rates and merge (not nowcast)
+			local j = 1
+			foreach line of local nlines {
+				cap pip, fillgaps ppp(`pppyear') povline(`=`line'/100') clear 
+				if _rc==0 {
+					keep country_code poverty_line headcount year reporting_level
+					ren country_code code
+					merge 1:1 code reporting_level year using `inc_pop', nogen
+					merge m:1 code year using `inc_group', nogen
+					keep if year > 1989 & year~=.					
+					keep if reporting_level=="national" | inlist(code,"ARG") 
+					cap assert pop != .
+					if _rc~=0 {
+						noi dis "There is missing pop data from PIP"
+						exit `=_rc'
+					}
+					
+					* Calculate regional poverty to fill in missing numbers
+					groupfunction [aw=pop], mean(headcount) by(region_pip year) merge
+					replace headcount = wmean_headcount if headcount == . 	
+					drop wmean_headcount					
+					drop if inlist(code,"ARG") & reporting_level=="national"
+					* Produce income group level poverty rates for each country					
+					groupfunction [aw=pop], mean(headcount) by(incgroup_historical year) merge
+					drop if inlist(code,"ARG") & reporting_level=="rural"					 // Keep only one observation for Argentina
+					sort code year poverty_line
+					ren wmean_headcount headcount`line'
+					keep code year incgroup_historical headcount`line'
+					save `povdata`j'', replace
+					local j = `j' + 1
+				}
+				else {
+					noi dis "Unable to update regional data from PIP"
+					exit `=_rc'
+				}
+			} //nline
+			
+			use `povdata1', clear
+			merge 1:1 code year incgroup_historical using `povdata2', nogen keepus(headcount*)
+			merge 1:1 code year incgroup_historical using `povdata3', nogen keepus(headcount*)
+			for var headcount*: replace X = X*100
+			cap drop if headcount215==.
+			char _dta[version] $S_DATE
+			save "`persdir'pea/PIP_incgroup_estimate.dta", replace
 			
 			//regional
 			tempfile regional regdata

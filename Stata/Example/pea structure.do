@@ -35,13 +35,21 @@ encode temp, gen(subnatvar)
 la var subnatvar "By regions"
 drop tmp1  tmp2  temp
 
-gen head = relationharm==1 if relationharm~=.
-la def head 1 "HH head" 
-la val head head
+*gen head = relationharm==1 if relationharm~=.
+*la def head 1 "HH head" 
+*la val head head
+
+pea_table1 [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215)
+
+pea_table1 [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline365)
+
+pea_table_A2 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing
 
 pea_table3 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
 
 pea tables [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2018 2021)
+
+pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021)
 
 *****
 use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\PER_2017-2022_GMD_ALL.dta", clear
