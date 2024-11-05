@@ -16,8 +16,6 @@
 
 //Table 8. Inequality indicators
 
-*pea_table8 [aw=weight_p], welfare(welfare) year(year) byind(urban) missing
-
 cap program drop pea_table8
 program pea_table8, rclass
 	version 18.0
@@ -96,13 +94,6 @@ program pea_table8, rclass
 	} //qui
 	
 	* Create a frame to store the results
-	* More intuitive name to current default frame
-	/*
-	cap frame drop this_survey
-	frame rename default this_survey
-	* Change to original frame
-	frame change this_survey
-	*/
 	cap frame create temp_frame
 	cap frame change temp_frame
 	cap frame drop ineq_results	
@@ -118,8 +109,6 @@ program pea_table8, rclass
 	
 	* Loop through each year
 	foreach y in `years' {			
-		*use `dataori', clear
-		*keep if `year' == `y'
 		foreach var of local byind {
 			levelsof `var', local(groups)
 			foreach grp of local groups {
@@ -146,12 +135,6 @@ program pea_table8, rclass
 
 							drop qwlf
 				
-					// Watts 
-					*apoverty `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), s w
-					*	 local sen_pov = r(sen_1) // Dont know if we want this SEN index instead of the other...
-					*	 local watts_pov = r(watts_1)
-					*	 di "`sen_pov' `watts_pov'"
-					
 					// Gini, Theil, Atkinson, Sen, GEs...
 					ineqdeco `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), welfare
 					* See <<help ineqdeco>> for definitions
