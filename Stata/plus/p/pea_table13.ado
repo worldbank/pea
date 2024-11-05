@@ -68,8 +68,7 @@ program pea_table13, rclass
 		//order the lines
 		if "`linesorted'"=="" {
 			if "`ppppovlines'"~="" {
-				_pea_pline_order, povlines(`ppppovlines')
-				//sorted_pppline
+				_pea_pline_order, povlines(`ppppovlines')				
 				local ppppovlines `=r(sorted_line)'
 				foreach var of local ppppovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -77,8 +76,7 @@ program pea_table13, rclass
 			}
 			
 			if "`natpovlines'"~="" {
-				_pea_pline_order, povlines(`natpovlines')
-				//sorted_natline
+				_pea_pline_order, povlines(`natpovlines')				
 				local natpovlines `=r(sorted_line)'
 				foreach var of local natpovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -237,10 +235,9 @@ program pea_table13, rclass
 			collect style header indicatorlbl subind spell, title(hide)
 			*collect style header value[.], level(hide)
 			collect title `"Table 13. Decomposition of poverty changes: Huppi-Ravallion decomposition"'
-			collect notes 1: `"Source: ABC"'
-			collect notes 2: `"Note: The global ..."'
+			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups. The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
 			collect style notes, font(, italic size(10))
-			*collect preview
 				
 			local tabname Table13
 			if "`excel'"=="" {

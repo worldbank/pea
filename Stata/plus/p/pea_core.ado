@@ -18,8 +18,20 @@ cap program drop pea_core
 program pea_core, rclass
 	version 18.0	
 	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) LATEST WITHIN3 BENCHmark(string) spells(string)]	
+		
+	//load setting
+	qui if "`setting'"=="GMD" {
+		_pea_vars_set, setting(GMD)
+		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
+		foreach st of local vlist {
+			local `st' "${pea_`st'}"
+		}		
+	}
 	
 	//house cleaning
+	
+	//variable checks
+	//missing rate of key variables
 	qui if "`excel'"=="" {
 		tempfile xlsxout 	
 		local path "`xlsxout'"		
@@ -41,15 +53,6 @@ program pea_core, rclass
 			error `=_rc'	
 		}
 		else local excelout "`excel'"
-	}
-	
-	//load setting
-	qui if "`setting'"=="GMD" {
-		_pea_vars_set, setting(GMD)
-		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
-		foreach st of local vlist {
-			local `st' "${pea_`st'}"
-		}		
 	}
 	
 	if "`latest'"~="" & "`within3'"~="" {
@@ -115,26 +118,23 @@ program pea_core, rclass
 		save `data1', replace
 	} //qui
 	
-	//house cleaning
-	//variable checks
+	
 	//trigger
 	
 	//table 1
 	qui use `data1', clear
 	cap pea_table1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") core oneline(`oneline') onewelfare(`onewelfare')
 	if _rc==0 {
-		noi dis in white "Table A.1....... Done"
+		noi dis in green "Table A.1....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.1....... Not done"
 	
 	//table 2
-	qui use `dataori', clear	
-	*if "`oneline'"~="" local maxline `oneline'
-	*else local maxline = word("`ppppovlines'", -1)
+	qui use `dataori', clear		
 	cap pea_table_A2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' excel("`excelout'")
 	if _rc==0 {
-		noi dis in white "Table A.2....... Done"
+		noi dis in green "Table A.2....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.2....... Not done"
@@ -143,7 +143,7 @@ program pea_core, rclass
 	qui use `dataori', clear	
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") core
 	if _rc==0 {
-		noi dis in white "Table A.3....... Done"
+		noi dis in green "Table A.3....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.3....... Not done"
@@ -152,7 +152,7 @@ program pea_core, rclass
 	qui use `dataori', clear		
 	cap pea_table14 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') core excel("`excelout'")
 	if _rc==0 {
-		noi dis in white "Table A.4....... Done"
+		noi dis in green "Table A.4....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table A.4....... Not done"
@@ -170,14 +170,16 @@ program pea_core, rclass
 		tempfile graph2	
 		twoway (connected `vargic' percentile) if  percentile>=1 & percentile<=99, scheme(white_tableau) ///
 			legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
-			xtitle(Percentile) ytitle("Annualized growth, %") name(gr_gic, replace)
+			note(Source: World Bank calculations using survey data accessed through the Global Monitoring Database., size(small)) ///
+			caption("Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods.", size(small)) ///
+			xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) name(gr_gic, replace)
 		
 		putexcel set "`excelout'", modify sheet("Figure A.1. GIC", replace)
 		graph export "`graph2'", replace as(png) name(gr_gic) wid(3000)
 		putexcel A25 = image("`graph2'")
 		putexcel save
 		cap graph close		
-		noi dis in white "Graph A.1....... Done"
+		noi dis in green "Graph A.1....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Graph A.1....... Not done"
@@ -191,14 +193,16 @@ program pea_core, rclass
 		putexcel set "`excelout'", modify
 		tempfile graph1
 		local note : label indicatorlbl 1	
-		graph bar value if decomp=="Datt-Ravallion" & subind<=3, over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty in percentage point") name(gr_decomp, replace) scheme(white_tableau) title("Datt-Ravallion decomposition") note("Using `note'") blabel(bar, position(center) format(%9.2f))
-		
+		graph bar value if decomp=="Datt-Ravallion" & subind<=3, over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty in percentage point", size(medium)) name(gr_decomp, replace) scheme(white_tableau) title("Datt-Ravallion decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) ///
+		note("Source: World Bank calculations using survey data accessed through the Global Monitoring Database", size(small)) ///
+		caption("Note: The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to" "income or consumption growth and redistribution using `note'", size(small))
+			
 		putexcel set "`excelout'", modify sheet("Figure A2 Datt-Ravallion", replace)
 		graph export "`graph1'", replace as(png) name(gr_decomp) wid(3000)
 		putexcel A25 = image("`graph1'")
 		putexcel save
 		cap graph close	
-		noi dis in white "Graph A.2....... Done"
+		noi dis in green "Graph A.2....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Graph A.2....... Not done"
@@ -206,7 +210,7 @@ program pea_core, rclass
 	//Final open	
 	if `ok'==1 {
 		shell start excel "`excelout'"
-		noi dis in white "Tables and Graphs are done....... Loading the Excel file!"
+		noi dis in green "Tables and Graphs are done....... Loading the Excel file!"
 	}
 	else {
 		noi dis in red "No tables and graphs are produced"

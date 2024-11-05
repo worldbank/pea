@@ -215,9 +215,12 @@ program pea_table11, rclass
 				foreach gr of local grlist {
 					tempfile graph`gr'
 					local lbltitle : label group_order `gr'	
+					
 					twoway (connected `vargic' percentile) if group_order==`gr' & percentile>=1 & percentile<=99, scheme(white_tableau) ///
 						legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
-						xtitle(Percentile) ytitle("Annualized growth, %") title("`lbltitle'") name(ngraph`gr', replace)
+						note(Source: World Bank calculations using survey data accessed through the Global Monitoring Database., size(small)) ///
+						caption("Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods.", size(small)) ///
+						xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) title("`lbltitle'", size(medium)) name(ngraph`gr', replace)
 					
 					putexcel set "`excelout2'", modify sheet(Graph11_`gr', replace)
 					graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)

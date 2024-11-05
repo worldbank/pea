@@ -20,8 +20,10 @@ cap program drop pea_table1
 program pea_table1, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
-	//fgtvars(varlist numeric)
-	*max=1 varlist
+	
+	local persdir : sysdir PERSONAL	
+	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
+	
 	//load data if defined
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -54,11 +56,18 @@ program pea_table1, rclass
 	//check plines are not overlapped.
 	//trigger some sub-tables
 	qui {
+		su `year',d
+		local ymax = r(max)
+		levelsof `year', local(ylist)
+		local atrisk0 2021		
+		local atcheck : list ylist & atrisk0
+		if "`atcheck'"=="" local yatrisk `ymax'
+		else local yatrisk `atcheck'
+		
 		//order the lines
 		if "`linesorted'"=="" {
 			if "`ppppovlines'"~="" {
-				_pea_pline_order, povlines(`ppppovlines')
-				//sorted_pppline
+				_pea_pline_order, povlines(`ppppovlines')			
 				local ppppovlines `=r(sorted_line)'
 				foreach var of local ppppovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -67,7 +76,6 @@ program pea_table1, rclass
 			
 			if "`natpovlines'"~="" {
 				_pea_pline_order, povlines(`natpovlines')
-				//sorted_natline
 				local natpovlines `=r(sorted_line)'
 				foreach var of local natpovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -83,11 +91,8 @@ program pea_table1, rclass
 		if "`oneline'"~="" {
 			su `oneline',d
 			if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
-			else {
-				local lbloneline `oneline'
-				*local lbloneline : variable label `oneline'
-				*if "`lbloneline'"=="" local lbloneline `oneline'	
-			}
+			else local lbloneline `oneline'
+			local lbloneline `=trim("`lbloneline'")'
 		}
 		
 		//Weights
@@ -97,8 +102,6 @@ program pea_table1, rclass
 			gen `w' = 1
 			local wvar `w'
 		}
-		
-		*tempvar  _pop
 		
 		//missing observation check
 		marksample touse
@@ -127,8 +130,7 @@ program pea_table1, rclass
 		gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	}
-	* gini(a1) theil(a2)
-	*clonevar _Gini_`distwelf' = `distwelf' if `touse'
+	
 	tempfile data1 data2
 	save `data1', replace
 	
@@ -146,8 +148,7 @@ program pea_table1, rclass
 	save `data2', replace
 	
 	//MPM WB
-	if "`core'"~="" {
-		*tempfile mpmwb
+	if "`core'"~="" {		
 		use `data1', clear
 		_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`pppwelfare') 
 		keep `year' mdpoor_i1
@@ -158,10 +159,41 @@ program pea_table1, rclass
 		save `data2', replace
 	}
 	
+	//At risk indicator
+	tempfile atriskdata
+	local nametodo = 0
+	cap confirm file "`persdir'pea/CSC_atrisk2021.dta"
+	if _rc==0 {
+		cap use "`persdir'pea/CSC_atrisk2021.dta", clear	
+		if _rc~=0 local nametodo = 1	
+	}
+	else local nametodo = 1
+	if `nametodo'==1 {
+		cap pea_dataupdate, datatype(SCORECARD) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(SCORECARD) update"
+			exit `=_rc'
+		}
+	}
+	
+	use "`persdir'pea/CSC_atrisk2021.dta", clear
+	keep if code=="`country'"
+	if _N==0 {
+		noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
+		local atriskdo = 0
+	}
+	else {
+		ren atrisk value
+		gen indicatorlbl = 55
+		replace year = `yatrisk'
+		keep year value indicatorlbl
+		save `atriskdata', replace
+		local atriskdo = 1		
+	}
+	
 	//Quintile
 	use `data1', clear
-	collapse (mean) _WELFMEAN_`distwelf' [aw=`wvar'] if `touse', by(`year' __quintile)
-	*ren _welfLCU 
+	collapse (mean) _WELFMEAN_`distwelf' [aw=`wvar'] if `touse', by(`year' __quintile)	
 	reshape wide _WELFMEAN_`distwelf', i(`year') j(__quintile)
 	merge 1:1 `year' using `data2'
 	drop _merge
@@ -184,24 +216,7 @@ program pea_table1, rclass
 	ren d value
 	split _varname, parse("_")
 	drop _varname1
-	/*
-	gen label = ""
-	//add label welfare
-	ren _varname3 name
-	merge m:1 name using `datalbl', keepus(varlab)
-	drop if _merge==2
-	replace label = varlab if _merge==3
-	drop _merge varlab
-	ren name _varname3 
 	
-	//add label povlines
-	ren _varname4 name
-	merge m:1 name using `datalbl', keepus(varlab)
-	drop if _merge==2
-	replace label = varlab if _merge==3
-	drop _merge varlab
-	ren name _varname4
-	*/
 	su value if _varname2=="npoor0"
 	local xmin = r(min)
 	local xmax = r(max)
@@ -253,6 +268,7 @@ program pea_table1, rclass
 	
 	//setup	
 	if "`core'"=="" {
+		drop if _varname2=="vulpov"
 		*replace indicatorlbl = 90 if indicatorlbl=="Income/consumption (LCU)"
 		replace indicatorlbl = 91 if _varname2=="WELFMEAN"
 		replace indicatorlbl = 91 if _varname2=="mT60"
@@ -266,11 +282,13 @@ program pea_table1, rclass
 		local tabname Table1
 	}
 	else {
+		if `atriskdo'==1 append using `atriskdata'
 		replace indicatorlbl = 50 if _varname2=="vulpov"
+		replace indicatorlbl = 55 if _varname2=="atrisk"
 		replace indicatorlbl = 60 if _varname2=="Gini"
 		replace indicatorlbl = 70 if _varname2=="prosgap"
 		replace indicatorlbl = 80 if _varname2=="mpmwb"
-		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
+		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 55 "Percentage of people at high risk from climate-related hazards (2021*)" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
 	
 		replace indicatorlbl = 90 if _varname2 =="WELFMEAN"
 		replace indicatorlbl = 90 if _varname2=="mT60"
@@ -288,11 +306,9 @@ program pea_table1, rclass
 	collect style header indicatorlbl subind `year', title(hide)
 	collect style header subind[.], level(hide)
 	collect title `"`tabtitle'"'
-	collect notes 1: `"Source: ABC"'
-	collect notes 2: `"Note: The global ..."'
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
 	collect style notes, font(, italic size(10))
-	*collect preview
-	*set trace on
 	
 	if "`excel'"=="" {
 		collect export "`dirpath'\\Table1.xlsx", sheet("`tabname'") replace 	

@@ -55,7 +55,8 @@ program pea_table7, rclass
 		su `povlines',d
 		if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
 		else local lbloneline `oneline'	
-				
+		local lbloneline `=trim("`lbloneline'")'
+		
 		//Weights
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
@@ -102,8 +103,8 @@ program pea_table7, rclass
 	collect style header indicatorlbl  `year', title(hide)
 	*collect style header subind[.], level(hide)
 	collect title `"Table 7. Vulnerability to poverty"'
-	collect notes 1: `"Source: ABC"'
-	collect notes 2: `"Note: The global ..."'
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+	collect notes 2: `"Note: Vulnerability to poverty is defined as 1.5 and 2 times the $`lbloneline' per person per day poverty line, expressed in 2017 purchasing power parity dollars."'
 	collect style notes, font(, italic size(10))
 		
 	if "`excel'"=="" {

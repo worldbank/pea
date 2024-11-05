@@ -9,7 +9,8 @@ program _pea_vars_set, rclass
 		la val head head 
 		gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 		gen married = marital==1 if marital~=.
-		
+		la var male "By gender"
+		la var urban "Urban or rural"
 		*age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets		
 		global pea_age "age"
 		global pea_male "male"

@@ -14,7 +14,47 @@ gen welfppp = welfare/cpi2017/icp2017/365
 _pea_mpm [aw=weight_p], c(ARM)  welfare(welfppp) setting(GMD)
 */
 
+***
+use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\GNB_2018-2021_GMD_ALL.dta" , clear
+gen welfppp = welfare/cpi2017/icp2017/365
+gen pline215 = 2.15
+gen pline365 = 3.65
+gen pline685 = 6.85
+gen natline = 303974.3 
+gen natline2 = 500000
+la var pline215 "Poverty line: $2.15 per day (2017 PPP)"
+la var pline365 "Poverty line: $3.65 per day (2017 PPP)"
+la var pline685 "Poverty line: $6.85 per day (2017 PPP)"
+la var natline "Poverty line: 300,000 per year (2017 LCU)"
+la var natline2 "Poverty line: 500,000 per year (2017 LCU)"
+replace subnatid = proper(subnatid)
+split subnatid, parse("-") gen(tmp)
+gen temp = tmp2 
+replace temp = trim(temp)
+encode temp, gen(subnatvar)
+la var subnatvar "By regions"
+drop tmp1  tmp2  temp
+
+*gen head = relationharm==1 if relationharm~=.
+*la def head 1 "HH head" 
+*la val head head
+
+pea_table1 [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215)
+
+pea_table1 [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline365)
+
+pea_table_A2 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing
+
+pea_table3 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
+
+pea tables [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2018 2021)
+
+pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021)
+
+*****
+use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\PER_2017-2022_GMD_ALL.dta", clear
 use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\ARM_2015_2018_2025_GMD_ALL.dta" , clear
+
 gen welfppp = welfare/cpi2017/icp2017/365
 gen pline215 = 2.15
 gen pline365 = 3.65
@@ -34,6 +74,9 @@ replace temp = trim(temp)
 encode temp, gen(subnatvar)
 la var subnatvar "By regions"
 drop tmp1 tmpb1 tmp2 tmpb2 temp
+
+*drop if year==2015|year==2016|year==2017
+
 /*
 gen head = relationharm==1 if relationharm~=.
 la def head 1 "HH head" 
@@ -67,7 +110,7 @@ pea_table7 [aw=weight_p], welfare(welfppp) povlines(pline365) year(year)
 pea_table8 [aw=weight_p], welfare(welfare) year(year) byind(urban) missing
 
 pea_table10 [aw=weight_p], c(ARM) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(ALB HRV XKX) latest
-
+//not running if there is no countries within 3 years.
 pea_table10 [aw=weight_p], c(ARM) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(ALB HRV XKX) within3
 
 pea_table11 [aw=weight_p], welfare(welfppp) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) by(urban) graph
@@ -78,7 +121,7 @@ pea_table12 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pp
 
 pea_table13 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) urban(urban)
 
-pea_table14 [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head)  urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) missing
+pea_table14 [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head)  urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) 
 
 core
 

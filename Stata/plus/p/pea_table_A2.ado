@@ -46,18 +46,23 @@ program pea_table_A2, rclass
 		else local excelout "`excel'"
 	}
 	
-	if "`missing'"~="" { //show missing
-		foreach var of varlist `byind' `male' `edu' {
-			su `var'
-			local miss = r(max)
-			replace `var' = `=`miss'+10' if `var'==.
-			local varlbl : value label `var'
-			la def `varlbl' `=`miss'+10' "Missing", add
-		}
-	}
-	
 	qui {
-		//order the lines
+		if "`missing'"~="" { //show missing
+			foreach var of varlist `byind' `male' `edu' {
+				su `var'
+				local miss = r(max)
+				replace `var' = `=`miss'+10' if `var'==.
+				local varlbl : value label `var'
+				la def `varlbl' `=`miss'+10' "Missing", add
+			}
+		}
+	
+		//order the lines (assume one pline is used)
+		su `ppppovlines',d
+		if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
+		else local lbloneline `oneline'	
+		local lbloneline `=trim("`lbloneline'")'
+		
 		if "`linesorted'"=="" {
 			if "`ppppovlines'"~="" {
 				_pea_pline_order, povlines(`ppppovlines')
@@ -91,7 +96,7 @@ program pea_table_A2, rclass
 	
 		//missing observation check
 		marksample touse
-		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind'"'
+		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind' `age'"'
 		markout `touse' `flist' 
 		
 		tempfile dataori datalbl
@@ -114,11 +119,11 @@ program pea_table_A2, rclass
 		if r(N)>0 {
 			gen agecatind = 1 if `age'>=0 & `age'<=14
 			replace agecatind = 2 if `age'>=15 & `age'<=64
-			replace agecatind = 3 if `age'>=65 & `age'<=.
+			replace agecatind = 3 if `age'>=65 & !missing(`age')
 			la def agecatind 1 "Children (less than age 15)" 2 "Adults (age 15 to 64)" 3 "Elderly (age 65 and older)" 
 			la val agecatind agecatind
 			la var agecatind "By age group"
-			clonevar _eduXind = `edu' if `age'>=16 & `age'~=.
+			clonevar _eduXind = `edu' if `age'>=16 & !missing(`age')
 			la var _eduXind "By education (age 16+)"				
 		} //rn
 	} //age
@@ -226,12 +231,10 @@ program pea_table_A2, rclass
 	*collect style header subind[.], level(hide)
 	*collect style cell, result halign(center)
 	collect title `"Table A.2. Poverty indicators by subgroup"'
-	collect notes 1: `"Source: ABC"'
-	collect notes 2: `"Note: The global ..."'
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+	collect notes 2: `"Note: Poverty rates are reported for the $`lbloneline' per person per day poverty line, expressed in 2017 purchasing power parity dollars."'
 	collect style notes, font(, italic size(10))
-	*collect preview
-	*set trace on
-	
+		
 	if "`excel'"=="" {
 		collect export "`dirpath'\\TableA2.xlsx", sheet(TableA2) replace 	
 		shell start excel "`dirpath'\\TableA2.xlsx"

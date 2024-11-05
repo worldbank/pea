@@ -122,7 +122,7 @@ program pea_tables, rclass
 	qui use `data1', clear
 	cap pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") oneline(`oneline') onewelfare(`onewelfare')
 	if _rc==0 {
-		noi dis in white "Table 1....... Done"
+		noi dis in green "Table 1....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 1....... Not done"
@@ -131,7 +131,7 @@ program pea_tables, rclass
 	qui use `data1', clear
 	cap pea_table2 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') byind(`byind') fgtvars linesorted excel("`excelout'") `missing'
 	if _rc==0 {
-		noi dis in white "Table 2....... Done"
+		noi dis in green "Table 2....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 2....... Not done"
@@ -140,7 +140,7 @@ program pea_tables, rclass
 	qui use `data1', clear
 	cap pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") age(`age') male(`male') hhhead(`hhhead') edu(`edu') `missing'
 	if _rc==0 {
-		noi dis in white "Table 3....... Done"
+		noi dis in green "Table 3....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 3....... Not done"
@@ -150,7 +150,7 @@ program pea_tables, rclass
 		qui use `data1', clear
 		cap pea_table6 [aw=`wvar'], c(`country') welfare(`pppwelfare') year(`year')  benchmark(`benchmark') last3 excel("`excelout'")
 		if _rc==0 {
-			noi dis in white "Table 6....... Done"
+			noi dis in green "Table 6....... Done"
 			local ok = 1
 		}
 		else noi dis in red "Table 6....... Not done"
@@ -160,7 +160,7 @@ program pea_tables, rclass
 	qui use `data1', clear
 	cap pea_table7 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') excel("`excelout'") 
 	if _rc==0 {
-		noi dis in white "Table 7....... Done"
+		noi dis in green "Table 7....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 7....... Not done"
@@ -169,7 +169,7 @@ program pea_tables, rclass
 	qui use `data1', clear
 	cap pea_table8 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") missing
 	if _rc==0 {
-		noi dis in white "Table 8....... Done"
+		noi dis in green "Table 8....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 8....... Not done"
@@ -178,7 +178,7 @@ program pea_tables, rclass
 	qui use `dataori', clear
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") 
 	if _rc==0 {
-		noi dis in white "Table 10...... Done"
+		noi dis in green "Table 10...... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 10...... Not done"
@@ -187,7 +187,7 @@ program pea_tables, rclass
 	qui use `dataori', clear
 	cap pea_table11 [aw=`wvar'], welfare(`onewelfare') spells(`spells') year(`year') by(`urban') graph excel("`excelout'")
 	if _rc==0 {		
-		noi dis in white "Table 11...... Done"
+		noi dis in green "Table 11...... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 11...... Not done"
@@ -196,7 +196,7 @@ program pea_tables, rclass
 	qui use `dataori', clear
 	cap pea_table12 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') excel("`excelout'")
 	if _rc==0 {
-		noi dis in white "Table 12...... Done"
+		noi dis in green "Table 12...... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 12...... Not done"
@@ -206,7 +206,7 @@ program pea_tables, rclass
 		qui use `dataori', clear
 		cap pea_table13 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') urban(`urban') excel("`excelout'")
 		if _rc==0 {
-			noi dis in white "Table 13...... Done"
+			noi dis in green "Table 13...... Done"
 			local ok = 1
 		}
 		else noi dis in red "Table 13....... Not done"
@@ -216,7 +216,7 @@ program pea_tables, rclass
 	qui use `dataori', clear		
 	cap pea_table14 [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') excel("`excelout'")
 	if _rc==0 {
-		noi dis in white "Table 14...... Done"
+		noi dis in green "Table 14...... Done"
 		local ok = 1
 	}
 	else noi dis in red "Table 14...... Not done"
@@ -224,7 +224,7 @@ program pea_tables, rclass
 	//Final open	
 	if `ok'==1 {
 		shell start excel "`excelout'"
-		noi dis in white "Tables and Graphs are done....... Loading the Excel file!"
+		noi dis in green "Tables and Graphs are done....... Loading the Excel file!"
 	}
 	else {
 		noi dis in red "No tables and graphs are produced"

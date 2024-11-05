@@ -14,7 +14,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Table 2 and 3. Core poverty indicators - test
+//Table 2 and 3. Core poverty indicators
 
 cap program drop pea_table2
 program pea_table2, rclass
