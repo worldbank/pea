@@ -108,8 +108,8 @@ program pea_table8, rclass
 	cap frame drop ineq_results	
 	frame create ineq_results strL(var) float(group year obs pop) ///
 							  float(mean median sd min max) ///
-							  float(Gini Theil Atkinson_1 Atkinson_2 Sen) ///
-							  float(p10p50 p25p50 p75p25 p75p50 p90p10 p90p50) ///
+							  float(Gini Theil Kuznets Atkinson_1 Sen) ///
+							  float(p10p50 p25p50 p75p25 p75p50 p90p10 p90p50 Bottom20share) ///
 							  float(ge0 ge1 ge2) 
 	
 	use `dataori', clear
@@ -123,18 +123,47 @@ program pea_table8, rclass
 		foreach var of local byind {
 			levelsof `var', local(groups)
 			foreach grp of local groups {
-				qui: ineqdeco `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), welfare
-				*local grp = `grp'		
-				//need to add in the missing indicator: palma, watts, bottom20share, and post result here
-				//bottom20share: define quintile, su welfare [weight] --> r(r_sum) of q1/total
-				//palma
-				* Post the results to the frame
+				
+				qui { 
+					//Kuznets (Palma) ratio & Bottom20share
+					//bottom20share: define quintile, su welfare [weight] --> r(r_sum) of q1/total
+						_ebin `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), nquantiles(10) gen(qwlf)
+							
+							su `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y') 
+							sca totwelf =  r(sum)
+							
+							su `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y' & qwlf <= 2)
+							sca b20welf =  r(sum)
+					
+							su `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y' & qwlf <= 4) 
+							sca b40welf =  r(sum)
+					
+							su welfare [w= weight_p] if (`var' == `grp' & `year'==`y' & qwlf == 10)
+							sca t10welf =  r(sum)
+							
+							local b20share = b20welf/totwelf
+							local palma = t10welf/b40welf 
+
+							drop qwlf
+				
+					// Watts 
+					*apoverty `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), s w
+					*	 local sen_pov = r(sen_1) // Dont know if we want this SEN index instead of the other...
+					*	 local watts_pov = r(watts_1)
+					*	 di "`sen_pov' `watts_pov'"
+					
+					// Gini, Theil, Atkinson, Sen, GEs...
+					ineqdeco `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y'), welfare
+					* See <<help ineqdeco>> for definitions
+				}
+				
+				// Post the results to the frame
 				frame ineq_results {  
 					frame post ineq_results ("`var'") (`grp') (`y') (`r(N)') (`r(sumw)')	///
-						(`r(mean)') (`r(p50)') (`r(sd)') (`r(min)') (`r(max)') 			///
-						(`r(gini)') (`r(ge1)') (`r(a1)') (`r(a2)') (`r(wgini)') ///
-						(`r(p10p50)') (`r(p25p50)') (`r(p75p25)') (`r(p75p50)') (`r(p90p10)')  (`r(p90p50)') ///
-						(`r(ge0)') (`r(ge1)') (`r(ge2)') 
+						(`r(mean)') (`r(p50)') (`r(sd)') (`r(min)') (`r(max)') 	///
+						(`r(gini)') (`r(ge1)') (`palma') (`r(a1)') (`r(wgini)')  ///
+						(`r(p10p50)') (`r(p25p50)') (`r(p75p25)') (`r(p75p50)') (`r(p90p10)') (`r(p90p50)') ///
+						(`b20share') (`r(ge0)') (`r(ge1)') (`r(ge2)') 
 				}
 			} //lvl each group
 		}		
@@ -153,8 +182,6 @@ program pea_table8, rclass
 	}
 
 	reshape long ind_, i(`year' var group) j(indicator) string
-	
-	*Atkinson_2
 
 	gen indicatorlbl=.
 	replace indicatorlbl = 1 if indicator=="Gini"
@@ -162,19 +189,18 @@ program pea_table8, rclass
 	replace indicatorlbl = 3 if indicator=="Kuznets"
 	replace indicatorlbl = 4 if indicator=="Atkinson_1"
 	replace indicatorlbl = 5 if indicator=="Sen"
-	replace indicatorlbl = 6 if indicator=="Watts"
-	replace indicatorlbl = 7 if indicator=="p10p50"
-	replace indicatorlbl = 8 if indicator=="p25p50"
-	replace indicatorlbl = 9 if indicator=="p75p25"
-	replace indicatorlbl = 10 if indicator=="p75p50"
-	replace indicatorlbl = 11 if indicator=="p90p10"
-	replace indicatorlbl = 12 if indicator=="p90p50"
-	replace indicatorlbl = 13 if indicator=="Bottom20share"
-	replace indicatorlbl = 14 if indicator=="ge0"
-	replace indicatorlbl = 15 if indicator=="ge1"
-	replace indicatorlbl = 16 if indicator=="ge2"
+	replace indicatorlbl = 6 if indicator=="p10p50"
+	replace indicatorlbl = 7 if indicator=="p25p50"
+	replace indicatorlbl = 8 if indicator=="p75p25"
+	replace indicatorlbl = 9 if indicator=="p75p50"
+	replace indicatorlbl = 10 if indicator=="p90p10"
+	replace indicatorlbl = 11 if indicator=="p90p50"
+	replace indicatorlbl = 12 if indicator=="Bottom20share"
+	replace indicatorlbl = 13 if indicator=="ge0"
+	replace indicatorlbl = 14 if indicator=="ge1"
+	replace indicatorlbl = 15 if indicator=="ge2"
 	
-	la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Palma (Kuznets) ratio" 4 "Atkinson index" 5 "Sen index" 6 "Watts index" 7 "p10p50" 8 "p25p50" 9 "p75p25" 10 "p75p50" 11 "p90p10" 12 "p90p50" 13 "Bottom 20% share of incomes" 14 "GE(0)" 15 "GE(1)" 16 "GE(2)"
+	la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Palma (Kuznets) ratio" 4 "Atkinson index" 5 "Sen index" 6 "p10p50" 7 "p25p50" 8 "p75p25" 9 "p75p50" 10 "p90p10" 11 "p90p50" 12 "Bottom 20% share of incomes" 13 "GE(0)" 14 "GE(1)" 15 "GE(2)" 
 	
 	//label var and group keeping original ordering 
 	local i=1
@@ -206,8 +232,8 @@ program pea_table8, rclass
 	*collect style header subind[.], level(hide)
 	*collect style cell, result halign(center)
 	collect title `"Table 8. Inequality indicators"'
-	collect notes 1: `"Source: ABC"'
-	collect notes 2: `"Note: The global ..."'
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
+	collect notes 2: `"Note: The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Theil Index belongs to the Generalized Entropy (GE) class. The Palma (Kuznets) ratio measures the top 10 percent income share relative to the bottom 40 percent share. The Atkinson index is an inequality measure with a weighting parameter which measures aversion to inequality. Sen. The Watts index is the average log-point differences from the poverty line. Welfare ratios are presented for different percentiles; For example, p10/p50 refers to the ratio of consumption or income between those who are at the 10th percentile and those who are at the 50th percentile of the welfare distribution. The bottom 20% share of incomes indicates the share of total income or consumption held by the bottom 20% of the welfare distribution."'
 	collect style notes, font(, italic size(10))
 			
 	if "`excel'"=="" {
