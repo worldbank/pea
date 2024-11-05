@@ -127,7 +127,7 @@ program pea_table8, rclass
 							su `welfare' [w=`wvar'] if (`var' == `grp' & `year'==`y' & qwlf <= 4) 
 							sca b40welf =  r(sum)
 					
-							su welfare [w= weight_p] if (`var' == `grp' & `year'==`y' & qwlf == 10)
+							su `welfare' [w=`wvar']  if (`var' == `grp' & `year'==`y' & qwlf == 10)
 							sca t10welf =  r(sum)
 							
 							local b20share = b20welf/totwelf
