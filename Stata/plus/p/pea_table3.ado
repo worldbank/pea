@@ -192,7 +192,7 @@ program pea_table3, rclass
 		replace _fgt0_ = _fgt0_*100
 		su `year',d
 		local ymax = r(max)
-		
+		drop if agecatind==.
 		collect clear
 		qui collect: table (indicatorlbl agecatind) (_group) if `year'==`ymax', stat(mean _fgt0_) nototal nformat(%20.2f) missing
 		collect style header indicatorlbl agecatind _group `year', title(hide)
@@ -239,7 +239,7 @@ program pea_table3, rclass
 		}
 		la val indicatorlbl indicatorlbl
 		replace _fgt0_ = _fgt0_*100
-		
+		drop if _eduXind==.
 		collect clear
 		qui collect: table (indicatorlbl _eduXind) (`year'), stat(mean _fgt0_) nototal nformat(%20.2f) missing
 		collect style header indicatorlbl _eduXind `year', title(hide)
@@ -323,7 +323,6 @@ program pea_table3, rclass
 		}
 		la val indicatorlbl indicatorlbl
 		drop if group==.
-		
 		collect clear
 		qui collect: table (group indicatorlbl combined_var) (`year'), stat(mean _fgt0_) nototal nformat(%20.2f) missing
 		collect style header group indicatorlbl combined_var `year', title(hide)
