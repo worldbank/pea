@@ -174,6 +174,15 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 8....... Not done"
 	
+	//table 9
+	qui use `data1', clear
+	cap pea_table9, c(`country') year(`year')
+	if _rc==0 {
+		noi dis in green "Table 9....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Table 9....... Not done"
+	
 	//table 10
 	qui use `dataori', clear
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") 
