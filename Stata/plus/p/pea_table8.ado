@@ -130,7 +130,7 @@ program pea_table8, rclass
 							su `welfare' [w=`wvar']  if (`var' == `grp' & `year'==`y' & qwlf == 10)
 							local t10welf =  r(sum)
 							
-							local b20share = `b20welf'/`totwelf'
+							local b20share = (`b20welf'/`totwelf')*100
 							local palma = `t10welf'/`b40welf' 
 
 							drop qwlf
@@ -183,7 +183,7 @@ program pea_table8, rclass
 	replace indicatorlbl = 14 if indicator=="ge1"
 	replace indicatorlbl = 15 if indicator=="ge2"
 	
-	la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Palma (Kuznets) ratio" 4 "Atkinson index" 5 "Sen index" 6 "p10p50" 7 "p25p50" 8 "p75p25" 9 "p75p50" 10 "p90p10" 11 "p90p50" 12 "Bottom 20% share of incomes" 13 "GE(0)" 14 "GE(1)" 15 "GE(2)" 
+	la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Palma (Kuznets) ratio" 4 "Atkinson index" 5 "Sen index" 6 "p10p50" 7 "p25p50" 8 "p75p25" 9 "p75p50" 10 "p90p10" 11 "p90p50" 12 "Bottom 20% share of incomes (%)" 13 "GE(0)" 14 "GE(1)" 15 "GE(2)" 
 	
 	//label var and group keeping original ordering 
 	local i=1

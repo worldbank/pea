@@ -22,13 +22,13 @@ program pea, rclass
 	gettoken subcmd 0 : 0, parse(" :,=[]()+-")
 	local l = strlen("`subcmd'")
 	
-	local packages apoverty ineqdeco svylorenz fastgini glcurve alorenz povdeco fs groupfunction drdecomp adecomp pip
+	local packages apoverty ineqdeco svylorenz fastgini glcurve alorenz povdeco fs groupfunction drdecomp adecomp pip skdecomp
 
 	foreach package of local packages  {
  		cap which `package'
  		if (_rc) ssc install `package', replace
 	}
-	
+	//https://github.com/vavalomi/stata_tools/tree/master/sedecomposition
 	//setup like the below
 	
 	if ("`subcmd'"=="core") { //upload relelated tasks
