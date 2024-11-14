@@ -1,22 +1,43 @@
 {smcl}
-{hline 80}
-{bf PROGRAM:} {cmd:pea_table2}
-{hline 80}
+{* 10Nov2024}{...}
+{hline}
+help for {hi:pea table2}{right:November 2024}
+{hline}
+
 {title:Title}
-  {bf pea_table2} — Generates tables of core poverty indicators
+
+{bf:pea table2} — Generates tables of core poverty indicators
 
 {title:Syntax}
-  {cmd:pea_table2} [{it:if}] [{it:in}] [{it:aw} {cmd:pw} {cmd:fw}], {cmdab:NATWelfare(varname)} {cmdab:NATPovlines(varlist)}
-    [{cmdab:PPPWelfare(varname)} {cmdab:PPPPovlines(varlist)} {cmdab:FGTVARS using(string)} {cmdab:Year(varname)}
-    {cmdab:byind(varlist)} {cmdab:CORE setting(string)} {cmdab:LINESORTED} {cmdab:excel(string)} 
-    {cmdab:save(string)} {cmdab:MISSING}]
+
+{p 4 15}
+{cmd:pea table2} 
+[{it:weight}] 
+[{cmd:if} {it:exp}] 
+[{cmd:in} {it:exp}] 
+[{cmd:,} 
+  {opt NATWelfare(varname)} 
+  {opt NATPovlines(varlist)}
+    [{opt PPPWelfare(varname)} 
+	{opt PPPPovlines(varlist)} 
+	{opt FGTVARS using(string)} 
+	{opt Year(varname)}
+    {opt byind(varlist)} 
+	{opt CORE setting(string)} 
+	{opt LINESORTED} 
+	{opt excel(string)} 
+    {opt save(string)} 
+	{opt MISSING}]{p_end}
 
 {title:Description}
-  {cmd:pea_table2} calculates and outputs core poverty indicators using various welfare variables, poverty lines, 
+
+{p 4 4 2} 
+{cmd:pea_table2} calculates and outputs core poverty indicators using various welfare variables, poverty lines, 
   and grouping options. The program processes the data by performing calculations based on FGT poverty measures,
   grouping results by year and additional specified categories, and exporting the output as an Excel file.
 
 {title:Options}
+
   {phang} {opt NATWelfare(varname)} specifies the variable representing welfare levels in natural (non-adjusted) terms.
   
   {phang} {opt NATPovlines(varlist)} specifies a list of natural (non-adjusted) poverty lines for analysis.
@@ -42,26 +63,22 @@
   {phang} {opt MISSING} enables handling of missing data in categorical variables, assigning a custom label for missing values.
 
 {title:Details}
+
+{p 4 4 2} 
   {cmd:pea_table2} organizes poverty statistics by calculating FGT (Foster-Greer-Thorbecke) poverty measures. 
   When grouped by different categories, it computes the poverty rate, the number of poor, and their share within 
   each group. The program can use either natural or PPP-adjusted welfare measures depending on the options selected.
 
+{p 4 4 2} 
   After calculating poverty indicators, {cmd:pea_table2} reshapes the data, labels the results, and organizes the final 
   output. This ensures that poverty indicators are grouped and easily interpretable.
 
 {title:Example}
+
+{p 4 4 2} 
   To generate a poverty indicators table using national and PPP welfare variables with defined poverty lines, 
   grouped by region and exported to an Excel file:
 
+{p 4 4 2} 
 {cmd:. pea_table2, NATWelfare(welfare_nat) NATPovlines(povline_nat1 povline_nat2) PPPWelfare(welfare_ppp) PPPPovlines(povline_ppp1 povline_ppp2) Year(year) byind(region) excel("output_table2.xlsx")}
-
-{title:Author}
-  Developed by [Your Name/Organization].
-
-
-{title:Also see}
- 
-	{help pea_table1}: To generate the initial summary poverty indicators.
-
-{hline 80}
 

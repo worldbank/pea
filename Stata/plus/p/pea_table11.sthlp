@@ -1,12 +1,19 @@
 {smcl}
+{* 10Nov2024}{...}
 {hline}
-{title:pea_table11} — Generates Growth Incidence Curve Tables
+help for {hi:pea table11}{right:November 2024}
+{hline}
+
+{title:Title}
+
+{bf:pea table11} — Generates Growth Incidence Curve Tables
 
 {title}
 {cmd} [{it
 }] [{it
-}], {cmdab
-(varname numeric)} {cmdab
+}], 
+{cmdab(varname numeric)} 
+{cmdab
 (string)} {cmdab
 (varname numeric)} {cmdab
 setting(string)} {cmdab
@@ -32,20 +39,9 @@ The results can be exported to an Excel file or saved in a temporary file by def
 
 {title}
 
-To generate the Growth Incidence Curve table for a specific welfare indicator between 2000 and 2004 and export the results to an Excel file: {cmd:
-. pea_table11, Welfare("income") spells("2000 2004") Year(year) excel("output_table11.xlsx") }
+To generate the Growth Incidence Curve table for a specific welfare indicator between 2000 and 2004 and export the results to an Excel file:
+{cmd:. pea_table11, Welfare("income") spells("2000 2004") Year(year) excel("output_table11.xlsx") }
 
-To generate the Growth Incidence Curve for different regions: {cmd:
-. pea_table11, Welfare("income") spells("2000 2004") Year(year) by(region) excel("output_table11_by_region.xlsx") }
+To generate the Growth Incidence Curve for different regions: 
 
-{title:Author}
-  Developed by [Your Name/Organization].
-
-
-{title see}
-
-{help pea_table9}: To generate Scorecard Vision Indicator Tables.
-
-{help pea_table10}: To generate Poverty Dynamics Tables.
-{hline 80}
-
+{cmd:. pea_table11, Welfare("income") spells("2000 2004") Year(year) by(region) excel("output_table11_by_region.xlsx") }
