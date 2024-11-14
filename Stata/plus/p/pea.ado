@@ -1,6 +1,6 @@
 *! version 0.1.1  12Sep2014
 *! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
+*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
@@ -22,20 +22,21 @@ program pea, rclass
 	gettoken subcmd 0 : 0, parse(" :,=[]()+-")
 	local l = strlen("`subcmd'")
 	
-	local packages apoverty ineqdeco svylorenz fastgini glcurve alorenz povdeco fs groupfunction drdecomp adecomp pip skdecomp
-
-	foreach package of local packages  {
- 		cap which `package'
- 		if (_rc) ssc install `package', replace
-	}
-	//https://github.com/vavalomi/stata_tools/tree/master/sedecomposition
-	//setup like the below
-	
+	//run pea setup first
+	if $pea_setup~=1 pea_setup
+		
+	//setup like the below	
 	if ("`subcmd'"=="core") { //upload relelated tasks
 		pea_core `0'
-	}
-	else if ("`subcmd'"=="tables") { //query PRIMUS data
+	}	
+	else if ("`subcmd'"=="dataupdate") { 
+		pea_dataupdate `0'
+    }
+	else if ("`subcmd'"=="tables") { 
 		pea_tables `0'
+    }
+	else if ("`subcmd'"=="slides") { 
+		pea_slides `0'
     }
 	else if ("`subcmd'"=="table1") {
 		pea_table1 `0'		
@@ -85,12 +86,66 @@ program pea, rclass
 	else if ("`subcmd'"=="table15") {
 		pea_table15 `0'		
     }
+	else if ("`subcmd'"=="figures") {
+		pea_figures `0'		
+    }
+	else if ("`subcmd'"=="figure1") {
+		pea_figure1 `0'		
+    }
+	else if ("`subcmd'"=="figure2") {
+		pea_figure2 `0'		
+    }
+	else if ("`subcmd'"=="figure3") {
+		pea_figure3 `0'		
+    }
+	else if ("`subcmd'"=="figure4") {
+		pea_figure4 `0'		
+    }
+	else if ("`subcmd'"=="figure5") {
+		pea_figure5 `0'		
+    }
+	else if ("`subcmd'"=="figure6") {
+		pea_figure6 `0'		
+    }
+	else if ("`subcmd'"=="figure7") {
+		pea_figure7 `0'		
+    }
+	else if ("`subcmd'"=="figure8") {
+		pea_figure8 `0'		
+    }
+	else if ("`subcmd'"=="figure9") {
+		pea_figure9 `0'		
+    }
+	else if ("`subcmd'"=="figure10") {
+		pea_figure10 `0'		
+    }
+	else if ("`subcmd'"=="figure11") {
+		pea_figure11 `0'		
+    }
+	else if ("`subcmd'"=="figure12") {
+		pea_figure12 `0'		
+    }
+	else if ("`subcmd'"=="figure13") {
+		pea_figure13 `0'		
+    }
+	else if ("`subcmd'"=="figure14") {
+		pea_figure14 `0'		
+    }
+	else if ("`subcmd'"=="figure15") {
+		pea_figure15 `0'		
+    }
+	else if ("`subcmd'"=="figure16") {
+		pea_figure16 `0'		
+    }
+	else if ("`subcmd'"=="figure17") {
+		pea_figure17 `0'		
+    }
 	else { //none of the above
 		if ("`subcmd'"=="") {
 			di as smcl as err "syntax error"
 			di as smcl as err "{p 4 4 2}"
 			di as smcl as err "{bf:pea} must be followed by a subcommand."
-			di as smcl as err "You might type {bf:pea table1}, or {bf:pea graphs}, or {bf:primus action}, etc."			
+			di as smcl as err "You might type {bf:pea table1}, or {bf:pea figure1}, or {bf:pea tables}, etc."			
 			di as smcl as err "{p_end}"
 			exit 198
 		}
