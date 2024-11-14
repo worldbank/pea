@@ -176,7 +176,7 @@ program pea_dataupdate, rclass
 			char _dta[version] $S_DATE			
 			save "`persdir'pea/PIP_all_country.dta", replace
 			
-			/* /PIP lineup data
+			/PIP lineup data
 			tempfile povlineup	
 			local j = 1
 			foreach line of local nlines {
@@ -206,7 +206,6 @@ program pea_dataupdate, rclass
 			for var headcount*: replace X = X*100			
 			char _dta[version] $S_DATE
 			save "`persdir'pea/PIP_all_countrylineup.dta", replace
-			*/
 			
 			//Income group average by historical class
 			* Get poverty rates and merge (not nowcast)
