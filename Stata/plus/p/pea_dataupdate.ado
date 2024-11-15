@@ -177,7 +177,7 @@ program pea_dataupdate, rclass
 			char _dta[version] $S_DATE			
 			save "`persdir'pea/PIP_all_country.dta", replace
 			
-			/PIP lineup data
+			//PIP lineup data
 			tempfile povlineup	
 			local j = 1
 			foreach line of local nlines {

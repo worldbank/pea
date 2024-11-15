@@ -23,7 +23,8 @@ program pea, rclass
 	local l = strlen("`subcmd'")
 	
 	//run pea setup first
-	if $pea_setup~=1 pea_setup
+	cap mata: mata describe pea_setup
+	if _rc~=0 pea_setup
 		
 	//setup like the below	
 	if ("`subcmd'"=="core") { //upload relelated tasks

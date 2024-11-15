@@ -38,11 +38,7 @@ program pea_setup, rclass
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	cap mkdir "`persdir'pea"
-	if _rc~=0 {
-		noi dis "Unable to create the pea folder in the path `persdir'. Check your folder permission in $S_OS."
-		error `=_rc'
-	}
-	
+
 	//Check and download the necessary data
 	local mustfiles CLASS.dta UNESCO.dta CSC_atrisk2021.dta 
 	foreach file of local mustfiles {
@@ -71,5 +67,5 @@ program pea_setup, rclass
 			error `=_rc'
 		}
 	}
-	global pea_setup = 1
+	mata: pea_setup = 1	
 end

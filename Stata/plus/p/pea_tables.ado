@@ -176,7 +176,7 @@ program pea_tables, rclass
 	
 	//table 9
 	qui use `data1', clear
-	cap pea_table9, c(`country') year(`year')
+	cap pea_table9, c(`country') year(`year') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Table 9....... Done"
 		local ok = 1
