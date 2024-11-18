@@ -160,6 +160,7 @@ program pea_table1, rclass
 	}
 	
 	//At risk indicator
+	/*
 	tempfile atriskdata
 	local nametodo = 0
 	cap confirm file "`persdir'pea/CSC_atrisk2021.dta"
@@ -175,20 +176,29 @@ program pea_table1, rclass
 			exit `=_rc'
 		}
 	}
+	*/
 	
-	use "`persdir'pea/CSC_atrisk2021.dta", clear
-	keep if code=="`country'"
-	if _N==0 {
-		noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
-		local atriskdo = 0
-	}
+	cap import excel "`persdir'pea/Scorecard_Summary_Vision/EN_CLM_VULN.xlsx", firstrow clear
+	if _rc==0 {
+		qui destring Time_Period, gen(year)
+		ren Geography_Code code
+		keep if code=="`country'"
+		if _N==0 {
+			noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
+			local atriskdo = 0
+		}
+		else {
+			ren Value value
+			gen indicatorlbl = 55
+			replace year = `yatrisk'
+			keep year value indicatorlbl
+			save `atriskdata', replace
+			local atriskdo = 1		
+		}
+	} //rc excel
 	else {
-		ren atrisk value
-		gen indicatorlbl = 55
-		replace year = `yatrisk'
-		keep year value indicatorlbl
-		save `atriskdata', replace
-		local atriskdo = 1		
+		noi dis as error "Unable to load the Scorecard EN_CLM_VULN.xlsx"
+		error `=_rc'
 	}
 	
 	//Quintile

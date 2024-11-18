@@ -15,15 +15,15 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 //Figure 2. Poverty and GDP per capita scatter
+//Note on helpfile: only work for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
 
 cap program drop pea_figure2
 program pea_figure2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) FGTVARS Year(varname numeric) BENCHmark(string) file(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric) scheme(string) palette(string) MISSING]	
+	syntax [if] [in] [aw pw fw], Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) [FGTVARS file(string) save(string)   scheme(string) palette(string) MISSING]	
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
-	
 	
 	//house cleaning
 	if "`using'"~="" {
@@ -33,6 +33,7 @@ program pea_figure2, rclass
 			exit `=_rc'
 		}
 	}
+	
 	if "`excel'"=="" {
 		tempfile xlsxout 
 		local excelout `xlsxout'		
@@ -48,27 +49,28 @@ program pea_figure2, rclass
 		}
 		else local excelout "`excel'"
 	}
+	
 	//Weights
-		local wvar : word 2 of `exp'															// `exp' is weight in Stata ado syntax
-		qui if "`wvar'"=="" {
-			tempvar w
-			gen `w' = 1
-			local wvar `w'
-		}
-				
+	local wvar : word 2 of `exp'	// `exp' is weight in Stata ado syntax
+	qui if "`wvar'"=="" {
+		tempvar w
+		gen `w' = 1
+		local wvar `w'
+	}
+	local lblline: var label `oneline'		
 	tempfile dataori
 	save `dataori', replace
 	
-	//Number of groups (for colors)
+	// Number of groups (for colors)
 	// Assign groups, colors and legends
 	local b_count = `:word count `benchmark''
 	local groupcount = 1
-	local leg_elem = `b_count' + 3																		// Number of benchmark countries, PEA country, region, and others
+	local leg_elem = `b_count' + 3			// Number of benchmark countries, PEA country, region, and others
 
 	// Figure colors
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 		
-	// Check if PIP lineup already prepared, else download
+	// Check if PIP lineup already prepared, else download all PIP related files
 	local nametodo = 0
 	cap confirm file "`persdir'pea/PIP_all_countrylineup.dta"
 	if _rc==0 {
@@ -83,6 +85,7 @@ program pea_figure2, rclass
 			exit `=_rc'
 		}
 	}
+	
 	//Check if country list and region_code already prepared, else download 
 	local nametodo = 0
 	cap confirm file "`persdir'pea/PIP_list_name.dta"
@@ -98,30 +101,15 @@ program pea_figure2, rclass
 			exit `=_rc'
 		}
 	}
-	//Check if GDP already prepared, else download 
-	local nametodo = 0
-	cap confirm file "`persdir'pea/PIP_all_GDP.dta"
-	if _rc==0 {
-		cap use "`persdir'pea/PIP_all_GDP.dta", clear	
-		if _rc~=0 local nametodo = 1	
-	}
-	else local nametodo = 1
-	if `nametodo'==1 {
-		cap pea_dataupdate, datatype(PIP) update
-		if _rc~=0 {
-			noi dis "Unable to run pea_dataupdate, datatype(PIP) update"
-			exit `=_rc'
-		}
-	}	
-	
+		
 	// Preparation
 	use `dataori', clear
 	tempfile pea_pov
-	qui sum `year', d																					// Get last year of survey data (year of scatter plot)
+	qui sum `year', d   // Get last year of survey data (year of scatter plot)
 	local lasty `r(max)'
 	keep if `year' == `lasty'
 	qui sum `oneline', d
-	local povline `r(max)'																				// Get one poverty line value
+	local povline `r(max)'	// Get one poverty line value
 	//missing observation check
 	marksample touse
 	local flist `"`wvar' `onewelfare' `oneline' `year'"'
@@ -138,16 +126,19 @@ program pea_figure2, rclass
 	use "`persdir'pea/PIP_all_countrylineup.dta", clear
 	keep if year == `lasty'
 	local povline_100 = floor(`povline' * 100)
+	
 	// Merge regions
 	merge m:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
 	levelsof _merge, local(mcode)
-	assert _merge != 1																					// Check if region codes merge
+	assert _merge != 1			// Check if region codes merge
 	drop _merge 
+	
 	// Merge GDP
 	merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
 	levelsof _merge, local(mcode)
-	assert _merge != 1																					// Check if GDP merges
+	assert _merge != 1			// Check if GDP merges
 	drop _merge 
+	
 	// Merge in PEA poverty rate
 	merge 1:1 country_code year using `pea_pov'
 	replace headcount`povline_100' = _fgt0_`onewelfare'_`oneline' * 100 if country_code == "`country'"	// Get PEA poverty rate for PEA country
@@ -206,29 +197,32 @@ program pea_figure2, rclass
 
 	// Figure
 	if "`excel'"=="" {
-			local excelout2 "`dirpath'\\Figure2.xlsx"
-			local act replace
-		}
-		else {
-			local excelout2 "`excelout'"
-			local act modify
-		}	
+		local excelout2 "`dirpath'\\Figure2.xlsx"
+		local act replace
+	}
+	else {
+		local excelout2 "`excelout'"
+		local act modify
+	}	
 		
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `scatter_cmd'										///		
 		qfit 	headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) 	///
 		, legend(order(`legend')) 								///
-		  ytitle("Extreme poverty rate (percent)") 				///
+		  ytitle("Poverty rate (percent)") 				///
 		  xtitle("LN(GDP per capita, PPP, US$)")				///
 		  name(ngraph`gr', replace)								///
-		  note("Data is for year `lasty' and lined-up estimates are used for the non-PEA countries.")
-		  
+		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries.")
+		  note("Poverty rates reported using `lblline'")
+	
+	//todo: add symbol marker for countries of interest, benchmark, and others.
+	
 	putexcel set "`excelout2'", modify sheet(Figure2, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
 	putexcel A1 = image("`graph'")
 	putexcel save							
 	cap graph close	
-	shell start excel "`dirpath'\\Figure2.xlsx"	
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure2.xlsx"	
 	
 end

@@ -34,6 +34,11 @@ encode temp, gen(subnatvar)
 la var subnatvar "By regions"
 drop tmp1  tmp2  temp
 
+pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
+
+pea figure1 [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) 
+
+
 *gen head = relationharm==1 if relationharm~=.
 *la def head 1 "HH head" 
 *la val head head

@@ -15,6 +15,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 //Figure 1. Poverty rates by year lines
+//todo: add comparability, add the combine graph option
 
 cap program drop pea_figure1
 program pea_figure1, rclass
@@ -24,7 +25,6 @@ program pea_figure1, rclass
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
-
 	//house cleaning	
 	if "`urban'"=="" {
 		noi di in red "Sector/urban variable must be define in urban()"
@@ -104,9 +104,8 @@ program pea_figure1, rclass
 	markout `touse' `flist' 
 	
 	tempfile dataori datalbl
-		
 
-		// Create fgt
+	// Create fgt
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
@@ -120,7 +119,7 @@ program pea_figure1, rclass
 	//FGT national
 	use `data1', clear
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
-	gen `urban' = 2 
+	gen `urban' = 2 //change this, to add more flexible, by var and within var groups
 	save `data2', replace
 	
 	//FGT urban-rural
@@ -163,18 +162,19 @@ program pea_figure1, rclass
 	qui levelsof `year', local(yearval)
 
 	if "`excel'"=="" {
-			local excelout2 "`dirpath'\\Figure1.xlsx"
-			local act replace
-		}
-		else {
-			local excelout2 "`excelout'"
-			local act modify
-		}	
+		local excelout2 "`dirpath'\\Figure1.xlsx"
+		local act replace
+	}
+	else {
+		local excelout2 "`excelout'"
+		local act modify
+	}	
 	
 	local gr = 1
 	local u  = 1
 	putexcel set "`excelout2'", `act'
-
+	//change all legend to bottom, and maybe 2 rows
+	//add comparability
 	foreach var of varlist _fgt* {
 		rename `var' var
 		tempfile graph`gr'
@@ -193,9 +193,8 @@ program pea_figure1, rclass
 		putexcel save							
 		local gr = `gr' + 1
 		rename var `var'
-	
 	}
-		cap graph close	
-		shell start excel "`dirpath'\\Figure1.xlsx"
+	cap graph close	
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"
 
 end	
