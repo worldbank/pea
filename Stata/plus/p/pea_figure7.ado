@@ -77,7 +77,7 @@ program pea_figure7, rclass
 	
 		//missing observation check
 		marksample touse
-		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind' `age'"'
+		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `male' `edu' `age' `urban'"'
 		markout `touse' `flist' 
 	} //qui
 		
@@ -89,29 +89,53 @@ program pea_figure7, rclass
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
 		gen double _pop = `wvar'
 	}
+	
+	// Shorten value labels 
+    local lbl: value label `edu'
+	if "`lbl'" == "educat4" {
+		label define educat4_m 1 "No education" 2 "Primary" 3 "Secondary" 4 "Tertiary"
+		label values `edu' educat4_m
+	}	
+	
+	// Variable definitions
+	if "`age'"!="" {
+		su `age',d
+		if r(N)>0 {
+			gen agecatind = 1 if `age'>=0 & `age'<=14
+			replace agecatind = 2 if `age'>=15 & `age'<=65
+			replace agecatind = 3 if `age'>=66 & `age'<=.
+			la def agecatind 1 "Age 0-14" 2 "Age 15-65" 3 "Age 66+"
+			la val agecatind agecatind
+		}
+	}
+	
 	gen _total = 1
 	la def _total 1 "Total"
 	la val _total _total	
 	tempfile data1 data2
+	// Only last year
+	qui sum `year', d   // Get last year of survey data (year of scatter plot)
+	local lasty `r(max)'
+	keep if `year' == `lasty'
 	save `data1', replace
 	clear
 	save `data2', replace emptyok	
 
-	// 
+	// Prepare poverty rates by groups
 	use `data1', clear	
-	local byind `male' _total
+	local byind `male' `edu' agecatind `urban' _total
 
 	local i = 1
 	foreach var of local byind {
 		use `data1', clear
-		levelsof `var', local(lclist)
+		qui levelsof `var', local(lclist)
 		local label1 : value label `var'
 		 
 		foreach lvl of local lclist {
 			use `data1', clear
 			keep if `var'==`lvl'
 			local lbllvl : label `label1' `lvl'			
-			groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year')
+			groupfunction  [aw=`wvar'] if `touse', mean(_fgt0*) rawsum(_pop) by(`year')
 			gen _group = `i'			
 			la def _group `i' "`lbllvl'", add
 			la val _group _group
@@ -126,11 +150,35 @@ program pea_figure7, rclass
 	qui forv j=1(1)`=`i'-1' {
 		do `labelx`j''
 	}
+	qui foreach var of varlist _fgt0* {
+		replace `var' = `var' * 100
+	}
 	la val _group _group
 	
-	foreach p of local ppppovlines {
-		gen num_`p' = _fgt0_`pppwelfare'_`p' * _pop
-		bys `year': 
+	// Figure
+	if "`excel'"=="" {
+		local excelout2 "`dirpath'\\Figure7.xlsx"
+		local act replace
 	}
-		
+	else {
+		local excelout2 "`excelout'"
+		local act modify
+	}	
+	
+	tempfile graph
+	putexcel set "`excelout2'", `act'
+	graph dot _fgt0_welfare_natline _fgt0_welfppp_pline215 _fgt0_welfppp_pline365 _fgt0_welfppp_pline685 				///
+		,	over(_group) marker(1, msymbol(O)) marker(2, msymbol(D))  marker(3, msymbol(S))  marker(4, msymbol(T))  	///
+			legend(pos(6) order(1 "National poverty line" 2 "$2.15" 3 "$3.65" 4 "$6.85") row(1)) 						///
+			name(ngraph`gr', replace)																					///
+			ytitle("Poverty rate (percent)")																			///
+			note("Note: Figure presents poverty rates within each group.")
+
+	putexcel set "`excelout2'", modify sheet(Figure7, replace)	  
+	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
+	putexcel A1 = image("`graph'")
+	putexcel save							
+	cap graph close	
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure7.xlsx"	
+			
 end	
