@@ -20,8 +20,10 @@
 cap program drop pea_figure2
 program pea_figure2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) [FGTVARS file(string) save(string)   scheme(string) palette(string) MISSING]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS file(string) save(string) scheme(string) palette(string) MISSING]	
 	
+	tempfile dataori pea_pov 
+
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -58,17 +60,8 @@ program pea_figure2, rclass
 		local wvar `w'
 	}
 	local lblline: var label `oneline'		
-	tempfile dataori
 	save `dataori', replace
 	
-	// Number of groups (for colors)
-	// Assign groups, colors and legends
-	local b_count = `:word count `benchmark''
-	local groupcount = 1
-	local leg_elem = `b_count' + 3			// Number of benchmark countries, PEA country, region, and others
-
-	// Figure colors
-	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 		
 	// Check if PIP lineup already prepared, else download all PIP related files
 	local nametodo = 0
@@ -104,7 +97,6 @@ program pea_figure2, rclass
 		
 	// Preparation
 	use `dataori', clear
-	tempfile pea_pov
 	qui sum `year', d   // Get last year of survey data (year of scatter plot)
 	local lasty `r(max)'
 	keep if `year' == `lasty'
@@ -127,6 +119,14 @@ program pea_figure2, rclass
 	keep if year == `lasty'
 	local povline_100 = floor(`povline' * 100)
 	
+	// Recount benchmark countries to get total number of legend entries, as some benchmark countries might not have data
+	gen b_in_list = ""
+	foreach b of local benchmark {
+		replace b_in_list = code if code == "`b'"
+	}
+	qui levelsof b_in_list, local(benchmark_data)
+	local b_data_count = `:word count `benchmark_data''
+	
 	// Merge regions
 	merge m:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
 	levelsof _merge, local(mcode)
@@ -148,6 +148,13 @@ program pea_figure2, rclass
 	qui sum count if country_code == "`country'"
 	local region_name `=region[r(min)]'
 
+	// Figure colors
+	local groupcount = 1
+	local groups = `b_data_count' + 3																	//  Total number of entries and colors (benchmark countries, PEA country, region, and others)
+	local leg_elem = `groups'
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+	
+	// Figure preparation
 	* PEA country
 	gen   group = `groupcount' if country_code == "`country'"
 	qui sum count if country_code == "`country'"
@@ -155,39 +162,44 @@ program pea_figure2, rclass
 	local legend `"`legend' `leg_elem' "`cname'""'														// PEA country last and so on, so that PEA marker is on top
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
 	gen mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
+	local msym`groupcount' "D"
 
+	* Region
+	local groupcount = `groupcount' + 1
+	local leg_elem 	 = `leg_elem' - 1
+	replace group 	 = `groupcount' if region  == "`region_name'" & group == .	 
+	local legend `"`legend' `leg_elem' "`region_name'""'		
+	local grcolor`groupcount': word `groupcount' of ${colorpalette}
+	local msym`groupcount' "o"
+	
 	* Benchmark countries
 	local b_count = 1
-	foreach c of local benchmark {
+	foreach c of local benchmark_data {
 		local groupcount = `groupcount' + 1	
-		local leg_elem = `leg_elem' - 1
+		local leg_elem 	 = `leg_elem' - 1
 		replace group    = `groupcount' if country_code == "`c'"
 		qui sum count if country_code == "`c'"
 		local cname `=country_name[r(min)]'
 		local legend `"`legend' `leg_elem' "`cname'""'
-		local grcolor`groupcount': word `groupcount' of ${colorpalette}
 		local b_count = `b_count' + 1
-	}
+		local grcolor`groupcount': word `groupcount' of ${colorpalette}
+		local msym`groupcount' "t"
+		}
 
-	* Region
-	local groupcount = `groupcount' + 1
-	local leg_elem = `leg_elem' - 1
-	replace group 	 = `groupcount' if region  == "`region_name'" & group == .	 
-	local legend `"`legend' `leg_elem' "`region_name'""'		
-	local grcolor`groupcount': word `groupcount' of ${colorpalette}
 
 	* Rest
 	local groupcount = `groupcount' + 1
-	local leg_elem = `leg_elem' - 1
+	local leg_elem 	 = `leg_elem' - 1
 	replace group 	 = `groupcount' if group == .										
 	local legend `"`legend' `leg_elem' "Other countries" "'	
 	local lastcol: word count ${colorpalette}
 	local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
-
+	local msym`groupcount' "s" 
+	
 	// Scatter command
 	qui levelsof group, local(group_num)
 	foreach i of local group_num {
-		local scatter_cmd`i' `"scatter headcount`povline_100' ln_gdp_pc if group == `i', mc("`grcolor`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'
+		local scatter_cmd`i' `"scatter headcount`povline_100' ln_gdp_pc if group == `i', mc("`grcolor`i''") msymbol("`msym`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'
 		local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "						// PEA country comes last and marker is on top
 	}
 	 
@@ -207,17 +219,15 @@ program pea_figure2, rclass
 		
 	putexcel set "`excelout2'", `act'
 	tempfile graph
-	twoway `scatter_cmd'										///		
+	twoway `scatter_cmd'													///		
 		qfit 	headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) 	///
-		, legend(order(`legend')) 								///
-		  ytitle("Poverty rate (percent)") 				///
-		  xtitle("LN(GDP per capita, PPP, US$)")				///
-		  name(ngraph`gr', replace)								///
-		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries.")
-		  note("Poverty rates reported using `lblline'")
-	
-	//todo: add symbol marker for countries of interest, benchmark, and others.
-	
+		, legend(order(`legend')) 											///
+		  ytitle("Poverty rate (percent)") 									///
+		  xtitle("LN(GDP per capita, PPP, US$)")							///
+		  name(ngraph`gr', replace)											///
+		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." ///
+			   "Poverty rates reported using `lblline'")
+		
 	putexcel set "`excelout2'", modify sheet(Figure2, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
 	putexcel A1 = image("`graph'")
