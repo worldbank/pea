@@ -20,22 +20,8 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-<<<<<<< HEAD
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) comparability(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
-	
-	//load setting
-	qui if "`setting'"=="GMD" {
-		_pea_vars_set, setting(GMD)
-		local vlist urban
-		foreach st of local vlist {
-			local `st' "${pea_`st'}"
-		}		
-	}
-	
-=======
-	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric)  LINESORTED setting(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string) COMParability(varname numeric)]	
+	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric)  LINESORTED setting(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]	
 
->>>>>>> origin/main
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
@@ -160,13 +146,8 @@ program pea_figure1, rclass
 	
 	//FGT national
 	use `data1', clear
-<<<<<<< HEAD
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
-	gen `urban' = `max_val' 			//change this, to add more flexible, by var and within var groups /-> Response: changed to be flexible, but should more groups be allowed?
-=======
-	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability')
 	gen `urban' = 2 //change this, to add more flexible, by var and within var groups
->>>>>>> origin/main
 	save `data2', replace
 	
 	//FGT urban-rural
