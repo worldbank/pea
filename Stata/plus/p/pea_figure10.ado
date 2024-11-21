@@ -227,7 +227,6 @@ program pea_figure10, rclass
 	local msym`groupcount' "s" 
 	
 
-
 	// Scatter command
 	qui levelsof group, local(group_num)
 

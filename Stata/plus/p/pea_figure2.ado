@@ -161,7 +161,7 @@ program pea_figure2, rclass
 	local cname `=country_name[r(min)]'
 	local legend `"`legend' `leg_elem' "`cname'""'														// PEA country last and so on, so that PEA marker is on top
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
-	gen mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
+	gen   mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
 	local msym`groupcount' "D"
 
 	* Region
