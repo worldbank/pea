@@ -20,7 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) setting(string) LINESORTED setting(string) comparability(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) comparability(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
@@ -40,9 +40,9 @@ program pea_figure1, rclass
 		exit 1
 	}
 	if "`comparability'"=="" {
-		noi di in red "Comparability variable must be defined in comparability()"
-		exit 1
+		noi di in red "Warning: Comparability option not specified for Figure 1. Non-comparable spells may be shown."	// Not a strict condition
 	}
+	
 		
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -152,8 +152,11 @@ program pea_figure1, rclass
 		append using `data2'
 		save `data2', replace
 	}	
+	
 	// Add comparability variable
-	merge m:1 `year' using `datacomp', nogen
+	if "`comparability'"~="" {
+		merge m:1 `year' using `datacomp', nogen
+	}
 	
 	// Clean and label
 	keep `year' `urban' `comparability' _fgt0*
@@ -161,35 +164,42 @@ program pea_figure1, rclass
 	if "`ppppovlines'"~="" {
 		foreach var of local ppppovlines {
 			label var _fgt0_`pppwelfare'_`var' "`lbl`var''"
+			replace   _fgt0_`pppwelfare'_`var' = _fgt0_`pppwelfare'_`var' * 100
 		}
 	}
 	
 	if "`natpovlines'"~="" {
 		foreach var of local natpovlines {
 			label var _fgt0_`natwelfare'_`var' "`lbl`var''"
-
+			replace   _fgt0_`natwelfare'_`var' = _fgt0_`natwelfare'_`var' * 100
 		}
 	}
 	
 	// Figure	
 	qui levelsof `urban'		, local(group_num)
-	qui levelsof `comparability', local(compval)
+	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
 	qui levelsof `year'			, local(yearval)
 	label define urban `max_val' "Total", add									// Add Total as last entry
 
 	foreach i of local group_num {
 		local j = `i' + 1			
-		local scatter_cmd`i' = `"scatter var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'										// Colors defined in pea_figure_setup
+		local scatter_cmd`i' = `"scatter var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'								// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
 		local legend "`legend' `legend`i''"	
-		// Connect years only if comparable
-		foreach co of local compval {
-				local line_cmd`i'`co' = `"line var year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'										// Colors defined in pea_figure_setup
+		// Connect years (only if comparable if option is specified)
+		if "`comparability'"~="" {																											// If comparability specified, only comparable years are connected
+			foreach co of local compval {
+				local line_cmd`i'`co' = `"line var year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
-				}
-	}				
+			}
+		}
+		else if "`comparability'"=="" {
+			local line_cmd`i' = `"line var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
+			local line_cmd "`line_cmd' `line_cmd`i'`co''"
+		}
+	}		
 
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure1.xlsx"
@@ -217,7 +227,7 @@ program pea_figure1, rclass
 				  xlabel("`yearval'")									///
 				  name(ngraph`gr', replace)								///
 				  note("Note: Non-connected dots indicate that survey-years are not comparable.")	
-
+c
 		putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
 		graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
 		putexcel A`u' = image("`graph`gr''")
