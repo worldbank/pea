@@ -33,12 +33,24 @@ replace temp = trim(temp)
 encode temp, gen(subnatvar)
 la var subnatvar "By regions"
 drop tmp1  tmp2  temp
+*within(3)  welfaretype(INC CONS)
 
-pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
 
 pea figure1 [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) 
 
+pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
 
+pea figure3 [aw=weight_p], year(year) welfare(welfppp) palette(viridis) spells(2018 2021)
+
+pea figure4 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021)
+
+pea figure5 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) urban(urban)
+
+pea figure12 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis) spells(2018 2021)
+
+pea figure13 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis)
+
+pea figure14 [aw=weight_p], c(`country') welfare(`pppwelfare') year(`year')  benchmark(`benchmark') last3 setting(GMD)
 *gen head = relationharm==1 if relationharm~=.
 *la def head 1 "HH head" 
 *la val head head

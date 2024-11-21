@@ -155,6 +155,7 @@ program pea_figure2, rclass
 	local legend `"`legend' `leg_elem' "`cname'""'														// PEA country last and so on, so that PEA marker is on top
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
 	gen mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
+	local msym`groupcount' "D"
 
 	* Benchmark countries
 	local b_count = 1
@@ -164,9 +165,10 @@ program pea_figure2, rclass
 		replace group    = `groupcount' if country_code == "`c'"
 		qui sum count if country_code == "`c'"
 		local cname `=country_name[r(min)]'
-		local legend `"`legend' `leg_elem' "`cname'""'
-		local grcolor`groupcount': word `groupcount' of ${colorpalette}
+		local legend `"`legend' `leg_elem' "`cname'""'		
 		local b_count = `b_count' + 1
+		local grcolor`groupcount': word `groupcount' of ${colorpalette}
+		local msym`groupcount' "t"
 	}
 
 	* Region
@@ -175,6 +177,7 @@ program pea_figure2, rclass
 	replace group 	 = `groupcount' if region  == "`region_name'" & group == .	 
 	local legend `"`legend' `leg_elem' "`region_name'""'		
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}
+	local msym`groupcount' "o"
 
 	* Rest
 	local groupcount = `groupcount' + 1
@@ -183,11 +186,12 @@ program pea_figure2, rclass
 	local legend `"`legend' `leg_elem' "Other countries" "'	
 	local lastcol: word count ${colorpalette}
 	local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
+	local msym`groupcount' "s" 
 
 	// Scatter command
 	qui levelsof group, local(group_num)
-	foreach i of local group_num {
-		local scatter_cmd`i' `"scatter headcount`povline_100' ln_gdp_pc if group == `i', mc("`grcolor`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'
+	foreach i of local group_num {		
+		local scatter_cmd`i' `"scatter headcount`povline_100' ln_gdp_pc if group == `i', mc("`grcolor`i''") msymbol("`msym`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'
 		local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "						// PEA country comes last and marker is on top
 	}
 	 
@@ -213,7 +217,7 @@ program pea_figure2, rclass
 		  ytitle("Poverty rate (percent)") 				///
 		  xtitle("LN(GDP per capita, PPP, US$)")				///
 		  name(ngraph`gr', replace)								///
-		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries.")
+		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries.") ///
 		  note("Poverty rates reported using `lblline'")
 	
 	//todo: add symbol marker for countries of interest, benchmark, and others.
