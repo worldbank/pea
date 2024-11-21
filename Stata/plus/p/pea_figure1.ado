@@ -20,6 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
+<<<<<<< HEAD
 	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) comparability(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
 	
 	//load setting
@@ -31,6 +32,10 @@ program pea_figure1, rclass
 		}		
 	}
 	
+=======
+	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric)  LINESORTED setting(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string) COMParability(varname numeric)]	
+
+>>>>>>> origin/main
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
@@ -111,6 +116,20 @@ program pea_figure1, rclass
 		local wvar `w'
 	}
 	
+	//Comparability
+	if "`comparability'"=="" {
+		gen __comp = 1
+		local comparability __comp
+	}
+	qui ta `year'
+	local nyear = r(r)
+	qui ta `comparability'
+	local ncomp = r(r)
+	if `ncomp' > `nyear' {
+		noi dis as error "Inconsistency between number of years and number of comparable data points."
+		error 1
+	}
+	
 	//missing observation check
 	marksample touse
 	local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
@@ -141,14 +160,19 @@ program pea_figure1, rclass
 	
 	//FGT national
 	use `data1', clear
+<<<<<<< HEAD
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
 	gen `urban' = `max_val' 			//change this, to add more flexible, by var and within var groups /-> Response: changed to be flexible, but should more groups be allowed?
+=======
+	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability')
+	gen `urban' = 2 //change this, to add more flexible, by var and within var groups
+>>>>>>> origin/main
 	save `data2', replace
 	
 	//FGT urban-rural
 	foreach var of local urban {
 		use `data1', clear
-		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `var')
+		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' comparability `var')
 		append using `data2'
 		save `data2', replace
 	}	
