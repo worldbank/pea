@@ -14,8 +14,8 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-cap program drop pea_core
-program pea_core, rclass
+cap program drop pea_figures
+program pea_figures, rclass
 	version 18.0	
 	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) LATEST WITHIN3 BENCHmark(string) spells(string)  scheme(string) palette(string)]	
 		
@@ -120,7 +120,7 @@ program pea_core, rclass
 	
 	//Figure 1
 	qui use `data1', clear	
-	cap pea_figure1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 1....... Done"
 		local ok = 1
@@ -136,9 +136,18 @@ program pea_core, rclass
 	}
 	else noi dis in red "Figure 2....... Not done"
 	
+	//Figure 6
+	qui use `dataori', clear	
+	cap pea_figure6 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted oneline(`oneline') onewelfare(`onewelfare') spells(`spells') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 6....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 6....... Not done"
+	
 	//Figure 7
 	qui use `dataori', clear	
-	cap pea_figure7 [aw=`wvar'], c(`country') natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted age(`age') male(`male') edu(`edu') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure7 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted age(`age') male(`male') edu(`edu') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 7....... Done"
 		local ok = 1
