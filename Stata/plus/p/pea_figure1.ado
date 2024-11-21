@@ -20,7 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric)  LINESORTED setting(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]	
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) comparability(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -32,8 +32,17 @@ program pea_figure1, rclass
 	}
 	if "`comparability'"=="" {
 		noi di in red "Warning: Comparability option not specified for Figure 1. Non-comparable spells may be shown."	// Not a strict condition
+		gen __comp = 1
+		local comparability __comp
 	}
-	
+	qui ta `year'
+	local nyear = r(r)
+	qui ta `comparability'
+	local ncomp = r(r)
+	if `ncomp' > `nyear' {
+		noi dis as error "Inconsistency between number of years and number of comparable data points."
+		error 1
+	}
 		
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -102,19 +111,6 @@ program pea_figure1, rclass
 		local wvar `w'
 	}
 	
-	//Comparability
-	if "`comparability'"=="" {
-		gen __comp = 1
-		local comparability __comp
-	}
-	qui ta `year'
-	local nyear = r(r)
-	qui ta `comparability'
-	local ncomp = r(r)
-	if `ncomp' > `nyear' {
-		noi dis as error "Inconsistency between number of years and number of comparable data points."
-		error 1
-	}
 	
 	//missing observation check
 	marksample touse
@@ -146,14 +142,15 @@ program pea_figure1, rclass
 	
 	//FGT national
 	use `data1', clear
-	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
-	gen `urban' = 2 //change this, to add more flexible, by var and within var groups
+	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability')
+	gen `urban' = `max_val' 			
+
 	save `data2', replace
 	
 	//FGT urban-rural
 	foreach var of local urban {
 		use `data1', clear
-		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' comparability `var')
+		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability' `var')
 		append using `data2'
 		save `data2', replace
 	}	
@@ -202,7 +199,7 @@ program pea_figure1, rclass
 		}
 		else if "`comparability'"=="" {
 			local line_cmd`i' = `"line var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
-			local line_cmd "`line_cmd' `line_cmd`i'`co''"
+			local line_cmd "`line_cmd' `line_cmd`i''"
 		}
 	}		
 
@@ -232,7 +229,7 @@ program pea_figure1, rclass
 				  xlabel("`yearval'")									///
 				  name(ngraph`gr', replace)								///
 				  note("Note: Non-connected dots indicate that survey-years are not comparable.")	
-c
+
 		putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
 		graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
 		putexcel A`u' = image("`graph`gr''")
