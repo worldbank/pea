@@ -50,7 +50,8 @@ pea figure12 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis) spe
 
 pea figure13 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis)
 
-pea figure14 [aw=weight_p], c(`country') welfare(`pppwelfare') year(`year')  benchmark(`benchmark') last3 setting(GMD)
+pea figure14 [aw=weight_p], c(GNB) welfare(welfppp) year(year)  benchmark(GHA CIV ) last(5) setting(GMD)
+
 *gen head = relationharm==1 if relationharm~=.
 *la def head 1 "HH head" 
 *la val head head
