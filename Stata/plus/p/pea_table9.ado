@@ -19,7 +19,7 @@
 cap program drop pea_table9
 program pea_table9, rclass
 	version 18.0
-	syntax [if] [in], [Country(string) Year(varname numeric) CORE setting(string) excel(string) save(string)]	
+	syntax [if] [in], [Country(string) Year(varname numeric) CORE excel(string) save(string)]	
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -60,6 +60,13 @@ program pea_table9, rclass
 		su `year',d
 		local ymax = r(max)
 	}
+	
+	cap cd "`persdir'pea/Scorecard_Summary_Vision/"
+	if _rc~=0 {
+		noi di in red "Scorecard_Summary_Vision folder does not exist."
+		exit `=_rc'
+	}
+	cap cd "`persdir'pea"
 	
 	// Get country name
 	use "`persdir'pea/PIP_list_name.dta", clear
