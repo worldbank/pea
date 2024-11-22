@@ -15,7 +15,6 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 //Figure 10c. PG (survey) and GDP per capita scatter
-//Note on helpfile: only work for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
 
 cap program drop pea_figure10c
 program pea_figure10c, rclass
