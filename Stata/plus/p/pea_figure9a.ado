@@ -15,7 +15,6 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 //Figure 9a. Inequality by year lines
-//todo: add comparability, add the combine graph option
 
 cap program drop pea_figure9a
 program pea_figure9a, rclass
@@ -136,7 +135,7 @@ program pea_figure9a, rclass
 	gen `urban' = `max_val' 			
 	save `data2', replace
 	
-	//FGT urban-rural
+	//GINI urban-rural
 	foreach var of local urban {
 		use `dataori', clear
 		if "`onewelfare'"~="" groupfunction  [aw=`wvar'] if `touse', gini(_Gini_`onewelfare') by(`year' `var')

@@ -20,7 +20,7 @@
 cap program drop pea_figure9b
 program pea_figure9b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) file(string) save(string) scheme(string) palette(string) within(string) welfaretype(string)  MISSING]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) file(string) save(string) scheme(string) palette(string) within(string) welfaretype(string)]	
 
 	tempfile dataori pea_gini
 
