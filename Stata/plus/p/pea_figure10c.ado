@@ -14,13 +14,13 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Figure 10c. PG and GDP per capita scatter
+//Figure 10c. PG (survey) and GDP per capita scatter
 //Note on helpfile: only work for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
 
 cap program drop pea_figure10c
 program pea_figure10c, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) file(string) save(string) scheme(string) palette(string) within(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(string) scheme(string) palette(string) save(string) excel(string)]	
 
 	tempfile dataori pea_pg
 

@@ -3,7 +3,7 @@
 cap program drop pea_figure7
 program pea_figure7, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) setting(string) LINESORTED age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) excel(string) save(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
