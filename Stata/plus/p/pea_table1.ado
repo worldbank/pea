@@ -164,7 +164,6 @@ program pea_table1, rclass
 	quietly capture cd "`persdir'pea/Scorecard_Summary_Vision/"
 	if _rc~=0 {
 		noi di in red "Scorecard_Summary_Vision folder does not exist."
-		exit `=_rc'
 	}
 	quietly cd `"`cwd'"'
 
