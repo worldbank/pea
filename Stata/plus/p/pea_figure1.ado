@@ -20,7 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) comparability(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) comparability(string) combine(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -43,6 +43,17 @@ program pea_figure1, rclass
 			error 1
 		}
 	}	
+	// Combine options
+	if "`combine'" == "" {
+			noi di in red "Combine option not specified, singe figures produced"	// Not a strict condition	
+	}
+	if "`combine'" == "no" {
+		local combine = ""
+	}
+	if ("`combine'" ~= "yes" & "`combine'" ~= "no" & "`combine'" ~= "") {
+			noi dis as error "Invalid option, combine may only take yes, no or be missing."
+			error 1	
+	}
 	if "`using'"~="" {
 		cap use "`using'", clear
 		if _rc~=0 {
@@ -223,21 +234,42 @@ program pea_figure1, rclass
 		rename `var' var
 		tempfile graph`gr'
 		local lbltitle : variable label var
-		twoway `scatter_cmd' `line_cmd'									///	
-				  , legend(order("`legend'")) 							///
-				  ytitle("Poverty rate (percent)") 						///
-				  xtitle("")											///
-				  title("`lbltitle'")									///
-				  xlabel("`yearval'")									///
-				  name(ngraph`gr', replace)								///
-				  note(`note')	
-
-		putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
-		graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
+		if "`combine'" == "" {
+			twoway `scatter_cmd' `line_cmd'									///	
+					  , legend(order("`legend'")) 							///
+					  ytitle("Poverty rate (percent)") 						///
+					  xtitle("")											///
+					  title("`lbltitle'")									///
+					  xlabel("`yearval'")									///
+					  name(ngraph`gr', replace)								///
+					  note(`note')
+			putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
+			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
+			putexcel A`u' = image("`graph`gr''")
+			putexcel save	
+			local gr = `gr' + 1
+			rename var `var'
+		}
+		if "`combine'" ~= "" {													// If combine specified, without notes 
+			twoway `scatter_cmd' `line_cmd'									///	
+					  , legend(order("`legend'")) 							///
+					  ytitle("Poverty rate (percent)") 						///
+					  xtitle("")											///
+					  title("`lbltitle'")									///
+					  xlabel("`yearval'")									///
+					  name(ngraph`gr', replace)		
+			local graphnames "`graphnames' ngraph`gr'"
+			local gr = `gr' + 1
+			rename var `var'
+	}
+	}	
+	if "`combine'" ~= "" {														// If combine specified, export combined graph
+		tempfile graph`gr'
+		graph combine `graphnames', note(`note') name(ngraphcomb)
+		putexcel set "`excelout2'", modify sheet(Figure1_comb, replace)	  
+		graph export "`graph`gr''", replace as(png) name(ngraphcomb) wid(3000)		
 		putexcel A`u' = image("`graph`gr''")
-		putexcel save							
-		local gr = `gr' + 1
-		rename var `var'
+		putexcel save
 	}
 	cap graph close	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"
