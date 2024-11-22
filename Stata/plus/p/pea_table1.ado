@@ -158,25 +158,16 @@ program pea_table1, rclass
 		drop _merge
 		save `data2', replace
 	}
-	
-	//At risk indicator
-	/*
-	tempfile atriskdata
-	local nametodo = 0
-	cap confirm file "`persdir'pea/CSC_atrisk2021.dta"
-	if _rc==0 {
-		cap use "`persdir'pea/CSC_atrisk2021.dta", clear	
-		if _rc~=0 local nametodo = 1	
+		
+	// Check if folder exists
+	local cwd `"`c(pwd)'"'														// store current wd
+	quietly capture cd "`persdir'pea/Scorecard_Summary_Vision/"
+	if _rc~=0 {
+		noi di in red "Scorecard_Summary_Vision folder does not exist."
+		exit `=_rc'
 	}
-	else local nametodo = 1
-	if `nametodo'==1 {
-		cap pea_dataupdate, datatype(SCORECARD) update
-		if _rc~=0 {
-			noi dis "Unable to run pea_dataupdate, datatype(SCORECARD) update"
-			exit `=_rc'
-		}
-	}
-	*/
+	quietly cd `"`cwd'"'
+
 	
 	cap import excel "`persdir'pea/Scorecard_Summary_Vision/EN_CLM_VULN.xlsx", firstrow clear
 	if _rc==0 {
