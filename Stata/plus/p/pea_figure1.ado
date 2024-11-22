@@ -32,18 +32,17 @@ program pea_figure1, rclass
 	}
 	if "`comparability'"=="" {
 		noi di in red "Warning: Comparability option not specified for Figure 1. Non-comparable spells may be shown."	// Not a strict condition
-		gen __comp = 1
-		local comparability __comp
 	}
-	qui ta `year'
-	local nyear = r(r)
-	qui ta `comparability'
-	local ncomp = r(r)
-	if `ncomp' > `nyear' {
-		noi dis as error "Inconsistency between number of years and number of comparable data points."
-		error 1
-	}
-		
+	else if "`comparability'"~="" {
+		qui ta `year'
+		local nyear = r(r)
+		qui ta `comparability'
+		local ncomp = r(r)
+		if `ncomp' > `nyear' {
+			noi dis as error "Inconsistency between number of years and number of comparable data points."
+			error 1
+		}
+	}	
 	if "`using'"~="" {
 		cap use "`using'", clear
 		if _rc~=0 {
@@ -131,7 +130,6 @@ program pea_figure1, rclass
 	
 	// Create fgt
 	use `dataori'
-	use `dataori'
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
@@ -143,7 +141,7 @@ program pea_figure1, rclass
 	
 	//FGT national
 	use `data1', clear
-	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability')
+	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
 	gen `urban' = `max_val' 			
 
 	save `data2', replace
@@ -151,7 +149,7 @@ program pea_figure1, rclass
 	//FGT urban-rural
 	foreach var of local urban {
 		use `data1', clear
-		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability' `var')
+		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `var')
 		append using `data2'
 		save `data2', replace
 	}	
@@ -159,10 +157,12 @@ program pea_figure1, rclass
 	// Add comparability variable
 	if "`comparability'"~="" {
 		merge m:1 `year' using `datacomp', nogen
+		keep `year' `urban' `comparability' _fgt0*
 	}
-	
+	else if "`comparability'"=="" {
+		keep `year' `urban' _fgt0*
+	}	
 	// Clean and label
-	keep `year' `urban' `comparability' _fgt0*
 	label values `urban' urban
 	if "`ppppovlines'"~="" {
 		foreach var of local ppppovlines {
@@ -197,6 +197,7 @@ program pea_figure1, rclass
 				local line_cmd`i'`co' = `"line var year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
 			}
+			local note "Note: Non-connected dots indicate that survey-years are not comparable."
 		}
 		else if "`comparability'"=="" {
 			local line_cmd`i' = `"line var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
@@ -229,7 +230,7 @@ program pea_figure1, rclass
 				  title("`lbltitle'")									///
 				  xlabel("`yearval'")									///
 				  name(ngraph`gr', replace)								///
-				  note("Note: Non-connected dots indicate that survey-years are not comparable.")	
+				  note(`note')	
 
 		putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
 		graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
