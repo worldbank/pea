@@ -131,6 +131,7 @@ program pea_figure1, rclass
 	
 	// Create fgt
 	use `dataori'
+	use `dataori'
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
