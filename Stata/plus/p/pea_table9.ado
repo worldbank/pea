@@ -61,12 +61,14 @@ program pea_table9, rclass
 		local ymax = r(max)
 	}
 	
-	cap cd "`persdir'pea/Scorecard_Summary_Vision/"
+	// Check if folder exists
+	local cwd `"`c(pwd)'"'														// store current wd
+	quietly capture cd "`persdir'pea/Scorecard_Summary_Vision/"
 	if _rc~=0 {
 		noi di in red "Scorecard_Summary_Vision folder does not exist."
 		exit `=_rc'
 	}
-	cap cd "`persdir'pea"
+	quietly cd `"`cwd'"'
 	
 	// Get country name
 	use "`persdir'pea/PIP_list_name.dta", clear
