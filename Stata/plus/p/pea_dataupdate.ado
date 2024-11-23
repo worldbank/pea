@@ -285,5 +285,12 @@ program pea_dataupdate, rclass
 			*char _dta[version] $S_DATE
 			*save "`persdir'pea/CSC_atrisk2021.dta", replace
 		}
+		
+		//Climate exposure and vulnerability
+		if "`datatype'"=="CLIMRISK" {
+			noi dis "Place holder only"
+			*char _dta[version] $S_DATE
+			*save "`persdir'pea/CSC_atrisk2021.dta", replace
+		}
 	} //dl
 end

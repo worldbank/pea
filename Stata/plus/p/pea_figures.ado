@@ -120,7 +120,7 @@ program pea_figures, rclass
 	
 	//Figure 1
 	qui use `data1', clear	
-	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability')  combine(`combine') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 1....... Done"
 		local ok = 1
@@ -129,7 +129,7 @@ program pea_figures, rclass
 	
 	//Figure 2	
 	qui use `dataori', clear		
-	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') fgtvars oneline(`oneline') onewelfare(`onewelfare') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars onewelfare(`onewelfare') oneline(`oneline') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 2....... Done"
 		local ok = 1
@@ -138,7 +138,7 @@ program pea_figures, rclass
 	
 	//Figure 6
 	qui use `dataori', clear	
-	cap pea_figure6 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted oneline(`oneline') onewelfare(`onewelfare') spells(`spells') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure6 [aw=`wvar'], year(`year') oneline(`oneline') onewelfare(`onewelfare') fgtvars spells(`spells') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 6....... Done"
 		local ok = 1
@@ -147,21 +147,66 @@ program pea_figures, rclass
 	
 	//Figure 7
 	qui use `dataori', clear	
-	cap pea_figure7 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted age(`age') male(`male') edu(`edu') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure7 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted age(`age') male(`male') edu(`edu') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 7....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Figure 7....... Not done"
 
-	//Figure 10
+	//Figure 9a
 	qui use `dataori', clear	
-	cap pea_figure6 [aw=`wvar'], c(`country') year(`year') fgtvars oneline(`oneline') onewelfare(`onewelfare') within(`within') welfaretype(`welfaretpye') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure9a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
-		noi dis in green "Figure 10....... Done"
+		noi dis in green "Figure 9a....... Done"
 		local ok = 1
 	}
-	else noi dis in red "Figure 10....... Not done"
+	else noi dis in red "Figure 9a....... Not done"
+	
+	//Figure 9b
+	qui use `dataori', clear	
+	cap pea_figure9b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') welfaretype(`welfaretpye') within(`within') scheme(`scheme') palette(`palette') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 9b....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 9b....... Not done"
+
+	//Figure 10a
+	qui use `dataori', clear	
+	cap pea_figure10a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 10a....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 10a....... Not done"
+	
+	//Figure 10b
+	qui use `dataori', clear	
+	cap pea_figure10b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') scheme(`scheme') palette(`palette') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 10b....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 10b....... Not done"
+		
+	//Figure 10c
+	qui use `dataori', clear	
+	cap pea_figure10b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') within(`within') scheme(`scheme') palette(`palette') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 10b....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 10b....... Not done"
+
+	//Figure 15
+	qui use `dataori', clear	
+	cap pea_figure15, c(`country') scheme(`scheme') palette(`palette') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 15....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 15....... Not done"
 	
 	//Final open	
 	if `ok'==1 {

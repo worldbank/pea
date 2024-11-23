@@ -14,15 +14,14 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Figure 2. Poverty and GDP per capita scatter
-//Note on helpfile: only work for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
+//Figure 9b. GINI and GDP per capita scatter
 
-cap program drop pea_figure2
-program pea_figure2, rclass
+cap program drop pea_figure9b
+program pea_figure9b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS scheme(string) palette(string) save(string) excel(string)]	
-	
-	tempfile dataori pea_pov 
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(string) welfaretype(string) scheme(string) palette(string) save(string) excel(string)]	
+
+	tempfile dataori pea_gini
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -52,6 +51,35 @@ program pea_figure2, rclass
 		else local excelout "`excel'"
 	}
 	
+	if "`within'" == "" {
+		local within = 3
+	}
+	else if `within' >= 10 {
+			noi di in red "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
+			exit `=_rc'		
+	}
+
+
+	if "`welfaretype'" == "" {
+		capture confirm variable welfaretype																							// If welfare type not defined, check if variable exists
+		if _rc~= 0 {
+			noi di in red "Please define welfare type as INC or CONS in welfaretype()"
+			exit `=_rc'
+			}
+		else {
+			qui levelsof welfaretype, local(welfaretype_t)																				// if welfaretype variable exist, use that value
+			local welfaretype = `welfaretype_t'
+			if "`welfaretype'" == "INC" | "`welfaretype'" == "CONS" {																		// Check that values are correct
+			}
+			else {
+			noi di in red "Please define welfare type as INC or CONS in welfaretype()"
+			exit `=_rc'
+			}
+		}
+	}
+		
+
+	
 	//Weights
 	local wvar : word 2 of `exp'	// `exp' is weight in Stata ado syntax
 	qui if "`wvar'"=="" {
@@ -59,15 +87,13 @@ program pea_figure2, rclass
 		gen `w' = 1
 		local wvar `w'
 	}
-	local lblline: var label `oneline'		
 	save `dataori', replace
 	
-		
-	// Check if PIP lineup already prepared, else download all PIP related files
+	// Check if PIP already prepared, else download all PIP related files
 	local nametodo = 0
-	cap confirm file "`persdir'pea/PIP_all_countrylineup.dta"
+	cap confirm file "`persdir'pea/PIP_all_country.dta"
 	if _rc==0 {
-		cap use "`persdir'pea/PIP_all_countrylineup.dta", clear	
+		cap use "`persdir'pea/PIP_all_country.dta", clear	
 		if _rc~=0 local nametodo = 1	
 	}
 	else local nametodo = 1
@@ -100,24 +126,24 @@ program pea_figure2, rclass
 	qui sum `year', d   // Get last year of survey data (year of scatter plot)
 	local lasty `r(max)'
 	keep if `year' == `lasty'
-	qui sum `oneline', d
-	local povline `r(max)'	// Get one poverty line value
 	//missing observation check
 	marksample touse
-	local flist `"`wvar' `onewelfare' `oneline' `year'"'
+	local flist `"`wvar' `onewelfare' `year'"'
 	markout `touse' `flist' 
 	
-	// Generate poverty rate of PEA country
-	if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline') 
-	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
-	keep _fgt0* year
+	// Generate Gini of PEA country
+	clonevar _Gini_`onewelfare' = `onewelfare' if `touse'
+	if "`onewelfare'"~="" groupfunction  [aw=`wvar'] if `touse', gini(_Gini_`onewelfare') by(`year')
 	gen country_code = "`country'"
-	save `pea_pov'
-	
+	save `pea_gini'
+		
 	// Load GDP and other countries from PIP
-	use "`persdir'pea/PIP_all_countrylineup.dta", clear
-	keep if year == `lasty'
-	local povline_100 = floor(`povline' * 100)
+	use "`persdir'pea/PIP_all_country.dta", clear
+	gen y_d = abs(`lasty' - year)												// year closest to PEA year
+	bys country_code (year): egen min_d = min(y_d)
+	keep if (y_d == min_d) & y_d < `within' & gini ~= .
+	bys country_code (year): keep if _n == _N 									// use latest year if there are two with equal distance
+	keep country_code year gini code welfaretype
 	
 	// Recount benchmark countries to get total number of legend entries, as some benchmark countries might not have data
 	gen b_in_list = ""
@@ -128,30 +154,34 @@ program pea_figure2, rclass
 	local b_data_count = `:word count `benchmark_data''
 	
 	// Merge regions
-	merge m:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
-	levelsof _merge, local(mcode)
-	assert _merge != 1			// Check if region codes merge
+	merge 1:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
+	qui levelsof _merge, local(mcode)
+	assert _merge != 1																					// Check if region codes merge
 	drop _merge 
 	
 	// Merge GDP
 	merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
-	levelsof _merge, local(mcode)
-	assert _merge != 1			// Check if GDP merges
+	qui levelsof _merge, local(mcode)
+	assert _merge != 1																					// Check if GDP merges
 	drop _merge 
 	
-	// Merge in PEA poverty rate
-	merge 1:1 country_code year using `pea_pov'
-	replace headcount`povline_100' = _fgt0_`onewelfare'_`oneline' * 100 if country_code == "`country'"	// Get PEA poverty rate for PEA country
+	// Merge in PEA GINI
+	merge 1:1 country_code year using `pea_gini'
+	replace gini = _Gini_`onewelfare'   if country_code == "`country'"									// Get PEA Gini for PEA country
+	replace gini = gini * 100
+	replace welfaretype = "`welfaretype'" if country_code == "`country'"
 	assert _merge != 2
+	
 	// Get region
 	gen count = _n
 	qui sum count if country_code == "`country'"
 	local region_name `=region[r(min)]'
-
+	
 	// Figure colors
 	local groupcount = 1
 	local groups = `b_data_count' + 3																	//  Total number of entries and colors (benchmark countries, PEA country, region, and others)
 	local leg_elem = `groups'
+	di `leg_elem'
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
 	// Figure preparation
@@ -163,7 +193,7 @@ program pea_figure2, rclass
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
 	gen   mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
 	local msym`groupcount' "D"
-
+	
 	* Region
 	local groupcount = `groupcount' + 1
 	local leg_elem 	 = `leg_elem' - 1
@@ -186,10 +216,8 @@ program pea_figure2, rclass
 		local msym`groupcount' "t"
 		}
 
-
 	* Rest
 	local groupcount = `groupcount' + 1
-	local leg_elem 	 = `leg_elem' - 1
 	local leg_elem 	 = `leg_elem' - 1
 	replace group 	 = `groupcount' if group == .										
 	local legend `"`legend' `leg_elem' "Other countries" "'	
@@ -197,20 +225,37 @@ program pea_figure2, rclass
 	local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
 	local msym`groupcount' "s" 
 	
+
 	// Scatter command
 	qui levelsof group, local(group_num)
-	foreach i of local group_num {
-		local scatter_cmd`i' `"scatter headcount`povline_100' ln_gdp_pc if group == `i', mc("`grcolor`i''") msymbol("`msym`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'
-		local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "						// PEA country comes last and marker is on top
-	}
-	 
-	// Data Preparation 
-	gen ln_gdp_pc = ln(gdppc)
-	format headcount`povline_100' %5.0f
 
+	* First for other welfare type (not filled)
+	foreach i of local group_num {
+		local scatter_cmd`i' `"scatter gini ln_gdp_pc if group == `i' & welfaretype != "`welfaretype'", mc("`grcolor`i''") mfc(none) msymbol("`msym`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'			
+		local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "						// PEA country comes last and marker is on top			
+	}		 
+	* Second for welfare type of survey country - For legend
+	foreach i of local group_num {
+		local scatter_cmd`i' `"scatter gini ln_gdp_pc if group == `i' & welfaretype == "`welfaretype'", mc("`grcolor`i''") msymbol("`msym`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'			
+		local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "						// PEA country comes last and marker is on top			
+	}
+	
+	// Figure note depending on welfare type
+	if "`welfaretype'" == "CONS" {
+		local w_note   = "consumption" 
+		local w_note_o = "income" 
+	}
+	if "`welfaretype'" == "INC" {
+		local w_note   = "income" 
+		local w_note_o = "consumption" 
+	}
+	// Data Preparation 
+	gen 	ln_gdp_pc = ln(gdppc)
+	format  gini %5.0f
+	
 	// Figure
 	if "`excel'"=="" {
-		local excelout2 "`dirpath'\\Figure2.xlsx"
+		local excelout2 "`dirpath'\\Figure9b.xlsx"
 		local act replace
 	}
 	else {
@@ -221,19 +266,20 @@ program pea_figure2, rclass
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `scatter_cmd'													///		
-		qfit 	headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) 	///
+		qfit 	gini ln_gdp_pc, lpattern(-) lcolor(gray) 	///
 		, legend(order(`legend')) 											///
-		  ytitle("Poverty rate (percent)") 									///
+		  ytitle("Gini index")			 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)											///
-		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." ///
-			   "Poverty rates reported using `lblline'")
+		  note("Note: Data is from the closest available survey within `within' years to `lasty'."  ///
+			   "Filled markers indicate a `w_note'-based welfare aggregate and"						///
+			   "hollow markers a `w_note_o'-based welfare aggregate.") 
 		
-	putexcel set "`excelout2'", modify sheet(Figure2, replace)	  
+	putexcel set "`excelout2'", modify sheet(Figure9b, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
 	putexcel A1 = image("`graph'")
 	putexcel save							
 	cap graph close	
-	if "`excel'"=="" shell start excel "`dirpath'\\Figure2.xlsx"	
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure9b.xlsx"	
 	
 end

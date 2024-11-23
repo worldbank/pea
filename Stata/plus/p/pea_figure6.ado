@@ -1,9 +1,25 @@
+*! version 0.1.1  12Sep2014
+*! Copyright (C) World Bank 2017-2024 
+*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+//Figure 6. PG (survey) and GDP per capita GDP - Poverty elasticity
 
 cap program drop pea_figure6
 program pea_figure6, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS ONELine(varname numeric) ONEWelfare(varname numeric) using(string) Year(varname numeric) spells(string) comparability(string) LINESORTED excel(string) save(string) scheme(string) palette(string)]
+syntax [if] [in] [aw pw fw], [Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
 
 	
 	tempfile dataori pea_pov 
@@ -15,14 +31,6 @@ syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist nu
 	
 	if "`comparability'"=="" {
 		noi di in red "Warning: Comparability option not specified for Figure 7. Non-comparable spells may be shown."
-	}
-	
-	if "`using'"~="" {
-		cap use "`using'", clear
-		if _rc~=0 {
-			noi di in red "Unable to open the data"
-			exit `=_rc'
-		}
 	}
 	
 	if "`excel'"=="" {
@@ -240,7 +248,7 @@ syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist nu
 			legend(order(`legend') pos(6) row(2) holes(2)) 	///
 			ytitle("Annualized growth rate (percent)")		///
 			name(ngraph`gr', replace)						
-		x
+		
 	putexcel set "`excelout2'", modify sheet(Figure6, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
 	putexcel A1 = image("`graph'")
