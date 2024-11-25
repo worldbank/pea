@@ -14,12 +14,12 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Figure 6. PG (survey) and GDP per capita GDP - Poverty elasticity
+//Figure 6. GDP per capita GDP - Poverty elasticity
 
 cap program drop pea_figure6
 program pea_figure6, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
+syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
 
 	
 	tempfile dataori pea_pov 
@@ -91,18 +91,18 @@ syntax [if] [in] [aw pw fw], [Year(varname numeric) ONELine(varname numeric) ONE
 	// Prepare spells
 	tokenize "`spells'", parse(";")	
 	local i = 1																			// Loop through tokens
-	local fig7a = 1
+	local fig6 = 1
 	while "``i''" != "" {
 		if "``i''"~=";" {																// Forces to start new local after ";" token
-			local spell`fig7a' "``i''"		
-			local fig7a = `fig7a' + 1
+			local spell`fig6' "``i''"		
+			local fig6 = `fig6' + 1
 		}	
 		local i = `i' + 1
 	}
 
 	// Comparability
 	if "`comparability'" ~= "" {
-		forv j=1(1)`=`fig7a'-1' {
+		forv j=1(1)`=`fig6'-1' {
 			local spell_c`j' = "`spell`j''"												// Save local
 			qui levelsof `comparability', local(comp_years)								// Loop through all values of comparability
 			foreach i of local comp_years {
@@ -149,17 +149,19 @@ syntax [if] [in] [aw pw fw], [Year(varname numeric) ONELine(varname numeric) ONE
 	keep _fgt0* year
 	gen code = "`country'"
 	save `pea_pov'
-	
+
 	// Merge GDP
 	merge 1:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
-	levelsof _merge, local(mcode)
-	assert _merge != 1																		// Check if GDP merges
-	drop _merge 	
-	
+	egen any_merge = max(_merge)
+	if any_merge~=3 {
+		noi di in red  "Figure 6: Unable to merge GMD with PIP (GDP) data. Check country codes."
+		exit `=_rc'
+	}
+	drop _merge any_merge	
 	// Reshape for easier handling of years
 	reshape wide _fgt0* gdppc, i(code) j(`year')
 			
-	forv j=1(1)`=`fig7a'-1' {																// Loop through number of spells (minus ;) [See code above under Clean spells]
+	forv j=1(1)`=`fig6'-1' {																// Loop through number of spells (minus ;) [See code above under Clean spells]
 		local spell`j' : list sort spell`j'													// Sort years ascending
 		tokenize "`spell`j''"																// Get each year separately
 		if "`1'"~="" & "`2'"~="" {	

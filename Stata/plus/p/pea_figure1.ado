@@ -169,27 +169,31 @@ program pea_figure1, rclass
 	
 	if "`natpovlines'"~="" {
 		foreach var of local natpovlines {
-			label var _fgt0_`natwelfare'_`var' "`lbl`var''"
+			local natvnum = 1
+			*label var _fgt0_`natwelfare'_`var' "`lbl`var''"
+			label var _fgt0_`natwelfare'_`var' "National poverty line `natvnum'"
+			local natvnum = `natvnum' + 1
 		}
 	}
 	
 	// Figure	
 	qui levelsof `urban'		, local(group_num)
 	qui levelsof `comparability', local(compval)
-	qui levelsof `year'			, local(yearval)
 	local varlblurb : value label `urban'
-	label define `varlblurb' `max_val' "Total", add  // Add Total as last entry
+	label define `varlblurb' `max_val' "Total", add  											// Add Total as last entry
+	egen year_nogap = group(`year'), label(year_nogap)											// Generate year variable without gaps
+	qui levelsof year_nogap		 , local(yearval)	
 
 	foreach i of local group_num {
 		local j = `i' + 1			
-		local scatter_cmd`i' = `"scatter var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'					// Colors defined in pea_figure_setup
+		local scatter_cmd`i' = `"scatter var year_nogap if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'					// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
 		local legend "`legend' `legend`i''"	
 																								// If comparability specified, only comparable years are connected
 		foreach co of local compval {
-			local line_cmd`i'`co' = `"line var year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
+			local line_cmd`i'`co' = `"line var year_nogap if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 			local line_cmd "`line_cmd' `line_cmd`i'`co''"
 		}
 		if "`comparability'"~="__comp" local note "Note: Non-connected dots indicate that survey-years are not comparable."	
@@ -224,7 +228,7 @@ program pea_figure1, rclass
 				  ytitle("Poverty rate (percent)") 						///
 				  xtitle("")											///
 				  title("`lbltitle'")									///				  
-				  xlabel("`yearval'")									///
+				  xlabel("`yearval'", valuelabel)						///
 				  name(ngraph`gr', replace)								///
 				  `shownote'
 		local graphnames "`graphnames' ngraph`gr'"
@@ -241,13 +245,14 @@ program pea_figure1, rclass
 	
 	if "`combine'" ~= "" {  // If combine specified, export combined graph
 		tempfile graph`gr'
-		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*1) note(`note') name(ngraphcomb)		
+		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) note(`note') name(ngraphcomb)		
 		*graph combine `graphnames', note(`note') name(ngraphcomb, replace)
 		putexcel set "`excelout2'", modify sheet(Figure1, replace)	  
 		graph export "`graph`gr''", replace as(png) name(ngraphcomb) wid(3000)		
 		putexcel A`u' = image("`graph`gr''")
 		putexcel save
 	}
+	x
 	cap graph close	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"
 end	
