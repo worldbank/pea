@@ -36,7 +36,9 @@ drop tmp1  tmp2  temp
 *within(3)  welfaretype(INC CONS)
 
 
-pea figure1 [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) 
+pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban)
+
+pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine
 
 pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
 
@@ -51,6 +53,8 @@ pea figure12 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis) spe
 pea figure13 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis)
 
 pea figure14 [aw=weight_p], c(GNB) welfare(welfppp) year(year)  benchmark(GHA CIV ) last(5) setting(GMD)
+
+pea figures [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2018 2021)
 
 *gen head = relationharm==1 if relationharm~=.
 *la def head 1 "HH head" 
@@ -93,6 +97,12 @@ replace temp = trim(temp)
 encode temp, gen(subnatvar)
 la var subnatvar "By regions"
 drop tmp1 tmpb1 tmp2 tmpb2 temp
+replace comparability = 0 if year==2015
+replace comparability = 2 if year==2025
+
+pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine comparability(comparability)
+
+pea figures [aw=weight_p], c(ARM) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025) comparability(comparability)
 
 *drop if year==2015|year==2016|year==2017
 
@@ -103,6 +113,8 @@ la val head head
 gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 gen married = marital==1 if marital~=.
 */
+
+pea figures [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
 
 pea tables [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
 

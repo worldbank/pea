@@ -20,7 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) comparability(string) combine(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -30,30 +30,21 @@ program pea_figure1, rclass
 		noi di in red "Sector/urban variable must be defined in urban()"
 		exit 1
 	}
+	
+	//Comparability
 	if "`comparability'"=="" {
-		noi di in red "Warning: Comparability option not specified for Figure 1. Non-comparable spells may be shown."	// Not a strict condition
+		gen __comp = 1
+		local comparability __comp
 	}
-	else if "`comparability'"~="" {
-		qui ta `year'
-		local nyear = r(r)
-		qui ta `comparability'
-		local ncomp = r(r)
-		if `ncomp' > `nyear' {
-			noi dis as error "Inconsistency between number of years and number of comparable data points."
-			error 1
-		}
-	}	
-	// Combine options
-	if "`combine'" == "" {
-			noi di in red "Combine option not specified, singe figures produced"	// Not a strict condition	
+	qui ta `year'
+	local nyear = r(r)
+	qui ta `comparability'
+	local ncomp = r(r)
+	if `ncomp' > `nyear' {
+		noi dis as error "Inconsistency between number of years and number of comparable data points."
+		error 1
 	}
-	if "`combine'" == "no" {
-		local combine = ""
-	}
-	if ("`combine'" ~= "yes" & "`combine'" ~= "no" & "`combine'" ~= "") {
-			noi dis as error "Invalid option, combine may only take yes, no or be missing."
-			error 1	
-	}
+	
 	if "`using'"~="" {
 		cap use "`using'", clear
 		if _rc~=0 {
@@ -121,7 +112,6 @@ program pea_figure1, rclass
 		local wvar `w'
 	}
 	
-	
 	//missing observation check
 	marksample touse
 	local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
@@ -133,11 +123,13 @@ program pea_figure1, rclass
 	local max_val = r(max) + 1
 	
 	//store comparability
+	/*
 	if "`comparability'"~="" {
 		bys  `year': keep if _n == 1
 		keep `year' `comparability'
 		save `datacomp'
 	}	
+	*/
 	
 	// Create fgt
 	use `dataori'
@@ -152,68 +144,55 @@ program pea_figure1, rclass
 	
 	//FGT national
 	use `data1', clear
-	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
+	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability')
 	gen `urban' = `max_val' 			
-
 	save `data2', replace
 	
 	//FGT urban-rural
 	foreach var of local urban {
 		use `data1', clear
-		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `var')
+		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability' `var')
 		append using `data2'
 		save `data2', replace
 	}	
 	
-	// Add comparability variable
-	if "`comparability'"~="" {
-		merge m:1 `year' using `datacomp', nogen
-		keep `year' `urban' `comparability' _fgt0*
-	}
-	else if "`comparability'"=="" {
-		keep `year' `urban' _fgt0*
-	}	
+	keep `year' `urban' `comparability' _fgt0*
+	for var _fgt0*: replace X = X*100
+	
 	// Clean and label
 	label values `urban' urban
 	if "`ppppovlines'"~="" {
 		foreach var of local ppppovlines {
 			label var _fgt0_`pppwelfare'_`var' "`lbl`var''"
-			replace   _fgt0_`pppwelfare'_`var' = _fgt0_`pppwelfare'_`var' * 100
 		}
 	}
 	
 	if "`natpovlines'"~="" {
 		foreach var of local natpovlines {
 			label var _fgt0_`natwelfare'_`var' "`lbl`var''"
-			replace   _fgt0_`natwelfare'_`var' = _fgt0_`natwelfare'_`var' * 100
 		}
 	}
 	
 	// Figure	
 	qui levelsof `urban'		, local(group_num)
-	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
+	qui levelsof `comparability', local(compval)
 	qui levelsof `year'			, local(yearval)
-	label define urban `max_val' "Total", add									// Add Total as last entry
+	local varlblurb : value label `urban'
+	label define `varlblurb' `max_val' "Total", add  // Add Total as last entry
 
 	foreach i of local group_num {
 		local j = `i' + 1			
-		local scatter_cmd`i' = `"scatter var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'								// Colors defined in pea_figure_setup
+		local scatter_cmd`i' = `"scatter var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'					// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
 		local legend "`legend' `legend`i''"	
-		// Connect years (only if comparable if option is specified)
-		if "`comparability'"~="" {																											// If comparability specified, only comparable years are connected
-			foreach co of local compval {
-				local line_cmd`i'`co' = `"line var year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
-				local line_cmd "`line_cmd' `line_cmd`i'`co''"
-			}
-			local note "Note: Non-connected dots indicate that survey-years are not comparable."
+																								// If comparability specified, only comparable years are connected
+		foreach co of local compval {
+			local line_cmd`i'`co' = `"line var year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
+			local line_cmd "`line_cmd' `line_cmd`i'`co''"
 		}
-		else if "`comparability'"=="" {
-			local line_cmd`i' = `"line var year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
-			local line_cmd "`line_cmd' `line_cmd`i''"
-		}
+		if "`comparability'"~="__comp" local note "Note: Non-connected dots indicate that survey-years are not comparable."	
 	}		
 
 	if "`excel'"=="" {
@@ -229,49 +208,46 @@ program pea_figure1, rclass
 	local u  = 1
 	putexcel set "`excelout2'", `act'
 	//change all legend to bottom, and maybe 2 rows
-	//add comparability
+	if "`combine'" ~= "" {
+		local botlbl "rows(1) size(medium) position(6)"
+	}
+	else {
+		local shownote note(`note')
+	}
 	foreach var of varlist _fgt* {
 		rename `var' var
 		tempfile graph`gr'
 		local lbltitle : variable label var
+		
+		twoway `scatter_cmd' `line_cmd'									///	
+				  , legend(order("`legend'") `botlbl') 				    ///
+				  ytitle("Poverty rate (percent)") 						///
+				  xtitle("")											///
+				  title("`lbltitle'")									///				  
+				  xlabel("`yearval'")									///
+				  name(ngraph`gr', replace)								///
+				  `shownote'
+		local graphnames "`graphnames' ngraph`gr'"
+		
 		if "`combine'" == "" {
-			twoway `scatter_cmd' `line_cmd'									///	
-					  , legend(order("`legend'")) 							///
-					  ytitle("Poverty rate (percent)") 						///
-					  xtitle("")											///
-					  title("`lbltitle'")									///
-					  xlabel("`yearval'")									///
-					  name(ngraph`gr', replace)								///
-					  note(`note')
 			putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
 			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
 			putexcel A`u' = image("`graph`gr''")
 			putexcel save	
-			local gr = `gr' + 1
-			rename var `var'
 		}
-		if "`combine'" ~= "" {													// If combine specified, without notes 
-			twoway `scatter_cmd' `line_cmd'									///	
-					  , legend(order("`legend'")) 							///
-					  ytitle("Poverty rate (percent)") 						///
-					  xtitle("")											///
-					  title("`lbltitle'")									///
-					  xlabel("`yearval'")									///
-					  name(ngraph`gr', replace)		
-			local graphnames "`graphnames' ngraph`gr'"
-			local gr = `gr' + 1
-			rename var `var'
+		local gr = `gr' + 1
+		rename var `var'
 	}
-	}	
-	if "`combine'" ~= "" {														// If combine specified, export combined graph
+	
+	if "`combine'" ~= "" {  // If combine specified, export combined graph
 		tempfile graph`gr'
-		graph combine `graphnames', note(`note') name(ngraphcomb)
-		putexcel set "`excelout2'", modify sheet(Figure1_comb, replace)	  
+		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*1) note(`note') name(ngraphcomb)		
+		*graph combine `graphnames', note(`note') name(ngraphcomb, replace)
+		putexcel set "`excelout2'", modify sheet(Figure1, replace)	  
 		graph export "`graph`gr''", replace as(png) name(ngraphcomb) wid(3000)		
 		putexcel A`u' = image("`graph`gr''")
 		putexcel save
 	}
 	cap graph close	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"
-
 end	

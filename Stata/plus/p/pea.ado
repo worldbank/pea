@@ -22,10 +22,15 @@ program pea, rclass
 	gettoken subcmd 0 : 0, parse(" :,=[]()+-")
 	local l = strlen("`subcmd'")
 	
+	tempfile __datax
+	save `__datax', replace
+	
 	//run pea setup first
 	cap mata: mata describe pea_setup
 	if _rc~=0 pea_setup
-		
+	
+	use `__datax', clear
+	
 	//setup like the below	
 	if ("`subcmd'"=="core") { //upload relelated tasks
 		pea_core `0'

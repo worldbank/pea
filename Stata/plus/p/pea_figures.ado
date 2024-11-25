@@ -1,6 +1,6 @@
 *! version 0.1.1  12Sep2014
 *! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
+*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
@@ -136,6 +136,33 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 2....... Not done"
 	
+	//Figure 3
+	qui use `dataori', clear
+	cap pea_figure3 [aw=`wvar'], year(`year') welfare(`onewelfare') palette(`palette') scheme(`scheme') spells(`spells') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 3....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 3....... Not done"
+	
+	//Figure 4
+	qui use `dataori', clear
+	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') palette(`palette') spells(`spells') scheme(`scheme') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 4....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 4....... Not done"
+	
+	//Figure 5
+	qui use `dataori', clear
+	cap pea_figure5 [aw=weight_p], year(`year') onew(`onewelfare') onel(`oneline') palette(`palette') spells(`spells')' urban(`urban') scheme(`scheme') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 5....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 5....... Not done"
+	
 	//Figure 6
 	qui use `dataori', clear	
 	cap pea_figure6 [aw=`wvar'], year(`year') oneline(`oneline') onewelfare(`onewelfare') fgtvars spells(`spells') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
@@ -154,6 +181,8 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 7....... Not done"
 
+	//Figure 8 - TBC
+	
 	//Figure 9a
 	qui use `dataori', clear	
 	cap pea_figure9a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') scheme(`scheme') palette(`palette') excel("`excelout'")
@@ -199,6 +228,36 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 10b....... Not done"
 
+	//Figure 11 TBC
+	
+	//Figure 12
+	qui use `dataori', clear
+	cap pea_figure12 [aw=`wvar'], c(`country') year(`year') onew(`onewelfare') spells(`spells') palette(`palette') scheme(`scheme') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 12....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 12....... Not done"
+
+	//Figure 13
+	qui use `dataori', clear
+	cap pea_figure13 [aw=`wvar'], c(`country') year(`year') onew(`onewelfare') palette(`palette') scheme(`scheme') excel("`excelout'")
+	if _rc==0 {
+		noi dis in green "Figure 13....... Done"
+		local ok = 1
+	}
+	else noi dis in red "Figure 13....... Not done"
+
+	//Figure 14
+	if "`setting'"=="GMD" {
+		qui use `dataori', clear
+		cap pea_figure14 [aw=`wvar'], c(`country') welfare(welfppp) year(`year') benchmark(`benchmark') last(5) setting(`setting') palette(`palette') scheme(`scheme') excel("`excelout'")
+		if _rc==0 {
+			noi dis in green "Figure 14....... Done"
+			local ok = 1
+		}
+		else noi dis in red "Figure 14....... Not done"
+	}
 	//Figure 15
 	qui use `dataori', clear	
 	cap pea_figure15, c(`country') scheme(`scheme') palette(`palette') excel("`excelout'")
@@ -211,9 +270,9 @@ program pea_figures, rclass
 	//Final open	
 	if `ok'==1 {
 		shell start excel "`excelout'"
-		noi dis in green "Tables and Graphs are done....... Loading the Excel file!"
+		noi dis in green "Figures are done....... Loading the Excel file!"
 	}
 	else {
-		noi dis in red "No tables and graphs are produced"
+		noi dis in red "No figures are produced"
 	}
 end

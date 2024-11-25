@@ -21,7 +21,7 @@ program pea_setup, rclass
 	version 18.0
 		
 	//Install the packages used in pea
-	local packages apoverty ineqdeco svylorenz fastgini glcurve alorenz povdeco fs groupfunction drdecomp adecomp pip skdecomp schemepack colorpalette geoplot palettes colrspace moremata
+	local packages apoverty ineqdeco svylorenz fastgini glcurve alorenz povdeco fs groupfunction drdecomp adecomp pip skdecomp schemepack colorpalette geoplot palettes colrspace moremata grc1leg2
 	foreach package of local packages  {
  		cap which `package'
  		if (_rc) {
