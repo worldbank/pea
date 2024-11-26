@@ -48,6 +48,18 @@ pea figure4 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridi
 
 pea figure5 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) urban(urban)
 
+pea figure6 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) comparability(comparability)
+
+pea figure7 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) age(age) male(male) edu(educat4) urban(urban)
+
+pea_figure9a [aw=weight_p], year(year) onewelfare(welfare) urban(urban) comparability(comparability) 
+ 
+pea_figure9b [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfare) welfaretype(CONS) 
+
+pea_figure10a [aw=weight_p], year(year) onewelfare(welfare) urban(urban) comparability(comparability)
+
+pea_figure10b [aw=weight_p], c(GNB) year(year) benchmark(`benchmark') onewelfare(`onewelfare') scheme(`scheme') palette(`palette') excel("`excelout'")
+
 pea figure12 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis) spells(2018 2021)
 
 pea figure13 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis)
