@@ -183,7 +183,7 @@ program pea_figure10b, rclass
 		local b_count = `b_count' + 1
 		local grcolor`groupcount': word `groupcount' of ${colorpalette}
 		local msym`groupcount' "t"
-		}
+	}
 
 	* Rest
 	local groupcount = `groupcount' + 1
@@ -224,7 +224,7 @@ program pea_figure10b, rclass
 		  ytitle("Prosperity Gap")		 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)											///
-		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries."
+		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." ///
 		  "The prosperity gap is defined as the average factor by which incomes need to be multiplied" ///
 		  "to bring everyone to the prosperity standard of $25.") 
 		

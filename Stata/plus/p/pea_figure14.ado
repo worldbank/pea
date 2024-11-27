@@ -19,7 +19,7 @@
 cap program drop pea_figure14
 program pea_figure14, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) MISSING BENCHmark(string) last(integer 5)]
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) MISSING BENCHmark(string) within(integer 3)]
 	
 	//Country
 	if "`country'"=="" {
@@ -30,11 +30,11 @@ program pea_figure14, rclass
 	cap drop code
 	gen code = "`country'"	
 	
-	if `last'>10 {
-		noi dis as error "Data range is too big, please choose an number less than or equal 10"
+	if `within'>10 {
+		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
 		error 1
 	}
-	if "`last'"=="" local last 5
+	if "`within'"=="" local within 3
 	local benchmark0 "`benchmark'"
 	local benchmark "`country' `benchmark'"
 	
@@ -117,7 +117,7 @@ program pea_figure14, rclass
 		
 		gsort -year
 		gen x = _n
-		keep if x<=`last'
+		keep if x<=`within'
 		if _N>0 {				
 			ren dep_infra_impw2 dep_infra_impw
 			keep code year dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 survname welftype	
@@ -151,6 +151,7 @@ program pea_figure14, rclass
 		
 		//Figure14_1 MPM bar
 		tempfile graph1
+		
 		graph bar dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 if code=="`country'", over(year)  ///
 			legend(order(1 "Monetary" 2 "Education attainment" 3 "Education enrollment" 4 "Electricity" 5 "Sanitation" 6 "Water" 7 "MPM") ///
 			rows(2) size(small) position(6)) ///	

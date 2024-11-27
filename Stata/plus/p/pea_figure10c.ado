@@ -19,7 +19,7 @@
 cap program drop pea_figure10c
 program pea_figure10c, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(string) scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) scheme(string) palette(string) save(string) excel(string) within(integer 3)]	
 
 	tempfile dataori pea_pg
 
@@ -51,14 +51,11 @@ program pea_figure10c, rclass
 		else local excelout "`excel'"
 	}
 	
-	if "`within'" == "" {
-		local within = 3
+	if `within'>10 {
+		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
+		error 1
 	}
-	else if `within' >= 10 {
-			noi di in red "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
-			exit `=_rc'		
-	}
-
+	if "`within'"=="" local within 3
 	
 	//Weights
 	local wvar : word 2 of `exp'	// `exp' is weight in Stata ado syntax
@@ -196,7 +193,7 @@ program pea_figure10c, rclass
 		local b_count = `b_count' + 1
 		local grcolor`groupcount': word `groupcount' of ${colorpalette}
 		local msym`groupcount' "t"
-		}
+	}
 
 	* Rest
 	local groupcount = `groupcount' + 1
@@ -207,7 +204,6 @@ program pea_figure10c, rclass
 	local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
 	local msym`groupcount' "s" 
 	
-
 	// Scatter command
 	qui levelsof group, local(group_num)
 	foreach i of local group_num {
@@ -247,5 +243,4 @@ program pea_figure10c, rclass
 	putexcel save							
 	cap graph close	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure10c.xlsx"	
-	
 end
