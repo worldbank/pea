@@ -183,7 +183,7 @@ program pea_figure10b, rclass
 		local b_count = `b_count' + 1
 		local grcolor`groupcount': word `groupcount' of ${colorpalette}
 		local msym`groupcount' "t"
-		}
+	}
 
 	* Rest
 	local groupcount = `groupcount' + 1

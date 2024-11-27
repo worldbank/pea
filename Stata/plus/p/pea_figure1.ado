@@ -122,15 +122,6 @@ program pea_figure1, rclass
 	qui sum urban, d
 	local max_val = r(max) + 1
 	
-	//store comparability
-	/*
-	if "`comparability'"~="" {
-		bys  `year': keep if _n == 1
-		keep `year' `comparability'
-		save `datacomp'
-	}	
-	*/
-	
 	// Create fgt
 	use `dataori'
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
@@ -256,7 +247,7 @@ program pea_figure1, rclass
 	
 	if "`combine'" ~= "" {  // If combine specified, export combined graph
 		tempfile graph`gr'
-		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) note("`note_comb'", size(small)) name(ngraphcomb)		
+		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) note("`note_comb'", size(small)) name(ngraphcomb, replace)		
 		*graph combine `graphnames', note(`note') name(ngraphcomb, replace)
 		putexcel set "`excelout2'", modify sheet(Figure1, replace)	  
 		graph export "`graph`gr''", replace as(png) name(ngraphcomb) wid(3000)		

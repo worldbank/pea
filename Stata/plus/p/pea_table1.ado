@@ -21,6 +21,9 @@ program pea_table1, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
 	
+	global floor_ 0.25
+	global prosgline_ 25
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -127,7 +130,9 @@ program pea_table1, rclass
 		
 		gen double _pop = `wvar'
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
-		gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
+		noi dis "Replace the bottom for Prosperity gap at $0.25 2017 PPP"
+		replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}	
+		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	}
 	

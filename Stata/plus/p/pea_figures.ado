@@ -18,7 +18,10 @@ cap program drop pea_figures
 program pea_figures, rclass
 	version 18.0	
 	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) LATEST WITHIN3 BENCHmark(string) spells(string)  scheme(string) palette(string)]	
-		
+	
+	global floor_ 0.25
+	global prosgline_ 25
+	
 	//load setting
 	qui if "`setting'"=="GMD" {
 		_pea_vars_set, setting(GMD)
@@ -41,6 +44,9 @@ program pea_figures, rclass
 		local time = c(current_time) 
 		local time : subinstr local time ":" "_", all		
 		local excelout "`dirpath'\\PEA_figures_`date'_`time'.xlsx"
+		putexcel set "`excelout'", replace sheet("Table list")
+		putexcel C10 = "Graphs"
+		putexcel C11 = "PEA - Poverty analytics"
 		putexcel save
 	}
 	else {
@@ -107,7 +113,9 @@ program pea_figures, rclass
 		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
-		gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
+		noi dis "Replace the bottom for Prosperity gap at $0.25 2017 PPP"
+		replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}		
+		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 		gen double _pop = `wvar'
 		
@@ -115,21 +123,22 @@ program pea_figures, rclass
 		save `data1', replace
 	} //qui
 	
-	
 	//trigger
 	
 	//Figure 1
 	qui use `data1', clear	
-	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability')  combine(`combine') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') combine scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 1....... Done"
 		local ok = 1
 	}
 	else noi dis in red "Figure 1....... Not done"
-	
+
 	//Figure 2	
-	qui use `dataori', clear		
-	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars onewelfare(`onewelfare') oneline(`oneline') scheme(`scheme') palette(`palette') excel("`excelout'")
+	qui use `data1', clear		
+	pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars onewelfare(`onewelfare') oneline(`oneline') scheme(`scheme') palette(`palette') excel("`excelout'")
+	
+	/*
 	if _rc==0 {
 		noi dis in green "Figure 2....... Done"
 		local ok = 1
@@ -221,12 +230,12 @@ program pea_figures, rclass
 		
 	//Figure 10c
 	qui use `dataori', clear	
-	cap pea_figure10b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') within(`within') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure10c [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') within(`within') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 10b....... Done"
 		local ok = 1
 	}
-	else noi dis in red "Figure 10b....... Not done"
+	else noi dis in red "Figure 10c....... Not done"
 
 	//Figure 11 TBC
 	
@@ -266,6 +275,7 @@ program pea_figures, rclass
 		local ok = 1
 	}
 	else noi dis in red "Figure 15....... Not done"
+	*/
 	
 	//Final open	
 	if `ok'==1 {

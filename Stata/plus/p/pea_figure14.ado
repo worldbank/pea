@@ -19,9 +19,9 @@
 cap program drop pea_figure14
 program pea_figure14, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) NONOTES BENCHmark(string) within(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) MISSING BENCHmark(string) within(integer 3) scheme(string) palette(string)]
 	
-	//Country
+  //Country
 	if "`country'"=="" {
 		noi dis as error "Please specify the country code of analysis"
 		error 1
@@ -30,13 +30,13 @@ program pea_figure14, rclass
 	cap drop code
 	gen code = "`country'"	
 	
-	if "`within'" == "" {
-		local within = 3
+	if `within'>10 {
+		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
+		error 1
 	}
-	else if `within' >= 10 {
-			noi di in red "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
-			exit `=_rc'		
-	}
+	if "`within'"=="" local within 3
+	local benchmark0 "`benchmark'"
+	*local benchmark "`country' `benchmark'"
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -119,10 +119,12 @@ program pea_figure14, rclass
 		use "`persdir'pea/WLD_GMI_MPM.dta", clear
 		//drop current countries
 		drop if code=="`country'"
+
 		gen y_d = abs(`lasty' - year)												// year closest to PEA year
 		bys code (year): egen min_d = min(y_d)
 		keep if (y_d == min_d) & y_d < 3 & mdpoor_i1 ~= .
 		bys code (year): keep if _n == _N 									// use latest year if there are 
+
 		if _N>0 {				
 			ren dep_infra_impw2 dep_infra_impw
 			keep code year dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 survname welftype	
@@ -241,6 +243,7 @@ program pea_figure14, rclass
 		//Figure14_1 MPM bar
 		/*
 		tempfile graph1
+		
 		graph bar dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 if code=="`country'", over(year)  ///
 			legend(order(1 "Monetary" 2 "Education attainment" 3 "Education enrollment" 4 "Electricity" 5 "Sanitation" 6 "Water" 7 "MPM") ///
 			rows(2) size(small) position(6)) ///
