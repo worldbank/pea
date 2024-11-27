@@ -20,7 +20,7 @@
 cap program drop pea_figure13
 program pea_figure13, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) setting(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string) COMParability(varname numeric)]	
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NONOTES excel(string) save(string) scheme(string) palette(string) COMParability(varname numeric)]	
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -44,6 +44,11 @@ program pea_figure13, rclass
 		}
 		else local excelout "`excel'"
 	}
+	
+	// Figure colors
+	local groups = 10																					// number of areas
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+	
 	
 	//Weights
 	local wvar : word 2 of `exp'
@@ -102,10 +107,10 @@ program pea_figure13, rclass
 	reshape wide decile, i(`year' `comparability') j(__decile)
 	cap ren `year' year
 	la var year ""
-	
-	// Figure colors
-	pea_figure_setup, groups("10")
-	
+	// Drop years if not comparable
+	if "`comparability'"~="__comp" {
+		
+	}
 	** Distribution of welfare across groups
 	gen l0=0
 	gen l100 = 100
@@ -127,33 +132,71 @@ program pea_figure13, rclass
 
 	local mid = (100-l9[_N])/2 + l9[_N] 
 	local yaxis `"`yaxis' `mid' "Decile 10""'
-	levelsof year, local(yrlbl)
-	sort year
 	local gr = 1
 	local u  = 5
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through GMD."
+	if "`comparability'"~="__comp" local note2 "Non-connected areas indicate that survey-years are not comparable."	
+	local notes `"`notes'" "Note: Figure shows the share of population in each welfare decile." "`note2'"'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+	//Prepare year variable without gaps
+	egen year_nogap = group(`year'), label(year_nogap)							// Generate year variable without gaps
+	qui levelsof year_nogap		 , local(yearval)	
+	sort year_nogap
 	
-	twoway rarea l0 l1 year, yaxis(1) || /// 
-		rarea l1 l2 year, yaxis(2) || /// 
-		rarea l2 l3 year || /// 
-		rarea l3 l4 year || /// 
-		rarea l4 l5 year || /// 
-		rarea l5 l6 year || /// 
-		rarea l6 l7 year || /// 
-		rarea l7 l8 year || /// 
-		rarea l8 l9 year || /// 
-		rarea l9 l100 year, ///		
-		ytitle("Percentage of population") /// 
-		ylab(`yaxis', axis(2) angle(-45)) /// 
-		yscale(range(0 100) axis(1)) /// 
-		yscale(range(0 100) axis(2)) /// 
-		ytitle("", axis(2)) xlabel(`yrlbl') xtitle("") /// 
-		plotregion(margin(zero)) /// 
-		aspect(1) /// 		
-		legend(off) name(ngraph`gr', replace)	
-		
-		*title("Distribution of `wefltype' by deciles" "`yrange'", size(medium)) note("Source: World Bank using GMD" "(`wefltype'-based from `sur' surveys)")
+	//Comparability between years
+	qui levelsof `comparability', local(compval)
+	foreach co of local compval {
+		qui sum if `comparability' == `co'
+		local ncount = r(N)
+		if `ncount' == 1 {														// If only one year, spike chart
+			#delimit ;
+			local pcspike  "pcspike l0 year_nogap l1 year_nogap		if `comparability'==`co', color("${col1}") lwidth(8pt) yaxis(1)	||  
+							pcspike l1 year_nogap l2 year_nogap		if `comparability'==`co', color("${col2}") lwidth(8pt) yaxis(2) || 
+							pcspike l2 year_nogap l3 year_nogap		if `comparability'==`co', color("${col3}") lwidth(8pt)			|| 
+							pcspike l3 year_nogap l4 year_nogap		if `comparability'==`co', color("${col4}") lwidth(8pt)			||  
+							pcspike l4 year_nogap l5 year_nogap		if `comparability'==`co', color("${col5}") lwidth(8pt)			||  
+							pcspike l5 year_nogap l6 year_nogap		if `comparability'==`co', color("${col6}") lwidth(8pt)			||  
+							pcspike l6 year_nogap l7 year_nogap		if `comparability'==`co', color("${col7}") lwidth(8pt)			||  
+							pcspike l7 year_nogap l8 year_nogap		if `comparability'==`co', color("${col8}") lwidth(8pt)			||  
+							pcspike l8 year_nogap l9 year_nogap		if `comparability'==`co', color("${col9}") lwidth(8pt)			||  
+							pcspike l9 year_nogap l100 year_nogap	if `comparability'==`co', color("${col10}") lwidth(8pt)			||";
+			#delimit cr			
+		}
+		else if `ncount' > 1 {													// If multiple years, area chart
+			#delimit ;
+			local rarea	"rarea l0 l1 year_nogap		if `comparability'==`co', color("${col1}") yaxis(1) ||  
+						 rarea l1 l2 year_nogap		if `comparability'==`co', color("${col2}") yaxis(2) || 
+						 rarea l2 l3 year_nogap		if `comparability'==`co', color("${col3}")			|| 
+						 rarea l3 l4 year_nogap		if `comparability'==`co', color("${col4}")			||  
+						 rarea l4 l5 year_nogap		if `comparability'==`co', color("${col5}")			||  
+						 rarea l5 l6 year_nogap		if `comparability'==`co', color("${col6}")			||  
+						 rarea l6 l7 year_nogap		if `comparability'==`co', color("${col7}")			||  
+						 rarea l7 l8 year_nogap		if `comparability'==`co', color("${col8}")			||  
+						 rarea l8 l9 year_nogap		if `comparability'==`co', color("${col9}")			||  
+						 rarea l9 l100 year_nogap	if `comparability'==`co', color("${col10}")			||";
+			#delimit cr
+		}
+	}
+	//Figure
 
-	// Figure
+	twoway 	`pcspike' `rarea' , ///		
+			ytitle("Percentage of population") /// 
+			ylab(`yaxis', axis(2) angle(-45)) /// 
+			yscale(range(0 100) axis(1)) /// 
+			yscale(range(0 100) axis(2)) /// 
+			ytitle("", axis(2)) xlabel(`yearval', valuelabel) xtitle("") /// 
+			plotregion(margin(zero)) /// 
+			aspect(1) /// 		
+			legend(off) name(ngraph`gr', replace) ///
+			note("`notes'")
+		
+	//Figure export
 	local figname Figure13
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\`figname'.xlsx"

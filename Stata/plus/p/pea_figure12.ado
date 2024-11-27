@@ -20,7 +20,7 @@
 cap program drop pea_figure12
 program pea_figure12, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) setting(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string) spells(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NONOTEs spells(string) excel(string) save(string) comparability(string) scheme(string) palette(string) ]	
 	
 	global floor_ 0.25
 	global prosgline_ 25
@@ -31,6 +31,10 @@ program pea_figure12, rclass
 			noi di in red "Unable to open the data"
 			exit `=_rc'
 		}
+	}
+	
+	if "`comparability'"=="" {
+		noi di in red "Warning: Comparability option not specified for Figure 12. Non-comparable spells may be shown."
 	}
 	
 	if "`spells'"=="" {
@@ -54,6 +58,10 @@ program pea_figure12, rclass
 		else local excelout "`excel'"
 	}
 	
+	// Figure colors
+	local groups = 2																					// number of bars
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+		
 	//Weights
 	local wvar : word 2 of `exp'
 	qui if "`wvar'"=="" {
@@ -90,6 +98,7 @@ program pea_figure12, rclass
 	drop _keep
 	save `dataori', replace
 	
+	// Prepare spells
 	tokenize "`spells'", parse(";")	
 	local i = 1
 	local a = 1
@@ -101,7 +110,23 @@ program pea_figure12, rclass
 		}	
 		local i = `i' + 1
 	}
-
+		// Comparability
+	if "`comparability'" ~= "" {
+		forv j=1(1)`=`a'-1' {
+			local spell_c`j' = "`spell`j''"												// Save local
+			qui levelsof `comparability', local(comp_years)								// Loop through all values of comparability
+			foreach i of local comp_years {
+				qui	levelsof year if `comparability' == `i', local(year_c)				// Create list of comparable years
+				local year_c = "`year_c'" 
+				local test : list spell_c`j' in year_c									// Check if spell years are in list of comparable years
+				if (`test' == 0) local spell`j' = ""									// If years not comparable, drop local
+				if (`test' == 1) local spell`j' = "`spell_c`j''"						// If years comparable, keep local
+			}
+		}
+	}	// if
+	else{
+		}
+		
 	cap frame create temp_frame
 	cap frame change temp_frame
 	cap frame drop decomp_results	
@@ -144,18 +169,31 @@ program pea_figure12, rclass
 	*bys spell (year): gen period = string(year[_n]) + "-" + string(year[_n-1])
 	gen inq_share = (-ch_lninq_y_ybar/ch_lnprosgap)*100
 	gen grow_share = (ch_lnmean/ch_lnprosgap)*100
-	
+	// Coloring of bars
+	forval i = 1/2 {
+		local colors "`colors' bar(`i', color(${col`i'}))"		
+	}
+			
 	local gr 1
 	local u  = 5
-	graph hbar inq_share grow_share if inq_share~=., ///
-		stack over(spell) ytitle("Contribution to prosperity gap growth (%)") ///		
-		title("Decomposition of growth in prosperity gap", size(medium)) ///
-		legend(order(1 "Inequality contribution" 2 "Mean contribution") rows(1) size(medium) position(6)) ///
-		blabel(bar, position(center) format(%9.2f)) name(ngraph`gr', replace)	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through GMD."
+	local notes `"`notes'" "Note: Figure shows the decomposition of the Prosperity Gap into income and" "inequality components."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+	//Figure
+	graph hbar inq_share grow_share if inq_share~=., 														///
+		stack over(spell) ytitle("Contribution to prosperity gap growth (%)") `colors'						///		
+		title("Decomposition of growth in prosperity gap", size(medium)) 									///
+		legend(order(1 "Inequality contribution" 2 "Mean contribution") rows(1) size(medium) position(6)) 	///
+		blabel(bar, position(center) format(%9.2f)) name(ngraph`gr', replace)								///
+		note("`notes'")
 	
-	*note(Source: World Bank using GMD (`wefltype'-based from `sur' surveys)) ///
-	
-	// Figure
+	//Export
 	local figname Figure12
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\`figname'.xlsx"
@@ -165,7 +203,7 @@ program pea_figure12, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}
-	
+	x
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	putexcel set "`excelout2'", modify sheet(`figname', replace)	  
