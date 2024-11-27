@@ -19,7 +19,7 @@
 cap program drop pea_figure14
 program pea_figure14, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) MISSING BENCHmark(string) within(integer 3) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) NONOTES BENCHmark(string) within(integer 3) scheme(string) palette(string)]
 	
   //Country
 	if "`country'"=="" {
@@ -280,7 +280,7 @@ program pea_figure14, rclass
 			ytitle("Poverty rate, %", size(medium)) xtitle("Multidimensional poverty measure, %", size(medium)) ///
 			legend(order(`legend')) name(gr_mpm3, replace) ///
 			note("`notes'")
-		x
+		
 		putexcel set "`excelout2'", modify sheet("Figure14_3", replace)
 		graph export "`graph1'", replace as(png) name(gr_mpm3) wid(3000)
 		putexcel A`u' = image("`graph1'")

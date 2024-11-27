@@ -19,7 +19,7 @@
 cap program drop pea_figure9b
 program pea_figure9b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(string) welfaretype(string) NONOTES scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(integer 3) welfaretype(string) NONOTES scheme(string) palette(string) save(string) excel(string)]	
 
 	tempfile dataori pea_gini
 
@@ -51,13 +51,11 @@ program pea_figure9b, rclass
 		else local excelout "`excel'"
 	}
 	
-	if "`within'" == "" {
-		local within = 3
+	if `within'>10 {
+		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
+		error 1
 	}
-	else if `within' >= 10 {
-			noi di in red "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
-			exit `=_rc'		
-	}
+	if "`within'"=="" local within 3
 
 
 	if "`welfaretype'" == "" {

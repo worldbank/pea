@@ -108,7 +108,9 @@ program pea_figure2, rclass
 	markout `touse' `flist' 
 	
 	// Generate poverty rate of PEA country
-	if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline') 
+	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+		if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline') 
+	}
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
 	keep _fgt0* year
 	gen country_code = "`country'"
