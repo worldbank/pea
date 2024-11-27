@@ -19,7 +19,7 @@
 cap program drop pea_figure9b
 program pea_figure9b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(string) welfaretype(string) scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(string) welfaretype(string) NONOTES scheme(string) palette(string) save(string) excel(string)]	
 
 	tempfile dataori pea_gini
 
@@ -253,6 +253,16 @@ program pea_figure9b, rclass
 	gen 	ln_gdp_pc = ln(gdppc)
 	format  gini %5.0f
 	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "Note: Data is from the closest available survey within `within' years to `lasty'." "Filled markers indicate a `w_note'-based welfare aggregate and" "hollow markers a `w_note_o'-based welfare aggregate."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+		
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure9b.xlsx"
@@ -271,9 +281,7 @@ program pea_figure9b, rclass
 		  ytitle("Gini index")			 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)											///
-		  note("Note: Data is from the closest available survey within `within' years to `lasty'."  ///
-			   "Filled markers indicate a `w_note'-based welfare aggregate and"						///
-			   "hollow markers a `w_note_o'-based welfare aggregate.") 
+		  note("`notes'", size(small))
 		
 	putexcel set "`excelout2'", modify sheet(Figure9b, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		

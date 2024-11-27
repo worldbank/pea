@@ -20,7 +20,7 @@
 cap program drop pea_figure2
 program pea_figure2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS NONOTES scheme(string) palette(string) save(string) excel(string)]	
 	
 	tempfile dataori pea_pov 
 
@@ -207,7 +207,17 @@ program pea_figure2, rclass
 	// Data Preparation 
 	gen ln_gdp_pc = ln(gdppc)
 	format headcount`povline_100' %5.0f
-
+	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." "Poverty rates reported using `lblline'."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+		
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure2.xlsx"
@@ -226,8 +236,7 @@ program pea_figure2, rclass
 		  ytitle("Poverty rate (percent)") 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)											///
-		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." ///
-			   "Poverty rates reported using `lblline'")
+		  note("`notes'", size(small))
 		
 	putexcel set "`excelout2'", modify sheet(Figure2, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		

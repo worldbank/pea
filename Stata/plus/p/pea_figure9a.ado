@@ -19,7 +19,7 @@
 cap program drop pea_figure9a
 program pea_figure9a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOOUTPUT NONOTES excel(string) save(string) MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -155,7 +155,6 @@ program pea_figure9a, rclass
 		replace   _Gini_`onewelfare' = _Gini_`onewelfare' * 100
 	}
 	
-	// Figure	
 	qui levelsof `urban'		, local(group_num)
 	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
 	qui levelsof `year'			, local(yearval)
@@ -174,7 +173,7 @@ program pea_figure9a, rclass
 				local line_cmd`i'`co' = `"line _Gini_`onewelfare' year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
 			}
-			local note "Note: Non-connected dots indicate that survey-years are not comparable."
+			local note_c "Note: Non-connected dots indicate that survey-years are not comparable."
 		}
 		else if "`comparability'"=="" {
 			local line_cmd`i' = `"line _Gini_`onewelfare' year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
@@ -189,8 +188,19 @@ program pea_figure9a, rclass
 	else {
 		local excelout2 "`excelout'"
 		local act modify
-	}	
+	}
 	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "`note_c'"'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+	
+	//Figure		
 	local gr = 1
 	putexcel set "`excelout2'", `act'
 	//change all legend to bottom, and maybe 2 rows
@@ -198,12 +208,12 @@ program pea_figure9a, rclass
 	tempfile graph`gr'
 	local lbltitle : variable label _Gini_`onewelfare'
 	twoway `scatter_cmd' `line_cmd'									///	
-			  , legend(order("`legend'")) 							///
+			  , legend(order("`legend'") pos(6) row(1)) 			///
 			  ytitle("`lbltitle'") 									///
 			  xtitle("")											///
 			  xlabel("`yearval'")									///
 			  name(ngraph`gr', replace)								///
-			  note(`note')	
+			  note("`notes'", size(small))
 
 	putexcel set "`excelout2'", modify sheet(Figure9a_`gr', replace)	  
 	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		

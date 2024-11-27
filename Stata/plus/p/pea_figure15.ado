@@ -19,7 +19,7 @@
 cap program drop pea_figure15
 program pea_figure15, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) excel(string) save(string)]
+syntax [if] [in] [aw pw fw], [Country(string) NONOTES scheme(string) palette(string) excel(string) save(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -87,6 +87,16 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	replace ind = "No social protection" 		if ind == "dep_sp_expany"
 	replace ind = "Low access to markets" 		if ind == "exprai_any"
 	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using data from the Scorecard Vision Indicators."
+	local notes `"`notes'" "Note: Population at risk is defined as the share of population" "exposed to any hazard, and vulnerable in any of the dimensions."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+	
 	//Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure15.xlsx"
@@ -108,8 +118,7 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	legend(off)	name(ngraph`gr', replace)										///
 	bar(1, color("`: word 1 of ${colorpalette}'")) 								///
 	bar(2, color("`: word 2 of ${colorpalette}'"))								///
-	note("Note: Population at risk is defined as the share of population"		///
-		 "exposed to any hazard, and vulnerable in any of the dimensions.")
+	note("`notes'", size(small))
 		
 	putexcel set "`excelout2'", modify sheet(Figure15, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		

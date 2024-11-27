@@ -19,7 +19,7 @@
 cap program drop pea_figure6
 program pea_figure6, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
+syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS NONOTES spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
 
 	
 	tempfile dataori pea_pov 
@@ -232,7 +232,17 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 		local xlabel `"`xlabel' `xlabel`i''"'
 		local i = `i' + 1
 	}
-
+	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'"'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+	
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure6.xlsx"
@@ -249,7 +259,8 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 			xlabel(`xlabel') yline(0)						///
 			legend(order(`legend') pos(6) row(2) holes(2)) 	///
 			ytitle("Annualized growth rate (percent)")		///
-			name(ngraph`gr', replace)						
+			name(ngraph`gr', replace)						///
+			note("`notes'", size(small))
 		
 	putexcel set "`excelout2'", modify sheet(Figure6, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		

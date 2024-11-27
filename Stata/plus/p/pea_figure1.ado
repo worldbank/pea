@@ -20,7 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NONOTES excel(string) save(string) MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -196,7 +196,7 @@ program pea_figure1, rclass
 			local line_cmd`i'`co' = `"line var year_nogap if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 			local line_cmd "`line_cmd' `line_cmd`i'`co''"
 		}
-		if "`comparability'"~="__comp" local note "Note: Non-connected dots indicate that survey-years are not comparable."	
+		if "`comparability'"~="__comp" local note_c "Note: Non-connected dots indicate that survey-years are not comparable."	
 	}		
 
 	if "`excel'"=="" {
@@ -211,13 +211,24 @@ program pea_figure1, rclass
 	local gr = 1
 	local u  = 1
 	putexcel set "`excelout2'", `act'
+	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "`note_c'"'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+		
 	//change all legend to bottom, and maybe 2 rows
 	if "`combine'" ~= "" {
 		local botlbl "rows(1) size(medium) position(6)"
+		local note_comb `notes'
+		local notes = ""
 	}
-	else {
-		local shownote note(`note')
-	}
+
 	foreach var of varlist _fgt* {
 		rename `var' var
 		tempfile graph`gr'
@@ -230,7 +241,7 @@ program pea_figure1, rclass
 				  title("`lbltitle'")									///				  
 				  xlabel("`yearval'", valuelabel)						///
 				  name(ngraph`gr', replace)								///
-				  `shownote'
+				  note("`notes'", size(small))
 		local graphnames "`graphnames' ngraph`gr'"
 		
 		if "`combine'" == "" {
@@ -245,14 +256,14 @@ program pea_figure1, rclass
 	
 	if "`combine'" ~= "" {  // If combine specified, export combined graph
 		tempfile graph`gr'
-		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) note(`note') name(ngraphcomb)		
+		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) note("`note_comb'", size(small)) name(ngraphcomb)		
 		*graph combine `graphnames', note(`note') name(ngraphcomb, replace)
 		putexcel set "`excelout2'", modify sheet(Figure1, replace)	  
 		graph export "`graph`gr''", replace as(png) name(ngraphcomb) wid(3000)		
 		putexcel A`u' = image("`graph`gr''")
 		putexcel save
 	}
-	x
+	
 	cap graph close	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"
 end	

@@ -3,7 +3,7 @@
 cap program drop pea_figure7
 program pea_figure7, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED NONOTES age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
@@ -155,6 +155,16 @@ program pea_figure7, rclass
 	}
 	la val _group _group
 	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "Note: Figure presents poverty rates within each group."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+		
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure7.xlsx"
@@ -167,12 +177,13 @@ program pea_figure7, rclass
 	
 	tempfile graph
 	putexcel set "`excelout2'", `act'
+	x
 	graph dot _fgt0_welfare_natline _fgt0_welfppp_pline215 _fgt0_welfppp_pline365 _fgt0_welfppp_pline685 				///
 		,	over(_group) marker(1, msymbol(O)) marker(2, msymbol(D))  marker(3, msymbol(S))  marker(4, msymbol(T))  	///
 			legend(pos(6) order(1 "National poverty line" 2 "$2.15" 3 "$3.65" 4 "$6.85") row(1)) 						///
 			name(ngraph`gr', replace)																					///
 			ytitle("Poverty rate (percent)")																			///
-			note("Note: Figure presents poverty rates within each group.")
+			note("`notes'", size(small))
 
 	putexcel set "`excelout2'", modify sheet(Figure7, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
