@@ -19,7 +19,7 @@
 cap program drop pea_figure14
 program pea_figure14, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) MISSING BENCHmark(string) within(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) NONOTES BENCHmark(string) within(string) scheme(string) palette(string)]
 	
 	//Country
 	if "`country'"=="" {
