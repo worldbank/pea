@@ -51,11 +51,11 @@ program pea_figure10c, rclass
 		else local excelout "`excel'"
 	}
 	
+	if "`within'"=="" local within 3
 	if `within'>10 {
 		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
 		error 1
 	}
-	if "`within'"=="" local within 3
 	
 	//Weights
 	local wvar : word 2 of `exp'	// `exp' is weight in Stata ado syntax

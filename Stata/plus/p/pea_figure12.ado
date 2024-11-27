@@ -203,7 +203,7 @@ program pea_figure12, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}
-	x
+	
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	putexcel set "`excelout2'", modify sheet(`figname', replace)	  

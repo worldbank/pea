@@ -280,7 +280,7 @@ program pea_figure14, rclass
 			ytitle("Poverty rate, %", size(medium)) xtitle("Multidimensional poverty measure, %", size(medium)) ///
 			legend(order(`legend')) name(gr_mpm3, replace) ///
 			note("`notes'")
-		x
+		
 		putexcel set "`excelout2'", modify sheet("Figure14_3", replace)
 		graph export "`graph1'", replace as(png) name(gr_mpm3) wid(3000)
 		putexcel A`u' = image("`graph1'")
