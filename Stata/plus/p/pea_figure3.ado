@@ -19,7 +19,7 @@
 cap program drop pea_figure3
 program pea_figure3, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) CORE setting(string) excel(string) save(string)  palette(string)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) CORE NONOTES comparability(string) setting(string) excel(string) save(string) by(varname numeric) scheme(string) palette(string)]
 	
 	//load data if defined
 	if "`using'"~="" {
@@ -61,7 +61,41 @@ program pea_figure3, rclass
 	
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
-	
+		// Prepare spells
+		tokenize "`spells'", parse(";")	
+		local i = 1
+		local a = 1
+		while "``i''" != "" {
+			if "``i''"~=";" {
+				local spell`a' "``i''"		
+				dis "`spell`a''"
+				local a = `a' + 1
+			}	
+			local i = `i' + 1
+		}
+		// Comparability
+	if "`comparability'" ~= "" {
+		forv j=1(1)`=`a'-1' {
+			local spell_c`j' = "`spell`j''"												// Save local
+			qui levelsof `comparability', local(comp_years)								// Loop through all values of comparability
+			foreach i of local comp_years {
+				qui	levelsof year if `comparability' == `i', local(year_c)				// Create list of comparable years
+				local year_c = "`year_c'" 
+				local test : list spell_c`j' in year_c									// Check if spell years are in list of comparable years
+				if (`test' == 0) local spell`j' = ""									// If years not comparable, drop local
+				if (`test' == 1) local spell`j' = "`spell_c`j''"						// If years comparable, keep local
+			}
+		}
+	}	// if
+	else{
+		}
+		
+	// Figure colors
+	local _spells = subinstr("`spells'"," ","",.)														// Get number of spells
+	local _spells = subinstr("`_spells'",";"," ",.)		
+	local groups = `:word count `_spells''
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+
 	//variable checks
 	//check plines are not overlapped.
 	//trigger some sub-tables
@@ -162,37 +196,28 @@ program pea_figure3, rclass
 		}
 		la val var_order var_order
 		la val group_order group_order
-		
-		tokenize "`spells'", parse(";")	
-		local i = 1
-		local a = 1
-		while "``i''" != "" {
-			if "``i''"~=";" {
-				local spell`a' "``i''"		
-				dis "`spell`a''"
-				local a = `a' + 1
-			}	
-			local i = `i' + 1
-		}
-		
+				
 		local vargic 
 		local varlbl
+
 		forv j=1(1)`=`a'-1' {
 			local spell`j' : list sort spell`j'
 			tokenize "`spell`j''"
 			if "`1'"~="" & "`2'"~="" {
 				dis "Spell`j': `1'-`2'"		
 				gen gic_`1'_`2' = ((`welfare'`2'/`welfare'`1')^(1/(`2'-`1'))-1)*100
-				la var gic_`1'_`2' "GIC Spell`j': `1'-`2'"
 				local vargic "`vargic' gic_`1'_`2'"
-				local varlbl `"`varlbl' `j' "`1'-`2'""'
+				local varcount = `:word count `vargic''								// added so that legend element fits if not all spells are comparable
+				la var gic_`1'_`2' "GIC Spell`varcount': `1'-`2'"
+				local varlbl `"`varlbl' `varcount' "`1'-`2'""'
 			}
 		}
+
 		sort var_order group_order percentile
 		return local vargic = "`vargic'"
 		return local varlbl = `"`varlbl'"'
 		
-		// Figure
+		//Figure preparation
 		local figname Figure3
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
@@ -205,17 +230,25 @@ program pea_figure3, rclass
 				
 		local gr 1
 		local u  = 5
-		
+		//Prepare Notes
+		local notes "Source: World Bank calculations using survey data accessed through the Global Monitoring Database."
+		local notes `"`notes'" "Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods."'
+		if "`nonotes'" ~= "" {
+			local notes = ""
+		}
+		else if "`nonotes'" == "" {
+			local notes `notes'
+		}
+		//Figure
 		putexcel set "`excelout2'", `act'
 		levelsof group_order, local(grlist)
 		foreach gr of local grlist {
 			tempfile graph`gr'
 			local lbltitle : label group_order `gr'	
 			
-			twoway (connected `vargic' percentile) if group_order==`gr' & percentile>=1 & percentile<=99, ///
-				legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
-				note(Source: World Bank calculations using survey data accessed through the Global Monitoring Database., size(small)) ///
-				caption("Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods.", size(small)) ///
+			twoway (connected `vargic' percentile, lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr' & percentile>=1 & percentile<=99, ///
+				legend(on order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
+				note("`notes'", size(small)) ///
 				xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) title("`lbltitle'", size(medium)) name(ngraph`gr', replace)
 			
 			putexcel set "`excelout2'", modify sheet(Figure3, replace)
