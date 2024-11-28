@@ -61,7 +61,6 @@ program pea_figure2, rclass
 	}
 	local lblline: var label `oneline'		
 	save `dataori', replace
-	
 		
 	// Check if PIP lineup already prepared, else download all PIP related files
 	local nametodo = 0
@@ -102,6 +101,7 @@ program pea_figure2, rclass
 	keep if `year' == `lasty'
 	qui sum `oneline', d
 	local povline `r(max)'	// Get one poverty line value
+	local povline = round(`povline',0.01)
 	//missing observation check
 	marksample touse
 	local flist `"`wvar' `onewelfare' `oneline' `year'"'
@@ -111,10 +111,11 @@ program pea_figure2, rclass
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline') 
 	}
+
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
 	keep _fgt0* year
 	gen country_code = "`country'"
-	save `pea_pov'
+	save `pea_pov', replace
 	
 	// Load GDP and other countries from PIP
 	use "`persdir'pea/PIP_all_countrylineup.dta", clear

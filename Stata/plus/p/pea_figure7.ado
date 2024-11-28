@@ -41,7 +41,6 @@ program pea_figure7, rclass
 		}
 	}
 	
-	
 	qui {
 		//order the lines
 		if "`linesorted'"=="" {
@@ -80,8 +79,7 @@ program pea_figure7, rclass
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `male' `edu' `age' `urban'"'
 		markout `touse' `flist' 
 	} //qui
-		
-		
+			
 	// Generate poverty measures
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		//FGT
@@ -89,6 +87,8 @@ program pea_figure7, rclass
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
 		gen double _pop = `wvar'
 	}
+	
+	
 	
 	// Shorten value labels 
     local lbl: value label `edu'
@@ -150,9 +150,7 @@ program pea_figure7, rclass
 	qui forv j=1(1)`=`i'-1' {
 		do `labelx`j''
 	}
-	qui foreach var of varlist _fgt0* {
-		replace `var' = `var' * 100
-	}
+	qui for var _fgt0*: replace X = X*100
 	la val _group _group
 	
 	//Prepare Notes
@@ -163,6 +161,23 @@ program pea_figure7, rclass
 	}
 	else if "`nonotes'" == "" {
 		local notes `notes'
+
+	local vars_graph
+	local vars_label
+	local o 1
+	if "`natwelfare'"~="" {
+		foreach var in `natpovlines' {
+			local vars_graph "`vars_graph' _fgt0_`natwelfare'_`var'"
+			local vars_label `"`vars_label' `o' "`lbl`var''" "'
+			local o = `o' + 1
+		}
+	}
+	if "`pppwelfare'"~="" {
+		foreach var in `ppppovlines' {
+			local vars_graph "`vars_graph' _fgt0_`pppwelfare'_`var'"
+			local vars_label `"`vars_label' `o' "`lbl`var''" "'
+			local o = `o' + 1
+		}
 	}
 		
 	// Figure
@@ -177,10 +192,9 @@ program pea_figure7, rclass
 	
 	tempfile graph
 	putexcel set "`excelout2'", `act'
-	x
-	graph dot _fgt0_welfare_natline _fgt0_welfppp_pline215 _fgt0_welfppp_pline365 _fgt0_welfppp_pline685 				///
-		,	over(_group) marker(1, msymbol(O)) marker(2, msymbol(D))  marker(3, msymbol(S))  marker(4, msymbol(T))  	///
-			legend(pos(6) order(1 "National poverty line" 2 "$2.15" 3 "$3.65" 4 "$6.85") row(1)) 						///
+	graph dot `vars_graph', 				///
+			over(_group) marker(1, msymbol(O)) marker(2, msymbol(D))  marker(3, msymbol(S))  marker(4, msymbol(T))  	///
+			legend(pos(6) order(`vars_label') row(2)) 						///
 			name(ngraph`gr', replace)																					///
 			ytitle("Poverty rate (percent)")																			///
 			note("`notes'", size(small))

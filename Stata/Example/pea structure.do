@@ -44,7 +44,8 @@ pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline3
 
 pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
 
-pea figure3 [aw=weight_p], year(year) welfare(welfppp) palette(viridis) spells(2018 2021)
+pea figure3 [aw=weight_p], year(year) welfare(welfppp)  spells(2018 2021)
+palette(viridis)
 
 pea figure4 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021)
 
@@ -53,7 +54,7 @@ pea figure5 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridi
 //issue in ARM
 pea figure6 [aw=weight_p], c(GNB) year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) comparability(comparability)
 
-pea figure7 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) age(age) male(male) edu(educat4) urban(urban)
+pea figure7 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365   pline685) year(year) age(age) male(male) edu(educat4) urban(urban)
 
 pea_figure9a [aw=weight_p], year(year) onewelfare(welfare) urban(urban) comparability(comparability) 
  
