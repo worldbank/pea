@@ -19,7 +19,7 @@
 cap program drop pea_figure10a
 program pea_figure10a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) scheme(string) palette(string) save(string) excel(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NONOTES scheme(string) palette(string) save(string) excel(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -134,7 +134,6 @@ program pea_figure10a, rclass
 		label var _prosgap_`onewelfare' "Prosperity Gap"
 	}
 	
-	// Figure	
 	qui levelsof `urban'		, local(group_num)
 	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
 	qui levelsof `year'			, local(yearval)
@@ -153,7 +152,7 @@ program pea_figure10a, rclass
 				local line_cmd`i'`co' = `"line _prosgap_`onewelfare' year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
 			}
-			local note "Note: Non-connected dots indicate that survey-years are not comparable."
+			local note_c "Note: Non-connected dots indicate that survey-years are not comparable."
 		}
 		else if "`comparability'"=="" {
 			local line_cmd`i' = `"line _prosgap_`onewelfare' year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
@@ -170,6 +169,17 @@ program pea_figure10a, rclass
 		local act modify
 	}	
 	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "`note_c'" "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $25."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+
+	// Figure	
 	local gr = 1
 	putexcel set "`excelout2'", `act'
 	//change all legend to bottom, and maybe 2 rows
@@ -182,7 +192,7 @@ program pea_figure10a, rclass
 			  xtitle("")											///
 			  xlabel("`yearval'")									///
 			  name(ngraph`gr', replace)								///
-			  note("`note'" "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $25.")	
+			  note("`notes'", size(small))
 
 	putexcel set "`excelout2'", modify sheet(Figure10a_`gr', replace)	  
 	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		

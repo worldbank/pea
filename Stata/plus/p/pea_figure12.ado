@@ -20,7 +20,7 @@
 cap program drop pea_figure12
 program pea_figure12, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NONOTEs spells(string) excel(string) save(string) comparability(string) scheme(string) palette(string) ]	
+	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NONOTES spells(string) excel(string) save(string) comparability(string) scheme(string) palette(string) ]	
 	
 	global floor_ 0.25
 	global prosgline_ 25

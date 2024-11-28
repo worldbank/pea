@@ -3,7 +3,7 @@
 cap program drop pea_figure7
 program pea_figure7, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED NONOTES age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
@@ -153,6 +153,15 @@ program pea_figure7, rclass
 	qui for var _fgt0*: replace X = X*100
 	la val _group _group
 	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "Note: Figure presents poverty rates within each group."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+
 	local vars_graph
 	local vars_label
 	local o 1
@@ -188,7 +197,7 @@ program pea_figure7, rclass
 			legend(pos(6) order(`vars_label') row(2)) 						///
 			name(ngraph`gr', replace)																					///
 			ytitle("Poverty rate (percent)")																			///
-			note("Note: Figure presents poverty rates within each group.")
+			note("`notes'", size(small))
 
 	putexcel set "`excelout2'", modify sheet(Figure7, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		

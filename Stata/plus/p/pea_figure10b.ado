@@ -19,7 +19,7 @@
 cap program drop pea_figure10b
 program pea_figure10b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) NONOTES scheme(string) palette(string) save(string) excel(string)]	
 
 	tempfile dataori pea_pg
 
@@ -206,6 +206,16 @@ program pea_figure10b, rclass
 	gen 	ln_gdp_pc = ln(gdppc)
 	format  pg %5.0f
 	
+	//Prepare Notes
+	local notes "Source: World Bank calculations using survey data accessed through the GMD."
+	local notes `"`notes'" "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $25."'
+	if "`nonotes'" ~= "" {
+		local notes = ""
+	}
+	else if "`nonotes'" == "" {
+		local notes `notes'
+	}
+				
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure10b.xlsx"
@@ -224,9 +234,7 @@ program pea_figure10b, rclass
 		  ytitle("Prosperity Gap")		 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)											///
-		  note("Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." ///
-		  "The prosperity gap is defined as the average factor by which incomes need to be multiplied" ///
-		  "to bring everyone to the prosperity standard of $25.") 
+		  note("`notes'", size(small))
 		
 	putexcel set "`excelout2'", modify sheet(Figure10b, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
