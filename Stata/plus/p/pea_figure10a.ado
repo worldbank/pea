@@ -97,6 +97,7 @@ program pea_figure10a, rclass
 	save	`dataori'
 	qui sum `urban', d
 	local max_val = r(max) + 1
+	local varlblurb : value label `urban'
 	
 	//store comparability
 	if "`comparability'"~="" {
@@ -137,15 +138,19 @@ program pea_figure10a, rclass
 		label var _prosgap_`onewelfare' "Prosperity Gap"
 	}
 	
+	//Prepare year variable without gaps
+	egen year_nogap = group(`year'), label(year_nogap)							// Generate year variable without gaps
+	qui levelsof year_nogap		 , local(yearval)	
+	sort year_nogap
+	
 	qui levelsof `urban'		, local(group_num)
 	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
-	qui levelsof `year'			, local(yearval)
-	local varlblurb : value label `urban'
 	label define `varlblurb' `max_val' "Total", add 									// Add Total as last entry
+	label values `urban' `varlblurb'
 	
 	foreach i of local group_num {
 		local j = `i' + 1			
-		local scatter_cmd`i' = `"scatter _prosgap_`onewelfare' year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'								// Colors defined in pea_figure_setup
+		local scatter_cmd`i' = `"scatter _prosgap_`onewelfare' year_nogap if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'								// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
@@ -153,13 +158,13 @@ program pea_figure10a, rclass
 		// Connect years (only if comparable if option is specified)
 		if "`comparability'"~="" {																											// If comparability specified, only comparable years are connected
 			foreach co of local compval {
-				local line_cmd`i'`co' = `"line _prosgap_`onewelfare' year if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
+				local line_cmd`i'`co' = `"line _prosgap_`onewelfare' year_nogap if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
 			}
 			local note_c "Note: Non-connected dots indicate that survey-years are not comparable."
 		}
 		else if "`comparability'"=="" {
-			local line_cmd`i' = `"line _prosgap_`onewelfare' year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
+			local line_cmd`i' = `"line _prosgap_`onewelfare' year_nogap if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
 			local line_cmd "`line_cmd' `line_cmd`i''"
 		}
 	}		
@@ -186,10 +191,10 @@ program pea_figure10a, rclass
 	tempfile graph`gr'
 	local lbltitle : variable label _prosgap_`onewelfare'
 	twoway `scatter_cmd' `line_cmd'									///	
-			  , legend(order("`legend'")) 							///
+			  , legend(order("`legend'") pos(6) row(1)) 			///
 			  ytitle("`lbltitle'") 									///
 			  xtitle("")											///
-			  xlabel("`yearval'")									///
+			  xlabel(`yearval', valuelabel)							///
 			  name(ngraph`gr', replace)								///
 			  note("`notes'", size(small))
 
