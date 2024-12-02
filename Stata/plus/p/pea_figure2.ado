@@ -113,7 +113,8 @@ program pea_figure2, rclass
 	}
 
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
-	keep _fgt0* year
+	keep _fgt0* `year'
+	cap gen year = `year'
 	gen country_code = "`country'"
 	save `pea_pov', replace
 	
@@ -189,7 +190,6 @@ program pea_figure2, rclass
 		local msym`groupcount' "t"
 		}
 
-
 	* Rest
 	local groupcount = `groupcount' + 1
 	local leg_elem 	 = `leg_elem' - 1
@@ -214,13 +214,8 @@ program pea_figure2, rclass
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through the GMD."
 	local notes `"`notes'" "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." "Poverty rates reported using `lblline'."'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
-		
+	if "`nonotes'" ~= "" local notes = ""
+	
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure2.xlsx"

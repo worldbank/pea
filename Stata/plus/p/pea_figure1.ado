@@ -119,7 +119,7 @@ program pea_figure1, rclass
 	
 	tempfile dataori datacomp data1 data2
 	save	`dataori'
-	qui sum urban, d
+	qui sum `urban', d
 	local max_val = r(max) + 1
 	
 	// Create fgt
@@ -151,7 +151,7 @@ program pea_figure1, rclass
 	for var _fgt0*: replace X = X*100
 	
 	// Clean and label
-	label values `urban' urban
+	*label values `urban' urban
 	if "`ppppovlines'"~="" {
 		foreach var of local ppppovlines {
 			label var _fgt0_`pppwelfare'_`var' "`lbl`var''"

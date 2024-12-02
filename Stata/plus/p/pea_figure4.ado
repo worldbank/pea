@@ -67,7 +67,6 @@ program pea_figure4, rclass
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
 	qui {	
-		
 		foreach var of varlist `oneline' {
 			local lbl`var' : variable label `var'
 		}
@@ -87,9 +86,7 @@ program pea_figure4, rclass
 		
 		tempfile dataori datalbl
 		save `dataori', replace
-		*des, replace clear
-		*save `datalbl', replace
-		*use `dataori', clear
+		
 		levelsof `year' if `touse', local(yrlist)
 		local same : list yrlist === keepyears
 		if `same'==0 {
@@ -135,9 +132,7 @@ program pea_figure4, rclass
 				}
 			}
 		}	// if
-		else{
-			}	
-			
+				
 		cap frame create temp_frame
 		cap frame change temp_frame
 		cap frame drop decomp_results	
@@ -215,12 +210,8 @@ program pea_figure4, rclass
 		local note : label indicatorlbl 1	
 		local notes "Source: World Bank calculations using survey data accessed through the Global Monitoring Database"
 		local notes `"`notes'" "Note: The Datt-Ravallion decomposition shows how much changes in total poverty" "can be attributed to income or consumption growth and redistribution using" "`note'"'
-		if "`nonotes'" ~= "" {
-			local notes = ""
-		}
-		else if "`nonotes'" == "" {
-			local notes `notes'
-		}
+		if "`nonotes'" ~= "" local notes ""
+		
 		graph bar value if decomp=="Datt-Ravallion" & subind<=3, over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty (percentage points)", size(medium)) name(gr_decomp, replace) title("Datt-Ravallion decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) `colors' ///
 		note("`notes'", size(small))
 			
@@ -236,12 +227,8 @@ program pea_figure4, rclass
 		local note : label indicatorlbl 1	
 		local notes "Source: World Bank calculations using survey data accessed through the Global Monitoring Database"
 		local notes `"`notes'" "Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty" "can be attributed to income or consumption growth, redistribution, and price changes using" "`note'"'
-		if "`nonotes'" ~= "" {
-			local notes = ""
-		}
-		else if "`nonotes'" == "" {
-			local notes `notes'
-		}
+		if "`nonotes'" ~= "" local notes ""
+		
 		graph bar value if decomp=="Shorrocks-Kolenikov", over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty (percentage points)", size(medium)) name(gr_decomp, replace) title("Shorrocks-Kolenikov decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) `colors' ///
 		note("`notes'", size(small))
 						

@@ -110,7 +110,7 @@ program pea_figure12, rclass
 		}	
 		local i = `i' + 1
 	}
-		// Comparability
+	// Comparability
 	if "`comparability'" ~= "" {
 		forv j=1(1)`=`a'-1' {
 			local spell_c`j' = "`spell`j''"												// Save local
@@ -124,8 +124,6 @@ program pea_figure12, rclass
 			}
 		}
 	}	// if
-	else{
-		}
 		
 	cap frame create temp_frame
 	cap frame change temp_frame
@@ -169,6 +167,7 @@ program pea_figure12, rclass
 	*bys spell (year): gen period = string(year[_n]) + "-" + string(year[_n-1])
 	gen inq_share = (-ch_lninq_y_ybar/ch_lnprosgap)*100
 	gen grow_share = (ch_lnmean/ch_lnprosgap)*100
+	
 	// Coloring of bars
 	forval i = 1/2 {
 		local colors "`colors' bar(`i', color(${col`i'}))"		
@@ -179,12 +178,8 @@ program pea_figure12, rclass
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through GMD."
 	local notes `"`notes'" "Note: Figure shows the decomposition of the Prosperity Gap into income and" "inequality components."'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
+	if "`nonotes'" ~= "" local notes ""
+	
 	//Figure
 	graph hbar inq_share grow_share if inq_share~=., 														///
 		stack over(spell) ytitle("Contribution to prosperity gap growth (%)") `colors'						///		

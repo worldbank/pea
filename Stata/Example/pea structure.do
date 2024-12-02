@@ -94,6 +94,7 @@ pea tables [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) p
 pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021)
 
 *****
+* Fail when the year is too new, not available in PIP, --> use WDI to get GPD outside PIP.
 use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\PER_2017-2022_GMD_ALL.dta", clear
 use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\ARM_2015_2018_2025_GMD_ALL.dta" , clear
 
@@ -116,8 +117,15 @@ replace temp = trim(temp)
 encode temp, gen(subnatvar)
 la var subnatvar "By regions"
 drop tmp1 tmpb1 tmp2 tmpb2 temp
+replace year = 2022 if year==2025
 replace comparability = 0 if year==2015
-replace comparability = 2 if year==2025
+replace comparability = 2 if year==2022
+
+//assert does not work because of new year data, not in PIP --, change method for 9b
+pea figures [aw=weight_p], c(ARM) natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability) welfaretype(CONS) 
+
+nonotes
+
 
 pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine comparability(comparability)
 
@@ -127,10 +135,14 @@ pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline3
 
 pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban)  
 
-pea figure6 [aw=weight_p], c(ARM) year(year) onew(welfare) onel(natline) palette(viridis) spells(2015 2016; 2016 2017;2018 2025;2017 2025) comparability(comparability)
+pea figure3 [aw=weight_p], year(year) welfare(welfppp)  spells(2015 2016; 2016 2017;2018 2022;2017 2022)
+
+pea figure3 [aw=weight_p], year(year) welfare(welfppp)  spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
+
+pea figure6 [aw=weight_p], c(ARM) year(year) onew(welfare) onel(natline) palette(viridis) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
 
 
-pea figures [aw=weight_p], c(ARM) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025) comparability(comparability)
+pea figures [aw=weight_p], c(ARM) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
 
 *drop if year==2015|year==2016|year==2017
 
@@ -142,15 +154,15 @@ gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 gen married = marital==1 if marital~=.
 */
 
-pea figures [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+pea figures [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2024;2017 2024)
 
-pea tables [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+pea tables [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2024;2017 2024)
 
-pea tables [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+pea tables [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2024;2017 2024)
 
 pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) oneline(pline685) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing
 
-pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2024;2017 2024)
 s
 pea_table1 [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline365)
 

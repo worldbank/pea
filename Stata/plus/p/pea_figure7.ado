@@ -88,8 +88,6 @@ program pea_figure7, rclass
 		gen double _pop = `wvar'
 	}
 	
-	
-	
 	// Shorten value labels 
     local lbl: value label `edu'
 	if "`lbl'" == "educat4" {
@@ -156,12 +154,9 @@ program pea_figure7, rclass
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through the GMD."
 	local notes `"`notes'" "Note: Figure presents poverty rates within each group."'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-
+	if "`nonotes'" ~= "" local notes ""
+	
+	//Prepare graph variable and legend
 	local vars_graph
 	local vars_label
 	local o 1

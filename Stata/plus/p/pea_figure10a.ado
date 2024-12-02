@@ -24,6 +24,9 @@ program pea_figure10a, rclass
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
+	global floor_ 0.25
+	global prosgline_ 25
+
 	//house cleaning	
 	if "`urban'"=="" {
 		noi di in red "Sector/urban variable must be defined in urban()"
@@ -89,10 +92,10 @@ program pea_figure10a, rclass
 	
 	//more preparations
 	clonevar _pg_`onewelfare' = `onewelfare' if `touse'	
-	replace _pg_`onewelfare' = 0.25 if _pg_`onewelfare' < 0.25 & _pg_`onewelfare' ~= .	// Bottom code PG
+	replace _pg_`onewelfare' = ${floor_} if _pg_`onewelfare' < ${floor_} & _pg_`onewelfare' ~= .	// Bottom code PG
 	tempfile dataori datacomp data2
 	save	`dataori'
-	qui sum urban, d
+	qui sum `urban', d
 	local max_val = r(max) + 1
 	
 	//store comparability
@@ -106,7 +109,7 @@ program pea_figure10a, rclass
 	use `dataori'
 	// Generate prosperity gap of PEA country
 	if "`onewelfare'"~="" {
-		gen double _prosgap_`onewelfare' = 25/_pg_`onewelfare' if `touse'
+		gen double _prosgap_`onewelfare' = ${prosgline_}/_pg_`onewelfare' if `touse'
 		groupfunction [aw=`wvar'] if `touse', mean(_prosgap_`onewelfare') by(`year')
 	}
 	gen `urban' = `max_val' 			
@@ -116,9 +119,9 @@ program pea_figure10a, rclass
 	foreach var of local urban {
 		use `dataori', clear
 		if "`onewelfare'"~="" {
-		gen double _prosgap_`onewelfare' = 25/_pg_`onewelfare' if `touse'
-		groupfunction [aw=`wvar'] if `touse', mean(_prosgap_`onewelfare') by(`year' `var')
-	}
+			gen double _prosgap_`onewelfare' = ${prosgline_}/_pg_`onewelfare' if `touse'
+			groupfunction [aw=`wvar'] if `touse', mean(_prosgap_`onewelfare') by(`year' `var')
+		}
 		append using `data2'
 		save `data2', replace
 	}	
@@ -129,7 +132,7 @@ program pea_figure10a, rclass
 	}
 	
 	// Clean and label
-	label values `urban' urban
+	*label values `urban' urban
 	if "`onewelfare'"~="" {
 		label var _prosgap_`onewelfare' "Prosperity Gap"
 	}
@@ -137,8 +140,9 @@ program pea_figure10a, rclass
 	qui levelsof `urban'		, local(group_num)
 	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
 	qui levelsof `year'			, local(yearval)
-	label define urban `max_val' "Total", add									// Add Total as last entry
-
+	local varlblurb : value label `urban'
+	label define `varlblurb' `max_val' "Total", add 									// Add Total as last entry
+	
 	foreach i of local group_num {
 		local j = `i' + 1			
 		local scatter_cmd`i' = `"scatter _prosgap_`onewelfare' year if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'								// Colors defined in pea_figure_setup
@@ -171,13 +175,8 @@ program pea_figure10a, rclass
 	
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through the GMD."
-	local notes `"`notes'" "`note_c'" "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $25."'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
+	local notes `"`notes'" "`note_c'" "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $${prosgline_}."'
+	if "`nonotes'" ~= "" local notes ""
 
 	// Figure	
 	local gr = 1

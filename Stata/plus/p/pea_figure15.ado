@@ -90,12 +90,7 @@ syntax [if] [in] [aw pw fw], [Country(string) NONOTES scheme(string) palette(str
 	//Prepare Notes
 	local notes "Source: World Bank calculations using data from the Scorecard Vision Indicators."
 	local notes `"`notes'" "Note: Population at risk is defined as the share of population" "exposed to any hazard, and vulnerable in any of the dimensions."'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
+	if "`nonotes'" ~= "" local notes ""
 	
 	//Figure
 	if "`excel'"=="" {

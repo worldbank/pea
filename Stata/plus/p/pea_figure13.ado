@@ -49,7 +49,6 @@ program pea_figure13, rclass
 	local groups = 10																					// number of areas
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
-	
 	//Weights
 	local wvar : word 2 of `exp'
 	qui if "`wvar'"=="" {
@@ -107,6 +106,7 @@ program pea_figure13, rclass
 	reshape wide decile, i(`year' `comparability') j(__decile)
 	cap ren `year' year
 	la var year ""
+	
 	// Drop years if not comparable
 	if "`comparability'"~="__comp" {
 		
@@ -134,16 +134,13 @@ program pea_figure13, rclass
 	local yaxis `"`yaxis' `mid' "Decile 10""'
 	local gr = 1
 	local u  = 5
+	
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through GMD."
 	if "`comparability'"~="__comp" local note2 "Non-connected areas indicate that survey-years are not comparable."	
 	local notes `"`notes'" "Note: Figure shows the share of population in each welfare decile." "`note2'"'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
+	if "`nonotes'" ~= "" local notes ""
+	
 	//Prepare year variable without gaps
 	egen year_nogap = group(`year'), label(year_nogap)							// Generate year variable without gaps
 	qui levelsof year_nogap		 , local(yearval)	

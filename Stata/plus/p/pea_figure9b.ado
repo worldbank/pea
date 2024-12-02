@@ -19,7 +19,7 @@
 cap program drop pea_figure9b
 program pea_figure9b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(integer 3) welfaretype(string) NONOTES scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(integer 3)  NONOTES scheme(string) palette(string) save(string) excel(string) welfaretype(string)]	
 
 	tempfile dataori pea_gini
 
@@ -51,33 +51,24 @@ program pea_figure9b, rclass
 		else local excelout "`excel'"
 	}
 	
+	if "`within'"=="" local within 3
 	if `within'>10 {
 		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
 		error 1
 	}
-	if "`within'"=="" local within 3
-
-
-	if "`welfaretype'" == "" {
-		capture confirm variable welfaretype																							// If welfare type not defined, check if variable exists
-		if _rc~= 0 {
+	
+	if "`welfaretype'"=="" {
+		noi di in red "Please define welfare type as INC or CONS in welfaretype()"
+		exit 1
+	}
+	else {
+		local welfaretype "`=upper("`welfaretype'")'"
+		if "`welfaretype'" ~= "INC" & "`welfaretype'" ~= "CONS" {	// Check that values are correct
 			noi di in red "Please define welfare type as INC or CONS in welfaretype()"
-			exit `=_rc'
-			}
-		else {
-			qui levelsof welfaretype, local(welfaretype_t)																				// if welfaretype variable exist, use that value
-			local welfaretype = `welfaretype_t'
-			if "`welfaretype'" == "INC" | "`welfaretype'" == "CONS" {																		// Check that values are correct
-			}
-			else {
-			noi di in red "Please define welfare type as INC or CONS in welfaretype()"
-			exit `=_rc'
-			}
+			exit 1
 		}
 	}
-		
-
-	
+			
 	//Weights
 	local wvar : word 2 of `exp'	// `exp' is weight in Stata ado syntax
 	qui if "`wvar'"=="" {
@@ -133,7 +124,8 @@ program pea_figure9b, rclass
 	clonevar _Gini_`onewelfare' = `onewelfare' if `touse'
 	if "`onewelfare'"~="" groupfunction  [aw=`wvar'] if `touse', gini(_Gini_`onewelfare') by(`year')
 	gen country_code = "`country'"
-	save `pea_gini'
+	cap gen year = `year'
+	save `pea_gini', replace
 		
 	// Load GDP and other countries from PIP
 	use "`persdir'pea/PIP_all_country.dta", clear
@@ -154,18 +146,18 @@ program pea_figure9b, rclass
 	// Merge regions
 	merge 1:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
 	qui levelsof _merge, local(mcode)
-	assert _merge != 1																					// Check if region codes merge
+	assert _merge != 1															// Check if region codes merge
 	drop _merge 
 	
 	// Merge GDP
 	merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
 	qui levelsof _merge, local(mcode)
-	assert _merge != 1																					// Check if GDP merges
+	assert _merge != 1															// Check if GDP merges
 	drop _merge 
 	
 	// Merge in PEA GINI
 	merge 1:1 country_code year using `pea_gini'
-	replace gini = _Gini_`onewelfare'   if country_code == "`country'"									// Get PEA Gini for PEA country
+	replace gini = _Gini_`onewelfare'   if country_code == "`country'"			// Get PEA Gini for PEA country
 	replace gini = gini * 100
 	replace welfaretype = "`welfaretype'" if country_code == "`country'"
 	assert _merge != 2
@@ -177,18 +169,18 @@ program pea_figure9b, rclass
 	
 	// Figure colors
 	local groupcount = 1
-	local groups = `b_data_count' + 3																	//  Total number of entries and colors (benchmark countries, PEA country, region, and others)
+	local groups = `b_data_count' + 3				//  Total number of entries and colors (benchmark countries, PEA country, region, and others)
 	local leg_elem = `groups'
 	di `leg_elem'
-	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
 	// Figure preparation
 	* PEA country
 	gen   group = `groupcount' if country_code == "`country'"
 	qui sum count if country_code == "`country'"
 	local cname `=country_name[r(min)]'
-	local legend `"`legend' `leg_elem' "`cname'""'														// PEA country last and so on, so that PEA marker is on top
-	local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
+	local legend `"`legend' `leg_elem' "`cname'""'								// PEA country last and so on, so that PEA marker is on top
+	local grcolor`groupcount': word `groupcount' of ${colorpalette}				// Palette defined in pea_figure_setup
 	gen   mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
 	local msym`groupcount' "D"
 	
@@ -212,7 +204,7 @@ program pea_figure9b, rclass
 		local b_count = `b_count' + 1
 		local grcolor`groupcount': word `groupcount' of ${colorpalette}
 		local msym`groupcount' "t"
-		}
+	}
 
 	* Rest
 	local groupcount = `groupcount' + 1
@@ -220,10 +212,9 @@ program pea_figure9b, rclass
 	replace group 	 = `groupcount' if group == .										
 	local legend `"`legend' `leg_elem' "Other countries" "'	
 	local lastcol: word count ${colorpalette}
-	local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
+	local grcolor`groupcount': word `lastcol' of ${colorpalette}				// Last color (grey in default)
 	local msym`groupcount' "s" 
 	
-
 	// Scatter command
 	qui levelsof group, local(group_num)
 
@@ -255,12 +246,9 @@ program pea_figure9b, rclass
 	local notes "Source: World Bank calculations using survey data accessed through the GMD."
 	local notes `"`notes'" "Note: Data is from the closest available survey within `within' years to `lasty'." "Filled markers indicate a `w_note'-based welfare aggregate and" "hollow markers a `w_note_o'-based welfare aggregate."'
 	if "`nonotes'" ~= "" {
-		local notes = ""
+		local notes ""
 	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
-		
+	
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure9b.xlsx"
@@ -274,8 +262,8 @@ program pea_figure9b, rclass
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `scatter_cmd'													///		
-		qfit 	gini ln_gdp_pc, lpattern(-) lcolor(gray) 	///
-		, legend(order(`legend')) 											///
+		qfit 	gini ln_gdp_pc, lpattern(-) lcolor(gray), 					///
+		  legend(order(`legend')) 											///
 		  ytitle("Gini index")			 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)											///
@@ -287,5 +275,4 @@ program pea_figure9b, rclass
 	putexcel save							
 	cap graph close	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure9b.xlsx"	
-	
 end

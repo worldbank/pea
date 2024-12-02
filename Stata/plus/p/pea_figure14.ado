@@ -30,13 +30,13 @@ program pea_figure14, rclass
 	cap drop code
 	gen code = "`country'"	
 	
+	if "`within'"=="" local within 3
 	if `within'>10 {
 		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
 		error 1
 	}
-	if "`within'"=="" local within 3
+	
 	local benchmark0 "`benchmark'"
-	*local benchmark "`country' `benchmark'"
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -59,8 +59,7 @@ program pea_figure14, rclass
 	local groups = 7																					// number of bars
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
-	
-	  {
+	qui {
 		//Save latest year of survey data
 		su `year',d
 		local lasty `r(max)'
@@ -110,21 +109,19 @@ program pea_figure14, rclass
 		if `dl'==1 {
 			cap pea_dataupdate, datatype(MPM) update
 			if _rc~=0 {
-				noi dis "Unable to run pea_dataupdate, datatype(MPM) update"
+				noi dis as error "Unable to run pea_dataupdate, datatype(MPM) update"
 				exit `=_rc'
 			}
 		}
 		
-	
 		use "`persdir'pea/WLD_GMI_MPM.dta", clear
 		//drop current countries
 		drop if code=="`country'"
 
-		gen y_d = abs(`lasty' - year)												// year closest to PEA year
+		gen y_d = abs(`lasty' - year)											// year closest to PEA year
 		bys code (year): egen min_d = min(y_d)
 		keep if (y_d == min_d) & y_d < 3 & mdpoor_i1 ~= .
-		bys code (year): keep if _n == _N 									// use latest year if there are 
-
+		bys code (year): keep if _n == _N 										// use latest year if there are 
 		if _N>0 {				
 			ren dep_infra_impw2 dep_infra_impw
 			keep code year dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 survname welftype	
@@ -142,7 +139,6 @@ program pea_figure14, rclass
 		la var dep_infra_imps "No access to limited-standard sanitation"
 		la var dep_infra_impw "No access to limited-standard drinking water"
 
-			
 		// Recount benchmark countries to get total number of legend entries, as some benchmark countries might not have data
 		gen b_in_list = ""
 		foreach b of local benchmark {
@@ -161,16 +157,15 @@ program pea_figure14, rclass
 		qui sum count if code == "`country'"
 		local region_name `=region[r(min)]'		
 		
-		
 		// Scatter preparation
 		* PEA country
 		local groupcount = 1
-		local leg_elem = `b_data_count' + 3																	// Number of legend elements
+		local leg_elem = `b_data_count' + 3										// Number of legend elements
 		gen   group = `groupcount' if code == "`country'"
 		qui sum count if code == "`country'"
 		local cname `=country_name[r(min)]'
-		local legend `"`legend' `leg_elem' "`cname'""'														// PEA country last and so on, so that PEA marker is on top
-		local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
+		local legend `"`legend' `leg_elem' "`cname'""'							// PEA country last and so on, so that PEA marker is on top
+		local grcolor`groupcount': word `groupcount' of ${colorpalette}			// Palette defined in pea_figure_setup
 		gen   mlabel = "{bf:" + code + "}" if code == "`country'"
 		local msym`groupcount' "D"
 
@@ -194,7 +189,7 @@ program pea_figure14, rclass
 			local b_count = `b_count' + 1
 			local grcolor`groupcount': word `groupcount' of ${colorpalette}
 			local msym`groupcount' "t"
-			}
+		}
 
 		* Rest
 		local groupcount = `groupcount' + 1
@@ -202,15 +197,16 @@ program pea_figure14, rclass
 		replace group 	 = `groupcount' if group == .										
 		local legend `"`legend' `leg_elem' "Other countries" "'	
 		local lastcol: word count ${colorpalette}
-		local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
+		local grcolor`groupcount': word `lastcol' of ${colorpalette}			// Last color (grey in default)
 		local msym`groupcount' "s" 
 				
 		// Scatter command
 		qui levelsof group, local(group_num)
 		foreach i of local group_num {
 			local scatter_cmd`i' `"scatter mdpoor_i1 dep_poor1 if group == `i', mc("`grcolor`i''") msymbol("`msym`i''") ml(mlabel) msize(medlarge) mlabpos(9) || "'
-			local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "						// PEA country comes last and marker is on top
+			local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "					// PEA country comes last and marker is on top
 		}
+		
 		//Figures
 		local figname Figure14
 		if "`excel'"=="" {
@@ -229,19 +225,17 @@ program pea_figure14, rclass
 		//Prepare Notes
 		local notes "Source: World Bank calculations using survey data accessed through GMD."
 		local notes `"`notes'"'
-		if "`nonotes'" ~= "" {
-			local notes = ""
-		}
-		else if "`nonotes'" == "" {
-			local notes `notes'
-		}
+		if "`nonotes'" ~= "" local notes ""
+		
 		// Coloring of bars
 		forval i = 1/7 {														// Number of bars
 			local colors "`colors' bar(`i', color(${col`i'}))"		
 		}
 		
 		//Figure14_1 MPM bar
-		/*
+		local notes "Source: World Bank calculations using survey data accessed through GMD."		
+		if "`nonotes'" ~= "" local notes ""
+		
 		tempfile graph1
 		
 		graph bar dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 if code=="`country'", over(year)  ///
@@ -253,8 +247,6 @@ program pea_figure14, rclass
 		putexcel set "`excelout2'", modify sheet("Figure14_1", replace)
 		graph export "`graph1'", replace as(png) name(gr_mpm1) wid(3000)
 		putexcel A`u' = image("`graph1'")
-			*/
-		
 		
 		//Figure14_2 Venn
 		
@@ -262,12 +254,8 @@ program pea_figure14, rclass
 		//Prepare Notes
 		local notes "Source: World Bank calculations using survey data accessed through GMD."
 		local notes `"`notes'" "Data is from the closest available survey within `within' years to `lasty'."'
-		if "`nonotes'" ~= "" {
-			local notes = ""
-		}
-		else if "`nonotes'" == "" {
-			local notes `notes'
-		}		
+		if "`nonotes'" ~= "" local notes ""
+				
 		drop if code == "`country'" & year ~= `lasty'							// Keep only last year for PEA country
 		tempfile graph1
 		su mdpoor_i1,d

@@ -21,7 +21,6 @@ program pea_figure6, rclass
 	version 18.0
 syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS NONOTES spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
 
-	
 	tempfile dataori pea_pov 
 
 	local persdir : sysdir PERSONAL	
@@ -114,8 +113,6 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 			}
 		}
 	}	// if
-	else{
-		}
 
 	// Check if PIP GDP already prepared, else download all PIP related files
 	local nametodo = 0
@@ -128,7 +125,7 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	if `nametodo'==1 {
 		cap pea_dataupdate, datatype(PIP) update
 		if _rc~=0 {
-			noi dis "Unable to run pea_dataupdate, datatype(PIP) update"
+			noi dis as error "Unable to run pea_dataupdate, datatype(PIP) update"
 			exit `=_rc'
 		}
 	}
@@ -139,9 +136,8 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	
 	// Preparation
 	use `dataori', clear
-
-	qui sum `oneline', d
-	local povline `r(max)'	// Get one poverty line value
+	*qui sum `oneline', d
+	*local povline `r(max)'	// Get one poverty line value
 	
 	// Generate poverty rate of PEA country
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
@@ -150,20 +146,21 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
 	keep _fgt0* year
 	gen code = "`country'"
-	save `pea_pov'
+	save `pea_pov', replace
 
 	// Merge GDP
 	merge 1:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
 	egen any_merge = max(_merge)
 	if any_merge~=3 {
-		noi di in red  "Figure 6: Unable to merge GMD with PIP (GDP) data. Check country codes."
-		exit `=_rc'
+		noi di as error  "Figure 6: Unable to merge GMD with PIP (GDP) data. Check country codes."
+		exit 1
 	}
 	drop _merge any_merge	
+	
 	// Reshape for easier handling of years
 	reshape wide _fgt0* gdppc, i(code) j(`year')
 			
-	forv j=1(1)`=`fig6'-1' {																// Loop through number of spells (minus ;) [See code above under Clean spells]
+	forv j=1(1)`=`fig6'-1' {				// Loop through number of spells (minus ;) [See code above under Clean spells]
 		local spell`j' : list sort spell`j'													// Sort years ascending
 		tokenize "`spell`j''"																// Get each year separately
 		if "`1'"~="" & "`2'"~="" {	
@@ -186,13 +183,13 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	// Prepare figure
 	qui levelsof spell, local(spell_count)
 	foreach i of local spell_count {
-		expand 2 if spell =="`i'"													// Need to observations per spell (1 for each variable)
+		expand 2 if spell =="`i'"												// Need to observations per spell (1 for each variable)
 	}
 	
 	sort 			spell
 	gen 			count 		= _n
 	egen 			group 		= group(spell)
-	gen 			count2 		= count + group - 1											// Add gap between numbers of groups
+	gen 			count2 		= count + group - 1								// Add gap between numbers of groups
 	bys spell: egen avg 		= mean(count2)
 	gen 			spell_dash 	= subinstr(spell, "_", " – ", .)
 	replace 		spell 		= subinstr(spell, "_", " ", .)
@@ -201,10 +198,10 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 		local spellc = spell[`c']
 		local count2 = count2[`c']
 		local marker = avg[`c']
-		if mod(`c', 2) {																	// Odd numbers are fgt, even are gdp (i.e. statement is 0)
+		if mod(`c', 2) {														// Odd numbers are fgt, even are gdp (i.e. statement is 0)
 			local bar`c' `"bar d_fgt0_ 	 count2 if spell == "`spellc'" & count2 == `count2', color("`: word 1 of ${colorpalette}'") ||"'
 			if "`c'" == "1" {
-				local legend`c' `"`c' "`: variable label d_fgt0_'""'						// Only one legend entry per variable
+				local legend`c' `"`c' "`: variable label d_fgt0_'""'			// Only one legend entry per variable
 				local legend 	`"`legend' `legend`c''"'
 			}
 		}
@@ -238,12 +235,7 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through the GMD."
 	local notes `"`notes'"'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
+	if "`nonotes'" ~= "" local notes ""
 	
 	// Figure
 	if "`excel'"=="" {
@@ -269,6 +261,5 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	putexcel A1 = image("`graph'")
 	putexcel save							
 	cap graph close	
-	if "`excel'"=="" shell start excel "`dirpath'\\Figure6.xlsx"	
-	
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure6.xlsx"
 end

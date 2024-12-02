@@ -109,7 +109,6 @@ program pea_figure9a, rclass
 		local wvar `w'
 	}
 	
-	
 	//missing observation check
 	marksample touse
 	local flist `"`wvar' `onewelfare' `year'"'
@@ -193,12 +192,7 @@ program pea_figure9a, rclass
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through the GMD."
 	local notes `"`notes'" "`note_c'"'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
+	if "`nonotes'" ~= "" local notes ""
 	
 	//Figure		
 	local gr = 1

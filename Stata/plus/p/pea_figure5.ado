@@ -62,7 +62,6 @@ program pea_figure5, rclass
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
 	qui {	
-		
 		foreach var of varlist `oneline' {
 			local lbl`var' : variable label `var'
 		}
@@ -86,9 +85,7 @@ program pea_figure5, rclass
 		
 		tempfile dataori datalbl
 		save `dataori', replace
-		*des, replace clear
-		*save `datalbl', replace
-		*use `dataori', clear
+		
 		levelsof `year' if `touse', local(yrlist)
 		local same : list yrlist === keepyears
 		if `same'==0 {
@@ -218,12 +215,8 @@ program pea_figure5, rclass
 		local note : label indicatorlbl 1	
 		local notes "Source: World Bank calculations using survey data accessed through the GMD."
 		local notes `"`notes'" "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be" "attributed to different groups. The intra-sectoral component displays how the incidence of poverty" "in rural and urban areas has changed, assuming the relative population size in each of these has" "remained constant. Population shift refers to the contribution of changes in population shares," "assuming poverty incidence in each group has remained constant. The interaction between" "the twoindicates whether there is a correlation between changes in poverty incidence" "and population movements using `note'"'
-		if "`nonotes'" ~= "" {
-			local notes = ""
-		}
-		else if "`nonotes'" == "" {
-			local notes `notes'
-		}
+		if "`nonotes'" ~= "" local notes ""
+		
 		graph bar value if decomp=="Huppi-Ravallion", over(subind) over(spell) asyvar legend(rows(1) size(small) position(6)) ytitle("Total change in poverty" "(percentage points)", size(medium)) name(gr_decomp, replace) title("Huppi-Ravallion decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) `colors' ///
 		note("`notes'", size(small))
 		

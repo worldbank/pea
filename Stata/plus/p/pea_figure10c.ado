@@ -22,7 +22,9 @@ program pea_figure10c, rclass
 	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) NONOTES scheme(string) palette(string) save(string) excel(string) within(integer 3)]	
 
 	tempfile dataori pea_pg
-
+	global floor_ 0.25
+	global prosgline_ 25
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -110,9 +112,9 @@ program pea_figure10c, rclass
 
 	// Generate PG of PEA country
 	clonevar _pgtemp_`onewelfare' = `onewelfare' if `touse'	
-	replace _pgtemp_`onewelfare' = 0.25 if _pgtemp_`onewelfare' < 0.25 & _pgtemp_`onewelfare' ~= .	// Bottom code PG
+	replace _pgtemp_`onewelfare' = ${floor_} if _pgtemp_`onewelfare' < ${floor_} & _pgtemp_`onewelfare' ~= .	// Bottom code PG
 	if "`onewelfare'"~="" {
-		gen double _prosgap_`onewelfare' = 25/_pgtemp_`onewelfare' if `touse'
+		gen double _prosgap_`onewelfare' = ${prosgline_}/_pgtemp_`onewelfare' if `touse'
 		groupfunction [aw=`wvar'] if `touse', mean(_prosgap_`onewelfare') by(`year')
 	}
 	gen country_code = "`country'"
@@ -137,18 +139,18 @@ program pea_figure10c, rclass
 	// Merge regions
 	merge 1:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
 	qui levelsof _merge, local(mcode)
-	assert _merge != 1																					// Check if region codes merge
+	assert _merge != 1															// Check if region codes merge
 	drop _merge 
 	
 	// Merge GDP
 	merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
 	qui levelsof _merge, local(mcode)
-	assert _merge != 1																					// Check if GDP merges
+	assert _merge != 1															// Check if GDP merges
 	drop _merge 
 	
 	// Merge in PEA PG
 	merge 1:1 country_code year using `pea_pg'
-	replace pg = _prosgap_`onewelfare'		if country_code == "`country'"									// Get PEA PG for PEA country
+	replace pg = _prosgap_`onewelfare'		if country_code == "`country'"		// Get PEA PG for PEA country
 	assert _merge != 2
 	
 	// Get region
@@ -158,18 +160,18 @@ program pea_figure10c, rclass
 	
 	// Figure colors
 	local groupcount = 1
-	local groups = `b_data_count' + 3																	//  Total number of entries and colors (benchmark countries, PEA country, region, and others)
+	local groups = `b_data_count' + 3		//  Total number of entries and colors (benchmark countries, PEA country, region, and others)
 	local leg_elem = `groups'
 	di `leg_elem'
-	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
 	// Figure preparation
 	* PEA country
 	gen   group = `groupcount' if country_code == "`country'"
 	qui sum count if country_code == "`country'"
 	local cname `=country_name[r(min)]'
-	local legend `"`legend' `leg_elem' "`cname'""'														// PEA country last and so on, so that PEA marker is on top
-	local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
+	local legend `"`legend' `leg_elem' "`cname'""'								// PEA country last and so on, so that PEA marker is on top
+	local grcolor`groupcount': word `groupcount' of ${colorpalette}				// Palette defined in pea_figure_setup
 	gen   mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
 	local msym`groupcount' "D"
 	
@@ -201,7 +203,7 @@ program pea_figure10c, rclass
 	replace group 	 = `groupcount' if group == .										
 	local legend `"`legend' `leg_elem' "Other countries" "'	
 	local lastcol: word count ${colorpalette}
-	local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
+	local grcolor`groupcount': word `lastcol' of ${colorpalette}				// Last color (grey in default)
 	local msym`groupcount' "s" 
 	
 	// Scatter command
@@ -218,12 +220,7 @@ program pea_figure10c, rclass
 	//Prepare Notes
 	local notes "Source: World Bank calculations using survey data accessed through the GMD."
 	local notes `"`notes'" "Note: Data is from the closest available survey within `within' years to `lasty'." "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $25."'
-	if "`nonotes'" ~= "" {
-		local notes = ""
-	}
-	else if "`nonotes'" == "" {
-		local notes `notes'
-	}
+	if "`nonotes'" ~= "" local notes ""
 	
 	// Figure
 	if "`excel'"=="" {
@@ -238,7 +235,7 @@ program pea_figure10c, rclass
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `scatter_cmd'													///		
-		qfit 	pg ln_gdp_pc, lpattern(-) lcolor(gray) 	///
+		qfit 	pg ln_gdp_pc, lpattern(-) lcolor(gray) 						///
 		, legend(order(`legend')) 											///
 		  ytitle("Prosperity Gap")		 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///

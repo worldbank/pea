@@ -19,7 +19,7 @@
 cap program drop pea_figure3
 program pea_figure3, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) CORE NONOTES comparability(string) setting(string) excel(string) save(string) by(varname numeric) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) NONOTES comparability(string) setting(string) excel(string) save(string) by(varname numeric) scheme(string) palette(string)]
 	
 	//load data if defined
 	if "`using'"~="" {
@@ -61,19 +61,19 @@ program pea_figure3, rclass
 	
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
-		// Prepare spells
-		tokenize "`spells'", parse(";")	
-		local i = 1
-		local a = 1
-		while "``i''" != "" {
-			if "``i''"~=";" {
-				local spell`a' "``i''"		
-				dis "`spell`a''"
-				local a = `a' + 1
-			}	
-			local i = `i' + 1
-		}
-		// Comparability
+	// Prepare spells
+	tokenize "`spells'", parse(";")	
+	local i = 1
+	local a = 1
+	while "``i''" != "" {
+		if "``i''"~=";" {
+			local spell`a' "``i''"		
+			dis "`spell`a''"
+			local a = `a' + 1
+		}	
+		local i = `i' + 1
+	}
+	// Comparability
 	if "`comparability'" ~= "" {
 		forv j=1(1)`=`a'-1' {
 			local spell_c`j' = "`spell`j''"												// Save local
@@ -87,8 +87,6 @@ program pea_figure3, rclass
 			}
 		}
 	}	// if
-	else{
-		}
 		
 	// Figure colors
 	local _spells = subinstr("`spells'"," ","",.)														// Get number of spells
@@ -115,9 +113,7 @@ program pea_figure3, rclass
 		
 		tempfile dataori datalbl
 		save `dataori', replace
-		*des, replace clear
-		*save `datalbl', replace
-		*use `dataori', clear
+		
 		levelsof `year' if `touse', local(yrlist)
 		local same : list yrlist === keepyears
 		if `same'==0 {
@@ -134,8 +130,7 @@ program pea_figure3, rclass
 		la var _all_ "All sample"
 		la def _all_ 1 "All sample"
 		la val _all_ _all_
-		local by "_all_ `by'"
-		*gen __percentile = . if `touse'
+		local by "_all_ `by'"		
 		save `dataori', replace
 		levelsof `year' if `touse', local(yrlist)
 		
@@ -144,14 +139,12 @@ program pea_figure3, rclass
 		save `data2', replace emptyok
 				
 		foreach byvar of local by {
-			use `dataori', clear
-			*gen group_`byvar' = "`byvar'"
+			use `dataori', clear			
 			levelsof `byvar', local(byvlist)
 			local lbl`byvar' : variable label `byvar'				
 			local label1 : value label `byvar'
 			
-			foreach lvl of local byvlist {
-				*gen per_`byvar'_`lvl'=.
+			foreach lvl of local byvlist {				
 				local lvl`byvar'_`lvl' : label `label1' `lvl'				
 				foreach yr of local yrlist {
 					use `dataori', clear
@@ -161,8 +154,7 @@ program pea_figure3, rclass
 						noi di in red "Error in creating percentile for `byvar'==`lvl'"						
 						exit `=_rc'
 					} 
-					else {						
-						*replace per_`byvar'_`lvl' = `qwlf' if `touse' & `year'==`yr' & `byvar'==`lvl' & per_`byvar'_`lvl'==.
+					else {												
 						collapse (mean) `welfare' [aw=`wvar'] if `touse' & `year'==`yr' & `byvar'==`lvl', by(`qwlf')
 						ren `qwlf' percentile
 						gen year = `yr'
@@ -170,8 +162,7 @@ program pea_figure3, rclass
 						gen var_lvl = `lvl'
 						append using `data2'
 						save `data2', replace
-					}
-					*drop `qwlf'
+					}					
 				}
 			}	
 		}
@@ -207,7 +198,7 @@ program pea_figure3, rclass
 				dis "Spell`j': `1'-`2'"		
 				gen gic_`1'_`2' = ((`welfare'`2'/`welfare'`1')^(1/(`2'-`1'))-1)*100
 				local vargic "`vargic' gic_`1'_`2'"
-				local varcount = `:word count `vargic''								// added so that legend element fits if not all spells are comparable
+				local varcount = `:word count `vargic''						// added so that legend element fits if not all spells are comparable
 				la var gic_`1'_`2' "GIC Spell`varcount': `1'-`2'"
 				local varlbl `"`varlbl' `varcount' "`1'-`2'""'
 			}
@@ -233,12 +224,8 @@ program pea_figure3, rclass
 		//Prepare Notes
 		local notes "Source: World Bank calculations using survey data accessed through the Global Monitoring Database."
 		local notes `"`notes'" "Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods."'
-		if "`nonotes'" ~= "" {
-			local notes = ""
-		}
-		else if "`nonotes'" == "" {
-			local notes `notes'
-		}
+		if "`nonotes'" ~= "" local notes ""
+		
 		//Figure
 		putexcel set "`excelout2'", `act'
 		levelsof group_order, local(grlist)
