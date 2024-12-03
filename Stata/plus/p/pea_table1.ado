@@ -136,7 +136,7 @@ program pea_table1, rclass
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	}
 	
-	tempfile data1 data2
+	tempfile data1 data2 atriskdata
 	save `data1', replace
 	
 	//FGT

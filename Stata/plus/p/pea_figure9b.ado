@@ -262,7 +262,7 @@ program pea_figure9b, rclass
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `scatter_cmd'													///		
-		qfit 	gini ln_gdp_pc, lpattern(-) lcolor(gray), 					///
+		qfit 	gini ln_gdp_pc, lpattern(-) lcolor(gray) 					///
 		  legend(order(`legend')) 											///
 		  ytitle("Gini index")			 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///

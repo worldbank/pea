@@ -147,38 +147,43 @@ program pea_figure13, rclass
 	sort year_nogap
 	
 	//Comparability between years
-	qui levelsof `comparability', local(compval)
+	levelsof `comparability', local(compval)
+	
+	local pcspike
+	local rarea
 	foreach co of local compval {
 		qui sum if `comparability' == `co'
 		local ncount = r(N)
 		if `ncount' == 1 {														// If only one year, spike chart
 			#delimit ;
-			local pcspike  "pcspike l0 year_nogap l1 year_nogap		if `comparability'==`co', color("${col1}") lwidth(8pt) yaxis(1)	||  
-							pcspike l1 year_nogap l2 year_nogap		if `comparability'==`co', color("${col2}") lwidth(8pt) yaxis(2) || 
-							pcspike l2 year_nogap l3 year_nogap		if `comparability'==`co', color("${col3}") lwidth(8pt)			|| 
-							pcspike l3 year_nogap l4 year_nogap		if `comparability'==`co', color("${col4}") lwidth(8pt)			||  
-							pcspike l4 year_nogap l5 year_nogap		if `comparability'==`co', color("${col5}") lwidth(8pt)			||  
-							pcspike l5 year_nogap l6 year_nogap		if `comparability'==`co', color("${col6}") lwidth(8pt)			||  
-							pcspike l6 year_nogap l7 year_nogap		if `comparability'==`co', color("${col7}") lwidth(8pt)			||  
-							pcspike l7 year_nogap l8 year_nogap		if `comparability'==`co', color("${col8}") lwidth(8pt)			||  
-							pcspike l8 year_nogap l9 year_nogap		if `comparability'==`co', color("${col9}") lwidth(8pt)			||  
-							pcspike l9 year_nogap l100 year_nogap	if `comparability'==`co', color("${col10}") lwidth(8pt)			||";
+			local pcspike_`co' "pcspike l0 year_nogap l1 year_nogap		if `comparability'==`co', color("${col1}") lwidth(8pt) yaxis(1)	||  
+								pcspike l1 year_nogap l2 year_nogap		if `comparability'==`co', color("${col2}") lwidth(8pt) yaxis(2) || 
+								pcspike l2 year_nogap l3 year_nogap		if `comparability'==`co', color("${col3}") lwidth(8pt)			|| 
+								pcspike l3 year_nogap l4 year_nogap		if `comparability'==`co', color("${col4}") lwidth(8pt)			||  
+								pcspike l4 year_nogap l5 year_nogap		if `comparability'==`co', color("${col5}") lwidth(8pt)			||  
+								pcspike l5 year_nogap l6 year_nogap		if `comparability'==`co', color("${col6}") lwidth(8pt)			||  
+								pcspike l6 year_nogap l7 year_nogap		if `comparability'==`co', color("${col7}") lwidth(8pt)			||  
+								pcspike l7 year_nogap l8 year_nogap		if `comparability'==`co', color("${col8}") lwidth(8pt)			||  
+								pcspike l8 year_nogap l9 year_nogap		if `comparability'==`co', color("${col9}") lwidth(8pt)			||  
+								pcspike l9 year_nogap l100 year_nogap	if `comparability'==`co', color("${col10}") lwidth(8pt)			||";
 			#delimit cr			
 		}
 		else if `ncount' > 1 {													// If multiple years, area chart
 			#delimit ;
-			local rarea	"rarea l0 l1 year_nogap		if `comparability'==`co', color("${col1}") yaxis(1) ||  
-						 rarea l1 l2 year_nogap		if `comparability'==`co', color("${col2}") yaxis(2) || 
-						 rarea l2 l3 year_nogap		if `comparability'==`co', color("${col3}")			|| 
-						 rarea l3 l4 year_nogap		if `comparability'==`co', color("${col4}")			||  
-						 rarea l4 l5 year_nogap		if `comparability'==`co', color("${col5}")			||  
-						 rarea l5 l6 year_nogap		if `comparability'==`co', color("${col6}")			||  
-						 rarea l6 l7 year_nogap		if `comparability'==`co', color("${col7}")			||  
-						 rarea l7 l8 year_nogap		if `comparability'==`co', color("${col8}")			||  
-						 rarea l8 l9 year_nogap		if `comparability'==`co', color("${col9}")			||  
-						 rarea l9 l100 year_nogap	if `comparability'==`co', color("${col10}")			||";
+			local rarea_`co'	"rarea l0 l1 year_nogap		if `comparability'==`co', color("${col1}") yaxis(1) ||  
+								rarea l1 l2 year_nogap		if `comparability'==`co', color("${col2}") yaxis(2) || 
+								rarea l2 l3 year_nogap		if `comparability'==`co', color("${col3}")			|| 
+								rarea l3 l4 year_nogap		if `comparability'==`co', color("${col4}")			||  
+								rarea l4 l5 year_nogap		if `comparability'==`co', color("${col5}")			||  
+								rarea l5 l6 year_nogap		if `comparability'==`co', color("${col6}")			||  
+								rarea l6 l7 year_nogap		if `comparability'==`co', color("${col7}")			||  
+								rarea l7 l8 year_nogap		if `comparability'==`co', color("${col8}")			||  
+								rarea l8 l9 year_nogap		if `comparability'==`co', color("${col9}")			||  
+								rarea l9 l100 year_nogap	if `comparability'==`co', color("${col10}")			||";
 			#delimit cr
 		}
+		local pcspike "`pcspike' `pcspike_`co''" 
+		local rarea "`rarea' `rarea_`co''" 
 	}
 	//Figure
 
