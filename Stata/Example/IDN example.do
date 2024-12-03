@@ -42,7 +42,7 @@ la var subnatvar "By regions"
 replace year = 2022 if year==2023
 
 *pea_table10 [aw=weight_p], c(IDN) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(MYS VNM THA PHL) latest
-
+/*
 gen head = relationharm==1 if relationharm~=.
 la def head 1 "HH head" 
 la val head head 
@@ -58,7 +58,7 @@ pea_table11 [aw=weight_p], welfare(welfppp) spells(2000 2007; 2007 2008; 2016 20
 pea_table12 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2000 2007; 2007 2008; 2016 2022) year(year) 
 
 pea_table13 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2002 2007; 2007 2008; 2016 2022) year(year) urban(urban)
-
+*/
 pea tables [aw=weight_p], c(IDN) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA PHL) missing setting(GMD) spells(2000 2007; 2007 2008; 2016 2022)
 
 use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\IDN_GMD_ALL_clean.dta" , clear
@@ -70,5 +70,5 @@ la var natline "National poverty line"
 la var subnatvar "By regions"
 replace year = 2022 if year==2023
 
-pea core [aw=weight_p], c(IDN) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA) missing setting(GMD) spells(2000 2007; 2007 2008; 2016 2022)
+pea core [aw=weight_p], c(IDN) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA PHL) missing setting(GMD) spells(2000 2007; 2007 2008; 2016 2022)
 

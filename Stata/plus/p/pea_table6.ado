@@ -187,7 +187,7 @@ program pea_table6, rclass
 		*collect style header order, level(hide)
 		*collect style header group[0], level(hide)
 		*collect style cell, result halign(center)
-		collect title `"Table 6a. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
+		collect title `"Table 6b. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
 		collect notes 1: `"Source: ABC"'
 		collect notes 2: `"Note: The global ..."'
 		collect style notes, font(, italic size(10))

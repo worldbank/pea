@@ -193,7 +193,6 @@ program pea_figure2, rclass
 	* Rest
 	local groupcount = `groupcount' + 1
 	local leg_elem 	 = `leg_elem' - 1
-	local leg_elem 	 = `leg_elem' - 1
 	replace group 	 = `groupcount' if group == .										
 	local legend `"`legend' `leg_elem' "Other countries" "'	
 	local lastcol: word count ${colorpalette}
