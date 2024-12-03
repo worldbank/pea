@@ -140,6 +140,7 @@ program pea_table6, rclass
 		} //last3		
 	} //benchmark
 	
+	use `dataori', clear
 	for var dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1: replace X = X*100
 	
 	la var mdpoor_i1 "Multidimensional Poverty Measure headcount (%)"

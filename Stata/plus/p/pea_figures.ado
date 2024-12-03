@@ -149,7 +149,7 @@ program pea_figures, rclass
 	
 	//Figure 2	- not ready
 	qui use `data1', clear
-	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars onewelfare(`onewelfare') oneline(`oneline') `nonotes'scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars onewelfare(`onewelfare') oneline(`oneline') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 2....... Done"
 		local ok = 1
@@ -158,7 +158,7 @@ program pea_figures, rclass
 	
 	//Figure 3 (not yet comparability(`comparability'))
 	qui use `dataori0', clear
-	cap pea_figure3 [aw=`wvar'], year(`year') welfare(`onewelfare')  spells(`spells') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure3 [aw=`wvar'], year(`year') welfare(`onewelfare') comparability(`comparability') spells(`spells') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 3....... Done"
 		local ok = 1
@@ -167,7 +167,7 @@ program pea_figures, rclass
 	
 	//Figure 4 comparability(`comparability')
 	qui use `dataori0', clear
-	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') `nonotes' spells(`spells') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') `nonotes' comparability(`comparability') spells(`spells') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 4....... Done"
 		local ok = 1
@@ -176,7 +176,7 @@ program pea_figures, rclass
 	
 	//Figure 5 comparability(`comparability')
 	qui use `dataori0', clear
-	cap pea_figure5 [aw=weight_p], year(`year') onew(`onewelfare') onel(`oneline')  `nonotes' spells(`spells') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure5 [aw=weight_p], year(`year') onew(`onewelfare') onel(`oneline') `nonotes' comparability(`comparability') spells(`spells') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 5....... Done"
 		local ok = 1
@@ -185,7 +185,7 @@ program pea_figures, rclass
 	
 	//Figure 6 comparability(`comparability')
 	qui use `dataori0', clear	
-	cap pea_figure6 [aw=`wvar'], c(`country') year(`year') oneline(`oneline') onewelfare(`onewelfare') spells(`spells')  `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure6 [aw=`wvar'], c(`country') year(`year') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability') spells(`spells')  `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 6....... Done"
 		local ok = 1
@@ -252,7 +252,7 @@ program pea_figures, rclass
 	
 	//Figure 12 comparability(`comparability')
 	qui use `dataori0', clear
-	cap pea_figure12 [aw=`wvar'], c(`country') year(`year') onew(`onewelfare') spells(`spells')  `nonotes' palette(`palette') scheme(`scheme') excel("`excelout'")
+	cap pea_figure12 [aw=`wvar'], c(`country') year(`year') onew(`onewelfare') comparability(`comparability') spells(`spells')  `nonotes' palette(`palette') scheme(`scheme') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 12....... Done"
 		local ok = 1
@@ -261,7 +261,7 @@ program pea_figures, rclass
 	
 	//Figure 13 comparability(`comparability')
 	qui use `dataori0', clear
-	cap pea_figure13 [aw=`wvar'], year(`year') onew(`onewelfare')  `nonotes' palette(`palette') scheme(`scheme') excel("`excelout'")
+	cap pea_figure13 [aw=`wvar'], year(`year') onew(`onewelfare') comparability(`comparability') `nonotes' palette(`palette') scheme(`scheme') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 13....... Done"
 		local ok = 1
@@ -286,7 +286,7 @@ program pea_figures, rclass
 		noi dis in green "Figure 15....... Done"
 		local ok = 1
 	}
-	else noi dis in red "Figure 15....... Not done"
+	else noi dis in red "Figure 15....... Not done - no data for `country'"
 	
 	//Final open	
 	if `ok'==1 {

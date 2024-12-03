@@ -111,17 +111,21 @@ program pea_figure12, rclass
 		local i = `i' + 1
 	}
 	// Comparability
+	local one = 1
 	if "`comparability'" ~= "" {
 		forv j=1(1)`=`a'-1' {
+			local test
 			local spell_c`j' = "`spell`j''"												// Save local
 			qui levelsof `comparability', local(comp_years)								// Loop through all values of comparability
 			foreach i of local comp_years {
 				qui	levelsof year if `comparability' == `i', local(year_c)				// Create list of comparable years
 				local year_c = "`year_c'" 
-				local test : list spell_c`j' in year_c									// Check if spell years are in list of comparable years
-				if (`test' == 0) local spell`j' = ""									// If years not comparable, drop local
-				if (`test' == 1) local spell`j' = "`spell_c`j''"						// If years comparable, keep local
+				local test_`i': list spell_c`j' in year_c								// Check if spell years are in list of comparable years
+				local test "`test' `test_`i''"
 			}
+			local test_pos: list one in test												// Check if any spell has comparable years
+			if (`test_pos' == 0) local spell`j' = ""										// If years not comparable, drop local
+			if (`test_pos' == 1) local spell`j' = "`spell_c`j''"							// If years comparable, keep local			
 		}
 	}	// if
 		
