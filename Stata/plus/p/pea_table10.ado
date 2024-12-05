@@ -188,7 +188,7 @@ program pea_table10, rclass
 			local ymax1 = r(max)
 			keep if year==`ymax1'
 			ren country_name name
-			keep name code year survey_acronym headcount* gini pg gdppc
+			keep name code year survey_acronym welfaretype headcount* gini pg gdppc
 			append using `povben'
 			save `povben', replace			
 			if _N>0 local povb = 1
@@ -201,7 +201,7 @@ program pea_table10, rclass
 			}
 			else if _N==1 {
 				ren country_name name
-				keep name code year survey_acronym headcount* gini pg gdppc
+				keep name code year survey_acronym welfaretype headcount* gini pg gdppc
 				append using `povben'
 				save `povben', replace				
 				if _N>0 local povb = 1
@@ -213,7 +213,7 @@ program pea_table10, rclass
 				keep if diff==`rmin'
 				*if _N==1 { //showing whatevery is available
 					ren country_name name
-					keep name code year survey_acronym headcount* gini pg gdppc
+					keep name code year survey_acronym welfaretype headcount* gini pg gdppc
 					append using `povben'
 					save `povben', replace	
 					if _N>0 local povb = 1
@@ -266,10 +266,11 @@ program pea_table10, rclass
 	ren * var_*
 	ren var_code code
 	ren var_survey_acronym survey_acronym
+	ren var_welfaretype welfaretype
 	*replace var_name = "Country of analysis" if code=="`country'"
 	replace var_name = "Peer " + var_name if code~="`regcode'" & code~="`country'" & code~="Incgroup"
 	gen name = var_name + " (" + string(var_year) +")" if code=="`regcode'" | code=="`country'" | code=="Incgroup"
-	replace name = var_name + " (" + survey_acronym + "," + string(var_year) +")" if code~="`regcode'" & code~="`country'" & code~="Incgroup"
+	replace name = var_name + " (" + survey_acronym + "," + string(var_year) + "," + welfaretype +")" if code~="`regcode'" & code~="`country'" & code~="Incgroup"
 	
 	drop var_year var_name
 	reshape long var_, i(code name survey_acronym) j(var) string

@@ -140,6 +140,7 @@ program pea_table6, rclass
 		} //last3		
 	} //benchmark
 	
+	use `dataori', clear
 	for var dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1: replace X = X*100
 	
 	la var mdpoor_i1 "Multidimensional Poverty Measure headcount (%)"
@@ -186,7 +187,7 @@ program pea_table6, rclass
 		*collect style header order, level(hide)
 		*collect style header group[0], level(hide)
 		*collect style cell, result halign(center)
-		collect title `"Table 6a. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
+		collect title `"Table 6b. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
 		collect notes 1: `"Source: ABC"'
 		collect notes 2: `"Note: The global ..."'
 		collect style notes, font(, italic size(10))

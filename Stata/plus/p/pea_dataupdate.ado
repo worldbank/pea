@@ -82,7 +82,8 @@ program pea_dataupdate, rclass
 		if "`datatype'"=="UNESCO" {
 			noi dis "Place holder only"
 			*char _dta[version] $S_DATE
-			*use "`persdir'pea/UNESCO.dta", clear	
+			*use "`persdir'pea/UNESCO.dta", clear
+			*qui dlw, country(Support) year(2005) type(GMDRAW) filename(UNESCO.dta) surveyid($surid) files clear nometa	
 		}
 		
 		//CLASS
@@ -176,7 +177,7 @@ program pea_dataupdate, rclass
 			char _dta[version] $S_DATE			
 			save "`persdir'pea/PIP_all_country.dta", replace
 			
-			/* /PIP lineup data
+			//PIP lineup data
 			tempfile povlineup	
 			local j = 1
 			foreach line of local nlines {
@@ -206,7 +207,6 @@ program pea_dataupdate, rclass
 			for var headcount*: replace X = X*100			
 			char _dta[version] $S_DATE
 			save "`persdir'pea/PIP_all_countrylineup.dta", replace
-			*/
 			
 			//Income group average by historical class
 			* Get poverty rates and merge (not nowcast)
@@ -281,6 +281,13 @@ program pea_dataupdate, rclass
 		
 		//Scorecard
 		if "`datatype'"=="SCORECARD" {
+			noi dis "Place holder only"
+			*char _dta[version] $S_DATE
+			*save "`persdir'pea/CSC_atrisk2021.dta", replace
+		}
+		
+		//Climate exposure and vulnerability
+		if "`datatype'"=="CLIMRISK" {
 			noi dis "Place holder only"
 			*char _dta[version] $S_DATE
 			*save "`persdir'pea/CSC_atrisk2021.dta", replace

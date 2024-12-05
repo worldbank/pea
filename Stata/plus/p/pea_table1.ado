@@ -21,6 +21,9 @@ program pea_table1, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
 	
+	global floor_ 0.25
+	global prosgline_ 25
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -127,11 +130,13 @@ program pea_table1, rclass
 		
 		gen double _pop = `wvar'
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
-		gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
+		noi dis "Replace the bottom for Prosperity gap at $0.25 2017 PPP"
+		replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}	
+		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	}
 	
-	tempfile data1 data2
+	tempfile data1 data2 atriskdata
 	save `data1', replace
 	
 	//FGT
@@ -158,37 +163,37 @@ program pea_table1, rclass
 		drop _merge
 		save `data2', replace
 	}
+		
+	// Check if folder exists
+	local cwd `"`c(pwd)'"'														// store current wd
+	quietly capture cd "`persdir'pea/Scorecard_Summary_Vision/"
+	if _rc~=0 {
+		noi di in red "Scorecard_Summary_Vision folder does not exist."
+	}
+	quietly cd `"`cwd'"'
+
 	
-	//At risk indicator
-	tempfile atriskdata
-	local nametodo = 0
-	cap confirm file "`persdir'pea/CSC_atrisk2021.dta"
+	cap import excel "`persdir'pea/Scorecard_Summary_Vision/EN_CLM_VULN.xlsx", firstrow clear
 	if _rc==0 {
-		cap use "`persdir'pea/CSC_atrisk2021.dta", clear	
-		if _rc~=0 local nametodo = 1	
-	}
-	else local nametodo = 1
-	if `nametodo'==1 {
-		cap pea_dataupdate, datatype(SCORECARD) update
-		if _rc~=0 {
-			noi dis "Unable to run pea_dataupdate, datatype(SCORECARD) update"
-			exit `=_rc'
+		qui destring Time_Period, gen(year)
+		ren Geography_Code code
+		keep if code=="`country'"
+		if _N==0 {
+			noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
+			local atriskdo = 0
 		}
-	}
-	
-	use "`persdir'pea/CSC_atrisk2021.dta", clear
-	keep if code=="`country'"
-	if _N==0 {
-		noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
-		local atriskdo = 0
-	}
+		else {
+			ren Value value
+			gen indicatorlbl = 55
+			replace year = `yatrisk'
+			keep year value indicatorlbl
+			save `atriskdata', replace
+			local atriskdo = 1		
+		}
+	} //rc excel
 	else {
-		ren atrisk value
-		gen indicatorlbl = 55
-		replace year = `yatrisk'
-		keep year value indicatorlbl
-		save `atriskdata', replace
-		local atriskdo = 1		
+		noi dis as error "Unable to load the Scorecard EN_CLM_VULN.xlsx"
+		error `=_rc'
 	}
 	
 	//Quintile
