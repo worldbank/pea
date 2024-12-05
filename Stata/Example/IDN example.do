@@ -59,6 +59,7 @@ pea_table12 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline
 
 pea_table13 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2002 2007; 2007 2008; 2016 2022) year(year) urban(urban)
 */
+
 pea tables [aw=weight_p], c(IDN) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA PHL) missing setting(GMD) spells(2000 2007; 2007 2008; 2016 2022)
 
 use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\IDN_GMD_ALL_clean.dta" , clear
