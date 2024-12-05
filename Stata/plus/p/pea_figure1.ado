@@ -20,7 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NONOTES excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NONOTES EQUALSPACING excel(string) save(string) MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -67,7 +67,6 @@ program pea_figure1, rclass
 		}
 		else local excelout "`excel'"
 	}
-	
 	//Number of groups (for colors)
 	qui levelsof `urban', local(group_num)
 	local groups = `:word count `group_num'' + 1
@@ -172,19 +171,23 @@ program pea_figure1, rclass
 	qui levelsof `comparability', local(compval)
 	local varlblurb : value label `urban'
 	label define `varlblurb' `max_val' "Total", add  											// Add Total as last entry
-	egen year_nogap = group(`year'), label(year_nogap)											// Generate year variable without gaps
-	qui levelsof year_nogap		 , local(yearval)	
+	//Prepare year variable without gaps if specified
+	if "`equalspacing'"~="" {																// Year spacing option
+		egen year_nogap = group(`year'), label(year_nogap)										// Generate year variable without gaps
+		local year year_nogap
+	}
+	qui levelsof `year'		 , local(yearval)	
 
 	foreach i of local group_num {
 		local j = `i' + 1			
-		local scatter_cmd`i' = `"scatter var year_nogap if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'					// Colors defined in pea_figure_setup
+		local scatter_cmd`i' = `"scatter var `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'					// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
 		local legend "`legend' `legend`i''"	
 																								// If comparability specified, only comparable years are connected
 		foreach co of local compval {
-			local line_cmd`i'`co' = `"line var year_nogap if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
+			local line_cmd`i'`co' = `"line var `year' if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 			local line_cmd "`line_cmd' `line_cmd`i'`co''"
 		}
 		if "`comparability'"~="__comp" local note_c "Note: Non-connected dots indicate that survey-years are not comparable."	
