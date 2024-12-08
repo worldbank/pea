@@ -139,8 +139,6 @@ program pea_figures, rclass
 	//trigger
 	
 	//Figure 1
-	//Figure 1. Poverty rates by year lines
-	//todo: add comparability, add the combine graph option
 	qui use `data1', clear	
 	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') `combine' `nonotes' `equalspacing' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -150,8 +148,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 1....... Not done"
 	
 	//Figure 2
-	//Figure 2. Poverty and GDP per capita scatter
-	//Note on helpfile: only work for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
 	qui use `data1', clear
 	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars onewelfare(`onewelfare') oneline(`oneline') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -161,7 +157,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 2....... Not done"
 	
 	//Figure 3
-	//Fig 3. Growth Incidence Curve
 	qui use `dataori0', clear
 	cap pea_figure3 [aw=`wvar'], year(`year') welfare(`onewelfare') comparability(`comparability') spells(`spells') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -171,7 +166,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 3....... Not done"
 	
 	//Figure 4
-	//Figure 4. Decomposition of poverty changes: growth and redistribution: Datt-Ravallion and Shorrocks-Kolenikov 	
 	qui use `dataori0', clear
 	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') `nonotes' comparability(`comparability') spells(`spells') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -181,7 +175,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 4....... Not done"
 	
 	//Figure 5
-	//Figure 5. Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion 	
 	qui use `dataori0', clear
 	cap pea_figure5 [aw=weight_p], year(`year') onew(`onewelfare') onel(`oneline') `nonotes' comparability(`comparability') spells(`spells') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -191,7 +184,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 5....... Not done"
 	
 	//Figure 6
-	//Figure 6. GDP per capita GDP - Poverty elasticity
 	qui use `dataori0', clear	
 	cap pea_figure6 [aw=`wvar'], c(`country') year(`year') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability') spells(`spells')  `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -212,7 +204,6 @@ program pea_figures, rclass
 	//Figure 8 - TBC
 	
 	//Figure 9a
-	//Figure 9a. Inequality by year lines
 	qui use `dataori0', clear	
 	cap pea_figure9a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `nonotes' `equalspacing' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -222,7 +213,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 9a...... Not done"
 	
 	//Figure 9b
-	//Figure 9b. GINI and GDP per capita scatter
 	qui use `dataori0', clear	
 	cap pea_figure9b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') welfaretype(`welfaretype') within(`within') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -232,7 +222,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 9b...... Not done"
 	
 	//Figure 10a
-	//Figure 10a. Prosperity gap by year lines
 	qui use `dataori0', clear	
 	cap pea_figure10a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `nonotes' `equalspacing' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -242,7 +231,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 10a...... Not done"
 	
 	//Figure 10b
-	//Figure 10b. Prosperity gap scatter (line-up)
 	qui use `dataori0', clear	
 	cap pea_figure10b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -252,7 +240,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 10b...... Not done"
 	
 	//Figure 10c
-	//Figure 10c. PG (survey) and GDP per capita scatter
 	qui use `dataori0', clear	
 	cap pea_figure10c [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') within(`within') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
@@ -264,8 +251,6 @@ program pea_figures, rclass
 	//Figure 11 TBC
 	
 	//Figure 12
-	//Figure 12. Decomposition of growth in prosperity gap
-	//todo: add comparability, add the combine graph option
 	qui use `dataori0', clear
 	cap pea_figure12 [aw=`wvar'], c(`country') year(`year') onew(`onewelfare') comparability(`comparability') spells(`spells')  `nonotes' palette(`palette') scheme(`scheme') excel("`excelout'")
 	if _rc==0 {
@@ -275,8 +260,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 12....... Not done"
 	
 	//Figure 13
-	//Figure 13. Distribution of welfare by deciles
-	//todo: add comparability, add the combine graph option
 	qui use `dataori0', clear
 	cap pea_figure13 [aw=`wvar'], year(`year') onew(`onewelfare') comparability(`comparability') `nonotes' `equalspacing' palette(`palette') scheme(`scheme') excel("`excelout'")
 	if _rc==0 {
@@ -286,7 +269,6 @@ program pea_figures, rclass
 	else noi dis in red "Figure 13....... Not done"
 	
 	//Figure 14
-	//Fig 14. Multidimensional poverty: Multidimensional Poverty Measure (World Bank)
 	if "`setting'"=="GMD" {
 		qui use `dataori0', clear
 		cap pea_figure14 [aw=`wvar'], c(`country') welfare(welfppp) year(`year') benchmark(`benchmark') within(`within') `nonotes' palette(`palette') scheme(`scheme') excel("`excelout'")
@@ -298,7 +280,6 @@ program pea_figures, rclass
 	}
 	
 	//Figure 15
-	//Figure 15. Climate risk and vulnerability
 	qui use `dataori0', clear	
 	cap pea_figure15, c(`country') `nonotes' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
