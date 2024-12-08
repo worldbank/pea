@@ -11,11 +11,11 @@ help for {hi:pea core}{right:November 2024}
 {title:Syntax}
 
 {p 4 15}
-{cmd:pea core} 
+{opt pea core} 
 [{it:weight}] 
-[{cmd:if} {it:exp}] 
-[{cmd:in} {it:exp}] 
-[{cmd:,}  
+[{opt if} {it:exp}] 
+[{opt in} {it:exp}] 
+[{opt ,}  
 {opt NATWelfare(varname numeric)} 
 {opt NATPovlines(varlist numeric)} 
 {opt PPPWelfare(varname numeric)} 
@@ -49,12 +49,12 @@ help for {hi:pea core}{right:November 2024}
 {opt BENCHmark(string)} 
 {opt spells(string)}]{p_end}
 
-{p 4 4 2}The command supports {cmd:aweight}s, {cmd:fweight}s, and {cmd:pweight}s. See {help weights} for further details.{p_end}
+{p 4 4 2}The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {help weights} for further details.{p_end}
 
 {title:Description}
 
 {p 4 4 2}  
-{cmd:pea core} calculates several important poverty and welfare statistics for the specified country and year, including:
+{opt pea core} calculates several important poverty and welfare statistics for the specified country and year, including:
 
 	- Poverty headcount ratio (e.g., the proportion of individuals below the poverty line)
 	- Poverty gap (the average shortfall from the poverty line)
@@ -170,10 +170,10 @@ The results are presented in tables, showing the poverty and inequality measures
 To calculate the poverty and welfare indicators for Ghana (GHA) in 2020, using a poverty line of $1.90 per day, and export the results to an Excel file:
 
 {p 4 4 2} 
-{cmd:. pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021)}
+pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021)
 
 {p 4 4 2} 
-{cmd:. pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) oneline(pline685) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing}
+pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) oneline(pline685) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing
 
 {p 4 4 2}
-{cmd:. pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025)}
+pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025)

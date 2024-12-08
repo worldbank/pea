@@ -1,16 +1,16 @@
 {smcl}
 {hline 80}
-{bf PROGRAM:} {cmd:pea_table13}
+{bf PROGRAM:} {opt pea_table13}
 {hline 80}
 {title:Title}
   {bf pea table13} — Generates Poverty Changes Decomposition by Income and Non-Income Factors
 
 {title:Syntax}
 
-{cmd:pea table13} 
-[{cmd:if} {it:exp}] 
-[{cmd:in} {it:exp}] 
-[{cmd:,}
+{opt pea table13} 
+[{opt if} {it:exp}] 
+[{opt in} {it:exp}] 
+[{opt ,}
 {opt NATWelfare(varname numeric)} 
 {opt NATPovlines(varlist numeric)} 
 {opt PPPWelfare(varname numeric)} 
@@ -29,7 +29,7 @@
 {title:Description}
 
 {p 4 4 2}
-{cmd:pea_table13} calculates and generates tables for the decomposition of poverty changes based on income and non-income factors. This decomposition helps in understanding how different factors, such as income growth, education, and social transfers, contribute to changes in poverty. The analysis uses methods similar to the Datt-Ravallion and Shorrocks-Kolenikov approaches but with a focus on distinguishing the role of income and non-income factors. The results can be exported to Excel or saved in a specified file format.
+{opt pea_table13} calculates and generates tables for the decomposition of poverty changes based on income and non-income factors. This decomposition helps in understanding how different factors, such as income growth, education, and social transfers, contribute to changes in poverty. The analysis uses methods similar to the Datt-Ravallion and Shorrocks-Kolenikov approaches but with a focus on distinguishing the role of income and non-income factors. The results can be exported to Excel or saved in a specified file format.
 
 {title:Options}
 {p 4 4 2}{opt NATWelfare(varname numeric)} specifies the variable representing the welfare indicator (e.g., income or consumption).
@@ -63,7 +63,7 @@
 {title:Details}
 
 {p 4 4 2}
-{cmd:pea_table13} performs a detailed decomposition of poverty changes between two specified periods (spells) by differentiating the contributions of income and non-income factors (such as education, healthcare, and social transfers). The analysis follows these steps:
+{opt pea_table13} performs a detailed decomposition of poverty changes between two specified periods (spells) by differentiating the contributions of income and non-income factors (such as education, healthcare, and social transfers). The analysis follows these steps:
  
  - Decomposes poverty changes into components driven by income and non-income factors.
   - Uses national and PPP-adjusted poverty lines for poverty measurement.
@@ -79,4 +79,4 @@
 To generate a decomposition table of poverty changes by income and non-income factors for a specific period and export the results to an Excel file:
 
 {p 4 4 2}
-{cmd:. pea_table13, NATWelfare("income") NATPovlines("1000 2000") PPPWelfare("PPP_income") PPPPovlines("1000 2000") spells("2000;2004") Year(year) excel("output_table13.xlsx")}
+pea_table13, NATWelfare("income") NATPovlines("1000 2000") PPPWelfare("PPP_income") PPPPovlines("1000 2000") spells("2000;2004") Year(year) excel("output_table13.xlsx")
