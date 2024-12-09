@@ -27,7 +27,7 @@ setting(string)} {cmdab
 
 {title}
 
-{phang} {opt Welfare(varname numeric)} specifies the welfare indicator to use for the GIC calculation (e.g., per capita consumption or income). {phang} {opt spells(string)} specifies the periods (years) to be used for the GIC analysis, such as "2000 2004" or "2010 2014". This option requires at least two years. {phang} {opt Year(varname numeric)} specifies the year variable for the analysis. {phang} {opt CORE setting(string)} allows for custom settings such as region or data type. {phang} {opt excel(string)} specifies the file path for exporting results to Excel. If omitted, results are saved to a temporary file. {phang} {opt save(string)} specifies the file path for saving intermediate data. {phang} {opt missing} includes missing observations in the analysis. {phang} {opt by(varname numeric)} specifies a grouping variable (e.g., region or another categorical variable) for the GIC calculation. {phang} {opt GRAPH} generates graphical output for the Growth Incidence Curve by percentile. {phang} {opt NOOUTPUT} suppresses the output of results to the screen or to files.
+{p 4 4 2} {opt Welfare(varname numeric)} specifies the welfare indicator to use for the GIC calculation (e.g., per capita consumption or income).{p 4 4 2} {opt spells(string)} specifies the periods (years) to be used for the GIC analysis, such as "2000 2004" or "2010 2014". This option requires at least two years.{p 4 4 2} {opt Year(varname numeric)} specifies the year variable for the analysis.{p 4 4 2} {opt CORE setting(string)} allows for custom settings such as region or data type.{p 4 4 2} {opt excel(string)} specifies the file path for exporting results to Excel. If omitted, results are saved to a temporary file.{p 4 4 2} {opt save(string)} specifies the file path for saving intermediate data.{p 4 4 2} {opt missing} includes missing observations in the analysis.{p 4 4 2} {opt by(varname numeric)} specifies a grouping variable (e.g., region or another categorical variable) for the GIC calculation.{p 4 4 2} {opt GRAPH} generates graphical output for the Growth Incidence Curve by percentile.{p 4 4 2} {opt NOOUTPUT} suppresses the output of results to the screen or to files.
 
 {title}
 
@@ -40,8 +40,8 @@ The results can be exported to an Excel file or saved in a temporary file by def
 {title}
 
 To generate the Growth Incidence Curve table for a specific welfare indicator between 2000 and 2004 and export the results to an Excel file:
-{cmd:. pea_table11, Welfare("income") spells("2000 2004") Year(year) excel("output_table11.xlsx") }
+pea_table11, Welfare("income") spells("2000 2004") Year(year) excel("output_table11.xlsx") 
 
 To generate the Growth Incidence Curve for different regions: 
 
-{cmd:. pea_table11, Welfare("income") spells("2000 2004") Year(year) by(region) excel("output_table11_by_region.xlsx") }
+pea_table11, Welfare("income") spells("2000 2004") Year(year) by(region) excel("output_table11_by_region.xlsx") 

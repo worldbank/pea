@@ -12,11 +12,11 @@ help for {hi:pea dataupdate}{right:November 2024}
 {title:Syntax}
 
 {p 4 15}
-{cmd:pea dataupdate} 
+{opt pea dataupdate} 
 [{it:weight}] 
-[{cmd:if} {it:exp}] 
-[{cmd:in} {it:exp}] 
-[{cmd:,}
+[{opt if} {it:exp}] 
+[{opt in} {it:exp}] 
+[{opt ,}
 {opt datatype(string)} 
 {opt pppyear(string)} 
 {opt UPDATE}]
@@ -24,7 +24,7 @@ help for {hi:pea dataupdate}{right:November 2024}
 {title:Description}
 
 {p 4 4 2}
-{cmd:pea dataupdate} is a program that updates various datasets related to global poverty and economic indicators.The program checks if the data files for specified types (e.g., {it:MPM}, {it:PIP}, {it:SCORECARD}) exist and are up-to-date. If the data is outdated or missing, the program retrieves and processes new data from various sources such as the {it:PIP} tables, {it:MPM} datasets, and other relevant files. 
+{opt pea dataupdate} is a program that updates various datasets related to global poverty and economic indicators.The program checks if the data files for specified types (e.g., {it:MPM}, {it:PIP}, {it:SCORECARD}) exist and are up-to-date. If the data is outdated or missing, the program retrieves and processes new data from various sources such as the {it:PIP} tables, {it:MPM} datasets, and other relevant files. 
 The updated data is saved in the user s personal directory under the "pea" folder for further analysis.
 
 {title:Options}
@@ -76,11 +76,11 @@ If data retrieval fails or if data for the requested PPP year is not available, 
 To update the PIP data for the year 2023 and use PPP data from 2017:
 
 {p 4 4 2}   
-{cmd:. pea dataupdate, datatype(PIP) pppyear(2017)}
+pea dataupdate, datatype(PIP) pppyear(2017)
 
 {p 4 4 2} 
 To update the MPM data for the current year and force the update even if the file is up-to-date:
 
 {p 4 4 2}   
-{cmd:. pea dataupdate, datatype(MPM) UPDATE}
+pea dataupdate, datatype(MPM) UPDATE
 
