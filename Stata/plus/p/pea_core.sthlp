@@ -1,21 +1,23 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea core}{right:November 2024}
+help for {hi:pea core}{right:January 2025}
 {hline}
 
 {title:Title}
 
-{bf:pea core} — calculates key poverty and welfare indicators
+{p 4 15}
+{bf:pea core} — core tables and figures for the standardized data annex.
 
 {title:Syntax}
 
 {p 4 15}
 {opt pea core} 
-[{it:weight}] 
-[{opt if} {it:exp}] 
-[{opt in} {it:exp}] 
-[{opt ,}  
+	[{it:if}] 
+	[{it:in}] 
+	[{it:aw pw fw}]
+{opt ,}  
+[{opt Country(string)} 
 {opt NATWelfare(varname numeric)} 
 {opt NATPovlines(varlist numeric)} 
 {opt PPPWelfare(varname numeric)} 
@@ -43,137 +45,154 @@ help for {hi:pea core}{right:November 2024}
 {opt ONELine(varname numeric)} 
 {opt ONEWelfare(varname numeric)}
 {opt MISSING} 
-{opt Country(string)} 
 {opt LATEST} 
 {opt WITHIN3} 
 {opt BENCHmark(string)} 
 {opt spells(string)}]{p_end}
 
-{p 4 4 2}The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {help weights} for further details.{p_end}
+{p 4 4 2}
+The following are NON-mandatory options and are only used if setting(GMD) is not specified:
+{bf:hhhead, edu, married, school, services, assets, hhsize, hhid, pid, industrycat4, lstatus, and empstat}.
 
 {title:Description}
 
 {p 4 4 2}  
-{opt pea core} calculates several important poverty and welfare statistics for the specified country and year, including:
-
-	- Poverty headcount ratio (e.g., the proportion of individuals below the poverty line)
-	- Poverty gap (the average shortfall from the poverty line)
-	- Squared poverty gap (a measure of inequality among the poor)
-	- Gini index (for measuring income or wealth inequality)
-	- Growth Incidence Curves (GIC) to measure income or welfare growth across the distribution
-	- Other welfare indicators
-
-{p 4 4 2}    
-The results are presented in tables, showing the poverty and inequality measures for the specified year and country. The program also allows exporting the results to Excel or saving the intermediate data in a file. The `graph` option generates visualizations of the indicators, helping with a better understanding of the distribution of poverty and inequality.
+{opt pea core} generates a standardized data annex that every PEA should contain, as set out in the new PEA guidelines. 
+The produced Excel file contains 4 tables and 2 figures. 
+This annex is composed of main poverty and shared prosperity indicators, as well as multidimensional and sub-group (e.g. by age or education) poverty rates. 
+The code also produces core statistics for benchmark countries, the PEA country’s region and income group, and profiles of the poor and non-poor. 
+Growth incidence curves and the Datt-Ravallion decomposition complement the core outputs. 
 
 {title:Options}
 
-{p 4 4 2}
-{opt NATWelfare(varname numeric)} specifies the variable for national welfare measures.
+Main options:
 
 {p 4 4 2}
-{opt NATPovlines(varlist numeric)} specifies a list of national poverty lines to use.
+{opt Country(string)}: 3-letter country code for the analysis.
 
 {p 4 4 2}
-{opt PPPWelfare(varname numeric)} specifies the variable for purchasing power parity (PPP) adjusted welfare.
+{opt NATWelfare(varname numeric)}: specifies the variable for national welfare measures.
 
 {p 4 4 2}
-{opt PPPPovlines(varlist numeric)} specifies a list of PPP-adjusted poverty lines.
+{opt NATPovlines(varlist numeric)}: specifies a list of national poverty lines to use.
 
 {p 4 4 2}
-{opt Year(varname numeric)} specifies the year variable for the analysis.
+{opt PPPWelfare(varname numeric)}: specifies the variable for purchasing power parity (PPP) adjusted welfare.
 
 {p 4 4 2}
-{opt SETting(string)} specifies the setting or dataset being used.
+{opt PPPPovlines(varlist numeric)}: specifies a list of PPP-adjusted poverty lines.
 
 {p 4 4 2}
-{opt excel(string)} specifies the file path for exporting results to Excel.
+{opt Year(varname numeric)}: specifies the year variable for the analysis.
 
 {p 4 4 2}
-{opt save(string)} specifies the file path for saving results.
+{opt SETting(string)}: specifies the setting or dataset being used.
 
 {p 4 4 2}
-{opt BYInd(varlist numeric)} specifies the variables by which to break down the analysis (e.g., urban/rural, subnational).
+{opt excel(string)}: specifies the file path for exporting results to Excel.
 
 {p 4 4 2}
-{opt age(varname numeric)} specifies the age variable for the analysis.
+{opt save(string)}: specifies the file path for saving results.
 
 {p 4 4 2}
-{opt male(varname numeric)} specifies the gender variable (e.g., male/female).
+{opt BYInd(varlist numeric)}: specifies the variables by which to break down the analysis (e.g., urban/rural, subnational).
 
 {p 4 4 2}
-{opt hhhead(varname numeric)} specifies the household head status variable.
+{opt ONELine(varname numeric)}: specifies the one-line poverty line variable.
 
 {p 4 4 2}
-{opt edu(varname numeric)} specifies the education level variable.
+{opt ONEWelfare(varname numeric)}: specifies the one-line welfare variable.
 
 {p 4 4 2}
-{opt urban(varname numeric)} specifies the urban/rural classification variable.
+{opt MISSING}: Optional. Includes missing data in the analysis.
 
 {p 4 4 2}
-{opt married(varname numeric)} specifies the marital status variable.
+{opt LATEST}: includes only the most recent available data.
 
 {p 4 4 2}
-{opt school(varname numeric)} specifies the schooling variable.
+{opt WITHIN3}: limits analysis to data from countries within 3 years of the target year.
 
 {p 4 4 2}
-{opt services(varlist numeric)} specifies a list of household service variables (e.g., water access, sanitation).
+{opt BENCHmark(string)}: specifies a list of benchmark countries (e.g., ALB HRV XKX).
 
 {p 4 4 2}
-{opt assets(varlist numeric)} specifies a list of household asset variables (e.g., TV, car, cellphone).
+{opt spells(string)}: specifies the periods or time spells for longitudinal analysis (e.g., 2015 2016; 2016 2017).
+
+Additional options if setting(GMD) is not specified:
 
 {p 4 4 2}
-{opt hhsize(varname numeric)} specifies the household size variable.
+{opt age(varname numeric)}: specifies the age variable for the analysis.
+Default under setting(GMD): age
 
 {p 4 4 2}
-{opt hhid(string)} specifies the household ID variable.
+{opt male(varname numeric)}: specifies the gender variable (e.g., male/female).
+Default under setting(GMD): male
 
 {p 4 4 2}
-{opt pid(string)} specifies the individual ID variable.
+{opt hhhead(varname numeric)}: specifies the household head status variable.
+Default under setting(GMD): head
 
 {p 4 4 2}
-{opt industrycat4(varname numeric)} specifies the industry category variable.
+{opt edu(varname numeric)}: specifies the education level variable.
+Default under setting(GMD): educat4    
 
 {p 4 4 2}
-{opt lstatus(varname numeric)} specifies the labor status variable (e.g., employed, unemployed).
+{opt urban(varname numeric)}: specifies the urban/rural classification variable.
+Default under setting(GMD): urban
 
 {p 4 4 2}
-{opt empstat(varname numeric)} specifies the employment status variable.
+{opt married(varname numeric)}: specifies the marital status variable.
+Default under setting(GMD): married
 
 {p 4 4 2}
-{opt ONELine(varname numeric)} specifies the one-line poverty line variable.
+{opt school(varname numeric)}: specifies the schooling variable.
+Default under setting(GMD): school
 
 {p 4 4 2}
-{opt ONEWelfare(varname numeric)} specifies the one-line welfare variable.
+{opt services(varlist numeric)}: specifies a list of household service variables (e.g., water access, sanitation).
+Default under setting(GMD): imp_wat_rec imp_san_rec electricity
 
 {p 4 4 2}
-{opt MISSING} includes missing data in the analysis.
+{opt assets(varlist numeric)}: specifies a list of household asset variables (e.g., TV, car, cellphone).
+Default under setting(GMD): tv car cellphone computer fridge
 
 {p 4 4 2}
-{opt Country(string)} specifies the country code for the analysis.
+{opt hhsize(varname numeric)}: specifies the household size variable.
+Default under setting(GMD): hsize
 
 {p 4 4 2}
-{opt LATEST} includes only the most recent available data.
+{opt hhid(string)}: specifies the household ID variable.
+Default under setting(GMD): hhid
 
 {p 4 4 2}
-{opt WITHIN3} limits analysis to data from countries within 3 years of the target year.
+{opt pid(string)}: specifies the individual ID variable.
+Default under setting(GMD): pid
 
 {p 4 4 2}
-{opt BENCHmark(string)} specifies a list of benchmark countries (e.g., ALB HRV XKX).
+{opt industrycat4(varname numeric)}: specifies the industry category variable.
+Default under setting(GMD): industrycat4
 
 {p 4 4 2}
-{opt spells(string)} specifies the periods or time spells for longitudinal analysis (e.g., 2015 2016; 2016 2017).
+{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed).
+Default under setting(GMD): nowork
+
+{p 4 4 2}
+{opt empstat(varname numeric)}: specifies the employment status variable.
+Default under setting(GMD): empstat
 
 {title:Examples}
 
-{p 4 4 2} 
-To calculate the poverty and welfare indicators for Ghana (GHA) in 2020, using a poverty line of $1.90 per day, and export the results to an Excel file:
-
-{p 4 4 2} 
-pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021)
-
-{p 4 4 2} 
-pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) oneline(pline685) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing
+When GMD is specified:
 
 {p 4 4 2}
-pea core [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) 
+spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+
+When GMD is NOT specified:
+
+{p 4 4 2} 
+{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school)
+ services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) oneline(pline685) benchmark(ALB HRV XKX) onew(welfppp) 
+ onel(pline365) missing
+
+

@@ -1,12 +1,13 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea table_A2}{right:November 2024}
+help for {hi:pea table_A2}{right:January 2025}
 {hline}
 
 {title:Title}
 
-{bf:pea table_A2} — Generate detailed poverty and welfare analysis tables with specified parameters.
+{p 4 15}
+{bf:pea table_A2} — Core poverty indicators - test.
 
 {title:Syntax}
 
@@ -17,24 +18,25 @@ help for {hi:pea table_A2}{right:November 2024}
 [{opt in} {it:exp}] 
 [{opt ,} 
 {opt Country(string)} 
-{opt NATWelfare(varname)}
-{opt NATPovlines(varlist)} 
-{opt PPPWelfare(varname)} 
-{opt PPPPovlines(varlist)} 
-{opt FGTVARS} [{using} {it:string}] 
-{opt Year(varname)} 
+{opt NATWelfare(varname numeric)}
+{opt NATPovlines(varlist numeric)} 
+{opt PPPWelfare(varname numeric)} 
+{opt PPPPovlines(varlist numeric)} 
+{opt FGTVARS}
+{opt using(string} 
+{opt Year(varname numeric)} 
 {opt CORE} 
 {opt setting(string)} 
 {opt LINESORTED} 
 {opt excel(string)} 
 {opt save(string)} 
-{opt ONELine(varname)} 
-{opt ONEWelfare(varname)} 
+{opt ONELine(varname numeric)} 
+{opt ONEWelfare(varname numeric)} 
 {opt MISSING}
-{opt age(varname)} 
-{opt male(varname)} 
-{opt hhhead(varname)}
-{opt edu(varname)}]{p_end}
+{opt age(varname numeric)} 
+{opt male(varname numeric)} 
+{opt hhhead(varname numeric)}
+{opt edu(varname numeric)}]{p_end}
 
 {p 4 4 2}The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {help weights} for further details.{p_end}
 
@@ -50,64 +52,84 @@ help for {hi:pea table_A2}{right:November 2024}
 {title:Options}
 
 {p 4 4 2} 
-{opt Country(string)} specifies the country code or name for the analysis.
+{opt Country(string)}:
+ specifies the country code or name for the analysis.
     
 {p 4 4 2} 
-{opt NATWelfare(varname)} is the variable containing national welfare values for analysis, such as income or consumption.
+{opt NATWelfare(varname numeric)}:
+ is the variable containing national welfare values for analysis, such as income or consumption.
 
 {p 4 4 2} 
-{opt NATPovlines(varlist)} lists the national poverty lines to be used for poverty analysis.
+{opt NATPovlines(varlist numeric)}:
+ lists the national poverty lines to be used for poverty analysis.
     
 {p 4 4 2} 
-{opt PPPWelfare(varname)} is the welfare variable adjusted for purchasing power parity (PPP), typically for international comparisons.
+{opt PPPWelfare(varname numeric)}:
+ is the welfare variable adjusted for purchasing power parity (PPP), typically for international comparisons.
     
 {p 4 4 2} 
-{opt PPPPovlines(varlist)} lists the PPP-adjusted poverty lines.
+{opt PPPPovlines(varlist numeric)}:
+ lists the PPP-adjusted poverty lines.
     
 {p 4 4 2} 
-{opt FGTVARS} generates Foster-Greer-Thorbecke (FGT) poverty indices, including headcount, poverty gap, and squared poverty gap.
+{opt FGTVARS}:
+ generates Foster-Greer-Thorbecke (FGT) poverty indices, including headcount, poverty gap, and squared poverty gap.
 
 {p 4 4 2} 
-{opt using(string)} specifies the dataset to use for the analysis.
+{opt using(string)}:
+ specifies the dataset to use for the analysis.
     
 {p 4 4 2} 
-{opt Year(varname)} is the variable indicating the year for each observation.
+{opt Year(varname numeric)}:
+ is the variable indicating the year for each observation.
     
 {p 4 4 2} 
-{opt CORE} enables the calculation of World Banks Multidimensional Poverty Measure (MPM) for the specified {opt Country} and {opt Year}.
+{opt CORE}:
+ enables the calculation of World Banks Multidimensional Poverty Measure (MPM) for the specified {opt Country} and {opt Year}.
     
 {p 4 4 2} 
-{opt setting(string)} specifies the core setting to be used for the MPM calculation.
+{opt setting(string)}:
+ specifies the core setting to be used for the MPM calculation.
     
 {p 4 4 2} 
-{opt LINESORTED} indicates that the poverty lines are already sorted and skips internal sorting for efficiency.
+{opt LINESORTED}:
+ indicates that the poverty lines are already sorted and skips internal sorting for efficiency.
     
 {p 4 4 2} 
-{opt excel(string)} specifies an Excel file for saving the results. If this option is not specified, a temporary file is used by default.
+{opt excel(string)}:
+ specifies an Excel file for saving the results. If this option is not specified, a temporary file is used by default.
 
 {p 4 4 2} 
-{opt save(string)} specifies a file path to save the generated table in Stata dataset format.
+{opt save(string)}:
+ specifies a file path to save the generated table in Stata dataset format.
 
 {p 4 4 2} 
-{opt ONELine(varname)} is the poverty line variable for calculating additional poverty statistics.
+{opt ONELine(varname numeric)}:
+ is the poverty line variable for calculating additional poverty statistics.
 
 {p 4 4 2} 
-{opt ONEWelfare(varname)} is the welfare variable associated with the {opt ONELine} poverty line.
+{opt ONEWelfare(varname numeric)}:
+ is the welfare variable associated with the {opt ONELine} poverty line.
 
 {p 4 4 2} 
-{opt MISSING} handles missing data in key demographic variables like age, gender, and education.
+{opt MISSING}:
+ handles missing data in key demographic variables like age, gender, and education.
 
 {p 4 4 2} 
-{opt age(varname)} specifies the variable representing age groups for subgroup analysis.
+{opt age(varname numeric)}:
+ specifies the variable representing age groups for subgroup analysis.
 
 {p 4 4 2} 
-{opt male(varname)} specifies the variable representing gender (typically 1 for male, 0 for female).
+{opt male(varname numeric)}:
+ specifies the variable representing gender (typically 1 for male, 0 for female).
 
 {p 4 4 2} 
-{opt hhhead(varname)} specifies the variable indicating household head status (typically 1 for head, 0 for non-head).
+{opt hhhead(varname numeric)}:
+ specifies the variable indicating household head status (typically 1 for head, 0 for non-head).
 
 {p 4 4 2} 
-{opt edu(varname)} specifies the variable indicating education level for subgroup analysis.
+{opt edu(varname numeric)}:
+ specifies the variable indicating education level for subgroup analysis.
 
 {title:Remarks}
 
@@ -124,18 +146,4 @@ Missing data in the core demographic variables can be handled and cleaned using 
 {title:Examples}
 
 {p 4 4 2}
-Basic usage with national welfare and poverty lines, and subgroups by age and gender:
-    
-{phang2}
-table_A2, Country("GHA") NATWelfare(income) NATPovlines(200 400) PPPWelfare(ppp_income) PPPPovlines(150 250) FGTVARS using("data.dta") Year(year) MISSING age(age_group) male(gender)
-
-{pstd} Run the command with results saved to both Excel and Stata formats:
-    
-{phang2}
-table_A2, Country("GHA") NATWelfare(income) NATPovlines(200 300) PPPWelfare(ppp_income) PPPPovlines(150 250) FGTVARS using("data.dta") Year(year) excel("poverty_results.xlsx") save("poverty_output.dta")
-
-{pstd} Run the command with subgroup analysis by education and household head status:
-    
-{phang2}
-table_A2, Country("GHA") NATWelfare(income) NATPovlines(250 350) PPPWelfare(ppp_income) PPPPovlines(180 220) FGTVARS using("data.dta") Year(year) edu(education) hhhead(head_status)
-
+pea_table_A2 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing

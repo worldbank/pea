@@ -1,7 +1,7 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea dataupdate}{right:November 2024}
+help for {hi:pea dataupdate}{right:January 2025}
 {hline}
 
 {title:Title}
@@ -30,7 +30,7 @@ The updated data is saved in the user s personal directory under the "pea" folde
 {title:Options}
 
 {p 4 4 2}
-{opt datatype(string)} specifies the type of data to update. Available options are:
+{opt datatype(string)}: specifies the type of data to update. Available options are:
    
     - MPM: Multidimensional Poverty Measure (MPM) data
     - PIP: Poverty and Inequality data
@@ -40,11 +40,10 @@ The updated data is saved in the user s personal directory under the "pea" folde
     - CLASS: Placeholder for updating CLASS data
 
 {p 4 4 2}  
-{opt pppyear(string)} specifies the year for the PPP (Purchasing Power Parity) data to be used. The default year is 2017 if not provided.
+{opt pppyear(string)}: specifies the year for the PPP (Purchasing Power Parity) data to be used. The default year is 2017 if not provided.
 
 {p 4 4 2}
-{opt UPDATE} forces the program to update the data even if the files already exist and are up-to-date.
-
+{opt UPDATE}: forces the program to update the data even if the files already exist and are up-to-date.
 
 {title:Details}
 
@@ -76,11 +75,11 @@ If data retrieval fails or if data for the requested PPP year is not available, 
 To update the PIP data for the year 2023 and use PPP data from 2017:
 
 {p 4 4 2}   
-pea dataupdate, datatype(PIP) pppyear(2017)
+. pea dataupdate, datatype(PIP) pppyear(2017)
 
 {p 4 4 2} 
 To update the MPM data for the current year and force the update even if the file is up-to-date:
 
 {p 4 4 2}   
-pea dataupdate, datatype(MPM) UPDATE
+. pea dataupdate, datatype(MPM) UPDATE
 

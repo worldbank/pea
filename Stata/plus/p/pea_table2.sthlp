@@ -1,12 +1,13 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea table2}{right:November 2024}
+help for {hi:pea table2}{right:January 2025}
 {hline}
 
 {title:Title}
 
-{bf:pea table2} — Generates tables of core poverty indicators
+{p 4 15}
+{bf:pea table2} — Poverty rate and share of poor by area and admin1 regions.
 
 {title:Syntax}
 
@@ -16,14 +17,17 @@ help for {hi:pea table2}{right:November 2024}
 [{opt if} {it:exp}] 
 [{opt in} {it:exp}] 
 [{opt ,} 
-  {opt NATWelfare(varname)} 
-  {opt NATPovlines(varlist)}
-    [{opt PPPWelfare(varname)} 
-	{opt PPPPovlines(varlist)} 
-	{opt FGTVARS using(string)} 
-	{opt Year(varname)}
-    {opt byind(varlist)} 
-	{opt CORE setting(string)} 
+  {opt NATWelfare(varname numeric)} 
+  {opt NATPovlines(varlist numeric)}
+    {opt PPPWelfare(varname numeric)} 
+	{opt PPPPovlines(varlist numeric)} 
+	{opt FGTVARS} 
+	{using(string)} 
+	{opt using(string)}
+	{opt Year(varname numeric)}
+    {opt byind(varlist numeric)} 
+	{opt CORE}
+	{opt setting(string)} 
 	{opt LINESORTED} 
 	{opt excel(string)} 
     {opt save(string)} 
@@ -32,46 +36,66 @@ help for {hi:pea table2}{right:November 2024}
 {title:Description}
 
 {p 4 4 2} 
-{opt pea_table2} calculates and outputs core poverty indicators using various welfare variables, poverty lines, 
-  and grouping options. The program processes the data by performing calculations based on FGT poverty measures,
-  grouping results by year and additional specified categories, and exporting the output as an Excel file.
+{opt pea table2} calculates poverty rate and share of poor by area and admin1 regions. Indicators include: poverty rates, share of poor, and number of poor disaggregated by urban and rural regions, as well as admin1 regions (both at international and national poverty lines).
 
 {title:Options}
+
 {p 4 4 2} 
-{opt NATWelfare(varname)} specifies the variable representing welfare levels in natural (non-adjusted) terms.
+{opt NATWelfare(varname numeric)}:
+ specifies the variable representing welfare levels in natural (non-adjusted) terms.
   
 {p 4 4 2} 
-{opt NATPovlines(varlist)} specifies a list of natural (non-adjusted) poverty lines for analysis.
+{opt NATPovlines(varlist numeric)}:
+ specifies a list of natural (non-adjusted) poverty lines for analysis.
   
 {p 4 4 2} 
-{opt PPPWelfare(varname)} specifies the variable for welfare levels adjusted for purchasing power parity (PPP).
+{opt PPPWelfare(varname numeric)}:
+ specifies the variable for welfare levels adjusted for purchasing power parity (PPP).
   
 {p 4 4 2} 
-{opt PPPPovlines(varlist)} provides a list of poverty lines adjusted for PPP.
+{opt PPPPovlines(varlist numeric)}:
+ provides a list of poverty lines adjusted for PPP.
   
 {p 4 4 2} 
-{opt FGTVARS using(string)} allows specifying an external file to load existing FGT variables.
+{opt FGTVARS using(string)}:
+ allows specifying an external file to load existing FGT variables.
+
+{p 4 4 2} 
+{opt using(string)}:
+ specifies the dataset to use; the dataset will be loaded if provided.
+ 
   
 {p 4 4 2} 
-{opt Year(varname)} specifies the variable representing the year of observation.
+{opt Year(varname numeric)}:
+ specifies the variable representing the year of observation.
   
 {p 4 4 2} 
-{opt byind(varlist)} specifies one or more variables by which to group the data when calculating statistics.
+{opt byind(varlist)}:
+ specifies one or more variables by which to group the data when calculating statistics.
  
 {p 4 4 2} 
-{opt CORE setting(string)} defines a core setting used for indicator processing (e.g., regional settings).
+{opt CORE}
+defines a core setting used for indicator processing (e.g., regional settings).
+
+{p 4 4 2} 
+{opt setting(string)}:
+ specifies any regional or custom settings to apply to the analysis.
+ 
+{p 4 4 2} 
+{opt LINESORTED}:
+ ensures that poverty lines are processed in sorted order if specified.
   
 {p 4 4 2} 
-{opt LINESORTED} ensures that poverty lines are processed in sorted order if specified.
+{opt excel(string)}:
+ specifies the file path for the Excel output. If omitted, a temporary file is created.
   
 {p 4 4 2} 
-{opt excel(string)} specifies the file path for the Excel output. If omitted, a temporary file is created.
+{opt save(string)}:
+ provides a file path to save intermediate data.
   
 {p 4 4 2} 
-{opt save(string)} provides a file path to save intermediate data.
-  
-{p 4 4 2} 
-{opt MISSING} enables handling of missing data in categorical variables, assigning a custom label for missing values.
+{opt MISSING}:
+ enables handling of missing data in categorical variables, assigning a custom label for missing values.
 
 {title:Details}
 
@@ -87,5 +111,5 @@ After calculating poverty indicators, {opt pea_table2} reshapes the data, labels
 To generate a poverty indicators table using national and PPP welfare variables with defined poverty lines, grouped by region and exported to an Excel file:
 
 {p 4 4 2} 
-pea_table2, NATWelfare(welfare_nat) NATPovlines(povline_nat1 povline_nat2) PPPWelfare(welfare_ppp) PPPPovlines(povline_ppp1 povline_ppp2) Year(year) byind(region) excel("output_table2.xlsx")
+{bf:pea_table2} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) 
 
