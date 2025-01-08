@@ -1,37 +1,37 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea}{right:November 2024}
+help for {hi:pea}{right:January 2025}
 {hline}
 
 {title:Title}
 
-    {bf:[PEA] pea} - Package for poverty indicators developed by World Bank Staff.
+{bf:[PEA] pea} - Stata programs to standardize data annex and additional analysis using the Global Monitoring Database (GMD) or country-specific database.
 
 {p 4 15}
 {it:[Suggestion: Read}
-{browse "https://openknowledge.worldbank.org/handle/10986/37728":Guidelines for PEA indicators}
+{browse "https://openknowledge.worldbank.org/handle/10986/37728": Guidelines for PEA indicators}
 {it:first.]}
 
 {title:Description}
 
 {p 4 4 2}
-Stata ado program to standardize data annex and additional analysis using the Global Monitoring Database (GMD) or country-specific database.	
-The {opt  pea} suite of commands are made for poverty indicators. To become familiar with the sae suite of commands see:	
+Stata codes that produce a comprehensive set of outputs to analyze trends in poverty, shared prosperity and inequality, as well as their drivers and profiles. New Stata commands generate the tables and figures for the standardized data annex (pea core  ), a full set of tables (pea tables) and figures (pea figures) that can be used for the production of core diagnostics in PEAs. Outputs are Excel files with sheets of formatted tables and figures. 
+To become familiar with the {bf:[PEA]} suite of commands see:	
 	
-	1. Program to produce core tables:
+	1. Core: core tables and figures for the standardized data annex.
 {col 7}{...}
      {bf:{help pea core:[PEA] pea core}} 
-	2. Program to produce extended set of tables
+	2. Tables: full set of tables for the main body of the PEA, either with the GMD or country-specific data.
 {col 7}{...}
      {bf:{help pea tables:[PEA] pea tables}} 
-	3. Program to produce figures:
+	3. Figures: full set of figures to support the narratives on key topics such as growth, poverty, and inequality.
 {col 7}{...}
      {bf:{help pea figures:[PEA] pea figures}} 
 	
 	   
 {p 4 4 2}
-To perform update data sources see:
+To perform update data sources:
 
 {col 7}{...}
 {hline 70}
@@ -56,6 +56,98 @@ To change figures setup:
 {col 7}{...}
 {hline 70}
 {p 6 6 2}
+
+{marker Note}{...}
+{title:Note on data preparation}
+
+{p 4 4 2}
+- Table and figure outputs are good if the input data is prepared.
+
+{p 4 4 2}
+- Utility the GMD database for the historical/recent data points. If it is too new, work with the regional/global teams to bring it into the GMD.
+
+{p 4 4 2}
+- If not using the GMD, make sure you replicate the international poverty rates with your data. Work with the global team (D4G) on the correct CPI/ICP values for the (new) surveys.
+
+{p 4 4 2}
+- Survey weights are important!
+
+{p 4 4 2}
+- As PE, you are the best resources when it comes to national welfare and national poverty lines.
+
+{title:Example}
+
+The following code produces the main tables, and the standardized data annex for Guinea-Bissau:
+
+{p 4 4 2}
+// Datalibweb setup
+
+{p 4 4 2}
+datalibweb, country(GNB) year(2018 2021) type(gmd) mod(all) clear
+
+{p 4 4 2}
+// Preparation of additional variables
+	
+	gen welfppp = welfare/cpi2017/icp2017/365
+	
+	gen pline215 = 2.15
+	
+	gen pline365 = 3.65
+	
+	gen pline685 = 6.85
+	
+	gen natline = 298083.5 if year == 2021
+	
+	replace natline = 271071.8 if year == 2018
+	
+	la var pline215 "Poverty line: $2.15 per day (2017 PPP)"
+	
+	la var pline365 "Poverty line: $3.65 per day (2017 PPP)"
+	
+	la var pline685 "Poverty line: $6.85 per day (2017 PPP)"
+	
+	la var natline "Poverty line: 298,083.5 per year (2017 LCU)"
+	
+	split subnatid, parse("-") gen(tmp)
+	
+	replace tmp2 = ustrlower( ustrregexra( ustrnormalize( tmp2, "nfd" ) , "\p{Mark}", "" ) )
+	
+	replace tmp2 = " bolama/bijagos" if tmp2 == " bolama_bijagos"
+	
+	replace tmp2 = proper(tmp2)
+	
+	encode tmp2, gen(subnatvar)
+
+{p 4 4 2}
+// Main tables code:
+
+{p 4 4 2}
+pea tables [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN GMB) missing setting(GMD) spells(2018 2021)
+
+{p 4 4 2}
+// Appendix tables code:
+
+{p 4 4 2}
+pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN GMB) missing setting(GMD) spells(2018 2021)
+
+{p 4 4 2}
+// Appendix tables code without setting(GMD)
+
+{p 4 4 2}
+pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) benchmark(SEN GMB LIB) onew(welfppp) onel(pline215) missing spells(2018 2021)
+
+{p 4 4 2}
+// Figures code:
+
+{p 4 4 2}
+pea figures [aw=weight_p], c(GNB) year(year natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) onew(welfppp) oneline(pline215) byind(urban) benchmark(CIV GHA GMB SEN AGA) spells(2010 2018; 2018 2021) setting(GMD) urban(urban)	within(3) comparability(comparability) combine welfaretype(CONS) nonotes palette(viridis)
+
+{p 4 4 2}
+// Defining own color palette
+
+{p 4 4 2}
+local custom_palette = "#337ab7 #5cb85c #5bc0de #f0ad4e #d9534f #e6e6e6 #286090 #449d44 #31b0d5 #ec971f #c9302c"
+pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(`custom_palette')
 
 
 {marker references}{...}

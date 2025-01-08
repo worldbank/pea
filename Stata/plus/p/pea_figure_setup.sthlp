@@ -7,12 +7,12 @@ help for {hi:pea figure_setup}{right:December 2024}
 {title:Title}
 
 {p 4 15}
-{bf:pea figure_setup} — Set up figure schemes and color palettes for PEA projects.
+{bf:pea figure_setup} — Set up figure schemes and color palettes for all figures.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure_setup} 
+{opt pea figure_setup} 
 [{opt if} {it:exp}] 
 [{opt in} {it:exp}] 
 [{opt ,}{opt groups(string)} {opt scheme(string)} {opt palette(string)}]
@@ -25,13 +25,16 @@ help for {hi:pea figure_setup}{right:December 2024}
 {title:Options}
 
 {p 4 4 2}
-{opt groups(string)} specifies the number of groups (e.g., categories or series) for which colors should be assigned. This determines the size of the color palette generated.
+{opt groups(string)}:
+ specifies the number of groups (e.g., categories or series) for which colors should be assigned. This determines the size of the color palette generated.
 
 {p 4 4 2}
-{opt scheme(string)} specifies the figure scheme to be used. If not specified, the program defaults to {opt white_tableau}.
+{opt scheme(string)}:
+ specifies the figure scheme to be used. If not specified, the program defaults to {opt white_tableau}.
 
 {p 4 4 2}
-{opt palette(string)} specifies the color palette to be used. If not specified, the program defaults to {opt tab10}. For other available palettes, see the {opt colorpalette} documentation.
+{opt palette(string)}:
+ specifies the color palette to be used. If not specified, the program defaults to {opt tab10}. For other available palettes, see the {opt colorpalette} documentation.
 
 
 {title:Details}
@@ -55,20 +58,14 @@ The program performs the following tasks:
 {title:Examples}
 
 {p 4 4 2}
-To set up a figure with the default scheme ({opt white_tableau}) and palette ({opt tab10}): 
-
-{p 4 4 2}
-pea figure_setup
-
-{p 4 4 2}
 To use a specific palette (e.g., {opt viridis}) for 5 groups:
 
 {p 4 4 2}
-pea figure_setup, palette(viridis) groups(5)
+. pea figure_setup, palette(viridis) groups(5)
 
 {p 4 4 2}
 To set a custom scheme and palette:
 
 {p 4 4 2}
-pea figure_setup, scheme(s2mono) palette(coolwarm)
+. pea figure_setup, scheme(s2mono) palette(coolwarm)
 

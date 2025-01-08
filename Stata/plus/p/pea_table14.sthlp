@@ -1,12 +1,13 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea table14}{right:November 2024}
+help for {hi:pea table14}{right:January 2025}
 {hline}
 
 {title:Title}
 
-{bf: pea table14} — Generates Poverty and Equity Analysis Tables
+{p 4 15}
+{bf: pea table14} — Profiles of the poor.
 
 {title:Syntax}
 
@@ -15,51 +16,149 @@ help for {hi:pea table14}{right:November 2024}
 [{opt if} {it:exp}] 
 [{opt in} {it:exp}] 
 [{opt ,} 
-{opt Country(string)} 
-{opt Year(varname numeric)} 
-{opt Indicator(varname)} 
-{opt excel(string)} 
-{opt save(string)}]{p_end}
+	{opt Welfare(varname numeric)} 
+	{opt Povlines(varlist numeric)}
+	{opt Year(varname numeric)} 
+	{opt CORE}
+	{opt setting(string)}
+	{opt excel(string)} 
+	{opt save(string)}
+	{opt age(varname numeric)} 
+	{opt male(varname numeric)} 
+	{opt hhhead(varname numeric)} 
+	{opt edu(varname numeric)} 
+	{opt urban(varname numeric)} 
+	{opt married(varname numeric)} 
+	{opt school(varname numeric)} 
+	{opt services(varlist numeric)} 
+	{opt assets(varlist numeric)} 
+	{opt hhsize(varname numeric)} 
+	{opt hhid(string)} 
+	{opt pid(string)} 
+	{opt industrycat4(varname numeric)} 
+	{opt lstatus(varname numeric)} 
+	{opt empstat(varname numeric)}
+	{opt MISSING}]{p_end}
 
 {title:Description}
 
 {p 4 4 2}
-{opt pea table14} calculates and generates tables of poverty and equity-related indicators for poverty analysis. It extracts data for specified countries and years, and produces a detailed table summarizing poverty and inequality measures, including poverty headcount ratio, income distribution, and equity indices. Results can be exported to Excel or saved in a specified file format.
+{opt pea table14} calculates profiles of the poor:
+
+{p 4 4 2}
+- Demographics of poor and nonpoor (urban share; age, gender, marital status, education of household head; share of children attending school; household size; share of children and elderly in household; household dependency ratio...
+
+{p 4 4 2}
+- Access to piped water, improved sanitation, electricity
+
+{p 4 4 2}
+- Asset ownership (vehicle, TV, mobile phone, internet, computer, refrigerator)
+
+{p 4 4 2}
+- Economic sector of household head
+
+{p 4 4 2}
+- Household typologies (country specific)
+
 
 {title:Options}
 
-{p 4 4 2}
-{opt Country(string)} specifies the country code for which the poverty indicators are to be generated.
-
+{p 4 4 2} 
+{opt Welfare(varname numeric)}:
+ specifies the welfare variable to be used for poverty calculations.
+ 
 {p 4 4 2}  
-{opt Year(varname numeric)} specifies the year variable for the analysis.
+{opt Povlines(varlist numeric)}:
+ provides a list of poverty lines adjusted for PPP.
+ 
+{p 4 4 2} 
+{opt Year(varname numeric)}:
+ specifies the year variable for the analysis.
+
+{p 4 4 2} 
+{opt CORE}:
+ defines a core setting used for indicator processing (e.g., regional settings).
+  
+{p 4 4 2} 
+{opt setting(string)}:
+ specifies any regional or custom settings to apply to the analysis.
+ 
+{p 4 4 2} 
+{opt excel(string)}:
+ specifies the file path for the Excel output. If omitted, a temporary file is created.
+  
+{p 4 4 2} 
+{opt save(string)}:
+ provides a file path to save intermediate data.
 
 {p 4 4 2}
-{opt Indicator(varname)} specifies the specific indicator(s) to include in the analysis, such as poverty headcount or Gini index.
+{opt MISSING}: Optional. Includes missing data in the analysis.
+
+Additional options if setting(GMD) is not specified:
 
 {p 4 4 2}
-{opt excel(string)} specifies the file path for exporting results to Excel. If omitted, results are saved to a temporary file.
+{opt age(varname numeric)}: specifies the age variable for the analysis.
+Default under setting(GMD): age
 
 {p 4 4 2}
-{opt save(string)} specifies the file path for saving intermediate data.
-
-{title:Details}
+{opt male(varname numeric)}: specifies the gender variable (e.g., male/female).
+Default under setting(GMD): male
 
 {p 4 4 2}
-{opt pea table14} imports relevant poverty and equity datasets, extracts the country-specific and region-specific data for the selected year, and generates a table with:
-  - Poverty headcount ratios (e.g., at $1.90 and $3.20 poverty lines)
-  - Gini coefficients
-  - Theil indices
-  - Distributional indices like the Palma ratio
-  - Additional poverty and inequality measures with contextual information (e.g., inequality thresholds).
+{opt hhhead(varname numeric)}: specifies the household head status variable.
+Default under setting(GMD): head
 
-{p 4 4 2}  
-The final output is a comprehensive summary table ordered by the specified indicator(s), with results available for immediate reporting. Results can be exported to Excel if the `excel` option is used, or saved in a specified file format.
+{p 4 4 2}
+{opt edu(varname numeric)}: specifies the education level variable.
+Default under setting(GMD): educat4    
+
+{p 4 4 2}
+{opt urban(varname numeric)}: specifies the urban/rural classification variable.
+Default under setting(GMD): urban
+
+{p 4 4 2}
+{opt married(varname numeric)}: specifies the marital status variable.
+Default under setting(GMD): married
+
+{p 4 4 2}
+{opt school(varname numeric)}: specifies the schooling variable.
+Default under setting(GMD): school
+
+{p 4 4 2}
+{opt services(varlist numeric)}: specifies a list of household service variables (e.g., water access, sanitation).
+Default under setting(GMD): imp_wat_rec imp_san_rec electricity
+
+{p 4 4 2}
+{opt assets(varlist numeric)}: specifies a list of household asset variables (e.g., TV, car, cellphone).
+Default under setting(GMD): tv car cellphone computer fridge
+
+{p 4 4 2}
+{opt hhsize(varname numeric)}: specifies the household size variable.
+Default under setting(GMD): hsize
+
+{p 4 4 2}
+{opt hhid(string)}: specifies the household ID variable.
+Default under setting(GMD): hhid
+
+{p 4 4 2}
+{opt pid(string)}: specifies the individual ID variable.
+Default under setting(GMD): pid
+
+{p 4 4 2}
+{opt industrycat4(varname numeric)}: specifies the industry category variable.
+Default under setting(GMD): industrycat4
+
+{p 4 4 2}
+{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed).
+Default under setting(GMD): nowork
+
+{p 4 4 2}
+{opt empstat(varname numeric)}: specifies the employment status variable.
+Default under setting(GMD): empstat
 
 {title:Example}
 
 {p 4 4 2}
-To generate the poverty and equity analysis table for a specific country and year, and export the results to an Excel file:
-
-pea_table14, Country(GHA) Year(year) Indicator(PovertyHeadcount) excel(output_table14.xlsx)
+{bf:pea_table14} [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head)  urban(urban) married(married)
+school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) 
 

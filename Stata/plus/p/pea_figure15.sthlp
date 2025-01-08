@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea_figure15}{right:November 2024}
+help for {hi:pea_figure15}{right:January 2025}
 {hline}
 
-
 {title:Title}
-{bf:pea_figure15} — Visualizing Climate Risk and Vulnerability. Climate hazard exposure visualization by survey comparison and country grouping
 
+{p 4 15}
+{bf:pea_figure15} — Visualizing Climate Risk and Vulnerability. Climate hazard exposure visualization by survey comparison and country grouping
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure2}
+{opt pea_figure15}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -23,7 +23,6 @@ help for {hi:pea_figure15}{right:November 2024}
 	{opt save(string)} 
 	{opt excel(string)}]{p_end}
 
-
 {title:Description}
 
 {p 4 4 2}
@@ -31,25 +30,34 @@ help for {hi:pea_figure15}{right:November 2024}
 This program generates bar graphs visualizing climate risk exposure, vulnerability, and other survey-based risk indices.
 Population groups are categorized across dimensions such as financial access, social protection, education, and climate risk exposure.
 
-
 {title:Options}
-{p 4 4 2} 
-{opt Country(string)} Specifies the name or code of the country to visualize data for.
 
 {p 4 4 2} 
-{opt NONOTES} If specified, suppresses additional notes in the visualization output.
+{opt Country(string)}: 
+Specifies the name or code of the country to visualize data for.
 
 {p 4 4 2} 
-{opt scheme(string)} Specifies the color scheme to use in creating visualization graphics.
+{opt NONOTES}: 
+If specified, suppresses additional notes in the visualization output.
 
 {p 4 4 2} 
-{opt palette(string)} Defines a color palette to differentiate bars in the graph visualization.
+{opt scheme(string)}: 
+Specifies the color scheme to use in creating visualization graphics.
 
 {p 4 4 2} 
-{opt excel(string)} Path to an Excel file to save visualization results to.
+{opt palette(string)}: 
+Defines a color palette to differentiate bars in the graph visualization.
 
 {p 4 4 2} 
-{opt save(string)} Path used to save graph visualizations for reproducibility.
+{opt excel(string)}:
+Path to an Excel file to save visualization results to.
+
+{p 4 4 2} 
+{opt save(string)}: 
+Path used to save graph visualizations for reproducibility.
 
 {title:Examples}
 
+{p 4 4 2} 
+pea figure15, c(ARM) 
+ 
