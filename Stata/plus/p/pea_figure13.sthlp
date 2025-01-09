@@ -8,12 +8,12 @@ help for {hi:pea figure13}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure13} —  Distribution of welfare by deciles. Welfare analysis visualization by survey comparisons over time.
+{bf:pea figure13} —  Distribution of welfare by deciles. Welfare analysis visualization by survey comparisons over time.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure13} 
+{opt pea figure13} 
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -32,7 +32,7 @@ help for {hi:pea figure13}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure13} generates a graphical visualization of welfare distribution by deciles over specified years or comparability groups. This includes the visualization of survey-based welfare shares for different welfare deciles through spike charts or area charts, depending on the temporal structure of the data.
+{opt pea figure13} generates a graphical visualization of welfare distribution by deciles over specified years or comparability groups. This includes the visualization of survey-based welfare shares for different welfare deciles through spike charts or area charts, depending on the temporal structure of the data.
 
 {title:Options}
 
@@ -72,12 +72,12 @@ Specifies the color scheme to be used for visual contrast.
 {opt palette(string)}:
 Defines the palette of colors to use in graphs.
 
-{p 4 4 2} 
-{opt COMParability(varname numeric)}:
-Specifies the comparability variable for conducting cross-survey comparisons.
+{p 4 4 2}
+{opt comparability(varname numeric)}: Optional. This variable denotes which survey rounds are comparable over time. 
+Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {title:Examples}
 
 {p 4 4 2} 
-pea figure13 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis)
+{bf: pea figure13} [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis)
 

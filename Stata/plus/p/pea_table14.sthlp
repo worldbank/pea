@@ -19,7 +19,6 @@ help for {hi:pea table14}{right:January 2025}
 	{opt Welfare(varname numeric)} 
 	{opt Povlines(varlist numeric)}
 	{opt Year(varname numeric)} 
-	{opt CORE}
 	{opt setting(string)}
 	{opt excel(string)} 
 	{opt save(string)}
@@ -76,12 +75,8 @@ help for {hi:pea table14}{right:January 2025}
  specifies the year variable for the analysis.
 
 {p 4 4 2} 
-{opt CORE}:
- defines a core setting used for indicator processing (e.g., regional settings).
-  
-{p 4 4 2} 
-{opt setting(string)}:
- specifies any regional or custom settings to apply to the analysis.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
  
 {p 4 4 2} 
 {opt excel(string)}:
@@ -159,6 +154,6 @@ Default under setting(GMD): empstat
 {title:Example}
 
 {p 4 4 2}
-{bf:pea_table14} [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head)  urban(urban) married(married)
+{bf:pea table14} [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head)  urban(urban) married(married)
 school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) 
 

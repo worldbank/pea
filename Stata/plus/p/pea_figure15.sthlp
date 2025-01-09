@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea_figure15}{right:January 2025}
+help for {hi:pea figure15}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure15} — Visualizing Climate Risk and Vulnerability. Climate hazard exposure visualization by survey comparison and country grouping
+{bf:pea figure15} — Visualizing Climate Risk and Vulnerability. Climate hazard exposure visualization by survey comparison and country grouping
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure15}
+{opt pea figure15}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -26,9 +26,8 @@ help for {hi:pea_figure15}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure15} generates a bar graph visualization that maps climate risk and vulnerability by population share across various dimensions, such as exposure to hazards, financial access, education levels, and other climate risk indicators. This visualization highlights the impact of climate risks on population groups.
-This program generates bar graphs visualizing climate risk exposure, vulnerability, and other survey-based risk indices.
-Population groups are categorized across dimensions such as financial access, social protection, education, and climate risk exposure.
+{opt pea figure15} generates a bar graph visualization that maps climate risk and vulnerability by population share across various dimensions, such as exposure to hazards, financial access, education levels, and other climate risk indicators. 
+This visualization highlights the impact of climate risks on population groups.
 
 {title:Options}
 
@@ -59,5 +58,5 @@ Path used to save graph visualizations for reproducibility.
 {title:Examples}
 
 {p 4 4 2} 
-pea figure15, c(ARM) 
+{bf: pea figure15}, c(ARM) 
  

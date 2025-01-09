@@ -86,7 +86,8 @@ Main options:
 {opt Year(varname numeric)}: specifies the year variable for the analysis.
 
 {p 4 4 2}
-{opt SETting(string)}: specifies the setting or dataset being used.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options
+ (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
 
 {p 4 4 2}
 {opt excel(string)}: specifies the file path for exporting results to Excel.

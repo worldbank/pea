@@ -10,7 +10,7 @@ help for {hi:pea table11}{right:January 2025}
 {bf:pea table11} — Generates Growth Incidence Curve Tables.
 
 {p 4 15}
-{opt pea_table11}
+{opt pea table11}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -18,7 +18,6 @@ help for {hi:pea table11}{right:January 2025}
 	{opt Welfare(varname numeric)} 
 	{opt spells(string)} 
 	{opt Year(varname numeric)} 
-	{opt CORE} 
 	{opt setting(string)} 
 	{opt excel(string)} 
 	{opt save(string)} 
@@ -30,7 +29,7 @@ help for {hi:pea table11}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea_table11} calculates and generates Growth Incidence Curve (GIC) over past periods, disaggregated by total, urban and rural populations
+{opt pea table11} calculates and generates Growth Incidence Curve (GIC) over past periods, disaggregated by total, urban and rural populations
 
 {title:Options}
 
@@ -47,8 +46,8 @@ specifies the welfare indicator to use for the GIC calculation (e.g., per capita
  specifies the year variable for the analysis.
 
 {p 4 4 2} 
-{opt CORE setting(string)}:
- allows for custom settings such as region or data type.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
 
 {p 4 4 2} 
 {opt excel(string)}:
@@ -77,10 +76,10 @@ specifies the welfare indicator to use for the GIC calculation (e.g., per capita
 {title:Examples}
 
 {p 4 4 2} 
-{bf:pea_table11} [aw=weight_p], welfare(welfppp) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) by(urban) graph
+{bf:pea table11} [aw=weight_p], welfare(welfppp) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) by(urban) graph
 
 {p 4 4 2} 
-{bf:pea_table11} [aw=weight_p], welfare(welfppp) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) nooutput
+{bf:pea table11} [aw=weight_p], welfare(welfppp) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) nooutput
 
 {p 4 4 2} 
-{bf:pea_table11} [aw=weight_p], natw(welfare) natp(natline ) year(year) core spell()
+{bf:pea table11} [aw=weight_p], natw(welfare) natp(natline ) year(year) core spell()
