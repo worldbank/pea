@@ -20,7 +20,6 @@ help for {hi:pea table8}{right:January 2025}
 {opt Welfare(varname numeric)} 
 {opt Year(varname numeric)} 
 {opt byind(varlist numeric)}
-{opt CORE}
 {opt setting(string)} 
 {opt excel(string)} 
 {opt save(string)} 
@@ -31,7 +30,7 @@ help for {hi:pea table8}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea_table8} calculates core inequality indicators. Such as:
+{opt pea table8} calculates core inequality indicators. Such as:
 
 {p 4 4 2} - Gini index, Theil index, Palma (Kuznets) ratio, Atkinson index, Sen index, Watts index
 
@@ -55,9 +54,10 @@ help for {hi:pea table8}{right:January 2025}
 Geographic units for disaggregation, multiple entries allowed.
 
 {p 4 4 2} 
-{opt CORE setting(string)}:
- allows the use of custom settings for the analysis (e.g., regional specifications).
-  
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and 
+additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) 
+do not need to be specified.
+
 {p 4 4 2} 
 {opt excel(string)}:
  specifies the file path for exporting results to Excel. If omitted, the results are saved to a temporary file.
@@ -73,4 +73,4 @@ Geographic units for disaggregation, multiple entries allowed.
 {title:Example}
 
 {p 4 4 2} 
-{bf:pea_table8} [aw=weight_p], welfare(welfare) year(year) byind(urban) missing
+{bf:pea table8} [aw=weight_p], welfare(welfare) year(year) byind(urban) missing

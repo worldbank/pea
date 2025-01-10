@@ -22,7 +22,6 @@ help for {hi:pea table13}{right:January 2025}
 {opt PPPPovlines(varlist numeric)} 
 {opt spells(string)} 
 {opt Year(varname numeric)} 
-{opt CORE} 
 {opt LINESORTED} 
 {opt setting(string)} 
 {opt NOOUTPUT} 
@@ -63,17 +62,13 @@ Poverty changes are disaggregated into urban, rural and population shift compone
 {opt Year(varname numeric)}:
  specifies the variable representing the year for the analysis.
 
-{p 4 4 2}
-{opt CORE}:
- runs the core decomposition method (Shorrocks-Kolenikov) in addition to Datt-Ravallion.
-
+{p 4 4 2} 
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
+ 
 {p 4 4 2}
 {opt LINESORTED}:
  orders the poverty lines before decomposition.
-
-{p 4 4 2}
-{opt setting(string)}:
- allows for the specification of a settings string to modify the analysis further.
  
 {p 4 4 2}
 {opt NOOUTPUT}:

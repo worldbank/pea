@@ -15,7 +15,10 @@ help for {hi:pea figure_setup}{right:December 2024}
 {opt pea figure_setup} 
 [{opt if} {it:exp}] 
 [{opt in} {it:exp}] 
-[{opt ,}{opt groups(string)} {opt scheme(string)} {opt palette(string)}]
+{opt ,}
+[{opt groups(string)} 
+{opt scheme(string)}
+{opt palette(string)}]{p_end} 
 
 {title:Description}
 

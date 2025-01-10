@@ -1,18 +1,18 @@
-{smcl}
+s{smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea_figure14}{right:January 2025}
+help for {hi:pea figure14}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure14} — Multidimensional poverty: Multidimensional Poverty Measure. 
+{bf:pea figure14} — Multidimensional poverty: Multidimensional Poverty Measure. 
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure14}
+{opt pea figure14}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -32,7 +32,7 @@ help for {hi:pea_figure14}{right:January 2025}
 {title:Description}
 
 {p 4 4 2} 
-{opt pea_figure14} generates visualizations associated with the Multidimensional Poverty Measure (MPM) developed by the World Bank.  
+{opt pea figure14} generates visualizations associated with the Multidimensional Poverty Measure (MPM) developed by the World Bank.  
 It provides graphs showing various poverty indicators, comparisons across countries and regions, and poverty rate estimates  
 across welfare, education, infrastructure, and other relevant dimensions.
 
@@ -48,8 +48,7 @@ across welfare, education, infrastructure, and other relevant dimensions.
 {p 4 4 2} {opt Year(varname numeric)}:  
         The numeric variable representing survey years. Required. Example: `survey_year`.
 
-{p 4 4 2} {opt setting(string)}: 
-        Specifies the type of setting or context for analysis (e.g., urban, rural, national). Default is left unspecified unless otherwise provided.
+{p 4 4 2} {opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
 
 {p 4 4 2} {opt excel(string)}:  
         Path to an Excel file location for saving results. If omitted, defaults are used.
@@ -93,6 +92,6 @@ The program checks for missing data observations, too-wide ranges of time period
 {title:Examples}
 
 {p 4 4 2}
-pea figure14 [aw=weight_p], c(GNB) welfare(welfppp) year(year)  benchmark(CIV GHA GMB SEN) within(5) setting(GMD)
+{bf: pea figure14} [aw=weight_p], c(GNB) welfare(welfppp) year(year)  benchmark(CIV GHA GMB SEN) within(5) setting(GMD)
 
 

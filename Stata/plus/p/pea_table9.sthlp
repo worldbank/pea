@@ -18,14 +18,14 @@ help for {hi:pea table9}{right:January 2025}
 [{opt ,} 
   {opt Country(string)} 
   {opt Year(varname numeric)} 
-  {opt CORE setting(string)} 
+  {opt setting(string)} 
   {opt excel(string)}
   {opt save(string)}]{p_end}
 
 {title:Description}
 
 {p 4 4 2}
-{opt pea_table9} calculates and generates tables of vision-related indicators from the World Bank Scorecard. It extracts country-specific and region-specific indicators, including key economic and social measures, and produces an ordered table for use in reporting. The results can be exported to an Excel file.
+{opt pea table9} calculates and generates tables of vision-related indicators from the World Bank Scorecard. It extracts country-specific and region-specific indicators, including key economic and social measures, and produces an ordered table for use in reporting. The results can be exported to an Excel file.
 
 {title:Options}
   
@@ -38,13 +38,12 @@ help for {hi:pea table9}{right:January 2025}
  specifies the year variable for the analysis.
   
 {p 4 4 2} 
-{opt CORE setting(string)}:
- specifies custom settings, such as region or data type.
-  
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+
 {p 4 4 2} 
 {opt excel(string)}:
- specifies the file path for exporting results to Excel. 
- If omitted, results are saved to a temporary file.
+ specifies the file path for exporting results to Excel. If omitted, results are saved to a temporary file.
  
 {p 4 4 2} 
 {opt save(string)}:
@@ -53,5 +52,5 @@ help for {hi:pea table9}{right:January 2025}
 {title:Example}
 
 {p 4 4 2}
-{bf:pea_table9}, c(GNB) year(year)
+{bf:pea table9}, c(GNB) year(year)
 

@@ -7,7 +7,7 @@ help for {hi:pea figures}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea_figures} — full set of figures to support the narratives on key topics such as growth, poverty, and inequality.
+{bf:pea figures} — full set of figures to support the narratives on key topics such as growth, poverty, and inequality.
 
 {title:Syntax}
 
@@ -82,53 +82,55 @@ Each figure is generated sequentially and saved to the specified Excel file or a
 The following figures are available within the {opt pea figures} command, each serving a distinct purpose. For more detailed explanations of their contents and usage, see below:{p_end}
 
 {p 4 7}{opt Figure 1}: Poverty rates by year lines.{p_end}
-{p 4 7}{bf:{help pea_figure1:[PEA] pea figure1}} 
+{p 4 7}{bf:{help pea figure1:[PEA] pea figure1}} 
 
 {p 4 7}{opt Figure 2}: Poverty and GDP per capita scatter.{p_end}
-{p 4 7}{bf:{help pea_figure2:[PEA] pea figure2}} 
-//Note on helpfile: only work for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
+{p 4 7}{bf:{help pea figure2:[PEA] pea figure2}} 
+
+{p 6 7}
+NOTE: only works for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
 
 {p 4 7}{opt Figure 3}: Growth Incidence Curve.{p_end}
-{p 4 7}{bf:{help pea_figure3:[PEA] pea figure3}} 
+{p 4 7}{bf:{help pea figure3:[PEA] pea figure3}} 
 
 {p 4 7}{opt Figure 4}: Decomposition of poverty changes: growth and redistribution: Datt-Ravallion and Shorrocks-Kolenikov.{p_end}
-{p 4 7}{bf:{help pea_figure4:[PEA] pea figure4}} 
+{p 4 7}{bf:{help pea figure4:[PEA] pea figure4}} 
 
-{p 4 7}{opt Figure 5}: Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion .{p_end}
-{p 4 7}{bf:{help pea_figure5:[PEA] pea figure5}} 
+{p 4 7}{opt Figure 5}: Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion.{p_end}
+{p 4 7}{bf:{help pea figure5:[PEA] pea figure5}} 
 
 {p 4 7}{opt Figure 6}: GDP per capita GDP - Poverty elasticity.{p_end}
-{p 4 7}{bf:{help pea_figure6:[PEA] pea figure6}}
+{p 4 7}{bf:{help pea figure6:[PEA] pea figure6}}
 
-{p 4 7}{opt Figure 7}: Welfare Figure with poverty line breakdowns for specified thresholds (e.g., `pline365`, `pline215`).{p_end}
-{p 4 7}{bf:{help pea_figure7:[PEA] pea figure7}} 
+{p 4 7}{opt Figure 7}: Welfare Figure with poverty line breakdowns.{p_end}
+{p 4 7}{bf:{help pea figure7:[PEA] pea figure7}} 
 
 {p 4 7}{opt Figure 9a}: Inequality by year lines.{p_end}
-{p 4 7}{bf:{help pea_figure9a:[PEA] pea figure9a}} 
+{p 4 7}{bf:{help pea figure9a:[PEA] pea figure9a}} 
 
 {p 4 7}{opt Figure 9b}: GINI and GDP per capita scatter.{p_end}
-{p 4 7}{bf:{help pea_figure9b:[PEA] pea figure9b}} 
+{p 4 7}{bf:{help pea figure9b:[PEA] pea figure9b}} 
 
 {p 4 7}{opt Figure 10a}: Prosperity gap by year lines.{p_end}
-{p 4 7}{bf:{help pea_figure10a:[PEA] pea figure10a}} 
+{p 4 7}{bf:{help pea figure10a:[PEA] pea figure10a}} 
 
 {p 4 7}{opt Figure 10b}: Prosperity gap scatter (line-up).{p_end}
-{p 4 7}{bf:{help pea_figure10b:[PEA] pea figure10b}} 
+{p 4 7}{bf:{help pea figure10b:[PEA] pea figure10b}} 
 
 {p 4 7}{opt Figure 10c}: PG (survey) and GDP per capita scatter.{p_end}
-{p 4 7}{bf:{help pea_figure10c:[PEA] pea figure10c}} 
+{p 4 7}{bf:{help pea figure10c:[PEA] pea figure10c}} 
 
 {p 4 7}{opt Figure 12}: Decomposition of growth in prosperity gap.{p_end}
-{p 4 7}{bf:{help pea_figure12:[PEA] pea figure12}}
+{p 4 7}{bf:{help pea figure12:[PEA] pea figure12}}
 
 {p 4 7}{opt Figure 13}: Distribution of welfare by deciles{p_end}
-{p 4 7}{bf:{help pea_figure13:[PEA] pea figure13}} 
+{p 4 7}{bf:{help pea figure13:[PEA] pea figure13}} 
 
 {p 4 7}{opt Figure 14}: Multidimensional poverty: Multidimensional Poverty Measure (World Bank).{p_end}
-{p 4 7}{bf:{help pea_figure14:[PEA] pea figure14}} 
+{p 4 7}{bf:{help pea figure14:[PEA] pea figure14}} 
 
 {p 4 7}{opt Figure 15}: Climate risk and vulnerability.{p_end}
-{p 4 7}{bf:{help pea_figure15:[PEA] pea figure15}} 
+{p 4 7}{bf:{help pea figure15:[PEA] pea figure15}} 
 
 {title:Options}
 
@@ -153,7 +155,7 @@ Main options:
 {opt Year(varname numeric)}: specifies the year variable for the analysis.
 
 {p 4 4 2}
-{opt SETting(string)}: specifies the setting or dataset being used.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
 
 {p 4 4 2}
 {opt excel(string)}: specifies the file path for exporting results to Excel.
@@ -194,7 +196,7 @@ Default is 3, and value should be less than 10.
 
 {p 4 4 2}
 {opt comparability(varname numeric)}: Required. This variable denotes which survey rounds are comparable over time. 
-Non-comparable survey rounds are not connected in figures. Example:	comparability
+Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2}
 {opt equalspacing}: Optional. When specified, figures display constant gaps between years, regardless of how far away years are. 
@@ -281,5 +283,5 @@ Default under setting(GMD): empstat
 {title:Examples}
 
 {p 4 4 2}
-{bf:pea figures}[aw=weight_p], c(IDN) natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA) missing setting(GMD) 
+{bf:pea figures}[aw=weight_p], c(IDN) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA) missing setting(GMD) 
 spells(2000 2007; 2007 2008; 2016 2022) comparability(comparability) welfaretype(CONS)

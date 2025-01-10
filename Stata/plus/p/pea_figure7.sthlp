@@ -7,12 +7,12 @@ help for {hi:pea figure7}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure7} — Welfare Figure with poverty line breakdowns for specified thresholds (e.g., `pline365`, `pline215`).
+{bf:pea figure7} — Welfare Figure with poverty line breakdowns.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure7}
+{opt pea figure7}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -38,7 +38,7 @@ help for {hi:pea figure7}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure7} generates welfare visualizations with breakdowns for specified poverty thresholds, such as `pline365`, `pline215`. This program performs necessary data preparation,
+{opt pea figure7} generates welfare visualizations with breakdowns for specified poverty thresholds, such as `pline365`, `pline215`. This program performs necessary data preparation,
 computes poverty statistics, and exports figures/poverty analysis results.
 	
 {title:Options}
@@ -83,7 +83,8 @@ computes poverty statistics, and exports figures/poverty analysis results.
 {opt urban(varname numeric)}: Urban/Rural classification variable for subgroup analysis.
 
 {p 4 4 2}
-{opt setting(string)}: Defines specific setting options like `GMD`.
+{opt SETting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
 
 {p 4 4 2}
 {opt scheme(string)}: Graph/plotting scheme (not implemented in full).
@@ -97,13 +98,7 @@ computes poverty statistics, and exports figures/poverty analysis results.
 {p 4 4 2}
 {opt save(string)}: File path for saving computed data.
 
-{title:Remarks}
-
-This program uses survey data to compute poverty rates and FGT measures by income thresholds.
-When provided with specific poverty thresholds (national or PPP{optbased), it generates visualization outputs.
-The graphs are exported in Excel format unless specified otherwise.
-
 {title:Examples}
 
 {p 4 4 2}
-pea figure7 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365   pline685) year(year) age(age) male(male) edu(educat4) urban(urban)
+{bf: pea figure7} [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365   pline685) year(year) age(age) male(male) edu(educat4) urban(urban)

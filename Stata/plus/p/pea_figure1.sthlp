@@ -1,46 +1,46 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea_figure1}{right:January 2025}
+help for {hi:pea figure1}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure1} — Poverty rates by years lines.
+{bf:pea figure1} — Poverty rates by years lines.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure1}
+{opt pea figure1}
 	[{it:weight}] 
 	[{opt if} {it:exp}] 
 	[{opt in} {it:exp}] 
 	[{opt ,}  
-{opt NATWelfare(varname numeric)}
-{opt NATPovlines(varlist numeric)}
-{opt PPPWelfare(varname numeric)}
-{opt PPPPovlines(varlist numeric)}
-{opt FGTVARS}
-{opt Year(varname numeric)}
-{opt urban(varname numeric)}
-{opt LINESORTED(string)}
-{opt COMParability(varname numeric)}
-{opt COMBINE}
-{opt NOOUTPUT}
-{opt NONOTES}
-{opt EQUALSPACING}
-{opt YRange0} 
-{opt excel(string)}
-{opt save(string)}
-{opt MISSING}
-{opt scheme(string)}
-{opt palette(string)}{p_end} 
+	{opt NATWelfare(varname numeric)}
+	{opt NATPovlines(varlist numeric)}
+	{opt PPPWelfare(varname numeric)}
+	{opt PPPPovlines(varlist numeric)}
+	{opt FGTVARS}
+	{opt Year(varname numeric)}
+	{opt urban(varname numeric)}
+	{opt LINESORTED(string)}
+	{opt COMParability(varname numeric)}
+	{opt COMBINE}
+	{opt NOOUTPUT}
+	{opt NONOTES}
+	{opt EQUALSPACING}
+  {opt YRange0} 
+	{opt excel(string)}
+	{opt save(string)}
+	{opt MISSING}
+	{opt scheme(string)}
+	{opt palette(string)}{p_end} 
 
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure1} shows trends in poverty rates over time. The visualization incorporates national and PPP-based poverty statistics across urban and rural areas, with optional comparability checks and other adjustments.
+{opt pea figure1} shows trends in poverty rates over time. The visualization incorporates national and PPP-based poverty statistics across urban and rural areas, with optional comparability checks and other adjustments.
 
 {title:Options}
 
@@ -76,9 +76,9 @@ The grouping variable distinguishing urban from rural observations for compariso
 {opt LINESORTED(string)}:
 Allows users to sort lines based on a specific setting for better visualization clarity.
 
-{p 4 4 2} 
-{opt COMParability(varname numeric)}: 
-Adjusts poverty trends based on comparability criteria from survey differences or other stratifications.
+{p 4 4 2}
+{opt comparability(varname numeric)}: Optional. This variable denotes which survey rounds are comparable over time. 
+Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2} 
 {opt COMBINE}:
@@ -89,8 +89,7 @@ If specified, combines multiple poverty trend graphs into a single composite vis
 Prevents non-essential outputs from being generated during execution.
 
 {p 4 4 2} 
-{opt  NONOTES}:
-Omits survey notes from the graph outputs.
+{opt NONOTES} Suppresses the default notes added to the resulting graphs or figures. 
 
 {p 4 4 2} 
 {opt  EQUALSPACING}:
@@ -122,20 +121,10 @@ Specifies a custom color palette for use in visualizations.
 {title:Examples}
 
 {p 4 4 2} 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban)
+{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban)
 
 {p 4 4 2} 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine
+{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine
 
 {p 4 4 2} 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine comparability(comparability)
-
-{p 4 4 2} 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine 
-
-{p 4 4 2} 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban)  comparability(comparability)
-
-{p 4 4 2} 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban)  
-
+{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine comparability(comparability)

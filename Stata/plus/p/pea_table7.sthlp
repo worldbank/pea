@@ -20,7 +20,7 @@ help for {hi:pea table7}{right:January 2025}
 {opt Welfare(varname numeric numeric)} 
 {opt Povlines(varname numeric numeric)}
 {opt Year(varname numeric numeric)} 
-[{opt CORE setting(string)}
+{opt setting(string)}
 {opt excel(string)}
 {opt save(string)}
 {opt MISSING}]{p_end}
@@ -28,7 +28,7 @@ help for {hi:pea table7}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}   
-{opt pea_table7} computes two vulnerability to poverty indicators:
+{opt pea table7} computes two vulnerability to poverty indicators:
  
 	  - The share of the population below 1.5 times the poverty line (vulpovl15)
 	  - The share of the population below 2 times the poverty line (vulpov2)
@@ -54,9 +54,9 @@ contains the calculated vulnerability to poverty measures along with the relevan
  specifies the year variable for the analysis.
  
 {p 4 4 2} 
-{opt CORE setting(string)}:
- allows the use of custom settings for the analysis (e.g., regional specifications).
- 
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+
 {p 4 4 2} 
 {opt excel(string)}:
  specifies the file path for exporting results to Excel. If omitted, the results are saved to a temporary file.
@@ -72,5 +72,5 @@ contains the calculated vulnerability to poverty measures along with the relevan
 {title:Example}
 
 {p 4 4 2}    
-{bf:pea_table7} [aw=weight_p], welfare(welfppp) povlines(pline365) year(year) 
+{bf:pea table7} [aw=weight_p], welfare(welfppp) povlines(pline365) year(year) 
 

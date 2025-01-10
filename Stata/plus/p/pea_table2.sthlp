@@ -26,7 +26,6 @@ help for {hi:pea table2}{right:January 2025}
 	{opt using(string)}
 	{opt Year(varname numeric)}
     {opt byind(varlist numeric)} 
-	{opt CORE}
 	{opt setting(string)} 
 	{opt LINESORTED} 
 	{opt excel(string)} 
@@ -64,7 +63,6 @@ help for {hi:pea table2}{right:January 2025}
 {opt using(string)}:
  specifies the dataset to use; the dataset will be loaded if provided.
  
-  
 {p 4 4 2} 
 {opt Year(varname numeric)}:
  specifies the variable representing the year of observation.
@@ -74,12 +72,8 @@ help for {hi:pea table2}{right:January 2025}
  specifies one or more variables by which to group the data when calculating statistics.
  
 {p 4 4 2} 
-{opt CORE}
-defines a core setting used for indicator processing (e.g., regional settings).
-
-{p 4 4 2} 
-{opt setting(string)}:
- specifies any regional or custom settings to apply to the analysis.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
  
 {p 4 4 2} 
 {opt LINESORTED}:
@@ -100,10 +94,10 @@ defines a core setting used for indicator processing (e.g., regional settings).
 {title:Details}
 
 {p 4 4 2} 
-{opt pea_table2} organizes poverty statistics by calculating FGT (Foster-Greer-Thorbecke) poverty measures.When grouped by different categories, it computes the poverty rate, the number of poor, and their share within each group. The program can use either natural or PPP-adjusted welfare measures depending on the options selected.
+{opt pea table2} organizes poverty statistics by calculating FGT (Foster-Greer-Thorbecke) poverty measures.When grouped by different categories, it computes the poverty rate, the number of poor, and their share within each group. The program can use either natural or PPP-adjusted welfare measures depending on the options selected.
 
 {p 4 4 2} 
-After calculating poverty indicators, {opt pea_table2} reshapes the data, labels the results, and organizes the final  output. This ensures that poverty indicators are grouped and easily interpretable.
+After calculating poverty indicators, {opt pea table2} reshapes the data, labels the results, and organizes the final  output. This ensures that poverty indicators are grouped and easily interpretable.
 
 {title:Example}
 
@@ -111,5 +105,5 @@ After calculating poverty indicators, {opt pea_table2} reshapes the data, labels
 To generate a poverty indicators table using national and PPP welfare variables with defined poverty lines, grouped by region and exported to an Excel file:
 
 {p 4 4 2} 
-{bf:pea_table2} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) 
+{bf:pea table2} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) 
 

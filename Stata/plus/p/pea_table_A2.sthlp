@@ -25,7 +25,6 @@ help for {hi:pea table_A2}{right:January 2025}
 {opt FGTVARS}
 {opt using(string} 
 {opt Year(varname numeric)} 
-{opt CORE} 
 {opt setting(string)} 
 {opt LINESORTED} 
 {opt excel(string)} 
@@ -84,12 +83,8 @@ help for {hi:pea table_A2}{right:January 2025}
  is the variable indicating the year for each observation.
     
 {p 4 4 2} 
-{opt CORE}:
- enables the calculation of World Banks Multidimensional Poverty Measure (MPM) for the specified {opt Country} and {opt Year}.
-    
-{p 4 4 2} 
-{opt setting(string)}:
- specifies the core setting to be used for the MPM calculation.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
     
 {p 4 4 2} 
 {opt LINESORTED}:
@@ -146,4 +141,4 @@ Missing data in the core demographic variables can be handled and cleaned using 
 {title:Examples}
 
 {p 4 4 2}
-pea_table_A2 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing
+pea table_A2 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing

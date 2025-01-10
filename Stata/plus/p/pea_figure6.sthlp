@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea_figure6}{right:January 2025}
+help for {hi:pea figure6}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure6} — GDP per capita GDP - Poverty elasticity
+{bf:pea figure6} — GDP per capita GDP - Poverty elasticity
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure6} 
+{opt pea figure6} 
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -32,7 +32,7 @@ help for {hi:pea_figure6}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure6} calculates GDP per capita poverty elasticity across specified years
+{opt pea figure6} calculates GDP per capita poverty elasticity across specified years
 and generates a visualization comparing changes in poverty rate and GDP growth.
 
 {p 4 4 2}
@@ -71,7 +71,8 @@ file or directly depending on the `excel()` or `save()` options.
 {opt spells(string)}: Defines time spells (e.g., "2000;2004") for analysis over specified periods.
 
 {p 4 4 2}
-{opt comparability(string)}: Specifies variables for comparability filtering by years.
+{opt comparability(varname numeric)}: Required. This variable denotes which survey rounds are comparable over time. 
+Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2}
 {opt scheme(string)}: Defines visualization schemes (e.g., colors or graph themes).
@@ -85,20 +86,11 @@ file or directly depending on the `excel()` or `save()` options.
 {p 4 4 2}
 {opt save(string)}: Save path for visualization outputs.
 
-{title:Remarks}
-
-ERROR HANDLING. The program performs checks to ensure:
-
-- Required parameters are defined (e.g., at least two years for the spells).
-- Comparability lists are correctly specified.
-- Input files are accessible and contain required data.
-
 {title:Examples}
 
 {p 4 4 2}
-//issue in ARM
-pea figure6 [aw=weight_p], c(GNB) year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) comparability(comparability)
+{bf: pea figure6} [aw=weight_p], c(GNB) year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) comparability(comparability)
 
 {p 4 4 2}
-pea figure6 [aw=weight_p], c(ARM) year(year) onew(welfare) onel(natline) palette(viridis) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
+{bf: pea figure6} [aw=weight_p], c(ARM) year(year) onew(welfare) onel(natline) palette(viridis) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
 

@@ -35,7 +35,7 @@ The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {he
 {title:Description}
 
 {p 4 4 2}
-{opt pea_table6} calculates and outputs mltidimensional poverty measure (MPM) for the PEA and benchmark countries, and
+{opt pea table6} calculates and outputs mltidimensional poverty measure (MPM) for the PEA and benchmark countries, and
  the Components of the MPM separately (6 variables).
 
 {title:Options}
@@ -53,8 +53,8 @@ The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {he
  specifies the variable for the year of observation.
  
 {p 4 4 2} 
-{opt setting(string)}:
- specifies any regional or custom settings to apply to the analysis.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
  
 {p 4 4 2} 
 {opt excel(string)}:
@@ -87,5 +87,5 @@ To generate a multidimensional poverty table for a specific country, including w
 to an Excel file:
 
 {p 4 4 2}  
-pea_table6 [aw=weight_p], c(ARM) welfare(welfppp) year(year)  benchmark(ALB HRV XKX) setting(GMD) last3
+pea table6 [aw=weight_p], c(ARM) welfare(welfppp) year(year)  benchmark(ALB HRV XKX) setting(GMD) last3
 

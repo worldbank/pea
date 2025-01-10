@@ -12,7 +12,7 @@ help for {hi:pea table10}{right:January 2025}
 {title:Syntax}
 
 {p 4 15}
-{opt  pea_table10}
+{opt  pea table10}
 [{opt if} {it:exp}] 
 [{opt in} {it:exp}] 
 [{opt ,} 
@@ -21,7 +21,6 @@ help for {hi:pea table10}{right:January 2025}
 {opt Povlines(varlist numeric)}
 {opt Year(varname numeric)} 
 {opt BENCHmark(string)}
-{opt CORE}
 {opt setting(string)}
 {opt LINESORTED}
 {opt excel(string)} 
@@ -58,13 +57,9 @@ Results can be exported to Excel or saved in a specified file format.
 {opt BENCHmark(string)}: specifies a list of benchmark countries (e.g., ALB HRV XKX).
 
 {p 4 4 2} 
-{opt CORE}:
- defines a core setting used for indicator processing (e.g., regional settings).
-  
-{p 4 4 2} 
-{opt setting(string)}:
- specifies any regional or custom settings to apply to the analysis.
- 
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
+
 {p 4 4 2} 
 {opt LINESORTED}:
  ensures that poverty lines are processed in sorted order if specified.
@@ -90,9 +85,9 @@ Results can be exported to Excel or saved in a specified file format.
 {title:Examples}
 
 {p 4 4 2}
-{bf:pea_table10} [aw=weight_p], c(ARM) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(ALB HRV XKX) latest
+{bf:pea table10} [aw=weight_p], c(ARM) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(ALB HRV XKX) latest
 //not running if there is no countries within 3 years
 
 {p 4 4 2}
-{bf:pea_table10} [aw=weight_p], c(ARM) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(ALB HRV XKX) within3
+{bf:pea table10} [aw=weight_p], c(ARM) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(ALB HRV XKX) within3
 

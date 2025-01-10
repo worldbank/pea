@@ -65,43 +65,43 @@ The following are NON-mandatory options and are only used if setting(GMD) is not
 {p 4 4 2}The following tables are available within the {opt pea tables} command, each serving a distinct purpose. For more detailed explanations of their contents and usage, see below:{p_end}
 
 {p 4 7}{opt Table 1}: core poverty indicators. {p_end}
-{p 4 7}{bf:{help pea_table1:[PEA] pea table1}} 
+{p 4 7}{bf:{help pea table1:[PEA] pea table1}} 
 
 {p 4 7}{opt Table 2}: poverty rate and share of poor by area and region. {p_end}
-{p 4 7}{bf:{help pea_table2:[PEA] pea table2}} 
+{p 4 7}{bf:{help pea table2:[PEA] pea table2}} 
 
 {p 4 7}{opt Table 3}: subgroup poverty rates.{p_end}
-{p 4 7}{bf:{help pea_table3:[PEA] pea table3}} 
+{p 4 7}{bf:{help pea table3:[PEA] pea table3}} 
 
 {p 4 7}{opt Table 6}: Multidimensional Poverty Measure (World Bank).{p_end}
-{p 4 7}{bf:{help pea_table6:[PEA] pea table6}}
+{p 4 7}{bf:{help pea table6:[PEA] pea table6}}
 
 {p 4 7}{opt Table 7}: vulnerability for poverty.{p_end}
-{p 4 7}{bf:{help pea_table7:[PEA] pea table7}} 
+{p 4 7}{bf:{help pea table7:[PEA] pea table7}} 
 
 {p 4 7}{opt Table 8}: core inequality indicators.{p_end}
-{p 4 7}{bf:{help pea_table8:[PEA] pea table8}} 
+{p 4 7}{bf:{help pea table8:[PEA] pea table8}} 
 
 {p 4 7}{opt Table 9}: vision indicators (corporate scorecard).{p_end}
-{p 4 7}{bf:{help pea_table9:[PEA] pea table9}} 
+{p 4 7}{bf:{help pea table9:[PEA] pea table9}} 
 
 {p 4 7}{opt Table 10}: benchmarking of poverty and inequality.{p_end}
-{p 4 7}{bf:{help pea_table10:[PEA] pea table10}} 
+{p 4 7}{bf:{help pea table10:[PEA] pea table10}} 
 
 {p 4 7}{opt Table 11}: Growth Incidence Curve. {p_end}
-{p 4 7}{bf:{help pea_table11:[PEA] pea table11}} 
+{p 4 7}{bf:{help pea table11:[PEA] pea table11}} 
 
 {p 4 7}{opt Table 12}: decomposition of poverty changes: growth and redistribution.{p_end}
-{p 4 7}{bf:{help pea_table12:[PEA] pea table12}}
+{p 4 7}{bf:{help pea table12:[PEA] pea table12}}
 
 {p 4 7}{opt Table 13}: decomposition of poverty changes: Huppi-Ravallion decomposition.{p_end}
-{p 4 7}{bf:{help pea_table13:[PEA] pea table13}} 
+{p 4 7}{bf:{help pea table13:[PEA] pea table13}} 
 
 {p 4 7}{opt Table 14}: profiles of the poor.{p_end}
-{p 4 7}{bf:{help pea_table14:[PEA] pea table14}} 
+{p 4 7}{bf:{help pea table14:[PEA] pea table14}} 
 
 {p 4 7}{opt Table A2}: core poverty indicators (test). {p_end}
-{p 4 7}{bf:{help pea_table_A2:[PEA] pea table A2}}  
+{p 4 7}{bf:{help pea table_A2:[PEA] pea table A2}}  
 
 
 {title:Options}
@@ -127,7 +127,8 @@ Main options:
 {opt Year(varname numeric)}: specifies the year variable for the analysis.
 
 {p 4 4 2}
-{opt SETting(string)}: specifies the setting or dataset being used.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
 
 {p 4 4 2}
 {opt excel(string)}: specifies the file path for exporting results to Excel.
@@ -224,7 +225,7 @@ Default under setting(GMD): empstat
 
 {title:Examples}
 
-When GMD is specified:
+When setting(GMD) is specified:
 
 {p 4 4 2}
 {bf:pea tables} [aw=weight_p], c(GNB) natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) 
@@ -234,7 +235,7 @@ missing setting(GMD) spells(2018 2021)
 {bf:pea tables} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) 
 spells(2015 2016; 2016 2017;2018 2025;2017 2025)
 
-When GMD is NOT specified:
+When setting(GMD) is NOT specified:
 
 {p 4 4 2}
 {bf:pea tables} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) 
