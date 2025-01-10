@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea_figure10b}{right:January 2025}
+help for {hi:pea figure10b}{right:January 2025}
 {hline}
 
 {title:Title} 
 
 {p 4 15}
-{bf:pea_figure10b} — Generate Figure 10b visualizing the prosperity gap scatter plot for the selected country or groups.  
+{bf:pea figure10b} — Prosperity gap scatter (line-up). 
 
 {title:Syntax}  
 
 {p 4 15}  
-{opt pea_figure10b}  
+{opt pea figure10b}  
 	[{it:weight}]  
 	[{opt if} {it:exp}]  
 	[{opt in} {it:exp}]  
@@ -30,10 +30,7 @@ help for {hi:pea_figure10b}{right:January 2025}
 {title:Description}  
 
 {p 4 4 2}  
-{opt pea_figure10b} generates **Figure 10b: Prosperity Gap as Scatter Plot**. This visualization allows users to assess the relationship between GDP per capita and income/poverty measures across countries or specific urban/rural comparisons.  
-
-{p 4 4 2} 
-The visualization uses scatter plots for trends analysis, allowing comparisons of various benchmarks or welfare outcomes in dynamic visual trends.  
+{opt pea figure10b} program generates scatter visualizations connecting GDP per capita and welfare gaps for insights into temporal poverty trends and cross-country comparisons.  
 
 {title:Options}  
 
@@ -73,15 +70,7 @@ Specifies the file path to save the visualization results.
 {opt excel(string)}:  
 Exports the visualization results or statistics into Excel for further analysis or visualization sharing.  
 
-{title:Remarks}  
-
-{p 4 4 2}
-The {opt pea_figure10b} program generates scatter visualizations connecting GDP per capita and welfare gaps for insights into temporal poverty trends and cross-country comparisons.  
-
-{p 4 4 2}
-The visualization provides insights into welfare disparities among urban and rural groups or selected benchmark comparisons.  
-
 {title:Examples}  
 
 {p 4 4 2}
-pea_figure10b [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfppp) 
+{bf: pea figure10b} [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfppp) 

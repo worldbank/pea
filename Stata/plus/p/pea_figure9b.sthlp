@@ -7,36 +7,32 @@ help for {hi:pea figure9b}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure9b} — Generate poverty and welfare analysis figures with specified parameters.
+{bf:pea figure9b} —  GINI and GDP per capita scatter.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure9b}
+{opt pea figure9b}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
 	[{opt ,}
 	{opt Country(string)}
-	{opt NATWelfare(varname numeric)}
-	{opt NATPovlines(varlist numeric)}
-	{opt PPPWelfare(varname numeric)}
-	{opt PPPPovlines(varlist numeric)}
-	{opt FGTVARS}
-	[{opt using} {it:string}]
-	{opt Year(varname numeric)}
-	{opt CORE}
-	{opt setting(string)}
-	{opt LINESORTED}
-	{opt excel(string)}
-	{opt save(string)}
-	{opt ONELine(varname numeric)}
-	{opt ONEWelfare(varname numeric)}]{p_end}
+	{opt Year(varname numeric)}   
+	{opt BENCHmark(string)} 
+	{opt ONEWelfare(varname numeric)}    
+	{opt within(integer 3)}  
+	{opt NONOTES} 
+	{opt scheme(string)} 
+	{opt palette(string)} 
+	{opt save(string)} 
+	{opt excel(string)} 
+	{opt welfaretype(string)}]{p_end} 
 
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure9b} generates figures for poverty and welfare analysis based on specified national and international poverty lines and welfare measures. It offers insights into income distribution, poverty incidence, and other related welfare statistics across groups and time periods.
+{opt pea figure9b} generates GINI and GDP per capita scatter. Shows inequality against other countries in the same region.
 
 {title:Options}
 
@@ -44,56 +40,36 @@ help for {hi:pea figure9b}{right:January 2025}
 {opt Country(string)}: specifies the country code or name for the analysis.
 
 {p 4 4 2}  
-{opt NATWelfare(varname numeric)}: identifies the variable containing welfare values for national analysis.  
+{opt Year(varname numeric)}: variable specifying the year for each observation.  
+
+{p 4 4 2} 
+{opt BENCHmark(string)}: list of benchmark countries to be included in the analysis.
+
+{p 4 4 2} 
+{opt ONEWelfare(varname numeric)}: specifies the one-line welfare variable.
+
+{p 4 4 2} 
+{opt within(integer)}: specifies the number of years to search for the survey overlap within the range of survey years (default is 3).  
+ 
+{p 4 4 2}  
+{opt NONOTES}: suppresses generated notes related to data visualization. 
 
 {p 4 4 2}  
-{opt NATPovlines(varlist numeric)}: lists the national poverty lines for analysis.  
-
+{opt scheme(string)}: allows users to specify visual color themes for plots.
+    
 {p 4 4 2}  
-{opt PPPWelfare(varname numeric)}: is the welfare variable adjusted for purchasing power parity (PPP).  
-
-{p 4 4 2}  
-{opt PPPPovlines(varlist numeric)}: lists PPP-adjusted poverty lines.  
-
-{p 4 4 2}  
-{opt FGTVARS}: generates the Foster-Greer-Thorbecke (FGT) poverty indices (headcount, gap, severity).  
-
-{p 4 4 2}  
-{opt using(string)}: specifies the dataset to be used for the analysis.  
-
-{p 4 4 2}  
-{opt Year(varname numeric)}: is the variable specifying the year for each observation.  
-
-{p 4 4 2}  
-{opt CORE}: enables World Bank's Multidimensional Poverty Measure (MPM) calculations for the provided year and country.  
-
-{p 4 4 2}  
-{opt setting(string)}: defines the MPM calculation's specific settings.  
-
-{p 4 4 2}  
-{opt LINESORTED}: indicates that poverty lines are pre-sorted, skipping internal sorting.  
-
+{opt palette(string)}: allows custom palette settings for visualizations to better highlight inequality trends.
+ 
 {p 4 4 2}  
 {opt excel(string)}: specifies the path to save results in Excel format.  
 
 {p 4 4 2}  
 {opt save(string)}: specifies a path to save the results in Stata format.  
 
-{p 4 4 2}  
-{opt ONELine(varname numeric)}: identifies a specific poverty line variable for additional poverty analysis.  
-
-{p 4 4 2}  
-{opt ONEWelfare(varname numeric)}: sets a welfare variable associated with the {opt ONELine} poverty line.  
-
-{title:Remarks}
-
 {p 4 4 2} 
-The {opt pea_figure9b} command performs data checks, transformations, and statistical calculations to generate comprehensive figures summarizing poverty and welfare statistics.
-
-{p 4 4 2} 
-Output includes poverty incidence statistics, inequality indices (Gini, Theil, etc.), welfare statistics, and poverty gaps across different population segments and years.
+{opt welfaretype(string)}: Optional. Can be used to specify whether the survey uses income (INC) or consumption (CONS) to calculate welfare. 
 
 {title:Examples}
 
 {p 4 4 2} 
-pea_figure9b [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfare) welfaretype(CONS) 
+{bf: pea figure9b} [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfare) welfaretype(CONS) 

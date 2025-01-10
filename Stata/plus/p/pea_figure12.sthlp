@@ -7,12 +7,12 @@ help for {hi:pea figure12}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure12} — Generate decomposition of the growth in prosperity gap visualization with specified parameters.
+{bf:pea figure12} — Generate decomposition of the growth in prosperity gap visualization with specified parameters.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure12}
+{opt pea figure12}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -32,7 +32,7 @@ help for {hi:pea figure12}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure12} generates a horizontal bar chart visualizing the decomposition of the growth in the prosperity gap over specified years and inequality contributions. This analysis uses defined welfare statistics and specified spells to compute changes across time periods.
+{opt pea figure12} generates a horizontal bar chart visualizing the decomposition of the growth in the prosperity gap over specified years and inequality contributions. This analysis uses defined welfare statistics and specified spells to compute changes across time periods.
 
 {title:Options}
 
@@ -48,8 +48,9 @@ specifies the name of the country or region for which this visualization is gene
 {p 4 4 2} {opt spells(string)}:
  defines the time spells (ranges of years) for which the analysis should be computed. Example: `spells("2000;2004")`.
 
-{p 4 4 2} {opt comparability(string)}:
- ensures that comparability between observations follows specific adjustments. This is useful for cross-period comparisons.
+{p 4 4 2}
+{opt comparability(varname numeric)}: Required. This variable denotes which survey rounds are comparable over time. 
+Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2} {opt scheme(string)}:
  specifies the visualization scheme, allowing you to control the graphical style.
@@ -72,7 +73,7 @@ specifies the name of the country or region for which this visualization is gene
 {title:Remarks}
 
 {p 4 4 2} 
-The {opt pea_figure12} command calculates and visualizes contributions of inequality and mean growth toward the observed prosperity gap changes over defined time periods and spells.
+The {opt pea figure12} command calculates and visualizes contributions of inequality and mean growth toward the observed prosperity gap changes over defined time periods and spells.
 
 {p 4 4 2} 
 The visualization represents these components in a horizontal bar chart, allowing users to analyze contributions by groups across time periods.
@@ -93,5 +94,5 @@ When `spells()` is defined, computations are restricted only to the ranges of ye
 {title:Examples}
 
 {p 4 4 2}
-pea figure12 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis) spells(2018 2021)
+{bf: pea figure12} [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis) spells(2018 2021)
 

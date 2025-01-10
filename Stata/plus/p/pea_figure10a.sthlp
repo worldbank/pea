@@ -7,12 +7,12 @@ help for {hi:pea table10a}{right:January 2025}
 {title:Title}  
 
 {p 4 15}
-{bf:pea_figure10a} — Generate Figure 10a visualizing the prosperity gap by year.  
+{bf:pea figure10a} — Prosperity gap by year lines.
 
 {title:Syntax}  
 
 {p 4 15}  
-{opt pea_figure10a}  
+{opt pea figure10a}  
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}] 
@@ -31,10 +31,7 @@ help for {hi:pea table10a}{right:January 2025}
 {title:Description}  
 
 {p 4 4 2}  
-{opt pea_figure10a} generates a visualization of **Figure 10a: Prosperity Gap by Year Lines**. This visualization allows users to analyze trends in income distribution and poverty across urban/rural populations over time.  
-
-{p 4 4 2} 
-The program computes scatter points representing trends in poverty gaps and creates connecting visualizations across years to highlight temporal comparisons. Users can optionally group by urban/rural classifications, adjust visualization settings, or perform comparability adjustments over specified survey years.
+{opt pea figure10a} computes scatter points representing trends in poverty gaps and creates connecting visualizations across years to highlight temporal comparisons. Users can optionally group by urban/rural classifications, adjust visualization settings, or perform comparability adjustments over specified survey years.
 
 {title:Options}  
 
@@ -50,9 +47,9 @@ Specifies the numeric variable that represents the time periods for the visualiz
 {opt urban(varname numeric)}: 
 Specifies the urban/rural grouping variable for the analysis.  
 
-{p 4 4 2}  
-{opt comparability(string)}:
-Defines criteria for comparing survey years across periods. Only observations meeting these criteria are visualized.  
+{p 4 4 2}
+{opt comparability(varname numeric)}: This variable denotes which survey rounds are comparable over time. 
+Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2}  
 {opt NONOTES}:  
@@ -78,18 +75,7 @@ Specifies the file path to save the processed results.
 {opt excel(string)}: 
 Exports visualization and calculated trends into Excel for external analysis.  
 
-{title:Remarks}  
-
-{p 4 4 2}
-The {opt pea_figure10a} program performs temporal visual analysis of urban vs rural trends in prosperity gaps over specified years.  
-
-{p 4 4 2}
-The visualization represents scatter points for each urban/rural group over time and connects them based on trends between years.  
-
-{p 4 4 2}
-Options such as `comparability`, `scheme`, and `EQUALSPACING` provide users flexibility in comparing survey years or customizing visual outputs.
-
 {title:Examples}  
 
 {p 4 4 2}
-pea_figure10a [aw=weight_p], year(year) onewelfare(welfppp) urban(urban) comparability(comparability)
+{bf: pea figure10a} [aw=weight_p], year(year) onewelfare(welfppp) urban(urban) comparability(comparability)

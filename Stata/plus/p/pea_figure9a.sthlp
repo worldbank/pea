@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea_figure9a}{right:January 2025}
+help for {hi:pea figure9a}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea_figure9a} — Inequality by year lines. Generate inequality plots (GINI trends) by urban and rural areas across years with optional comparability adjustments.
+{bf:pea figure9a} — Inequality by year lines. Generate inequality plots (GINI trends) by urban and rural areas across years with optional comparability adjustments.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea_figure9a} 
+{opt pea figure9a} 
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -27,13 +27,14 @@ help for {hi:pea_figure9a}{right:January 2025}
 	{opt NOOUTPUT}     
 	{opt NONOTES}    
 	{opt EQUALSPACING}   
+	{opt MISSING}
 	{opt scheme(string)}   
 	{opt palette(string)}]{p_end} 
 
 {title:Description}
 
 {p 4 4 2}
-{opt pea_figure9a} generates inequality line plots of GINI index estimates over time across urban and rural groups.
+{opt pea figure9a} generates inequality line plots of GINI index estimates over time across urban and rural groups.
 These plots visualize trends in inequality and allow comparisons over time. This program includes options for comparability adjustments, Excel exports, and plotting options such as visual adjustments.
 
 {title:Options}
@@ -48,10 +49,12 @@ These plots visualize trends in inequality and allow comparisons over time. This
 {opt urban(varname numeric)}: identifies urban/rural group classifications to separate inequality estimates accordingly.
     
 {p 4 4 2}  
-{opt setting(string)}: specifies settings for inequality comparisons.
-    
-{p 4 4 2}  
-{opt comparability(string)}: applies comparability adjustments over time between urban and rural groups for better trend visualization.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+
+{p 4 4 2}
+{opt comparability(varname numeric)}: Required. This variable denotes which survey rounds are comparable over time. 
+Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
     
 {p 4 4 2}  
 {opt excel(string)}: allows exporting the GINI trends plot data to the specified Excel file.
@@ -74,15 +77,8 @@ These plots visualize trends in inequality and allow comparisons over time. This
 {p 4 4 2}  
 {opt palette(string)}: allows custom palette settings for visualizations to better highlight inequality trends.
 
-{title:Remarks}
-
-{p 4 4 2}  
-The {opt pea_figure9a} command generates GINI trends visualizations over time between urban and rural areas, leveraging survey estimates.
-    
-{p 4 4 2}  
-The tool visualizes trends using GINI index calculations with optional comparability settings and Excel export features for analysis customization.
-
 {title:Examples}
 
 {p 4 4 2} 
-pea_figure9a [aw=weight_p], year(year) onewelfare(welfare) urban(urban) comparability(comparability) 
+
+{bf: pea figure9a} [aw=weight_p], year(year) onewelfare(welfare) urban(urban) comparability(comparability) 

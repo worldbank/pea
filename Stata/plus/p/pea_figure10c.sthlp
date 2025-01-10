@@ -7,12 +7,12 @@ help for {hi:pea table10c}{right:January 2025}
 {title:Title}  
 
 {p 4 15}
-{bf:pea_figure10c} — Generate scatter plot comparing prosperity gaps (PG) and GDP per capita.  
+{bf:pea figure10c} — Generate scatter plot comparing prosperity gaps (PG) and GDP per capita.  
 
 {title:Syntax}  
 
 {p 4 15}  
-{opt pea_figure10c}  
+{opt pea figure10c}  
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
@@ -31,7 +31,7 @@ help for {hi:pea table10c}{right:January 2025}
 {title:Description}  
 
 {p 4 4 2}  
-{opt pea_figure10c} generates a scatter plot comparing the survey-based prosperity gap (PG) with GDP per capita for a given country. The comparison includes the closest available survey year within a user-specified range and allows users to specify benchmark countries and visualization options.  
+{opt pea figure10c} generates a scatter plot comparing the survey-based prosperity gap (PG) with GDP per capita for a given country. The comparison includes the closest available survey year within a user-specified range and allows users to specify benchmark countries and visualization options.  
 
 {title:Options} 
  
@@ -65,15 +65,7 @@ help for {hi:pea table10c}{right:January 2025}
 {p 4 4 2}  
 {opt within(integer)}: specifies the number of years to search for the survey overlap within the range of survey years (default is 3).  
 
-{title:Remarks}  
-
-{p 4 4 2}
-The {opt pea_figure10c} command visualizes scatter plots with GDP per capita on the x-axis and the calculated survey-based prosperity gap (PG) on the y-axis.  
-
-{p 4 4 2}
-Users can specify key benchmarks and adjust visualization options, including color schemes and saving results to external files.  
-
 {title:Examples}  
 
 {p 4 4 2}
-pea_figure10c [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfppp) 
+{bf: pea figure10c} [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfppp) 

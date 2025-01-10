@@ -25,7 +25,6 @@ help for {hi:pea table1}{right:January 2025}
     {opt FGTVARS} 
 	{opt using(string)} 
     {opt Year(varname numeric)} 
-	{opt CORE}
 	{opt setting(string)} 
     {opt LINESORTED} 
 	{opt excel(string)} 
@@ -76,12 +75,8 @@ lists the national poverty lines used in the analysis.
  is the variable indicating the year for each observation.
     
 {p 4 4 2} 
-{opt CORE}:
- enables calculation of World Bank's Multidimensional Poverty Measure (MPM) for the specified {opt Country} and {opt Year}.
-    
-{p 4 4 2} 
-{opt setting(string)}:
- specifies the core setting for MPM calculation.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
     
 {p 4 4 2} 
 {opt LINESORTED}:
@@ -106,13 +101,13 @@ lists the national poverty lines used in the analysis.
 {title:Examples}
 
 {p 4 4 2}     
-{bf:pea_table1} [aw=weight_p], c(GNB) natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215)
+{bf:pea table1} [aw=weight_p], c(GNB) natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215)
 
 {p 4 4 2} 
-{bf:pea_table1} [aw=weight_p], c(GNB) natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline365)
+{bf:pea table1} [aw=weight_p], c(GNB) natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline365)
 
 {p 4 4 2} 
-{bf:pea_table1} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline365)
+{bf:pea table1} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline365)
 
 {p 4 4 2} 
-{bf:pea_table1} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline365)
+{bf:pea table1} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline365)

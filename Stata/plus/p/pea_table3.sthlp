@@ -25,7 +25,6 @@ help for {hi:pea}{right:January 2025}
     {opt FGTVARS}
 	{opt using(string)} 
     {opt Year(varname numeric)} 
-	{opt CORE} 
 	{opt setting(string)} 
     {opt LINESORTED} 
 	{opt excel(string)} 
@@ -80,13 +79,9 @@ help for {hi:pea}{right:January 2025}
  is the variable indicating the year for each observation.
     
 {p 4 4 2} 
-{opt CORE}:
- enables the calculation of World Bank's Multidimensional Poverty Measure (MPM) for the specified {opt  Country} and {opt  Year}.
-    
-{p 4 4 2} 
-{opt setting(string)}:
- specifies the core setting to be used for the MPM calculation.
-    
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
+(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+
 {p 4 4 2} 
 {opt LINESORTED}:
  indicates that the poverty lines are already sorted and skips internal sorting for efficiency.
@@ -122,7 +117,7 @@ help for {hi:pea}{right:January 2025}
 {title:Remarks}
 
 {p 4 4 2}
-The {opt  pea_table3} command performs poverty and welfare analysis based on a range of national and 
+The {opt  pea table3} command performs poverty and welfare analysis based on a range of national and 
     international measures. It includes subgroup analysis by variables such as age, gender, education, and household head status. 
     The output table includes poverty headcount, poverty gap, poverty severity, welfare means, and inequality indices such as 
     the Gini index. It can be used to generate summary statistics and break down welfare measures by specific subgroups. 
@@ -133,8 +128,8 @@ The {opt  pea_table3} command performs poverty and welfare analysis based on a r
 {title:Examples}
   
 {p 4 4 2}
-{bf:pea_table3} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
+{bf:pea table3} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
   
 {p 4 4 2}
-{bf:pea_table3} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
+{bf:pea table3} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
 
