@@ -52,6 +52,7 @@ help for {hi:pea figures}{right:January 2025}
  {opt benchmark(string)} 
  {opt spells(string)} 
  {opt equalspacing} 
+ {opt yrange0} 
  {opt scheme(string)}
  {opt palette(string)} 
  {opt welfaretype(string)}]{p_end}
@@ -200,6 +201,9 @@ Non-comparable survey rounds are not connected in figures. Example:	comparabilit
 {p 4 4 2}
 {opt equalspacing}: Optional. When specified, figures display constant gaps between years, regardless of how far away years are. 
 This can be useful if gaps between survey-years are large.
+
+{p 4 4 2}
+{opt yrange0}: Optional. When specified, figures have a y-axis starting at 0. This option applies to Figures 1, 9a and 10a.
 
 {p 4 4 2}
 {opt scheme(string)}: Optional. Sets the scheme, specifying the overall look of the figures. 

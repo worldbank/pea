@@ -19,7 +19,7 @@
 cap program drop pea_figure10a
 program pea_figure10a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NONOTES EQUALSPACING scheme(string) palette(string) save(string) excel(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NONOTES EQUALSPACING YRange0 scheme(string) palette(string) save(string) excel(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -172,6 +172,16 @@ program pea_figure10a, rclass
 		}
 	}		
 
+	//Y-axis range
+	if "`yrange0'" ~="" {
+		local ymin = 0
+		qui sum _prosgap_`onewelfare'
+		local max = round(`r(max)',10)
+		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
+		local yrange "ylabel(0(10)`max')"		
+	}
+	
+	
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure10a.xlsx"
 		local act replace
@@ -198,11 +208,12 @@ program pea_figure10a, rclass
 			  ytitle("`lbltitle'") 									///
 			  xtitle("")											///
 			  xlabel(`yearval', valuelabel)							///
+			  `yrange'												///
 			  name(ngraph`gr', replace)								///
 			  note("`notes'", size(small))
 
 	putexcel set "`excelout2'", modify sheet(Figure10a_`gr', replace)	  
-	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
+	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3200) height(2400)	
 	putexcel A1 = image("`graph`gr''")
 	putexcel save							
 	cap graph close	

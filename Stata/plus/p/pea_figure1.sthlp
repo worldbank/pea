@@ -30,6 +30,7 @@ help for {hi:pea figure1}{right:January 2025}
 	{opt NOOUTPUT}
 	{opt NONOTES}
 	{opt EQUALSPACING}
+  {opt YRange0} 
 	{opt excel(string)}
 	{opt save(string)}
 	{opt MISSING}
@@ -93,6 +94,9 @@ Prevents non-essential outputs from being generated during execution.
 {p 4 4 2} 
 {opt  EQUALSPACING}:
 Adjusts time gaps to ensure even visual spacing between years.
+    
+{p 4 4 2}
+{opt yrange0}: Optional. When specified, the y-axis starts at 0.
 
 {p 4 4 2} 
 {opt  excel(string)}:
