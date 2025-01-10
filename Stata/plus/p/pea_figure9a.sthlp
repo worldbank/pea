@@ -27,6 +27,7 @@ help for {hi:pea_figure9a}{right:January 2025}
 	{opt NOOUTPUT}     
 	{opt NONOTES}    
 	{opt EQUALSPACING}   
+	{opt YRange0}   
 	{opt scheme(string)}   
 	{opt palette(string)}]{p_end} 
 
@@ -68,6 +69,9 @@ These plots visualize trends in inequality and allow comparisons over time. This
 {p 4 4 2}  
 {opt EQUALSPACING}: ensures that the years are evenly spaced in the visualization, regardless of sampling differences or time periods.
     
+{p 4 4 2}
+{opt yrange0}: Optional. When specified, the y-axis starts at 0.
+
 {p 4 4 2}  
 {opt scheme(string)}: allows users to specify visual color themes for plots.
     

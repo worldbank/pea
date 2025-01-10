@@ -23,6 +23,7 @@ help for {hi:pea table10a}{right:January 2025}
 	{opt comparability(string)}  
 	{opt NONOTES}  
 	{opt EQUALSPACING}  
+	{opt YRange0} 
 	{opt scheme(string)}  
 	{opt palette(string)}  
 	{opt save(string)}  
@@ -61,6 +62,9 @@ Suppresses explanatory notes in the visualization.
 {p 4 4 2}  
 {opt EQUALSPACING}:  
 Ensures that the visualization represents time intervals as evenly spaced, even in the presence of gaps.  
+
+{p 4 4 2}
+{opt yrange0}: Optional. When specified, the y-axis starts at 0.
 
 {p 4 4 2}  
 {opt scheme(string)}:  

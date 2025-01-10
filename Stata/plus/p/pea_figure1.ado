@@ -20,7 +20,7 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NONOTES EQUALSPACING excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NONOTES EQUALSPACING YRange0 excel(string) save(string) MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -222,7 +222,17 @@ program pea_figure1, rclass
 		local note_comb `notes'
 		local notes = ""
 	}
-
+	//Y-axis range
+	if "`yrange0'" ~="" & "`combine'" == "" {									// yrange does not work if combine is specified
+		local ymin = 0
+		foreach var of varlist _fgt* {											// maximum y value of fgt variables
+			qui sum `var'
+			local max = round(`r(max)',10)
+			if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
+			local yrange`var' "ylabel(0(10)`max')"
+		}
+	}
+		
 	foreach var of varlist _fgt* {
 		rename `var' var
 		tempfile graph`gr'
@@ -234,13 +244,14 @@ program pea_figure1, rclass
 				  xtitle("")											///
 				  title("`lbltitle'")									///				  
 				  xlabel("`yearval'", valuelabel)						///
+				  `yrange`var''											///
 				  name(ngraph`gr', replace)								///
 				  note("`notes'", size(small))
 		local graphnames "`graphnames' ngraph`gr'"
 		
 		if "`combine'" == "" {
 			putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
-			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)		
+			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3200) height(2400)		
 			putexcel A`u' = image("`graph`gr''")
 			putexcel save	
 		}

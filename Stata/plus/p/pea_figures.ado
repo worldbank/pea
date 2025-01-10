@@ -18,7 +18,7 @@ cap program drop pea_figures
 program pea_figures, rclass
 	version 18.0	
 
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) within(integer 3) COMBINE NONOTES COMParability(varname numeric) BENCHmark(string) spells(string) EQUALSPACING scheme(string) palette(string) welfaretype(string)]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) within(integer 3) COMBINE NONOTES COMParability(varname numeric) BENCHmark(string) spells(string) EQUALSPACING YRange0 scheme(string) palette(string) welfaretype(string)]	
 	
 	global floor_ 0.25
 	global prosgline_ 25
@@ -140,7 +140,7 @@ program pea_figures, rclass
 	
 	//Figure 1
 	qui use `data1', clear	
-	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') `combine' `nonotes' `equalspacing' scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') `combine' `nonotes' `equalspacing' `yrange0' (`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 1....... Done"
 		local ok = 1
@@ -205,7 +205,7 @@ program pea_figures, rclass
 	
 	//Figure 9a
 	qui use `dataori0', clear	
-	cap pea_figure9a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `nonotes' `equalspacing' scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure9a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `nonotes' `equalspacing' `yrange0' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 9a...... Done"
 		local ok = 1
@@ -223,7 +223,7 @@ program pea_figures, rclass
 	
 	//Figure 10a
 	qui use `dataori0', clear	
-	cap pea_figure10a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `nonotes' `equalspacing' scheme(`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure10a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `nonotes' `equalspacing' `yrange0' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 10a...... Done"
 		local ok = 1

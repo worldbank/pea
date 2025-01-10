@@ -19,7 +19,7 @@
 cap program drop pea_figure10b
 program pea_figure10b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) NONOTES scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) NONOTES YRange0 scheme(string) palette(string) save(string) excel(string)]	
 
 	tempfile dataori pea_pg
 	global floor_ 0.25
