@@ -25,6 +25,10 @@ program pea_dataupdate, rclass
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
 	local datayear = real(substr("$S_DATE", -4, .))
+	cap dlw, country(WLD) type(GMI) year(`datayear') mod(POV) files
+	if _rc==0 clear
+	else local datayear = `datayear'-1
+	
 	if "`pppyear'"=="" local pppyear 2017
 	else local pppyear `=trim("`pppyear'")'
 	

@@ -140,7 +140,7 @@ program pea_figures, rclass
 	
 	//Figure 1
 	qui use `data1', clear	
-	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') `combine' `nonotes' `equalspacing' `yrange0' (`scheme') palette(`palette') excel("`excelout'")
+	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') `combine' `nonotes' `equalspacing' `yrange0' scheme(`scheme') palette(`palette') excel("`excelout'")
 	if _rc==0 {
 		noi dis in green "Figure 1....... Done"
 		local ok = 1
