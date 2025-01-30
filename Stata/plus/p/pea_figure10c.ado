@@ -127,6 +127,13 @@ program pea_figure10c, rclass
 	keep if (y_d == min_d) & y_d < `within' & pg ~= .
 	bys country_code (year): keep if _n == _N 									// use latest year if there are two with equal distance
 	keep country_code year pg code welfaretype
+	// Insert PEA country manually, because survey could be newer than data in PIP
+	drop if country_code == "`country'"
+	insobs 1
+	replace country_code = "`country'"		if country_code == ""
+	replace year  		 = `lasty' 			if country_code == "`country'"
+	replace code 		 = "`country'"		if country_code == "`country'"
+	replace welfaretype  = "`welfaretype'"	if country_code == "`country'"
 	
 	// Recount benchmark countries to get total number of legend entries, as some benchmark countries might not have data
 	gen b_in_list = ""
