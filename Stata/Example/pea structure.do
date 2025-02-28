@@ -35,6 +35,13 @@ la var subnatvar "By regions"
 drop tmp1  tmp2  temp
 *within(3)  welfaretype(INC CONS)
 
+svyset psu [w= weight_p],  singleunit(certainty)
+s
+
+pea_table1_std [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) std(right) svy
+
+pea_table1_std [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) std(inside) svy
+
 pea figures [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(CIV GHA GMB) missing setting(GMD) spells(2018 2021)
 
 
