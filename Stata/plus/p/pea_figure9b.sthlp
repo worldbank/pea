@@ -22,7 +22,7 @@ help for {hi:pea figure9b}{right:January 2025}
 	{opt BENCHmark(string)} 
 	{opt ONEWelfare(varname numeric)}    
 	{opt within(integer 3)}  
-	{opt NONOTES} 
+	{opt yrange(string)} 
 	{opt scheme(string)} 
 	{opt palette(string)} 
 	{opt save(string)} 
@@ -51,8 +51,9 @@ help for {hi:pea figure9b}{right:January 2025}
 {p 4 4 2} 
 {opt within(integer)}: specifies the number of years to search for the survey overlap within the range of survey years (default is 3).  
  
-{p 4 4 2}  
-{opt NONOTES}: suppresses generated notes related to data visualization. 
+{p 4 4 2}
+{opt yrange}: Optional. Users can specify the range of the y-axis. The range must be entered in Stata figure format, such as "yrange(0(10)100)".
+Default is that figures start at 0 and go up to the maximum value of the displayed data (next 10).
 
 {p 4 4 2}  
 {opt scheme(string)}: allows users to specify visual color themes for plots.

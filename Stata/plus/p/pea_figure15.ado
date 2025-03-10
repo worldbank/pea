@@ -19,7 +19,7 @@
 cap program drop pea_figure15
 program pea_figure15, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [Country(string) NONOTES scheme(string) palette(string) excel(string) save(string)]
+syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) excel(string) save(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -87,11 +87,6 @@ syntax [if] [in] [aw pw fw], [Country(string) NONOTES scheme(string) palette(str
 	replace ind = "No social protection" 		if ind == "dep_sp_expany"
 	replace ind = "Low access to markets" 		if ind == "exprai_any"
 	
-	//Prepare Notes
-	local notes "Source: World Bank calculations using data from the Scorecard Vision Indicators."
-	local notes `"`notes'" "Note: Population at risk is defined as the share of population" "exposed to any hazard, and vulnerable in any of the dimensions."'
-	if "`nonotes'" ~= "" local notes ""
-	
 	//Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure15.xlsx"
@@ -104,6 +99,7 @@ syntax [if] [in] [aw pw fw], [Country(string) NONOTES scheme(string) palette(str
 		
 	putexcel set "`excelout2'", `act'
 	tempfile graph
+	local u = 5
 	
 	separate share_, by(over_group)												// Separate for different coloring of bars by group
 	graph hbar share_1 share_2, 												///
@@ -112,14 +108,23 @@ syntax [if] [in] [aw pw fw], [Country(string) NONOTES scheme(string) palette(str
 	ytitle("Share of population (percent)")										///
 	legend(off)	name(ngraph`gr', replace)										///
 	bar(1, color("`: word 1 of ${colorpalette}'")) 								///
-	bar(2, color("`: word 2 of ${colorpalette}'"))								///
-	note("`notes'", size(small))
+	bar(2, color("`: word 2 of ${colorpalette}'"))	
 		
 	putexcel set "`excelout2'", modify sheet(Figure15, replace)	  
-	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
-	putexcel A1 = image("`graph'")
+	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A1 = ""
+	putexcel A2 = "Figure 15: Climate risk and vulnerability dimensions"
+	putexcel A3 = "Source: World Bank calculations using data from the World Bank Scorecard Vision Indicators."
+	putexcel A4 = "Note: Population at risk is defined as the share of population exposed to any hazard, and vulnerable in any of the dimensions."
+	putexcel A`u' = image("`graph'")
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code:"
+	putexcel O7 = `"graph hbar share_1 share_2, over(ind, sort((mean) share_) descending) over(over_group, label(angle(90))) nofill ytitle("Share of population (percent)") legend(off) bar(1, color("`: word 1 of ${colorpalette}'")) bar(2, color("`: word 2 of ${colorpalette}'"))"'
 	putexcel save							
+	//Export data
+	export excel share_1 share_2 ind share_ over_group using "`excelout2'", sheet("Figure15", modify) cell(O11) keepcellfmt firstrow(variables)	
 	cap graph close	
+	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure15.xlsx"	
 	
 end

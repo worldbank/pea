@@ -51,7 +51,7 @@ program pea, rclass
 		pea_table2 `0'		
     }
 	else if ("`subcmd'"=="tableA2") {
-		pea_table_A2 `0'		
+		pea_tableA2 `0'		
     }
 	else if ("`subcmd'"=="table3") {
 		pea_table3 `0'		
@@ -86,8 +86,11 @@ program pea, rclass
 	else if ("`subcmd'"=="table13") {
 		pea_table13 `0'		
     }
-	else if ("`subcmd'"=="table14") {
-		pea_table14 `0'		
+	else if ("`subcmd'"=="table14a") {
+		pea_table14a `0'		
+    }
+	else if ("`subcmd'"=="table14b") {
+		pea_table14b `0'		
     }
 	else if ("`subcmd'"=="table15") {
 		pea_table15 `0'		
@@ -104,8 +107,11 @@ program pea, rclass
 	else if ("`subcmd'"=="figure3") {
 		pea_figure3 `0'		
     }
-	else if ("`subcmd'"=="figure4") {
-		pea_figure4 `0'		
+	else if ("`subcmd'"=="figure4a") {
+		pea_figure4a `0'		
+    }
+	else if ("`subcmd'"=="figure4b") {
+		pea_figure4b `0'		
     }
 	else if ("`subcmd'"=="figure5") {
 		pea_figure5 `0'		
@@ -113,18 +119,39 @@ program pea, rclass
 	else if ("`subcmd'"=="figure6") {
 		pea_figure6 `0'		
     }
-	else if ("`subcmd'"=="figure7") {
-		pea_figure7 `0'		
+	else if ("`subcmd'"=="figure7a") {
+		pea_figure7a `0'		
+    }
+	else if ("`subcmd'"=="figure7b") {
+		pea_figure7b `0'		
     }
 	else if ("`subcmd'"=="figure8") {
 		pea_figure8 `0'		
     }
-	else if ("`subcmd'"=="figure9") {
-		pea_figure9 `0'		
+	else if ("`subcmd'"=="figure9a") {
+		pea_figure9a `0'		
     }
+	else if ("`subcmd'"=="figure9b") {
+		pea_figure9b `0'		
+    }
+	else if ("`subcmd'"=="figure9c") {
+		pea_figure9c `0'		
+    }	
 	else if ("`subcmd'"=="figure10") {
 		pea_figure10 `0'		
     }
+	else if ("`subcmd'"=="figure10a") {
+		pea_figure10a `0'		
+    }
+	else if ("`subcmd'"=="figure10b") {
+		pea_figure10b `0'		
+    }
+	else if ("`subcmd'"=="figure10c") {
+		pea_figure10c `0'		
+    }	
+	else if ("`subcmd'"=="figure10d") {
+		pea_figure10d `0'		
+    }	
 	else if ("`subcmd'"=="figure11") {
 		pea_figure11 `0'		
     }

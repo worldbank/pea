@@ -225,19 +225,20 @@ program pea_table12, rclass
 		}
 		la val indicatorlbl indicatorlbl
 		drop if indicatorlbl==.
-		
+		local note : label indicatorlbl 1	
+
 		if "`nooutput'"~="" {
 			save `save', replace
 		}
 		else {
 			//12b			
 			collect clear
-			qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Datt-Ravallion" & subind<=3, statistic(mean value) nototal nformat(%20.2f) missing
+			qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Datt-Ravallion" & subind<=3, statistic(mean value) nototal nformat(%20.1f) missing
 			collect style header decomp indicatorlbl subind spell, title(hide)
 			*collect style header value[.], level(hide)
 			collect title `"Table 12b. Decomposition of poverty changes: growth and redistribution - Datt-Ravallion decomposition"'
 			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
-			collect notes 2: `"Note: The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution."'
+			collect notes 2: `"The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution using `note', following Datt and Ravallion (1992)."'
 			collect style notes, font(, italic size(10))
 			
 			local tabname Table12b
@@ -252,12 +253,12 @@ program pea_table12, rclass
 			//12c
 			if "`core'"=="" {
 				collect clear
-				qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Shorrocks-Kolenikov", statistic(mean value) nototal nformat(%20.2f) missing
+				qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Shorrocks-Kolenikov", statistic(mean value) nototal nformat(%20.1f) missing
 				collect style header decomp indicatorlbl subind spell, title(hide)
 				*collect style header value[.], level(hide)
 				collect title `"Table 12c. Decomposition of poverty changes: growth and redistribution - Shorrocks-Kolenikov decomposition"'
 				collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
-				collect notes 2: `"Note: The Shorrocks-Kolenikov decomposition decomposes changes in poverty into income or consumption growth, redistribution and price changes."'
+				collect notes 2: `"Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty can be attributed to income or consumption growth, redistribution, and price changes using `note', following Kolenikov and Shorrocks (2005). Note that there are no changes in prices if poverty lines are in constant terms."'
 				collect style notes, font(, italic size(10))				
 					
 				local tabname Table12c

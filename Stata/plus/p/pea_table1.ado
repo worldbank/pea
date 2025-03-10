@@ -279,8 +279,8 @@ program pea_table1, rclass
 		replace indicatorlbl = 91 if _varname2=="mT60"
 		replace indicatorlbl = 91 if _varname2=="mB40"
 		replace indicatorlbl = 92 if _varname2=="Median"
-		replace indicatorlbl = 93 if _varname2=="Min"
-		replace indicatorlbl = 94 if _varname2=="Max"
+		*replace indicatorlbl = 93 if _varname2=="Min"							// Remove min/max for now
+		*replace indicatorlbl = 94 if _varname2=="Max"
 		replace indicatorlbl = 95 if _varname2=="SD"		
 		la def indicatorlbl 90 "Income/consumption (LCU)" 91 "Mean" 92 "Median" 93 "Min" 94 "Max" 95 "SD", add
 		local tabtitle "Table 1. Core poverty indicators"
@@ -307,12 +307,12 @@ program pea_table1, rclass
 	drop if indicatorlbl==.
 	
 	collect clear
-	qui collect: table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.2f) missing
+	qui collect: table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
 	collect style header indicatorlbl subind `year', title(hide)
 	collect style header subind[.], level(hide)
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
+	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day. Poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU)."'
 	collect style notes, font(, italic size(10))
 	
 	if "`excel'"=="" {

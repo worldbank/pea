@@ -30,6 +30,7 @@ help for {hi:pea}{right:January 2025}
 	{opt excel(string)} 
 	{opt save(string)} 
     {opt MISSING} 
+	{opt minobs(numlist)}
 	{opt age(varname numeric)}
 	{opt male(varname numeric)} 
     {opt hhhead(varname numeric)}
@@ -114,6 +115,9 @@ help for {hi:pea}{right:January 2025}
 {opt edu(varname numeric)}:
  specifies the variable indicating education level for subgroup analysis.
 
+ {p 4 4 2}
+{opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value.
+
 {title:Remarks}
 
 {p 4 4 2}
@@ -131,5 +135,5 @@ The {opt  pea table3} command performs poverty and welfare analysis based on a r
 {bf:pea table3} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
   
 {p 4 4 2}
-{bf:pea table3} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing
+{bf:pea table3} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) minobs(100) missing
 

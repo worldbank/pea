@@ -23,7 +23,6 @@ help for {hi:pea figure14}{right:January 2025}
 	{opt setting(string)} 
 	{opt excel(string)}
 	{opt save(string)}
-	{opt NONOTES}
 	{opt BENCHmark(string)} 
 	{opt within(integer 3)}
 	{opt scheme(string)}
@@ -33,8 +32,8 @@ help for {hi:pea figure14}{right:January 2025}
 
 {p 4 4 2} 
 {opt pea figure14} generates visualizations associated with the Multidimensional Poverty Measure (MPM) developed by the World Bank.  
-It provides graphs showing various poverty indicators, comparisons across countries and regions, and poverty rate estimates  
-across welfare, education, infrastructure, and other relevant dimensions.
+Figure 14a provides a graph showing the MPM components for the PEA country over time. Figure 14b shows MPM and poverty rates across benchmark countries. 
+Figure 14c shows stacked bars depicting monetary poverty and additional poverty from MPM across benchmark countries.
 
 {title:Options}
 
@@ -55,9 +54,6 @@ across welfare, education, infrastructure, and other relevant dimensions.
 
 {p 4 4 2} {opt save(string)}:  
         Path or name for saving temporary datasets. If omitted, defaults are applied.
-
-{p 4 4 2} {opt NONOTES}:  
-        Omits the inclusion of notes on figures and outputs.
 
 {p 4 4 2} {opt BENCHmark(string)}:  
         A list of benchmark countries to use for comparative visualization and analysis. Example: `"USA IND BRA"`.

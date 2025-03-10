@@ -19,7 +19,7 @@
 cap program drop pea_figure5
 program pea_figure5, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) urban(varname numeric) CORE LINESORTED NONOTES comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) urban(varname numeric) CORE LINESORTED comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string)]
 
 	//load data if defined
 	if "`using'"~="" {
@@ -39,7 +39,7 @@ program pea_figure5, rclass
 		error 1
 	}
 	if "`spells'"=="" {
-		noi dis as error "Need at least two years, i.e. 2000 2004"
+		noi dis as error "Need at least two years in spells(), i.e. 2000 2004"
 		error 1
 	}
 	//house cleaning
@@ -191,6 +191,32 @@ program pea_figure5, rclass
 			la def indicatorlbl `i' "`lbl`var''", add
 			local i = `i' + 1
 		}
+		// Spells
+		encode spell, gen(spell_n)
+		qui levelsof spell_n, local(spells)
+		// Stacked bars
+		gen subind_cat 		= subind - 1
+		replace subind_cat = . if subind == 1
+		gen value_negative 	= value < 0
+		bys decomp value_negative (subind_cat): gen num = _n
+		replace num = . if subind == 1
+		gen value_add = value  if subind != 1
+		foreach y of local spells {
+		bys decomp value_negative (num) : replace value_add = value_add + value_add[_n-1] if value_negative == 0 & num != . & num > 1			
+		bys decomp value_negative (num) : replace value_add = value_add - value_add[_n-1] if value_negative == 1 & num != . & num > 1			
+		}
+		drop subind_cat value_negative num spell
+		local x = 4										
+		foreach rn of local rnames {					// Need different numbers for urban/rural label for figure
+			local rlbl2 `"`rlbl2' `x' "`rn'""'
+			local x = `x' - 1
+		}
+
+		// Reshape for stacked bars
+		compress decomp
+		reshape wide value value_add, i(decomp spell_n) j(subind)
+		order decomp spell_n value? value_add?
+		gen zero = 0	// zero needed so twoway bar starts at 0..
 		
 		// Figure
 		local figname Figure5
@@ -203,32 +229,38 @@ program pea_figure5, rclass
 			local act modify
 		}
 		
-		// Coloring of bars
-		qui levelsof subind, local(subind_list)
-		foreach i of local subind_list {
-			local colors "`colors' bar(`i', color(${col`i'}))"		
-		}
-		
 		local gr 1
 		local u  = 5		
 		putexcel set "`excelout2'", `act'
 		
 		//Huppi-Ravallion
 		tempfile graph1
-		//Prepare Notes
 		local note : label indicatorlbl 1	
-		local notes "Source: World Bank calculations using survey data accessed through the GMD."
-		local notes `"`notes'" "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be" "attributed to different groups. The intra-sectoral component displays how the incidence of poverty" "in rural and urban areas has changed, assuming the relative population size in each of these has" "remained constant. Population shift refers to the contribution of changes in population shares," "assuming poverty incidence in each group has remained constant. The interaction between" "the twoindicates whether there is a correlation between changes in poverty incidence" "and population movements using `note'"'
-		if "`nonotes'" ~= "" local notes ""
-		
-		graph bar value if decomp=="Huppi-Ravallion", over(subind) over(spell) asyvar legend(rows(1) size(small) position(6)) ytitle("Total change in poverty" "(percentage points)", size(medium)) name(gr_decomp, replace) title("Huppi-Ravallion decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) `colors' ///
-		note("`notes'", size(small))
-		
+
+		twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion",			/// 
+				color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) ||						///
+				scatter value1 spell_n if decomp=="Huppi-Ravallion", 											///
+				msym(D) msize(2.5) mcolor("${col1}") mlcolor(black)		||										///
+				bar zero spell_n, yline(0) xlabel("`spells'", valuelabel) xtitle("")							///
+				legend(rows(1) size(medium) position(6)															///
+				order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change"))							///
+				ytitle("Total change in poverty" "(percentage points)", size(medium)) 							///
+				name(gr_decomp, replace)
+									
 		putexcel set "`excelout2'", modify sheet("Figure5", replace)
-		graph export "`graph1'", replace as(png) name(gr_decomp) wid(3000)
+		graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
+		putexcel A1 = ""
+		putexcel A2 = "Figure 5: Huppi-Ravallion decomposition"
+		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+		putexcel A4 = "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups. The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements using `note'. The decomposition follows Huppi and Ravallion (1991)."
 		putexcel A`u' = image("`graph1'")
+		putexcel O10 = "Data:"
+		putexcel O6	= "Code"
+		putexcel O7 = `"twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion", color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) || scatter value1 spell_n if decomp=="Huppi-Ravallion", msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) legend(rows(1) size(medium) position(6) order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change")) ytitle("Total change in poverty" "(percentage points)", size(medium))"'
 		putexcel save
 		cap graph close	
 	} //qui
+	//Export data
+	export excel * using "`excelout2'" if decomp=="Huppi-Ravallion", sheet("Figure5", modify) cell(O11) keepcellfmt firstrow(variables)
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"
 end

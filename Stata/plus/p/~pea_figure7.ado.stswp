@@ -1,9 +1,9 @@
 
 
-cap program drop pea_figure7
-program pea_figure7, rclass
+cap program drop pea_figure7a
+program pea_figure7a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED NONOTES age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
@@ -79,7 +79,13 @@ program pea_figure7, rclass
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `male' `edu' `age' `urban'"'
 		markout `touse' `flist' 
 	} //qui
-			
+		
+	//Number of groups (for colors)
+	local groups = `:word count `natpovlines' `ppppovlines''
+
+	// Figure colors
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+		
 	// Generate poverty measures
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		//FGT
@@ -151,11 +157,6 @@ program pea_figure7, rclass
 	qui for var _fgt0*: replace X = X*100
 	la val _group _group
 	
-	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through the GMD."
-	local notes `"`notes'" "Note: Figure presents poverty rates within each group."'
-	if "`nonotes'" ~= "" local notes ""
-	
 	//Prepare graph variable and legend
 	local vars_graph
 	local vars_label
@@ -177,28 +178,40 @@ program pea_figure7, rclass
 		
 	// Figure
 	if "`excel'"=="" {
-		local excelout2 "`dirpath'\\Figure7.xlsx"
+		local excelout2 "`dirpath'\\Figure7a.xlsx"
 		local act replace
 	}
 	else {
 		local excelout2 "`excelout'"
 		local act modify
 	}	
+	local u = 5
 	
 	tempfile graph
 	putexcel set "`excelout2'", `act'
 	graph dot `vars_graph', 				///
-			over(_group) marker(1, msymbol(O)) marker(2, msymbol(D))  marker(3, msymbol(S))  marker(4, msymbol(T))  	///
-			legend(pos(6) order(`vars_label') row(2)) 						///
-			name(ngraph`gr', replace)																					///
-			ytitle("Poverty rate (percent)")																			///
-			note("`notes'", size(small))
+			over(_group) marker(1, msymbol(O) color("${col1}")) 
+			marker(2, msymbol(D) color("${col2}")) ///  
+			marker(3, msymbol(S) color("${col3}")) ///
+			marker(4, msymbol(T) color("${col4}")) ///
+			legend(pos(6) order(`vars_label') row(2) on) 	///
+			ytitle("Poverty rate (percent)") 				///
+			name(ngraph`gr', replace)	
 
-	putexcel set "`excelout2'", modify sheet(Figure7, replace)	  
-	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
-	putexcel A1 = image("`graph'")
-	putexcel save							
+	putexcel set "`excelout2'", modify sheet(Figure7a, replace)	  
+	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A1 = ""
+	putexcel A2 = "Figure 7: Poverty rates by demographic groups"
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+	putexcel A4 = "Note: Figure presents poverty rates across different poverty lines within each group."
+	putexcel A`u' = image("`graph'")
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code:"
+	putexcel O7 = `"graph dot `vars_graph' over(_group) marker(1, msymbol(O) color("${col1}")) marker(2, msymbol(D) color("${col2}")) marker(3, msymbol(S) color("${col3}")) marker(4, msymbol(T) color("${col4}")) legend(pos(6) order(`vars_label') row(2) on) ytitle("Poverty rate (percent)")"'
+	putexcel save								
 	cap graph close	
-	if "`excel'"=="" shell start excel "`dirpath'\\Figure7.xlsx"	
-			
+	//Export data
+	export excel `year' _group _fgt0_* using "`excelout2'" , sheet("Figure7a", modify) cell(O11) keepcellfmt firstrow(variables)
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure7a.xlsx"	
+		
 end	

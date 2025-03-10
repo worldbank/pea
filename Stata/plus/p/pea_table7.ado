@@ -99,7 +99,7 @@ program pea_table7, rclass
 	drop if indicatorlbl==.
 	
 	collect clear
-	qui collect: table (indicatorlbl) (`year') ,statistic(mean value) nototal nformat(%20.2f) missing
+	qui collect: table (indicatorlbl) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
 	collect style header indicatorlbl  `year', title(hide)
 	*collect style header subind[.], level(hide)
 	collect title `"Table 7. Vulnerability to poverty"'

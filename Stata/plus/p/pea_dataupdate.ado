@@ -127,7 +127,7 @@ program pea_dataupdate, rclass
 			* Get income groups
 			use "`persdir'pea/CLASS.dta", clear
 			rename ( year_data) ( year)
-			keep code year incgroup_historical region_pip
+			keep code year incgroup_historical region_pip region_SSA
 			save	`inc_group'
 			* Add 2024 as year 
 			keep if year == 2023
@@ -216,9 +216,9 @@ program pea_dataupdate, rclass
 			* Get poverty rates and merge (not nowcast)
 			local j = 1
 			foreach line of local nlines {
-				cap pip, fillgaps ppp(`pppyear') povline(`=`line'/100') clear 
+				cap pip, fillgaps ppp(2017) povline(2.15) clear 
 				if _rc==0 {
-					keep country_code poverty_line headcount year reporting_level
+					keep country_code poverty_line headcount pg year reporting_level
 					ren country_code code
 					merge 1:1 code reporting_level year using `inc_pop', nogen
 					merge m:1 code year using `inc_group', nogen
@@ -231,16 +231,22 @@ program pea_dataupdate, rclass
 					}
 					
 					* Calculate regional poverty to fill in missing numbers
-					groupfunction [aw=pop], mean(headcount) by(region_pip year) merge
+					groupfunction [aw=pop], mean(headcount pg) by(region_pip year) merge
 					replace headcount = wmean_headcount if headcount == . 	
-					drop wmean_headcount					
+					replace pg = wmean_pg if pg == . 	
+					drop wmean_*	 				
 					drop if inlist(code,"ARG") & reporting_level=="national"
+					* Merge in gdp pc
+					merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keepus(gdppc)
 					* Produce income group level poverty rates for each country					
-					groupfunction [aw=pop], mean(headcount) by(incgroup_historical year) merge
+					groupfunction [aw=pop], mean(headcount pg gdppc) by(incgroup_historical year) merge
 					drop if inlist(code,"ARG") & reporting_level=="rural"					 // Keep only one observation for Argentina
 					sort code year poverty_line
 					ren wmean_headcount headcount`line'
-					keep code year incgroup_historical headcount`line'
+					drop pg gdppc
+					ren wmean_pg pg
+					ren wmean_gdppc gdppc
+					keep code year incgroup_historical headcount`line' pg gdppc
 					save `povdata`j'', replace
 					local j = `j' + 1
 				}
@@ -259,7 +265,18 @@ program pea_dataupdate, rclass
 			save "`persdir'pea/PIP_incgroup_estimate.dta", replace
 			
 			//regional
-			tempfile regional regdata
+			* Prepare gdp per capita
+			tempfile regional regdata reggdp
+
+			use `gdppc', clear
+			rename data_level reporting_level
+			merge 1:1 code reporting_level year using `inc_pop', nogen keep(1 3)
+			merge 1:1 code year using `inc_group', nogen keepusing(region_pip region_SSA)
+			replace region_pip = region_SSA if region_SSA ~= ""
+			groupfunction [aw=pop], mean(gdppc) by(region_pip year)
+			rename region_pip region_code
+			save `reggdp'
+			
 			local j = 1
 			foreach line of local nlines {
 				cap pip wb, region(all)  ppp(`pppyear') povline(`=`line'/100') clear
@@ -278,6 +295,7 @@ program pea_dataupdate, rclass
 			use `povdata1', clear
 			merge 1:1 region_code year using `povdata2', nogen keepus(headcount*)
 			merge 1:1 region_code year using `povdata3', nogen keepus(headcount*)
+			merge 1:1 region_code year using `reggdp', nogen keepus(gdppc)
 			for var headcount*: replace X = X*100
 			char _dta[version] $S_DATE
 			save "`persdir'pea/PIP_regional_estimate.dta", replace

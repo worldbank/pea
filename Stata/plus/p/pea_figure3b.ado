@@ -14,12 +14,12 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Fig 3. Growth Incidence Curve
+//Fig 3b. Growth Incidence Curve by urban and rural areas
 
-cap program drop pea_figure3
-program pea_figure3, rclass
+cap program drop pea_figure3b
+program pea_figure3b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) NONOTES comparability(string) setting(string) excel(string) save(string) by(varname numeric) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(string) setting(string) trim(string) YRange(string) CORE excel(string) save(string) by(varname numeric) scheme(string) palette(string)]
 	
 	//load data if defined
 	if "`using'"~="" {
@@ -58,48 +58,50 @@ program pea_figure3, rclass
 		}
 		else local excelout "`excel'"
 	}
-	
-	local x = subinstr("`spells'",";"," ",.)		
-	local keepyears : list uniq x
+	// Keep only last spell
+
+	local fy = word("`spells'", `=wordcount("`spells'")-1')
+	local sy = word("`spells'", `=wordcount("`spells'")')
+	local spells "`fy' `sy'"
+	di "`spellsnew'"
 	// Prepare spells
 	tokenize "`spells'", parse(";")	
-	local i = 1
-	local a = 1
-	while "``i''" != "" {
-		if "``i''"~=";" {
-			local spell`a' "``i''"		
-			dis "`spell`a''"
-			local a = `a' + 1
-		}	
-		local i = `i' + 1
-	}
+	local comparability comparability
 	// Comparability
 	local one = 1
 	if "`comparability'" ~= "" {
-		forv j=1(1)`=`a'-1' {
-			local test
-			local spell_c`j' = "`spell`j''"												// Save local
-			qui levelsof `comparability', local(comp_years)								// Loop through all values of comparability
-			foreach i of local comp_years {
-				qui	levelsof year if `comparability' == `i', local(year_c)				// Create list of comparable years
-				local year_c = "`year_c'" 
-				local test_`i': list spell_c`j' in year_c								// Check if spell years are in list of comparable years
-				local test "`test' `test_`i''"
-			}
-			local test_pos: list one in test												// Check if any spell has comparable years
-			if (`test_pos' == 0) local spell`j' = ""										// If years not comparable, drop local
-			if (`test_pos' == 1) local spell`j' = "`spell_c`j''"							// If years comparable, keep local			
+		qui levelsof `comparability', local(comp_years)							// Loop through all values of comparability
+		foreach i of local comp_years {
+			qui	levelsof year if `comparability' == `i', local(year_c)			// Create list of comparable years
+			local year_c = "`year_c'" 
+			local test: list spells in year_c									// Check if spell years are in list of comparable years
 		}
+		local test_pos: list one in test										// Check if any spell has comparable years
+		if (`test_pos' == 0) local spell = ""									// If years not comparable, drop local
+		if (`test_pos' == 1) local spell = "`spells'"							// If years comparable, keep spell			
 	}	// if
-		
-	// Figure colors
-	local _spells = subinstr("`spells'"," ","",.)														// Get number of spells
-	local _spells = subinstr("`_spells'",";"," ",.)		
-	local groups = `:word count `_spells''
+	if "`spell'" == "" {
+		noi dis as error "Last spell is not comparable"
+		error 1
+	}
+	local keepyears : list uniq spell
+	// Trimming
+	if "`trim'" ~= "" {
+		tokenize `trim'
+		if missing("`2'") {
+			noi dis as error "Trimming option needs 2 values, such as trim(5 95)"
+			error 1
+		}
+	}
+	else if "`trim'" == "" {
+		local trim = "3 97"
+		noi di in yellow "Default trimming below 3rd and above 97th percentile applied"
+	}
+	// Figure 
+	qui levelsof `by', local(count)
+	local groups = `=`:word count `count''+1'
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 
-	//variable checks
-	//check plines are not overlapped.
 	//trigger some sub-tables
 	qui {		
 		//Weights
@@ -119,7 +121,7 @@ program pea_figure3, rclass
 		save `dataori', replace
 		
 		levelsof `year' if `touse', local(yrlist)
-		local same : list yrlist === keepyears
+		local same : list keepyears in yrlist
 		if `same'==0 {
 			noi dis "There are different years requested, and some not available in the data."
 			noi dis "Requested: `keepyears'. Available: `yrlist'"
@@ -141,7 +143,7 @@ program pea_figure3, rclass
 		clear
 		tempfile data2
 		save `data2', replace emptyok
-				
+		
 		foreach byvar of local by {
 			use `dataori', clear			
 			levelsof `byvar', local(byvlist)
@@ -192,26 +194,37 @@ program pea_figure3, rclass
 		la val var_order var_order
 		la val group_order group_order
 				
-		local vargic 
-		local varlbl
-
-		forv j=1(1)`=`a'-1' {
-			local spell`j' : list sort spell`j'
-			tokenize "`spell`j''"
-			if "`1'"~="" & "`2'"~="" {
-				dis "Spell`j': `1'-`2'"		
-				gen gic_`1'_`2' = ((`welfare'`2'/`welfare'`1')^(1/(`2'-`1'))-1)*100
-				local vargic "`vargic' gic_`1'_`2'"
-				local varcount = `:word count `vargic''						// added so that legend element fits if not all spells are comparable
-				la var gic_`1'_`2' "GIC Spell`varcount': `1'-`2'"
-				local varlbl `"`varlbl' `varcount' "`1'-`2'""'
-			}
+		tokenize "`spell'"
+		if "`1'"~="" & "`2'"~="" {
+			dis "Spell: `1'-`2'"		
+			gen gic_`1'_`2' = ((`welfare'`2'/`welfare'`1')^(1/(`2'-`1'))-1)*100
+			local vargic "`vargic' gic_`1'_`2'"
+			la var gic_`1'_`2' "GIC Spell: `1'-`2'"
+			local varlbl "`1'-`2'"
 		}
+		// Trim sample
+		tokenize "`trim'"
+		drop if percentile < `1'
+		drop if percentile > `2'
 
 		sort var_order group_order percentile
 		return local vargic = "`vargic'"
 		return local varlbl = `"`varlbl'"'
+				
+		//Axis range
+		if "`yrange'" == "" {
+			 sum gic_2018_2021
+			if `r(min)' < 0 local ymin = floor(`r(min)')
+			else local ymin = 0
+			if `r(max)' > 0 local ymax = ceil(`r(max)')
+			else local ymax = 0
+			local yrange "ylabel(`ymin'(1)`ymax')"
+		}
+		else {
+			local yrange "ylabel(`yrange')"
+		}
 		
+	
 		//Figure preparation
 		local figname Figure3
 		if "`excel'"=="" {
@@ -225,29 +238,50 @@ program pea_figure3, rclass
 				
 		local gr 1
 		local u  = 5
-		//Prepare Notes
-		local notes "Source: World Bank calculations using survey data accessed through the Global Monitoring Database."
-		local notes `"`notes'" "Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods."'
-		if "`nonotes'" ~= "" local notes ""
 		
 		//Figure
+		if "`core'" == "" local fnum "3b"
+		else if "`core'" ~= "" local fnum "A.1" 
 		putexcel set "`excelout2'", `act'
+		
 		levelsof group_order, local(grlist)
-		foreach gr of local grlist {
+
+		foreach i of local grlist {
+			local connected`i' `"connected `vargic' percentile if group_order== `i', lcolor("${col`i'}") mcolor("${col`i'}") ||"'
+			local connected "`connected' `connected`i''"
+			local label_`i': label(group_order) `i'
+			local legend`i' `"`i' "`label_`i''""'
+			local legend "`legend' `legend`i''"	
+		}	
+		
+		
 			tempfile graph`gr'
 			local lbltitle : label group_order `gr'	
 			
-			twoway (connected `vargic' percentile, lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr' & percentile>=1 & percentile<=99, ///
-				legend(on order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
-				note("`notes'", size(small)) ///
-				xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) title("`lbltitle'", size(medium)) name(ngraph`gr', replace)
+			twoway `connected' , yline(0, lp(-) lc(black*0.6))											///
+					legend(order("`legend'") rows(1) size(medium) position(6)) 				    ///
+					xtitle(Percentile, size(medium)) `yrange'									///
+					ytitle("Annualized growth `varlbl' (%)", size(medium)) 						///
+					name(ngraph`gr', replace)
 			
-			putexcel set "`excelout2'", modify sheet(Figure3, replace)
-			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)
+			putexcel set "`excelout2'", modify sheet(Figure`fnum', replace)
+			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)
+			putexcel A1 = ""
+			putexcel A2 = "Figure `fnum': Growth Incidence Curves"
+			putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+			putexcel A4 = "Note: Growth incidence curves display annualized household growth in per capita consumption or income by percentile of the welfare distribution between two periods. Growth incidence curves are only shown for years with comparable surveys, and the latest specified spell. Percentiles are trimmed below `1' and above `2'."
 			putexcel A`u' = image("`graph`gr''")
+			putexcel O10 = "Data:"
+			putexcel O6	= "Code:"
+			putexcel O7 = `"twoway `connected', yline(0, lp(-) lc(black*0.6)) legend(order("`legend'") rows(1) size(medium) position(6)) xtitle(Percentile, size(medium)) `yrange' ytitle("Annualized growth `varlbl' (%)", size(medium))"'
 			putexcel save					
-		}		
+				
 		cap graph close	
 	} //qui	
+	
+	// Export data
+	// Export data
+	export excel * using "`excelout2'", sheet("Figure`fnum'", modify) cell(O11) keepcellfmt firstrow(variables)	
+		
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
 end

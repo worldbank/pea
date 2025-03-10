@@ -231,12 +231,12 @@ program pea_table13, rclass
 		}
 		else {			
 			collect clear
-			qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Huppi-Ravallion", statistic(mean value) nototal nformat(%20.2f) missing
+			qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Huppi-Ravallion", statistic(mean value) nototal nformat(%20.1f) missing
 			collect style header indicatorlbl subind spell, title(hide)
 			*collect style header value[.], level(hide)
 			collect title `"Table 13. Decomposition of poverty changes: Huppi-Ravallion decomposition"'
 			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups. The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
+			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups, following Huppi and Ravallion (1991). The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
 			collect style notes, font(, italic size(10))
 				
 			local tabname Table13
