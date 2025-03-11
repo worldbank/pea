@@ -27,6 +27,8 @@ help for {hi:pea core}{right:January 2025}
 {opt excel(string)} 
 {opt save(string)} 
 {opt BYInd(varlist numeric)} 
+{opt comparability(varname numeric)}
+{opt trim(string)}
 {opt age(varname numeric)} 
 {opt male(varname numeric)} 
 {opt hhhead(varname numeric)} 
@@ -104,6 +106,14 @@ Main options:
 
 {p 4 4 2}
 {opt ONEWelfare(varname numeric)}: specifies the one-line welfare variable.
+    
+{p 4 4 2}
+{opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time, which is relevant for the Growth Incidence Curve, and the Datt-Ravallion decomposition. 
+When specified, survey rounds are not shown if they are non-comparable. Example:	comparability(comparability).
+
+{p 4 4 2}
+{opt trim(string)}: specifies percentiles below and above which growth incidence curves are trimmed (Figure A.1).
+Default is trim(3 97).
 
 {p 4 4 2}
 {opt MISSING}: Optional. Includes missing data in the analysis.
@@ -190,7 +200,7 @@ Default under setting(GMD): empstat
 When GMD is specified:
 
 {p 4 4 2}
-{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) 
+{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) comparability(comparability)
 spells(2015 2016; 2016 2017;2018 2025;2017 2025) minobs(100)
 
 When GMD is NOT specified:
