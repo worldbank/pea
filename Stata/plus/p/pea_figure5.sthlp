@@ -22,7 +22,6 @@ help for {hi:pea figure5}{right:January 2025}
     {opt year(varname numeric)} 
 	{opt urban(varname numeric)}
 	{opt LINESORTED(string)}
-    {opt NONOTES}
 	{opt comparability(varname numeric)}
 	{opt setting(string)} 
     {opt save(string)}
@@ -59,11 +58,8 @@ time periods or population groups. The results can help analysts and policymaker
 {opt LINESORTED(string)}:
 Allows users to sort lines based on a specific setting for better visualization clarity.
 
-{p 4 4 2} 
-{opt NONOTES}: Suppresses the default notes added to the resulting graphs or figures. 
-
 {p 4 4 2}
-{opt comparability(varname numeric)}: Required. This variable denotes which survey rounds are comparable over time. 
+{opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. 
 Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2}

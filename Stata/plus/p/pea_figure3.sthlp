@@ -19,12 +19,12 @@ help for {hi:pea figure3}{right:January 2025}
     [{opt Welfare(varname numeric)} 
     {opt spells(string)} 
     {opt Year(varname numeric)} 
-    {opt NONOTES} 
     {opt comparability(varname numeric)} 
     {opt setting(string)} 
+	{opt trim(string)}
     {opt excel(string)} 
     {opt save(string)} 
-    {opt by(varname numeric)} 
+	{opt yrange(string)} 
     {opt scheme(string)} 
     {opt palette(string)}]{p_end}
 
@@ -43,17 +43,12 @@ Specifies the numeric variable representing welfare (e.g., income or consumption
 
 {p 4 4 2}{opt spells(string)}:
 Defines the spells (time periods) for analysis. Enter pairs of years separated by a space, and separate 
-multiple spells with semicolons (e.g., "2000 2005; 2005 2010").
+multiple spells with semicolons (e.g., spells(2000 2005; 2005 2010)).
 
 {p 4 4 2}{opt Year(varname numeric)}:
 Specifies the numeric variable indicating the year associated with each observation.
 
-{p 4 4 2}{opt NONOTES}:
-Suppresses the default notes added to the generated figures.
-
-{p 4 4 2}{opt comparability(varname numeric)}:
-Specifies a variable to check comparability between years within spells. Only spells with comparable 
-years are included in the analysis.
+{p 4 4 2}{opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2}{opt setting(string)}:
 Defines additional settings for customizing the output. Currently, this option is not utilized 
@@ -68,6 +63,14 @@ Specifies the file path for saving the dataset created during the process.
 
 {p 4 4 2}{opt by(varname numeric)}:
 Indicates a grouping variable for disaggregating results by subpopulations.
+
+{p 4 4 2}
+{opt yrange}: Optional. Users can specify the range of the y-axis. The range must be entered in Stata figure format, such as "yrange(0(10)100)".
+Default is that figures start at 0 and go up to the maximum value of the displayed data (next 10).
+
+{p 4 4 2}
+{opt trim(string)}: specifies percentiles below and above which growth incidence curves are trimmed.
+Default is trim(3 97).
 
 {p 4 4 2}{opt scheme(string)}:
 Defines the graph scheme to apply to the GIC plots.
@@ -84,5 +87,4 @@ Specifies the color palette to use for the GIC plots.
 {bf: pea figure3} [aw=weight_p], year(year) welfare(welfppp) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
 
 {p 4 4 2}
-{bf: pea figure3} [aw=weight_p], year(year) welfare(welfppp) spells(2018 2021)
-palette(viridis)
+{bf: pea figure3} [aw=weight_p], year(year) welfare(welfppp) spells(2018 2021) trim(5 95) palette(viridis)

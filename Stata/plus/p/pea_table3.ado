@@ -19,7 +19,7 @@
 cap program drop pea_table3
 program pea_table3, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) MISSING age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) MISSING age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) minobs(numlist)]
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -46,6 +46,10 @@ program pea_table3, rclass
 			local varlbl : value label `var'
 			la def `varlbl' `=`miss'+10' "Missing", add
 		}
+	}
+
+	if "`minobs'"~="" { 
+		local note_minobs "Cells with less than `minobs' observations are dropped."
 	}
 	
 	qui {
@@ -106,19 +110,17 @@ program pea_table3, rclass
 		if r(N)>0 {
 			gen agecatind = 1 if `age'>=0 & `age'<=14
 			replace agecatind = 2 if `age'>=15 & `age'<=29
-			replace agecatind = 3 if `age'>=30 & `age'<=44
-			replace agecatind = 4 if `age'>=45 & `age'<=59
-			replace agecatind = 5 if `age'>=60 & `age'<=.
-			la def agecatind 1 "Age 0-14" 2 "Age 15-29" 3 "Age 30-44" 4 "Age 45-59" 5 "Age 60+"
-			la val agecatind agecatind
-			
+			replace agecatind = 3 if `age'>=65 & `age'<=.
+			qui sum agecatind
+			local agemax = `r(max)'
 			clonevar _eduXind = `edu' if `age'>=16 & `age'~=.
 			
 			if "`hhhead'"~="" {
-				gen agecathead = 1 if `age'>=18 & `age'<=29 & `hhhead'==1
-				replace agecathead = 2 if `age'>=39 & `age'<=54 & `hhhead'==1
-				replace agecathead = 3 if `age'>=55 & `age'<=. & `hhhead'==1
-				la def agecathead 1 "18-29" 2 "39-54" 3 "55+"
+				gen agecathead = 1 if `age'>=18 & `age'<=34 & `hhhead'==1
+				replace agecathead = 2 if `age'>=35 & `age'<=49 & `hhhead'==1
+				replace agecathead = 2 if `age'>=50 & `age'<=64 & `hhhead'==1
+				replace agecathead = 3 if `age'>=65 & `age'<=. & `hhhead'==1
+				la def agecathead 1 "18-34" 2 "35-49" 3 "50-64" 4 "65+"
 				la val agecathead agecathead
 				la var agecathead "By age group of household head"
 				clonevar _eduXhh = `edu' if `hhhead'==1 & `age'>=18 & `age'~=.
@@ -152,8 +154,23 @@ program pea_table3, rclass
 			foreach lvl of local lclist {
 				use `data1', clear
 				keep if `var'==`lvl'
+				local lbllvl : label `label1' `lvl'		
+				gen count = 1
+				groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(count) rawsum(_pop) by(`year' agecatind)
+				gen _group = `i'			
+				la def _group `i' "`lbllvl'", add
+				la val _group _group
+				tempfile labelx`i'
+				label save _group using `labelx`i''
+				la drop _group
+				append using `data2'
+				save `data2', replace
+				* Add totals
+				use `data1', clear
+				keep if `var'==`lvl'
 				local lbllvl : label `label1' `lvl'			
-				groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year' agecatind)
+				groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year')
+				gen agecatind = `=`agemax'+1'
 				gen _group = `i'			
 				la def _group `i' "`lbllvl'", add
 				la val _group _group
@@ -165,6 +182,10 @@ program pea_table3, rclass
 				save `data2', replace
 			}
 		}
+		sort _group year agecat
+		la def agecatind 1 "Age 0-14" 2 "Age 15-64" 3 "Age 65+" 4 "All"
+		la val agecatind agecatind
+			
 		qui forv j=1(1)`=`i'-1' {
 			do `labelx`j''
 		}
@@ -193,14 +214,16 @@ program pea_table3, rclass
 		su `year',d
 		local ymax = r(max)
 		drop if agecatind==.
+		local milab : value label agecatind
+		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & agecatind ~= "Missing":`milab'
 		collect clear
-		qui collect: table (indicatorlbl agecatind) (_group) if `year'==`ymax', stat(mean _fgt0_) nototal nformat(%20.2f) missing
+		qui collect: table (indicatorlbl agecatind) (_group) if `year'==`ymax', stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header indicatorlbl agecatind _group `year', title(hide)
 		*collect style header subind[.], level(hide)
 		*collect style cell, result halign(center)
-		collect title `"Table 3a. Subgroup poverty rates (`ymax')"'
+		collect title `"Table 3a. Subgroup poverty rates by gender and age-group (`ymax')"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
+		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU). `note_minobs'"'
 		collect style notes, font(, italic size(10))
 				
 		if "`excel'"=="" {
@@ -217,7 +240,8 @@ program pea_table3, rclass
 		save `data2', replace emptyok
 		use `data1', clear
 		drop if `age'<16
-		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year' _eduXind)
+		gen count = 1
+		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(count) rawsum(_pop) by(`year' _eduXind)
 		reshape long _fgt0_ _fgt1_ _fgt2_, i(`year' _eduXind _pop) j(_varname) string
 		split _varname, parse("_")
 		gen indicatorlbl = .
@@ -240,14 +264,16 @@ program pea_table3, rclass
 		la val indicatorlbl indicatorlbl
 		replace _fgt0_ = _fgt0_*100
 		drop if _eduXind==.
+		local milab : value label _eduXind
+		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & _eduXind ~= "Missing":`milab'
 		collect clear
-		qui collect: table (indicatorlbl _eduXind) (`year'), stat(mean _fgt0_) nototal nformat(%20.2f) missing
+		qui collect: table (indicatorlbl _eduXind) (`year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header indicatorlbl _eduXind `year', title(hide)
 		*collect style header subind[.], level(hide)
 		*collect style cell, result halign(center)
-		collect title `"Table 3b. Subgroup poverty rates (age 16+)"'
+		collect title `"Table 3b. Subgroup poverty rates by education (age 16+)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
+		collect notes 2: `"Note: Poverty rates reported for individuals 16 or older. Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_minobs'"'
 		collect style notes, font(, italic size(10))
 			
 		if "`excel'"=="" {
@@ -270,7 +296,8 @@ program pea_table3, rclass
 			drop if `age'<18
 			local lbl0`var' : variable label `var'
 			if "`lbl0`var''"=="" local lbl0`var' "`var'"
-			groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year' `var')			
+			gen count = 1
+			groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(count) rawsum(_pop) by(`year' `var')			
 			ren `var' lbl`var'
 			append using `data2'
 			save `data2', replace
@@ -323,14 +350,16 @@ program pea_table3, rclass
 		}
 		la val indicatorlbl indicatorlbl
 		drop if group==.
+		local milab : value label combined_var
+		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & combined_var ~= "Missing":`milab'
 		collect clear
-		qui collect: table (group indicatorlbl combined_var) (`year'), stat(mean _fgt0_) nototal nformat(%20.2f) missing
+		qui collect: table (group indicatorlbl combined_var) (`year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header group indicatorlbl combined_var `year', title(hide)
 		*collect style header subind[.], level(hide)
 		*collect style cell, result halign(center)
 		collect title `"Table 3c. Subgroup poverty rates of household head"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU)."'
+		collect notes 2: `"Note: Poverty rates reported for household heads 18 or older. Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU). `note_minobs'"'
 		collect style notes, font(, italic size(10))
 			
 		if "`excel'"=="" {

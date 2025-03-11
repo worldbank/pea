@@ -48,7 +48,8 @@ help for {hi:pea core}{right:January 2025}
 {opt LATEST} 
 {opt WITHIN3} 
 {opt BENCHmark(string)} 
-{opt spells(string)}]{p_end}
+{opt spells(string)}
+{opt minobs(numlist)}]{p_end}
 
 {p 4 4 2}
 The following are NON-mandatory options and are only used if setting(GMD) is not specified:
@@ -119,6 +120,9 @@ Main options:
 {p 4 4 2}
 {opt spells(string)}: specifies the periods or time spells for longitudinal analysis (e.g., 2015 2016; 2016 2017).
 
+{p 4 4 2}
+{opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value (relevant for Table A).
+
 Additional options if setting(GMD) is not specified:
 
 {p 4 4 2}
@@ -187,7 +191,7 @@ When GMD is specified:
 
 {p 4 4 2}
 {bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) 
-spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+spells(2015 2016; 2016 2017;2018 2025;2017 2025) minobs(100)
 
 When GMD is NOT specified:
 

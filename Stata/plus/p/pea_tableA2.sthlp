@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea table_A2}{right:January 2025}
+help for {hi:pea tableA2}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea table_A2} — Core poverty indicators - test.
+{bf:pea tableA2} — Core poverty indicators - test.
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea table_A2}
+{opt pea tableA2}
 [{it:weight}] 
 [{opt if} {it:exp}] 
 [{opt in} {it:exp}] 
@@ -32,6 +32,7 @@ help for {hi:pea table_A2}{right:January 2025}
 {opt ONELine(varname numeric)} 
 {opt ONEWelfare(varname numeric)} 
 {opt MISSING}
+{opt minobs(numlist)}
 {opt age(varname numeric)} 
 {opt male(varname numeric)} 
 {opt hhhead(varname numeric)}
@@ -43,7 +44,7 @@ help for {hi:pea table_A2}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea table_A2} generates a detailed table that provides poverty and welfare statistics based on both 
+{opt pea tableA2} generates a detailed table that provides poverty and welfare statistics based on both 
     national and international poverty lines, as well as specified welfare measures. It also enables subgroup analysis 
     by age, gender, household head status, and education level. Additionally, it supports exporting results to Excel 
     and saving them in Stata format.
@@ -109,6 +110,9 @@ help for {hi:pea table_A2}{right:January 2025}
 {p 4 4 2} 
 {opt MISSING}:
  handles missing data in key demographic variables like age, gender, and education.
+ 
+ {p 4 4 2}
+{opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value.
 
 {p 4 4 2} 
 {opt age(varname numeric)}:
@@ -129,7 +133,7 @@ help for {hi:pea table_A2}{right:January 2025}
 {title:Remarks}
 
 {p 4 4 2}
-The {opt table_A2} command performs poverty and welfare analysis based on a range of national and 
+The {opt tableA2} command performs poverty and welfare analysis based on a range of national and 
     international measures. It includes subgroup analysis by variables such as age, gender, education, and household head status. 
     The output table includes poverty headcount, poverty gap, poverty severity, welfare means, and inequality indices such as 
     the Gini index. It can be used to generate summary statistics and break down welfare measures by specific subgroups. 
@@ -141,4 +145,4 @@ Missing data in the core demographic variables can be handled and cleaned using 
 {title:Examples}
 
 {p 4 4 2}
-pea table_A2 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing
+pea tableA2 [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) minobs(100) missing

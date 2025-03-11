@@ -48,7 +48,9 @@ help for {hi:pea tables}{right:January 2025}
 {opt latest}
 {opt within3}
 {opt benchmark(string)}
-{opt spells(string)}]{p_end}
+{opt spells(string)}
+{opt minobs(numlist)}
+{opt earnage(integer)}]{p_end}
 
 {p 4 4 2}
 The following are NON-mandatory options and are only used if setting(GMD) is not specified:
@@ -160,6 +162,13 @@ Main options:
 {p 4 4 2}
 {opt spells(string)}: specifies the periods or time spells for longitudinal analysis (e.g., 2015 2016; 2016 2017).
 
+{p 4 4 2}
+{opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value (relevant for Tables 2 and 3).
+
+{p 4 4 2}
+{opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
+Default: 18
+
 Additional options if setting(GMD) is not specified:
 
 {p 4 4 2}
@@ -222,6 +231,9 @@ Default under setting(GMD): nowork
 {opt empstat(varname numeric)}: specifies the employment status variable.
 Default under setting(GMD): empstat
 
+{p 4 4 2}
+{opt relationharm(varname numeric)}: specifies the relation to household head variable.
+Default is relationharm (harmonized variable in GMD)
 
 {title:Examples}
 
@@ -239,7 +251,7 @@ When setting(GMD) is NOT specified:
 
 {p 4 4 2}
 {bf:pea tables} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) 
-school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) relationharm(relationharm) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
 
 
 

@@ -14,12 +14,12 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Figure 6. GDP per capita GDP - Poverty elasticity
+//Figure 6. GDP per capita - Poverty elasticity
 
 cap program drop pea_figure6
 program pea_figure6, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS NONOTES spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
+syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string)]
 
 	tempfile dataori pea_pov 
 
@@ -29,7 +29,7 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	//house cleaning
 	
 	if "`comparability'"=="" {
-		noi di in red "Warning: Comparability option not specified for Figure 7. Non-comparable spells may be shown."
+		noi di in red "Warning: Comparability option not specified for Figure 6. Non-comparable spells may be shown."
 	}
 	
 	if "`excel'"=="" {
@@ -187,7 +187,7 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	// Prepare figure
 	qui levelsof spell, local(spell_count)
 	foreach i of local spell_count {
-		expand 2 if spell =="`i'"												// Need to observations per spell (1 for each variable)
+		expand 2 if spell =="`i'"												// Need two observations per spell (1 for each variable)
 	}
 	
 	sort 			spell
@@ -236,11 +236,6 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 		local i = `i' + 1
 	}
 	
-	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through the GMD."
-	local notes `"`notes'"'
-	if "`nonotes'" ~= "" local notes ""
-	
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure6.xlsx"
@@ -250,20 +245,29 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 		local excelout2 "`excelout'"
 		local act modify
 	}	
-		
+	local u = 5	
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `bar' `scatter', 								///
 			xlabel(`xlabel') yline(0)						///
 			legend(order(`legend') pos(6) row(2) holes(2)) 	///
 			ytitle("Annualized growth rate (percent)")		///
-			name(ngraph`gr', replace)						///
-			note("`notes'", size(small))
+			name(ngraph`gr', replace)			
 		
 	putexcel set "`excelout2'", modify sheet(Figure6, replace)	  
-	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
-	putexcel A1 = image("`graph'")
+	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+		putexcel A1 = ""
+		putexcel A2 = "Figure 6: GDP - poverty elasticity"
+		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+		putexcel A4 = "Note: The figure shows change in poverty rates, GDP per capita, and the elasticity between poverty and GDP per capita."
+		putexcel A`u' = image("`graph'")
+		putexcel O10 = "Data:"
+		putexcel O6	= "Code to produce figure:"
+		putexcel O7 = `"twoway `bar' `scatter', xlabel(`xlabel') yline(0) legend(order(`legend') pos(6) row(2) holes(2)) ytitle("Annualized growth rate (percent)") name(ngraph`gr', replace)"'
 	putexcel save							
 	cap graph close	
+	//Export data
+	drop a
+	export excel * using "`excelout2'" , sheet("Figure6", modify) cell(O11) keepcellfmt firstrow(variables)
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure6.xlsx"
 end

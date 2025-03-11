@@ -19,7 +19,7 @@
 cap program drop pea_figure10b
 program pea_figure10b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) NONOTES YRange0 scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) YRange(string) scheme(string) palette(string) save(string) excel(string)]	
 
 	tempfile dataori pea_pg
 	global floor_ 0.25
@@ -169,7 +169,7 @@ program pea_figure10b, rclass
 	local groupcount = `groupcount' + 1
 	local leg_elem 	 = `leg_elem' - 1
 	replace group 	 = `groupcount' if region  == "`region_name'" & group == .	 
-	local legend `"`legend' `leg_elem' "`region_name'""'		
+	local legend `"`legend' `leg_elem' "Other `region_name'""'		
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}
 	local msym`groupcount' "o"
 	
@@ -195,6 +195,18 @@ program pea_figure10b, rclass
 	local lastcol: word count ${colorpalette}
 	local grcolor`groupcount': word `lastcol' of ${colorpalette}								// Last color (grey in default)
 	local msym`groupcount' "s" 
+		
+	//Axis range
+	if "`yrange'" == "" {
+		local ymin = 0
+		qui sum pg
+		local max = round(`r(max)',5)
+		if `max' < `r(max)' local max = `max' + 5								// round up to nearest 5
+		local yrange "ylabel(0(5)`max')"
+	}
+	else {
+		local yrange "ylabel(`yrange')"
+	}
 	
 	// Scatter command
 	qui levelsof group, local(group_num)
@@ -207,11 +219,6 @@ program pea_figure10b, rclass
 	gen 	ln_gdp_pc = ln(gdppc)
 	format  pg %5.0f
 	
-	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through the GMD."
-	local notes `"`notes'" "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $25."'
-	if "`nonotes'" ~= "" local notes ""
-	
 	// Figure
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure10b.xlsx"
@@ -221,22 +228,32 @@ program pea_figure10b, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}	
-		
+	local u = 5
+	
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `scatter_cmd'													///		
-		qfit 	pg ln_gdp_pc, lpattern(-) lcolor(gray) 	///
+		qfit pg ln_gdp_pc, lpattern(-) lcolor(gray) 						///
 		, legend(order(`legend')) 											///
 		  ytitle("Prosperity Gap")		 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
-		  name(ngraph`gr', replace)											///
-		  note("`notes'", size(small))
+		  `yrange'															///
+		  name(ngraph`gr', replace)
 		
 	putexcel set "`excelout2'", modify sheet(Figure10b, replace)	  
-	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
-	putexcel A1 = image("`graph'")
+	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A1 = ""
+	putexcel A2 = "Figure 10b: Prosperity gap and GDP per-capita (line-up)"
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and lined-up estimates from PIP."
+	putexcel A4 = "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. Benchmark countries are shown separately from the countries in the same region as `country'. See Kraay et al. (2023) for more details on the prosperity gap."
+	putexcel A`u' = image("`graph'")
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code:"
+	putexcel O7 = `"twoway `scatter_cmd' qfit pg ln_gdp_pc, lpattern(-) lcolor(gray), legend(order(`legend')) ytitle("Prosperity Gap") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
 	putexcel save							
 	cap graph close	
+	//Export data
+	export excel country_code year pg ln_gdp_pc group using "`excelout2'" , sheet("Figure10b", modify) cell(O11) keepcellfmt firstrow(variables)
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure10b.xlsx"	
 	
 end

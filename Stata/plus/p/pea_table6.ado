@@ -54,7 +54,7 @@ program pea_table6, rclass
 		}
 		else local excelout "`excel'"
 	}
-	
+	 
 	qui {
 		//Keep only the latest data
 		su `year',d
@@ -81,6 +81,7 @@ program pea_table6, rclass
 		save `dataori', replace			
 	} //qui
 	
+	
 	//benchmark
 	clear
 	*tempfile mpmben
@@ -88,8 +89,23 @@ program pea_table6, rclass
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
+	
+	local nametodo = 0
+	cap confirm file "`persdir'pea/PIP_list_name.dta"
+	if _rc==0 {
+		cap use "`persdir'pea/PIP_list_name.dta", clear	
+		if _rc~=0 local nametodo = 1	
+	}
+	else local nametodo = 1
+	if `nametodo'==1 {
+		cap pea_dataupdate, datatype(LIST) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(LIST) update"
+			exit `=_rc'
+		}
+	}
 		
-	//Update MPM data
+			//Update MPM data
 	local dl 0
 	local returnfile "`persdir'pea/WLD_GMI_MPM.dta"
 	cap confirm file "`returnfile'"
@@ -141,6 +157,9 @@ program pea_table6, rclass
 	} //benchmark
 	
 	use `dataori', clear
+	merge m:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(country_name)
+	replace country_name = code if country_name == ""
+
 	for var dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1: replace X = X*100
 	
 	la var mdpoor_i1 "Multidimensional Poverty Measure headcount (%)"
@@ -158,17 +177,16 @@ program pea_table6, rclass
 		local i = `i'+1
 	}
 	
-	if "`excel'"~="" {
 		//6a
 		collect clear
-		qui collect: table (order code) (year), stat(mean mdpoor_i1) nototal nformat(%20.2f) missing
-		collect style header order code year, title(hide)
+		qui collect: table (order country_name) (year), stat(mean mdpoor_i1) nototal nformat(%20.1f) missing
+		collect style header order country_name year, title(hide)
 		collect style header order, level(hide)
 		*collect style header group[0], level(hide)
 		*collect style cell, result halign(center)
 		collect title `"Table 6a. Multidimensional poverty: Multidimensional Poverty Measure (World Bank)"'
-		collect notes 1: `"Source: ABC"'
-		collect notes 2: `"Note: The global ..."'
+		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
+		collect notes 2: `"Note: The World Bank Multidimensional Poverty Measure (MPM) is a weighted aggregate of six components (weights in parantheses): income (1/3), education (1/6), school-enrolment (1/6), electricity (1/9), sanitation (1/9), drinking water (1/9)."'
 		collect style notes, font(, italic size(10))
 		*collect preview
 		local tblname Table6a
@@ -182,14 +200,14 @@ program pea_table6, rclass
 		
 		//6b
 		collect clear
-		qui collect: table () (year) if code=="`country'", stat(mean dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw ) nototal nformat(%20.2f) missing	
+		qui collect: table () (year) if code=="`country'", stat(mean dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw ) nototal nformat(%20.1f) missing	
 		collect style header year, title(hide)
 		*collect style header order, level(hide)
 		*collect style header group[0], level(hide)
 		*collect style cell, result halign(center)
 		collect title `"Table 6b. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
-		collect notes 1: `"Source: ABC"'
-		collect notes 2: `"Note: The global ..."'
+		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
+		collect notes 2: `"Note: The table shows deprivation rates of the six components of the World Bank Multidimensional Poverty Measure (MPM). See Table 6a for weights of each component."'
 		collect style notes, font(, italic size(10))
 		*collect preview
 		local tblname Table6b
@@ -200,5 +218,5 @@ program pea_table6, rclass
 		else {
 			collect export "`excelout'", sheet(`tblname', replace) modify 
 		}
-	}
+	
 end

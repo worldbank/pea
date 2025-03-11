@@ -24,25 +24,22 @@ program pea_figure_setup, rclass
 	
 	// Figure settings
 	if ("`scheme'"=="")				local scheme "white_tableau"											
-	if ("`palette'"=="") 			local palette "tab10"	
-	
+	if "`palette'"=="" {
+		local defpal "1"
+		local palette `""52 167 242" "255 152 0" "102 74 182" "78 194 192" "243 87 142" "8 16 121" "12 124 104" "170 0 0" "221 218 33""' // Default World Bank colors	
+	}
 	set scheme `scheme'
 	
 	if "`groups'"~="" {
-		colorpalette `palette', nograph n(`groups')
+		colorpalette `palette', nograph n(`groups') noexpand
 	}
 	else {
 		colorpalette `palette',	nograph	
 	}
 	local colorpalette `"`r(p)'"'
-	
-	if "`palette'"=="tab10" {											// Store grey as last color, if default palette is used
-		local grey "148 148 148"
-		local colorpalette: subinstr local colorpalette `"`grey'"' ""
-		local colorpalette: subinstr local colorpalette `""""' ""
-		local colorpalette   `"`colorpalette'  "`grey'""'
-	}  
-	else{
+	// Add grey to default palette
+	if "`defpal'" == "1" {												
+		local colorpalette   `"`colorpalette'  "148 148 148""'
 	}
 	
 	local collength : word count `colorpalette'

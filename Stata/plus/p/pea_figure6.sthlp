@@ -21,7 +21,6 @@ help for {hi:pea figure6}{right:January 2025}
 	{opt ONELine(varname numeric)}
 	{opt ONEWelfare(varname numeric)} 
     {opt  FGTVARS} 
-	{opt NONOTES} 
 	{opt spells(string)}
 	{opt comparability(string)} 
 	{opt scheme(string)} 
@@ -65,13 +64,10 @@ file or directly depending on the `excel()` or `save()` options.
 {opt FGTVARS}: Flag to specify welfare aggregation and analysis options.
 
 {p 4 4 2}
-{opt NONOTES}: Excludes notes from the final visualization output.
-
-{p 4 4 2}
 {opt spells(string)}: Defines time spells (e.g., "2000;2004") for analysis over specified periods.
 
 {p 4 4 2}
-{opt comparability(varname numeric)}: Required. This variable denotes which survey rounds are comparable over time. 
+{opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. 
 Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2}

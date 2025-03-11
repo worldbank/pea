@@ -19,16 +19,12 @@
 cap program drop pea_figure9a
 program pea_figure9a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOOUTPUT NONOTES EQUALSPACING YRange0 excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) comparability(string) NOOUTPUT NOEQUALSPACING YRange(string) ineqind(string) excel(string) save(string) BAR MISSING scheme(string) palette(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
 	//house cleaning	
-	if "`urban'"=="" {
-		noi di in red "Sector/urban variable must be defined in urban()"
-		exit 1
-	}
 	if "`comparability'"=="" {
 		noi di in red "Warning: Comparability option not specified for Figure 9a. Non-comparable spells may be shown."	// Not a strict condition
 	}
@@ -65,41 +61,22 @@ program pea_figure9a, rclass
 		else local excelout "`excel'"
 	}
 	
+	// If no indicator specified, all are used
+	if ("`ineqind'" == "") local ineqind "Gini Theil Palma Top20"
+		
+	// Warning messages and invalid values
+	local allowed_ind "Gini Theil Palma Top20"
+	local check_ineq: list ineqind in allowed_ind 
+	if 	`check_ineq' ~= 1 {		
+		noi dis as error `"Inequality indicators may not include entries other than "Gini", "Theil", "Palma", "Top20"."'
+		error 1
+ 	}	
+	
 	//Number of groups (for colors)
-	qui levelsof `urban', local(group_num)
-	local groups = `:word count `group_num'' + 1
+	local groups = `:word count `ineqind''
 
 	// Figure colors
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
-
-	//variable checks
-	//check plines are not overlapped.
-	//trigger some sub-tables
-	qui {		
-		//order the lines
-		if "`linesorted'"=="" {
-			if "`ppppovlines'"~="" {
-				_pea_pline_order, povlines(`ppppovlines')			
-				local ppppovlines `=r(sorted_line)'
-				foreach var of local ppppovlines {
-					local lbl`var' `=r(lbl`var')'
-				}
-			}
-			
-			if "`natpovlines'"~="" {
-				_pea_pline_order, povlines(`natpovlines')
-				local natpovlines `=r(sorted_line)'
-				foreach var of local natpovlines {
-					local lbl`var' `=r(lbl`var')'
-				}
-			}
-		}
-		else {
-			foreach var of varlist `natpovlines' `ppppovlines' {
-				local lbl`var' : variable label `var'
-			}
-		}
-	}
 
 	//Weights
 	local wvar : word 2 of `exp'
@@ -114,14 +91,9 @@ program pea_figure9a, rclass
 	local flist `"`wvar' `onewelfare' `year'"'
 	markout `touse' `flist' 
 	
-	//more preparations
-	clonevar _Gini_`onewelfare' = `onewelfare' if `touse'	
-	tempfile dataori datacomp data2
-	save	`dataori'
-	qui sum urban, d
-	local max_val = r(max) + 1
-	local varlblurb : value label `urban'
-	
+	tempfile dataori datacomp
+	save `dataori', replace
+
 	//store comparability
 	if "`comparability'"~="" {
 		bys  `year': keep if _n == 1
@@ -129,75 +101,168 @@ program pea_figure9a, rclass
 		save `datacomp'
 	}	
 	
-	//GINI national
-	use `dataori'
-	if "`onewelfare'"~="" groupfunction  [aw=`wvar'] if `touse', gini(_Gini_`onewelfare') by(`year')
-	gen `urban' = `max_val' 			
-	save `data2', replace
+	use `dataori', clear	
 	
-	//GINI urban-rural
-	foreach var of local urban {
-		use `dataori', clear
-		if "`onewelfare'"~="" groupfunction  [aw=`wvar'] if `touse', gini(_Gini_`onewelfare') by(`year' `var')
-		append using `data2'
-		save `data2', replace
+	//Prepare inequality indicators
+	* Create a frame to store the results
+	cap frame create temp_frame
+	cap frame change temp_frame
+	cap frame drop ineq_results	
+	frame create ineq_results float(year) ///
+							  float(Gini Theil Palma Top20)
+	
+	use `dataori', clear
+	* Get unique combinations of year
+	levelsof `year', local(years)
+	* Loop through each year
+	foreach y in `years' {			
+			qui { 
+				//Kuznets (Palma) ratio & Top 20 Share
+				//bottom20share: define quintile, su welfare [weight] --> r(r_sum) of q1/total
+					_ebin `onewelfare' [w=`wvar'] if (`year'==`y'), nquantiles(10) gen(qwlf)
+					
+						su `onewelfare' [w=`wvar'] if (`year'==`y') 
+						local totwelf =  r(sum)
+							
+						su `onewelfare' [w=`wvar'] if (`year'==`y' & qwlf <= 4) 
+						local b40welf =  r(sum)
+				
+						su `onewelfare' [w=`wvar']  if (`year'==`y' & qwlf >= 8)
+						local t20welf =  r(sum)
+							
+						su `onewelfare' [w=`wvar']  if (`year'==`y' & qwlf == 10)
+						local t10welf =  r(sum)			
+							
+						local palma = `t10welf'/`b40welf'
+						local t20share = (`t20welf'/`totwelf')*100
+
+						drop qwlf
+				
+					// Gini, Theil, Atkinson, Sen, GEs...
+					ineqdeco `onewelfare' [w=`wvar'] if (`year'==`y'), welfare
+					* See <<help ineqdeco>> for definitions
+				}
+				
+				// Post the results to the frame
+				frame ineq_results {  
+					frame post ineq_results (`y') 				///
+						(`=`r(gini)'*100') (`=`r(ge1)'*100') (`palma') (`t20share')
+				}
+	} //end years
+
+	* See results
+	frame change ineq_results
+	
+	d, varlist
+	local vars `r(varlist)'
+	unab omit: year
+	local choose:  list vars - omit
+	noi di "`choose'"
+	foreach var of local choose {
+		rename `var' ind_`var'
+	}
+
+	reshape long ind_, i(`year') j(indicator) string
+
+	gen indicatorlbl=.
+	replace indicatorlbl = 1 if indicator=="Gini"
+	replace indicatorlbl = 2 if indicator=="Theil"
+	replace indicatorlbl = 3 if indicator=="Top20"
+	replace indicatorlbl = 4 if indicator=="Palma"
+
+	if "`bar'"=="" la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Top 20% share of incomes (%)" 4 "Palma (Kuznets) ratio"
+	else if "`bar'"~="" la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Top 20% share of incomes (%)" 4 "Palma (Kuznets) ratio (*10)"		// Need to add *10 to Palma ratio
+	la val indicatorlbl indicatorlbl
+
+	*Keep only those that are specified
+	gen keep = .
+	foreach k of local ineqind {
+		replace keep = 1 if indicator=="`k'"		
+	}
+	keep if keep == 1
+	drop keep
+	
+	// Check if Kuznets is among list, for second axis
+	local kuz "Palma"
+	local a: list ineqind & kuz
+	gen kuz = 1 if "`a'" == "Palma"
+	
+	//Axis range
+	*NEED TO DO FOR ALL INEQ INDICATORS
+	if "`yrange'" == "" {
+		local ymin = 0
+		qui sum ind_
+		local max = round(`r(max)',10)
+		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
+		local yrange "ylabel(0(10)`max')"
+	}
+	else {
+		local yrange "ylabel(`yrange')"
+	}
+	// For second y axis, if Kuznets ratio is one of the indicators
+	if  kuz == 1 & "`bar'" == "" {
+		local ymin = 0
+		qui sum ind_ if indicator == "Palma"
+		local max = round(`r(max)',1)
+		if `max' < `r(max)' local max = `max' + 1								// round up to nearest 10
+		local yrange2 "ylabel(0(1)`max', axis(2))"
+		local note_k "Palma (Kuznets) ratio is shown on the right y-axis."
+	}
+	else if kuz == 1 & "`bar'" ~= "" {
+		local note_k "Palma (Kuznets) ratio multiplied by 10 to ensure visibility."
+	}
+	else {
+		local yrange2 "ylabel(`=`yrange'/10'', axis(2))"
 	}	
-	
 	// Add comparability variable
 	if "`comparability'"~="" {
 		merge m:1 `year' using `datacomp', nogen
 	}
 	
-	// Clean and label
-	label values `urban' urban
-	if "`onewelfare'"~="" {
-		label var _Gini_`onewelfare' "GINI index"
-		replace   _Gini_`onewelfare' = _Gini_`onewelfare' * 100
-	}
-	
 	//Prepare year variable without gaps if specified
-	if "`equalspacing'"~="" {																	// Year spacing option
+	if "`noequalspacing'"=="" {																	// Year spacing option
 		egen year_nogap = group(`year'), label(year_nogap)										// Generate year variable without gaps
 		local year year_nogap
 	}	
 	qui levelsof `year'		 , local(yearval)	
 	sort `year'
-	
-	qui levelsof `urban'		, local(group_num)
-	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
-	label define `varlblurb' `max_val' "Total", add								// Add Total as last entry
-	label values `urban' `varlblurb'
 
-	foreach i of local group_num {
-		local j = `i' + 1			
-		local scatter_cmd`i' = `"scatter _Gini_`onewelfare' `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'								// Colors defined in pea_figure_setup
-		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
-		local label_`i': label(`urban') `i'
-		local legend`i' `"`j' "`label_`i''""'
+	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
+	
+	// Put together graph components
+	qui levelsof indicatorlbl, local(ind)
+	local j = 1
+	foreach i of local ind {
+		
+		local label_`i': label(indicatorlbl) `i'
+		if (`i'~=4) local legend`i' `"`j' "`label_`i''""'									// Leave out Palma, because it needs to be counted from back as second axis..
+		else if (`i'==4)  local legend`i' `"`=`groups'*`nyear'-`nyear'+1' "`label_`i''""'		// For Palma count from back - years, for each data point
 		local legend "`legend' `legend`i''"	
+		local allindicators "`allindicators' `label_`i''"
+	
+		if `i'~= 4 local scatter_cmd`i' = `"scatter ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") || "'	// Colors defined in pea_figure_setup
+		else if `i'== 4 local scatter_cmd`i' = `"scatter ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") yaxis(2) `yrange2' ytitle("`label_`i''", axis(2)) || "'
+		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		// Connect years (only if comparable if option is specified)
-		if "`comparability'"~="" {																											// If comparability specified, only comparable years are connected
+		
+		if "`comparability'"~="" {												// If comparability specified, only comparable years are connected
 			foreach co of local compval {
-				local line_cmd`i'`co' = `"line _Gini_`onewelfare' `year' if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
+				if `i'~= 4 local line_cmd`i'`co' = `"line ind_ `year' if indicatorlbl==`i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
+				else if `i'== 4 local line_cmd`i'`co' = `"line ind_ `year' if indicatorlbl==`i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") yaxis(2) `yrange2' || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
 			}
-			local note_c "Note: Non-connected dots indicate that survey-years are not comparable."
-		}
+				local note_c "Non-connected dots indicate that survey-years are not comparable."
+			}
+			
 		else if "`comparability'"=="" {
-			local line_cmd`i' = `"line _Gini_`onewelfare' `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
+			if `i'~= 4 local line_cmd`i'= `"line ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
+			else if `i'== 4 local line_cmd`i'= `"line ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") yaxis(2) `yrange2' || "' 					
 			local line_cmd "`line_cmd' `line_cmd`i''"
 		}
-	}		
-	
-	//Y-axis range
-	if "`yrange0'" ~="" {
-		local ymin = 0
-		qui sum _Gini_`onewelfare'
-		local max = round(`r(max)',10)
-		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
-		local yrange "ylabel(0(10)`max')"		
-	}
-	
+		
+		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
+		local j = `j' + 1
+	}	
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure9a.xlsx"
 		local act replace
@@ -206,33 +271,45 @@ program pea_figure9a, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}
-	
-	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through the GMD."
-	local notes `"`notes'" "`note_c'"'
-	if "`nonotes'" ~= "" local notes ""
-	
+
 	//Figure		
 	local gr = 1
+	local u  = 5
 	putexcel set "`excelout2'", `act'
 	//change all legend to bottom, and maybe 2 rows
 	//add comparability
 	tempfile graph`gr'
-	local lbltitle : variable label _Gini_`onewelfare'
-	twoway `scatter_cmd' `line_cmd'									///	
+	if "`bar'" == "" {
+		twoway `scatter_cmd' `line_cmd'								///	
 			  , legend(order("`legend'") pos(6) row(1)) 			///
-			  ytitle("`lbltitle'") 									///
+			  ytitle("Inequality indicators", axis(1))				///
 			  xtitle("")											///
 			  xlabel(`yearval', valuelabel)							///
 			  `yrange'												///
-			  name(ngraph`gr', replace)								///
-			  note("`notes'", size(small))
-
-	putexcel set "`excelout2'", modify sheet(Figure9a_`gr', replace)	  
-	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3200) height(2400)		
-	putexcel A1 = image("`graph`gr''")
+			  name(ngraph`gr', replace)	
+	}		  
+	else if "`bar'" ~= "" {
+		replace ind_ = ind_ * 10 if indicator == "Palma"
+		graph bar ind_, over(indicatorlbl) over(`year') `bcolors'		///
+				ytitle("Inequality indicators") asyvars			///
+				name(ngraph`gr', replace)								
+	}
+	putexcel set "`excelout2'", modify sheet(Figure9a, replace)	  
+	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)		
+	putexcel A1 = ""
+	putexcel A2 = "Figure 9a: Inequality indices over time"
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+	putexcel A4 = "Note: The figure shows `allindicators' over time. `note_k' `note_c'"
+	putexcel A`u' = image("`graph`gr''")
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code"
+	if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") pos(6) row(1)) ytitle("Inequality indicators", axis(1)) xtitle("") xlabel(`yearval', valuelabel) `yrange'"'
+	else if "`bar'" ~= "" putexcel O7 = `"graph bar ind_, over(indicatorlbl) over(year) `bcolors' ytitle("Inequality indicators") asyvars"'
 	putexcel save							
 	cap graph close	
+	//Export data
+	drop kuz
+	export excel * using "`excelout2'" , sheet("Figure9a", modify) cell(O11) keepcellfmt firstrow(variables)
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure9a.xlsx"
 
 end	
