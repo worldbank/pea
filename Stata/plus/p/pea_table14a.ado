@@ -14,10 +14,10 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Table 13
+//Table 14a
 
-cap program drop pea_table14
-program pea_table14, rclass
+cap program drop pea_table14a
+program pea_table14a, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) MISSING]
 	
@@ -37,7 +37,6 @@ program pea_table14, rclass
 		}
 		else local excelout "`excel'"
 	}
-	
 	if "`missing'"~="" { //show missing
 		foreach var of varlist `male' `hhhead' `edu' `industrycat4' `empstat' {
 			su `var'
@@ -48,13 +47,12 @@ program pea_table14, rclass
 		}
 	}
 	
+
 	qui {
 		//order the lines
 		local lbl`povlines' : variable label `povlines'		
 		su `povlines',d
-		if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
-		else local lbloneline `oneline'	
-		local lbloneline `=trim("`lbloneline'")'
+		if `=r(sd)'==0 local lblline: var label `povlines'		
 		
 		//Weights
 		local wvar : word 2 of `exp'
@@ -102,7 +100,7 @@ program pea_table14, rclass
 	la val _total _total
 	
 	//variable checks
-	if "`age'"!="" {
+	if "`age'"~="" {
 		su `age' if `touse',d
 		if r(N)>0 {
 			gen age0t14 = 1 if `age'<=14
@@ -135,7 +133,7 @@ program pea_table14, rclass
 					bys `year' `hhid' (`pid'): egen age6t18schsum = total(age6t18_sch)
 					gen age6t18_sch_ratio = (age6t18schsum/age6t18sum)*100
 					local agevars "`agevars' age6t18_sch_ratio"
-					la var age6t18_sch_ratio "Share of children age 6-18 attending school"
+					la var age6t18_sch_ratio "Share of children age 6-18 attending school (%)"
 					local age6t18_sch_ratio age6t18_sch_ratio
 				}
 			} //school	
@@ -171,8 +169,8 @@ program pea_table14, rclass
 			clonevar edu_head = `edu'
 			replace edu_head = . if `hhhead'~=1 
 			*gen edu_head = `edu' if `hhhead'==1 
-			la var edu_head "Household head's highest level of education"
-			local lbledu_head "Household head's highest level of education"
+			la var edu_head "Household head's education"
+			local lbledu_head "Household head's education"
 			levelsof edu_head, local(edulvl)
 			local label1 : value label edu_head	
 			foreach lvl of local edulvl {
@@ -233,11 +231,12 @@ program pea_table14, rclass
 		}
 	}
 	la var `urban' "Household lives in urban area (%)"
+	di "`urban' `services' `assets'"
 	for var `urban' `services' `assets': replace X = 100 if X==1
 	
 	local demographics `urban' `age_head' `female_head' `married_head' `edu_head' `age6t18_sch_ratio' `hhsize' `age6t18_sh' `age65p_sh' `dep_ratio'
-	local headactivity `industry_head' `doesnotwork_head' `empstat_head'
-	
+	local headactivity `doesnotwork_head' `empstat_head'
+
 	//bys `year' `hhid' (`pid'): egen double hhwgt = total(`wvar')
 	//household can have more than one head, that is data problem, we dont fix this.
 	//the indicators are defined at the household level, thus using weight.
@@ -291,8 +290,11 @@ program pea_table14, rclass
 	foreach var of local headactivity {
 		replace group1 = 4 if name=="`var'"
 	}
-	
-	la def group1 1 "Demographics" 2 "Access to services" 3 "Asset ownership" 4 "Economic activity of household head"
+	foreach var of local industry_head {
+		replace group1 = 5 if name=="`var'"		
+	}
+
+	la def group1 1 "Demographics" 2 "Access to services" 3 "Asset ownership" 4 "Employment status of household head" 5 "Economic sector of household head"
 	la val group1 group1
 	
 	gen group2 = .
@@ -308,26 +310,26 @@ program pea_table14, rclass
 	
 	local i = 1
 	gen order = .
-	foreach var in `demographics' `services' `assets' `headactivity' {
+	foreach var in `demographics' `services' `assets' `headactivity' `industry_head' {
 		replace order = `i' if name=="`var'"
 		local i = `i' + 1
 	}
 	if "`core'"=="" {
 		local tabtitle "Table 14a. Profiles of the poor"
-		local tbt Table14
+		local tbt Table14a
 	}
 	else {
-		local tabtitle "Table A.4. Poverty profiles"	
-		local tbt TableA4
+		local tabtitle "Table A.4a. Poverty profiles"	
+		local tbt TableA4a
 	}
 	collect clear
-	qui collect: table (group1 order   varlab) (`year' _bygroup2), statistic(mean value) nototal nformat(%20.2f) missing	
+	qui collect: table (group1 order   varlab) (`year' _bygroup2), statistic(mean value) nototal nformat(%20.1f) missing	
 	collect style header group1 order   varlab `year' _bygroup2, title(hide)
 	collect title `"`tabtitle'"'
 	*collect style header group2[.], level(hide)
 	collect style header order, level(hide)
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
-	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined as those with less than $`lbloneline' per person per day (in 2017 purchasing power parity dollars)."' 
+	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Household dependency ratio is the ratio of children (0-14) and elderly (65+) over working-age population (15-64). Improved drinking water sources include piped water on premises (piped household water connection located inside the user"s dwelling, plot or yard), and other improved drinking water sources (public taps or standpipes, tube wells or boreholes, protected dug wells, protected springs, and rainwater collection) (WHO/UNICEF Joint Monitoring Programme). Improved sanitation facilities are sanitation facilities likely to ensure hygienic separation of human excreta from human contact, including flush/pour flush (to piped sewer system, septic tank, pit latrine), ventilated improved pit latrine, pit latrine with slab, and composting toilet (WHO/UNICEF Joint Monitoring Programme)."' 
 	collect style notes, font(, italic size(10))
 
 	if "`excel'"=="" {

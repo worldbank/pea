@@ -19,7 +19,7 @@
 cap program drop pea_table_A2
 program pea_table_A2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) CORE setting(string) LINESORTED excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) MISSING]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) CORE setting(string) LINESORTED excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) minobs(numlist) MISSING]
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -56,7 +56,11 @@ program pea_table_A2, rclass
 				la def `varlbl' `=`miss'+10' "Missing", add
 			}
 		}
-	
+
+		if "`minobs'"~="" { 
+			local note_minobs "Cells with less than `minobs' observations are dropped."
+		}
+			
 		//order the lines (assume one pline is used)
 		su `ppppovlines',d
 		if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
@@ -140,7 +144,8 @@ program pea_table_A2, rclass
 		use `data1', clear
 		local lbl0`var' : variable label `var'
 		if "`lbl0`var''"=="" local lbl0`var' "`var'"
-		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) rawsum(_pop) by(`year' `var')
+		gen count = 1
+		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(count) rawsum(_pop) by(`year' `var')
 		ren `var' lbl`var'
 		append using `data2'
 		save `data2', replace
@@ -213,7 +218,7 @@ program pea_table_A2, rclass
 	la var npoor "Number of poor `xtxt'"
 	la var share_poor "Share of poor"
 	
-	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl group
+	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl group count
 
 	ren _fgt0_ value1
 	ren share_poor value2
@@ -224,15 +229,16 @@ program pea_table_A2, rclass
 	la val ind ind
 	drop if group==.
 	drop if ind==2
-	
+	local milab : value label combined_var
+	if ("`minobs'" ~= "") replace value = . if count < `minobs' & combined_var ~= "Missing":`milab'
 	collect clear
-	qui collect: table ( group combined_var) (ind `year') (indicatorlbl), stat(mean value) nototal nformat(%20.2f) missing
+	qui collect: table ( group combined_var) (ind `year') (indicatorlbl), stat(mean value) nototal nformat(%20.1f) missing
 	collect style header indicatorlbl group combined_var ind `year', title(hide)
 	*collect style header subind[.], level(hide)
 	*collect style cell, result halign(center)
 	collect title `"Table A.2. Poverty indicators by subgroup"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates are reported for the $`lbloneline' per person per day poverty line, expressed in 2017 purchasing power parity dollars."'
+	collect notes 2: `"Note: Poverty rates are reported for the $`lbloneline' per person per day poverty line, expressed in 2017 purchasing power parity dollars. `note_minobs'"'
 	collect style notes, font(, italic size(10))
 		
 	if "`excel'"=="" {

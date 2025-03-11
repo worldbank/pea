@@ -14,12 +14,12 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Figure 10a. Prosperity gap by year lines
+//Figure 10a. Prosperity gap by year and area lines
 
 cap program drop pea_figure10a
 program pea_figure10a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NONOTES EQUALSPACING YRange0 scheme(string) palette(string) save(string) excel(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOEQUALSPACING YRange(string) BAR scheme(string) palette(string) save(string) excel(string)]
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
@@ -139,7 +139,7 @@ program pea_figure10a, rclass
 	}
 	
 	//Prepare year variable without gaps
-	if "`equalspacing'"~="" {																	// Year spacing option
+	if "`noequalspacing'"=="" {																	// Year spacing option
 		egen year_nogap = group(`year'), label(year_nogap)										// Generate year variable without gaps
 		local year year_nogap
 	}	
@@ -164,21 +164,25 @@ program pea_figure10a, rclass
 				local line_cmd`i'`co' = `"line _prosgap_`onewelfare' `year' if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
 			}
-			local note_c "Note: Non-connected dots indicate that survey-years are not comparable."
+			local note_c "Non-connected dots indicate that survey-years are not comparable."
 		}
 		else if "`comparability'"=="" {
 			local line_cmd`i' = `"line _prosgap_`onewelfare' `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
 			local line_cmd "`line_cmd' `line_cmd`i''"
 		}
+		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
 	}		
 
-	//Y-axis range
-	if "`yrange0'" ~="" {
+	//Axis range
+	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum _prosgap_`onewelfare'
-		local max = round(`r(max)',10)
-		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
-		local yrange "ylabel(0(10)`max')"		
+		local max = round(`r(max)',5)
+		if `max' < `r(max)' local max = `max' + 5								// round up to nearest 10
+		local yrange "ylabel(0(5)`max')"
+	}
+	else {
+		local yrange "ylabel(`yrange')"
 	}
 	
 	
@@ -190,33 +194,45 @@ program pea_figure10a, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}	
-	
-	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through the GMD."
-	local notes `"`notes'" "`note_c'" "The prosperity gap is defined as the average factor by which incomes need to be multiplied" "to bring everyone to the prosperity standard of $${prosgline_}."'
-	if "`nonotes'" ~= "" local notes ""
 
 	// Figure	
 	local gr = 1
+	local u  = 5
 	putexcel set "`excelout2'", `act'
 	//change all legend to bottom, and maybe 2 rows
 	//add comparability
 	tempfile graph`gr'
 	local lbltitle : variable label _prosgap_`onewelfare'
-	twoway `scatter_cmd' `line_cmd'									///	
+	if "`bar'" == "" {
+		twoway `scatter_cmd' `line_cmd'									///	
 			  , legend(order("`legend'") pos(6) row(1)) 			///
 			  ytitle("`lbltitle'") 									///
 			  xtitle("")											///
 			  xlabel(`yearval', valuelabel)							///
 			  `yrange'												///
-			  name(ngraph`gr', replace)								///
-			  note("`notes'", size(small))
-
-	putexcel set "`excelout2'", modify sheet(Figure10a_`gr', replace)	  
-	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3200) height(2400)	
-	putexcel A1 = image("`graph`gr''")
+			  name(ngraph`gr', replace)	
+	}
+	else if "`bar'" ~= "" {
+		graph bar _prosgap_`onewelfare', over(`urban') over(`year') `bcolors'		///
+				ytitle("`lbltitle'") asyvars			///
+				name(ngraph`gr', replace)								
+	}	
+	
+	putexcel set "`excelout2'", modify sheet(Figure10a, replace)	  
+	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)	
+	putexcel A1 = ""
+	putexcel A2 = "Figure 10a: Prosperity gap by area over time"
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+	putexcel A4 = "Note: The figure shows the prosperity gap over time. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. `note_c' See Kraay et al. (2023) for more details on the prosperity gap."
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code:"
+	putexcel A`u' = image("`graph`gr''")
+	if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") pos(6) row(1)) ytitle("`lbltitle'") xtitle("") xlabel(`yearval', valuelabel) `yrange'"'
+	else if "`bar'" ~= "" putexcel O7 = `"graph bar _prosgap_`onewelfare', over(`urban') over(`year') `bcolors' ytitle("`lbltitle'") asyvars"'
 	putexcel save							
 	cap graph close	
-	if "`excel'"=="" shell start excel "`dirpath'\\Figure10a.xlsx"
+	//Export data
+	export excel `year' `urban' _prosgap_* using "`excelout2'" , sheet("Figure10a", modify) cell(O11) keepcellfmt firstrow(variables)
+	if "`excel'"=="" shell start excel "`dirWpath'\\Figure10a.xlsx"
 
 end	

@@ -20,7 +20,7 @@
 cap program drop pea_figure2
 program pea_figure2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS NONOTES scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string)]	
 	
 	tempfile dataori pea_pov 
 
@@ -61,7 +61,7 @@ program pea_figure2, rclass
 	}
 	local lblline: var label `oneline'		
 	save `dataori', replace
-		
+	
 	// Check if PIP lineup already prepared, else download all PIP related files
 	local nametodo = 0
 	cap confirm file "`persdir'pea/PIP_all_countrylineup.dta"
@@ -172,7 +172,7 @@ program pea_figure2, rclass
 	local groupcount = `groupcount' + 1
 	local leg_elem 	 = `leg_elem' - 1
 	replace group 	 = `groupcount' if region  == "`region_name'" & group == .	 
-	local legend `"`legend' `leg_elem' "`region_name'""'		
+	local legend `"`legend' `leg_elem' "Other `region_name'""'		
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}
 	local msym`groupcount' "o"
 	
@@ -206,14 +206,21 @@ program pea_figure2, rclass
 		local scatter_cmd "`scatter_cmd`i'' `scatter_cmd' "						// PEA country comes last and marker is on top
 	}
 	 
+	//Axis range
+	if "`yrange'" == "" {
+		local ymin = 0
+		qui sum headcount`povline_100'
+		local max = round(`r(max)',10)
+		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
+		local yrange "ylabel(0(10)`max')"
+	}
+	else {
+		local yrange "ylabel(`yrange')"
+	}
+	
 	// Data Preparation 
 	gen ln_gdp_pc = ln(gdppc)
 	format headcount`povline_100' %5.0f
-	
-	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through the GMD."
-	local notes `"`notes'" "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries." "Poverty rates reported using `lblline'."'
-	if "`nonotes'" ~= "" local notes = ""
 	
 	// Figure
 	if "`excel'"=="" {
@@ -225,21 +232,34 @@ program pea_figure2, rclass
 		local act modify
 	}	
 		
+	local u  = 5
+
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	twoway `scatter_cmd'													///		
 		qfit 	headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) 	///
 		, legend(order(`legend')) 											///
+		  `yrange'															///
 		  ytitle("Poverty rate (percent)") 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
-		  name(ngraph`gr', replace)											///
-		  note("`notes'", size(small))
+		  name(ngraph`gr', replace)		
 		
 	putexcel set "`excelout2'", modify sheet(Figure2, replace)	  
-	graph export "`graph'", replace as(png) name(ngraph) wid(3000)		
-	putexcel A1 = image("`graph'")
+	graph export "`graph'", replace as(png) name(ngraph) wid(1500)	
+	putexcel A1 = ""
+	putexcel A2 = "Figure 2: Poverty rates and GDP per-capita"
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+	putexcel A4 = "Note: The figure shows poverty rates using `lblline' against GDP per-capita (in logs). Data is for year `lasty' and lined-up estimates are used for the non-PEA countries. Benchmark countries are shown separately from the countries in the same region as `country'. Dashed line is a fitted quadratic line."
+	putexcel A`u' = image("`graph'")
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code"
+	putexcel O7 = `"twoway `scatter_cmd' qfit headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray),  legend(order(`legend')) ytitle("Poverty rate (percent)") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
 	putexcel save							
 	cap graph close	
+
+	// Export data
+	export excel * using "`excelout2'", sheet("Figure2", modify) cell(O11) keepcellfmt firstrow(variables)	
+	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure2.xlsx"	
 	
 end

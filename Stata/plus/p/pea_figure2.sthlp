@@ -22,7 +22,7 @@ help for {hi:pea figure2}{right:January 2025}
 	{opt ONELine(varname numeric)} 
 	{opt ONEWelfare(varname numeric)} 
 	{opt FGTVARS} 
-	{opt NONOTES} 
+	{opt yrange(string)} 
 	{opt scheme(string)} 
 	{opt palette(string)} 
 	{opt save(string)} 
@@ -61,11 +61,11 @@ is the welfare variable to be used in the analysis.
 {p 4 4 2} 
 {opt FGTVARS}: 
 generates additional Foster-Greer-Thorbecke poverty indices.
-    
-{p 4 4 2} 
-{opt NONOTES}: 
-disables the inclusion of notes in the final output.
-    
+
+{p 4 4 2}
+{opt yrange}: Optional. Users can specify the range of the y-axis. The range must be entered in Stata figure format, such as "yrange(0(10)100)".
+Default is that figures start at 0 and go up to the maximum value of the displayed data (next 10).
+
 {p 4 4 2} 
 {opt scheme(string)}: 
 allows customization of the figure's color scheme.

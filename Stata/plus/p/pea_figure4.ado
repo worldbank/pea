@@ -19,7 +19,7 @@
 cap program drop pea_figure4
 program pea_figure4, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) CORE LINESORTED NONOTES comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) CORE LINESORTED comparability(string) idpl(string) setting(string) excel(string) save(string) scheme(string) palette(string)]
 
 	//load data if defined
 	if "`using'"~="" {
@@ -61,6 +61,21 @@ program pea_figure4, rclass
 	
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
+	
+	// Check if there are multiple poverty lines
+	foreach y of local keepyears {
+		qui sum `oneline' if year == `y'
+		if "`idpl'" == "" & `r(min)' ~= `r(max)' {
+			noi dis as error "Different poverty lines for one year: Please use option idpl() to specify the grouping of poverty lines (e.g. urban)."
+			error `=_rc'	
+		}
+	}
+	
+	if "`idpl'" ~= "" {
+		local idplgroup "idpl(`idpl')"
+		local idpl_lab: variable label `idpl'
+		local idpl_note "Different poverty lines are used by `idpl_lab'."
+	}
 	
 	// Figure colors
 	local groups = 4																					// number of bars
@@ -161,7 +176,7 @@ program pea_figure4, rclass
 				}
 				
 				//Shorrocks-Kolenikov 
-				skdecomp `onewelfare' [aw=`wvar'] if `year'==`1'|`year'==`2', by(`year') varpl(`oneline')
+				skdecomp `onewelfare' [aw=`wvar'] if `year'==`1'|`year'==`2', by(`year') varpl(`oneline') `idplgroup'
 				mat a = r(b)
 				local value1 = a[1,3]
 				local value2 = a[2,3]
@@ -188,7 +203,26 @@ program pea_figure4, rclass
 			la def indicatorlbl `i' "`lbl`var''", add
 			local i = `i' + 1
 		}
-		
+		// Spells
+		encode spell, gen(spell_n)
+		qui levelsof spell_n, local(spells)
+		// Stacked bars
+		gen subind_cat 		= subind - 1
+		replace subind_cat = . if subind == 1
+		gen value_negative 	= value < 0
+		bys decomp value_negative (subind_cat): gen num = _n
+		replace num = . if subind == 1
+		gen value_add = value  if subind != 1
+		foreach y of local spells {
+		bys decomp value_negative (num) : replace value_add = value_add + value_add[_n-1] if value_negative == 0 & num != . & num > 1			
+		bys decomp value_negative (num) : replace value_add = value_add - value_add[_n-1] if value_negative == 1 & num != . & num > 1			
+		}
+		drop subind_cat value_negative num spell
+		// Reshape for stacked bars
+		compress decomp
+		reshape wide value value_add, i(decomp spell_n) j(subind)
+		order decomp spell_n value? value_add?
+		gen zero = 0	// zero needed so twoway bar starts at 0..
 		// Figure
 		local figname Figure4
 		if "`excel'"=="" {
@@ -199,48 +233,69 @@ program pea_figure4, rclass
 			local excelout2 "`excelout'"
 			local act modify
 		}
-		// Coloring of bars
-		qui levelsof subind, local(subind_list)
-		foreach i of local subind_list {
-			local colors "`colors' bar(`i', color(${col`i'}))"		
-		}
+
 		local gr 1
 		local u  = 5		
 		putexcel set "`excelout2'", `act'
 		
 		//Datt-Ravallion
+		if "`core'" == "" local fnum "4a"
+		else if "`core'" ~= "" local fnum "A.2" 
 		tempfile graph1
-		//Prepare Notes
 		local note : label indicatorlbl 1	
-		local notes "Source: World Bank calculations using survey data accessed through the Global Monitoring Database"
-		local notes `"`notes'" "Note: The Datt-Ravallion decomposition shows how much changes in total poverty" "can be attributed to income or consumption growth and redistribution using" "`note'"'
-		if "`nonotes'" ~= "" local notes ""
-		
-		graph bar value if decomp=="Datt-Ravallion" & subind<=3, over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty (percentage points)", size(medium)) name(gr_decomp, replace) title("Datt-Ravallion decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) `colors' ///
-		note("`notes'", size(small))
+		twoway bar value_add3 value_add2 spell_n if decomp=="Datt-Ravallion", color("${col3}" "${col2}") barwidth(0.5 0.5)  ||	///
+				scatter value1 spell_n if decomp=="Datt-Ravallion", 										///
+				msym(D) msize(2.5) mcolor("${col1}") mlcolor(black)						||	///
+				bar zero spell_n, yline(0)  xlabel("`spells'", valuelabel) xtitle("")						///
+			legend(rows(1) size(medium) position(6) order(2 "Growth" 1 "Redistribution" 3 "Total change"))	///
+			ytitle("Change in poverty" "(percentage points)", size(medium)) 								///
+			name(gr_decomp, replace)
 			
-		putexcel set "`excelout2'", modify sheet("Figure4_1", replace)
-		graph export "`graph1'", replace as(png) name(gr_decomp) wid(3000)
+		putexcel set "`excelout2'", modify sheet("Figure`fnum'", replace)
+		graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
+		putexcel A1 = ""
+		putexcel A2 = "Figure `fnum': Datt-Ravallion decomposition"
+		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+		putexcel A4 = "Note: The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution using `note', following Datt and Ravallion (1992)."
 		putexcel A`u' = image("`graph1'")
-					
+		putexcel O10 = "Data:"
+		putexcel O6	= "Code:"
+		putexcel O7 = `"twoway bar value_add3 value_add2 spell_n if decomp=="Datt-Ravallion", color("${col1}" "${col2}") barwidth(0.5 0.5) || scatter value1 spell_n if decomp=="Datt-Ravallion", msym(D) msize(2.5) mcolor("${col3}") mlcolor(black) legend(rows(1) size(medium) position(6) order(2 "Growth" 1 "Redistribution" 3 "Total change")) ytitle("Change in poverty" "(percentage points)", size(medium))"'
+		//Export data
+		export excel * using "`excelout2'" if decomp=="Datt-Ravallion", sheet("Figure`fnum'", modify) cell(O11) keepcellfmt firstrow(variables)	
+			
 		//Shorrocks-Kolenikov
-		local gr 1
-		local u  = 5
-		tempfile graph1
-		//Prepare Notes
-		local note : label indicatorlbl 1	
-		local notes "Source: World Bank calculations using survey data accessed through the Global Monitoring Database"
-		local notes `"`notes'" "Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty" "can be attributed to income or consumption growth, redistribution, and price changes using" "`note'"'
-		if "`nonotes'" ~= "" local notes ""
-		
-		graph bar value if decomp=="Shorrocks-Kolenikov", over(subind) over(spell) asyvar legend(rows(1) size(medium) position(6)) ytitle("Total change in poverty (percentage points)", size(medium)) name(gr_decomp, replace) title("Shorrocks-Kolenikov decomposition", size(medium)) blabel(bar, position(center) format(%9.2f)) `colors' ///
-		note("`notes'", size(small))
-						
-		putexcel set "`excelout2'", modify sheet("Figure4_2", replace)
-		graph export "`graph1'", replace as(png) name(gr_decomp) wid(3000)
-		putexcel A`u' = image("`graph1'")
-		putexcel save
+		if "`core'" == "" {
+			local gr 1
+			local u  = 5
+			tempfile graph1
+			local note : label indicatorlbl 1
+			twoway bar value_add4 value_add3 value_add2 spell_n if decomp=="Shorrocks-Kolenikov",					/// 
+					color("${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5)	||									///
+					scatter value1 spell_n if decomp=="Shorrocks-Kolenikov", 										///
+					msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) 		||									///
+					bar zero spell_n, yline(0) xlabel("`spells'", valuelabel) xtitle("")							///
+					legend(rows(1) size(medium) position(6)															///
+					order(3 "Growth" 2 "Redistribution" 1 "Price" 4 "Total change"))								///
+					ytitle("Total change in poverty" "(percentage points)", size(medium)) 								///
+					name(gr_decomp, replace)
+										
+			putexcel set "`excelout2'", modify sheet("Figure4b", replace)
+			graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
+			putexcel A1 = ""
+			putexcel A2 = "Figure 4b: Shorrocks-Kolenikov decomposition"
+			putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+			putexcel A4 = "Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty can be attributed to income or consumption growth, redistribution, and price changes using `note', following Kolenikov and Shorrocks (2005). Note that there are no changes in prices if poverty lines are in constant terms. `idpl_note'."
+			putexcel A`u' = image("`graph1'")
+			putexcel O10 = "Data:"
+			putexcel O6	= "Code:"
+			putexcel O7 = `"twoway bar value_add4 value_add3 value_add2 spell_n if decomp=="Shorrocks-Kolenikov", color("${col1}" "${col2}" "${col3}") barwidth(0.5 0.5 0.5) || scatter value1 spell_n if decomp=="Shorrocks-Kolenikov", msym(D) msize(2.5) mcolor("${col4}") mlcolor(black) legend(rows(1) size(medium) position(6) order(3 "Growth" 2 "Redistribution" 1 "Price" 4 "Total change")) ytitle("Total change in poverty" "(percentage points)", size(medium))"'
+			putexcel save
+			//Export data
+			export excel * using "`excelout2'" if decomp=="Shorrocks-Kolenikov", sheet("Figure4b", modify) cell(O11) keepcellfmt firstrow(variables)	
+		}
 		cap graph close	
 	} //qui
+
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"
 end

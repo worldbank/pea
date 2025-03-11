@@ -19,7 +19,6 @@ help for {hi:pea table8}{right:January 2025}
 [{opt ,} 
 {opt Welfare(varname numeric)} 
 {opt Year(varname numeric)} 
-{opt byind(varlist numeric)}
 {opt setting(string)} 
 {opt excel(string)} 
 {opt save(string)} 
@@ -50,10 +49,6 @@ help for {hi:pea table8}{right:January 2025}
  specifies the year variable for the analysis.
  
 {p 4 4 2} 
-{opt byind(varlist numeric)}:
-Geographic units for disaggregation, multiple entries allowed.
-
-{p 4 4 2} 
 {opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and 
 additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) 
 do not need to be specified.
@@ -73,4 +68,4 @@ do not need to be specified.
 {title:Example}
 
 {p 4 4 2} 
-{bf:pea table8} [aw=weight_p], welfare(welfare) year(year) byind(urban) missing
+{bf:pea table8} [aw=weight_p], welfare(welfare) year(year) missing

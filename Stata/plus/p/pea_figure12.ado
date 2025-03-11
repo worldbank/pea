@@ -20,7 +20,7 @@
 cap program drop pea_figure12
 program pea_figure12, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NONOTES spells(string) excel(string) save(string) comparability(string) scheme(string) palette(string) ]	
+	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT spells(string) excel(string) save(string) comparability(string) RELATIVECHANGE scheme(string) palette(string) ]	
 	
 	global floor_ 0.25
 	global prosgline_ 25
@@ -59,7 +59,7 @@ program pea_figure12, rclass
 	}
 	
 	// Figure colors
-	local groups = 2																					// number of bars
+	local groups = 3																					// number of bars
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 		
 	//Weights
@@ -167,30 +167,53 @@ program pea_figure12, rclass
 		//change in ln
 		bys spell (year): gen ch_ln`var' = (ln`var'[_n]- ln`var'[_n-1])/(year[_n]-year[_n-1])
 	}
-
-	*bys spell (year): gen period = string(year[_n]) + "-" + string(year[_n-1])
-	gen inq_share = (-ch_lninq_y_ybar/ch_lnprosgap)*100
-	gen grow_share = (ch_lnmean/ch_lnprosgap)*100
 	
-	// Coloring of bars
-	forval i = 1/2 {
-		local colors "`colors' bar(`i', color(${col`i'}))"		
+	gen zero = 0																// Needed so that figure starts at 0
+	encode spell, gen(spell_num)
+	qui levelsof spell_num, local(spells)
+	
+	if "`relativechange'" == "" {
+		*bys spell (year): gen period = string(year[_n]) + "-" + string(year[_n-1])
+		replace ch_lninq_y_ybar = ch_lninq_y_ybar *100
+		replace ch_lnmean = -1 * ch_lnmean *100
+		replace ch_lnprosgap = ch_lnprosgap *100
+		//If inequality and growth go in same direction, need to add up for chart
+		gen ch_lninq_y_ybar_add = .
+		foreach y of local spells {
+			replace ch_lninq_y_ybar_add = ch_lninq_y_ybar + ch_lnmean if spell_num == `y' & (ch_lninq_y_ybar * ch_lnmean > 0)
+			replace ch_lninq_y_ybar_add = ch_lninq_y_ybar if spell_num == `y' & (ch_lninq_y_ybar * ch_lnmean <= 0)
+		}
 	}
-			
+	else if "`relativechange'" ~= "" {
+		gen inq_share = (ch_lninq_y_ybar/ch_lnprosgap)*100
+        gen grow_share = (-1 * ch_lnmean/ch_lnprosgap)*100
+
+	}
+
 	local gr 1
 	local u  = 5
-	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through GMD."
-	local notes `"`notes'" "Note: Figure shows the decomposition of the Prosperity Gap into income and" "inequality components."'
-	if "`nonotes'" ~= "" local notes ""
-	
+
 	//Figure
+	if "`relativechange'" == "" {
+		graph twoway bar ch_lninq_y_ybar_add ch_lnmean spell_num if ch_lninq_y_ybar_add~=.				///
+			, color("${col1}" "${col2}") barwidth(0.5 0.5)												///
+			|| scatter ch_lnprosgap spell_num if ch_lninq_y_ybar_add~=.									///
+			, msym(D) msize(2.5) mcolor("${col3}") mlcolor(black)										///
+			|| bar zero spell_num if ch_lninq_y_ybar_add~=.												///
+			, yline(0) xlabel("`spells'", valuelabel)													///
+			name(ngraph`gr', replace) ytitle("Annual growth (%)") xtitle("")							///
+			legend(order(1 "Contribution of growth in inequality"										///
+						 2 "Contribution of growth in mean growth"										///
+						 3 "Growth in Prosperity Gap") rows(3) position(6))
+	}
+	else if "`relativechange'" ~= "" {
 	graph hbar inq_share grow_share if inq_share~=., 														///
 		stack over(spell) ytitle("Contribution to prosperity gap growth (%)") `colors'						///		
 		title("Decomposition of growth in prosperity gap", size(medium)) 									///
 		legend(order(1 "Inequality contribution" 2 "Mean contribution") rows(1) size(medium) position(6)) 	///
-		blabel(bar, position(center) format(%9.2f)) name(ngraph`gr', replace)								///
-		note("`notes'")
+		name(ngraph`gr', replace)
+	}	
+
 	
 	//Export
 	local figname Figure12
@@ -206,9 +229,29 @@ program pea_figure12, rclass
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	putexcel set "`excelout2'", modify sheet(`figname', replace)	  
-	graph export "`graph'", replace as(png) name(ngraph`gr') wid(3000)		
+	graph export "`graph'", replace as(png) name(ngraph`gr') wid(1500)		
+	putexcel A1 = ""
+	putexcel A2 = "Figure 12: Decomposition of growth in prosperity gap"
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+	putexcel A4 = "Note: The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. The figure shows the decomposition of the Prosperity Gap into income and inequality components. See Kraay et al. (2023) for more details."
 	putexcel A`u' = image("`graph'")
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code"
+	if "`relativechange'" == "" {
+		putexcel O7 = `"graph twoway bar ch_lninq_y_ybar_add ch_lnmean spell_num if ch_lninq_y_ybar_add~=., color("${col1}" "${col2}") barwidth(0.5 0.5) || scatter ch_lnprosgap spell_num if ch_lninq_y_ybar_add~=., msym(D) msize(2.5) mcolor("${col3}") mlcolor(black) || bar zero spell_num if ch_lninq_y_ybar_add~=., yline(0) xlabel("`spells'", valuelabel) ytitle("Annual growth (%)") xtitle("") legend(order(1 "Contribution of growth in inequality" 2 "Contribution of growth in mean growth" 3 "Growth in Prosperity Gap") rows(3) position(6))"'
+	}
+	else if "`relativechange'" ~= "" {
+		putexcel O7 = `"graph hbar inq_share grow_share if inq_share~=., stack over(spell) ytitle("Contribution to prosperity gap growth (%)") `colors' title("Decomposition of growth in prosperity gap", size(medium)) legend(order(1 "Inequality contribution" 2 "Mean contribution") rows(1) size(medium) position(6))"'
+
+	}	
 	putexcel save							
 	cap graph close	
+	//Export data
+	if "`relativechange'" == "" {
+		export excel spell year mean inq_y_ybar prosgap lnprosgap ch_lnprosgap lninq_y_ybar ch_lninq_y_ybar lnmean ch_lnmean ch_lninq_y_ybar_add spell_num using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables)	
+	}
+	else if "`relativechange'" ~= "" {
+		export excel spell year inq_share grow_share using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables)	
+	}
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
 end

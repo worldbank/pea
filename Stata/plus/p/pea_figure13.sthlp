@@ -21,8 +21,7 @@ help for {hi:pea figure13}{right:January 2025}
 	{opt ONEWelfare(varname numeric)} 
 	{opt Year(varname numeric)} 
 	{opt NOOUTPUT} 
-	{opt NONOTES}
-    {opt EQUALSPACING}
+    {opt NOEQUALSPACING}
 	{opt excel(string)} 
 	{opt save(string)}
 	{opt scheme(string)}
@@ -49,12 +48,7 @@ The year variable used for grouping comparisons over time.
 Suppresses generating output during analysis, typically useful during batch processing.
 
 {p 4 4 2} 
-{opt NONOTES}:
-Disables notes related to figure outputs.
-
-{p 4 4 2} 
-{opt EQUALSPACING}:
-Adjusts year group spacing for temporal analysis visualization by removing gaps.
+{opt NOEQUALSPACING}: Adjusts year spacing on x-axis to be proportional to the distance between years. Default is that years are evenly spaced in the visualization.
 
 {p 4 4 2} 
 {opt excel(string)}:
@@ -73,7 +67,7 @@ Specifies the color scheme to be used for visual contrast.
 Defines the palette of colors to use in graphs.
 
 {p 4 4 2}
-{opt comparability(varname numeric)}: Optional. This variable denotes which survey rounds are comparable over time. 
+{opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. 
 Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {title:Examples}

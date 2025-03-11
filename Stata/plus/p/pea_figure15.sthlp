@@ -17,7 +17,6 @@ help for {hi:pea figure15}{right:January 2025}
 	[{it:in}] 
 	[{it:aw pw fw}]
 	[,{opt Country(string)} 
-	{opt NONOTES} 
 	{opt scheme(string)} 
 	{opt palette(string)} 
 	{opt save(string)} 
@@ -34,10 +33,6 @@ This visualization highlights the impact of climate risks on population groups.
 {p 4 4 2} 
 {opt Country(string)}: 
 Specifies the name or code of the country to visualize data for.
-
-{p 4 4 2} 
-{opt NONOTES}: 
-If specified, suppresses additional notes in the visualization output.
 
 {p 4 4 2} 
 {opt scheme(string)}: 

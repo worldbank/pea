@@ -15,12 +15,11 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 //Figure 13. Distribution of welfare by deciles
-//todo: add comparability, add the combine graph option
 
 cap program drop pea_figure13
 program pea_figure13, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NONOTES EQUALSPACING excel(string) save(string) scheme(string) palette(string) COMParability(varname numeric)]	
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NOEQUALSPACING excel(string) save(string) scheme(string) palette(string) COMParability(varname numeric)]	
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -107,10 +106,6 @@ program pea_figure13, rclass
 	cap ren `year' year
 	la var year ""
 	
-	// Drop years if not comparable
-	if "`comparability'"~="__comp" {
-		
-	}
 	** Distribution of welfare across groups
 	gen l0=0
 	gen l100 = 100
@@ -136,13 +131,10 @@ program pea_figure13, rclass
 	local u  = 5
 	
 	//Prepare Notes
-	local notes "Source: World Bank calculations using survey data accessed through GMD."
 	if "`comparability'"~="__comp" local note2 "Non-connected areas indicate that survey-years are not comparable."	
-	local notes `"`notes'" "Note: Figure shows the share of population in each welfare decile." "`note2'"'
-	if "`nonotes'" ~= "" local notes ""
 	
 	//Prepare year variable without gaps
-	if "`equalspacing'"~="" {																	// Year spacing option
+	if "`noequalspacing'"=="" {																	// Year spacing option
 		egen year_nogap = group(`year'), label(year_nogap)										// Generate year variable without gaps
 		local year year_nogap
 	}	
@@ -198,8 +190,7 @@ program pea_figure13, rclass
 			ytitle("", axis(2)) xlabel(`yearval', valuelabel) xtitle("") /// 
 			plotregion(margin(zero)) /// 
 			aspect(1) /// 		
-			legend(off) name(ngraph`gr', replace) ///
-			note("`notes'")
+			legend(off) name(ngraph`gr', replace)
 		
 	//Figure export
 	local figname Figure13
@@ -211,13 +202,23 @@ program pea_figure13, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}
-	
+
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	putexcel set "`excelout2'", modify sheet(`figname', replace)	  
-	graph export "`graph'", replace as(png) name(ngraph`gr') wid(3000)		
+	graph export "`graph'", replace as(png) name(ngraph`gr') wid(1500)	
+	putexcel A1 = ""
+	putexcel A2 = "Figure 13: Distribution of welfare by deciles"
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+	putexcel A4 = "Note: The figure shows the share of total welfare held by each welfare decile (%). `note2'"	
 	putexcel A`u' = image("`graph'")
+	putexcel O10 = "Data:"
+	putexcel O6	= "Code"
+	putexcel O7 = `"twoway 	`pcspike' `rarea', ytitle("Percentage of population") ylab(`yaxis', axis(2) angle(-45)) yscale(range(0 100) axis(1)) yscale(range(0 100) axis(2)) ytitle("", axis(2)) xlabel(`yearval', valuelabel) xtitle("") plotregion(margin(zero)) aspect(1) legend(off)"'
 	putexcel save							
 	cap graph close	
+	
+	//Export data
+	export excel year decile* using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables)	
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
 end

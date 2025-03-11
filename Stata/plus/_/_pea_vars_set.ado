@@ -23,7 +23,7 @@ program _pea_vars_set, rclass
 			}			
 		}
 
-		local vlistcheck age male educat4 urban marital school hsize imp_wat_rec imp_san_rec electricity 
+		local vlistcheck age male educat4 urban marital school hsize imp_wat_rec imp_san_rec electricity relationharm
 		foreach var of local vlistcheck {
 			cap des `var'
 			if _rc==0 {
@@ -90,6 +90,7 @@ program _pea_vars_set, rclass
 		global pea_pid "pid"
 		global pea_hhsize "hsize"
 		global pea_services "imp_wat_rec imp_san_rec electricity"
+		global pea_relationharm "relationharm"
 		
 		//lstatus
 		cap des industrycat4

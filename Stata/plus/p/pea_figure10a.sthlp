@@ -21,9 +21,9 @@ help for {hi:pea table10a}{right:January 2025}
 	{opt Year(varname numeric)}  
 	{opt urban(varname numeric)}  
 	{opt comparability(string)}  
-	{opt NONOTES}  
-	{opt EQUALSPACING}  
-	{opt YRange0} 
+	{opt NOEQUALSPACING}  
+	{opt YRange(string)} 
+	{opt BAR}
 	{opt scheme(string)}  
 	{opt palette(string)}  
 	{opt save(string)}  
@@ -49,19 +49,18 @@ Specifies the numeric variable that represents the time periods for the visualiz
 Specifies the urban/rural grouping variable for the analysis.  
 
 {p 4 4 2}
-{opt comparability(varname numeric)}: This variable denotes which survey rounds are comparable over time. 
+{opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. 
 Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
 {p 4 4 2}  
-{opt NONOTES}:  
-Suppresses explanatory notes in the visualization.  
-
-{p 4 4 2}  
-{opt EQUALSPACING}:  
-Ensures that the visualization represents time intervals as evenly spaced, even in the presence of gaps.  
+{opt NOEQUALSPACING}: Adjusts year spacing on x-axis to be proportional to the distance between years. Default is that years are evenly spaced in the visualization.
+ 
+{p 4 4 2}
+{opt yrange}: Optional. Users can specify the range of the y-axis. The range must be entered in Stata figure format, such as "yrange(0(10)100)".
+Default is that figures start at 0 and go up to the maximum value of the displayed data (next 5 for this figure).
 
 {p 4 4 2}
-{opt yrange0}: Optional. When specified, the y-axis starts at 0.
+{opt bar}: Optional. Users can specify this option to display the figure as a bar graph instead of line graph. Warning: All selected years will be shown in the figures, regardless of whether they are comparable or not. 
 
 {p 4 4 2}  
 {opt scheme(string)}:  

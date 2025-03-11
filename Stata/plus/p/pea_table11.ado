@@ -189,6 +189,11 @@ program pea_table11, rclass
 				local varlbl `"`varlbl' `j' "`1'-`2'""'
 			}
 		}
+		// Trim sample
+		tokenize "`trim'"
+		drop if percentile < `1'
+		drop if percentile > `2'
+		
 		sort var_order group_order percentile
 		return local vargic = "`vargic'"
 		return local varlbl = `"`varlbl'"'
@@ -208,7 +213,7 @@ program pea_table11, rclass
 				local act modify
 			}
 			
-			local u =1
+			local u = 5
 			if "`graph'"!~="" {	
 				putexcel set "`excelout2'", `act'
 				levelsof group_order, local(grlist)
@@ -216,14 +221,20 @@ program pea_table11, rclass
 					tempfile graph`gr'
 					local lbltitle : label group_order `gr'	
 					
-					twoway (connected `vargic' percentile) if group_order==`gr' & percentile>=1 & percentile<=99, scheme(white_tableau) ///
-						legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
-						note(Source: World Bank calculations using survey data accessed through the Global Monitoring Database., size(small)) ///
-						caption("Note: Growth incidence curves display annualized household growth in per capita consumption" "or income by percentile of the welfare distribution between two periods.", size(small)) ///
-						xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) title("`lbltitle'", size(medium)) name(ngraph`gr', replace)
+					twoway (connected `vargic' percentile) if group_order==`gr', ///
+					scheme(white_tableau) legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) ///
+					xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) ///
+					name(ngraph`gr', replace)
 					
 					putexcel set "`excelout2'", modify sheet(Graph11_`gr', replace)
-					graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(3000)
+					graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)				
+					putexcel A1 = ""
+					putexcel A2 = "Growth-incidence curve `lbltitle'"
+					putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
+					putexcel A4 = "Note: Growth incidence curves display annualized household growth in per capita consumption or income by percentile of the welfare distribution between two periods."		
+					putexcel O10 = "Data:"
+					putexcel O6	= "Code:"
+					putexcel O7 = `"twoway (connected `vargic' percentile) if group_order==`gr', scheme(white_tableau) legend(order(`"`varlbl'"') rows(1) size(medium) position(6)) xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium))"'
 					putexcel A`u' = image("`graph`gr''")
 					putexcel save					
 				}		
