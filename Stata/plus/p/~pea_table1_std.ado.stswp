@@ -304,7 +304,7 @@ program pea_table1_std, rclass
 	//merge with STD data
 	merge 1:1 _varname `year' using `data2a'
 	drop _merge
-	//check on standard error for number of poors -need or not.
+	//check on standard error for number of poors -need or no
 	split _varname, parse("_")
 	drop _varname1
 	
