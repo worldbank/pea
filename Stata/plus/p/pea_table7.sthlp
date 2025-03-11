@@ -24,6 +24,9 @@ help for {hi:pea table7}{right:January 2025}
 {opt excel(string)}
 {opt save(string)}
 {opt MISSING}]{p_end}
+{opt age(varname numeric)}
+{opt male(varname numeric)}
+{opt edu(varname numeric)}
 
 {title:Description}
 
@@ -57,6 +60,10 @@ contains the calculated vulnerability to poverty measures along with the relevan
 {opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
 (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
 
+{p 4 4 2}
+{opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
+Default is vulnerability(1.5).
+
 {p 4 4 2} 
 {opt excel(string)}:
  specifies the file path for exporting results to Excel. If omitted, the results are saved to a temporary file.
@@ -69,8 +76,22 @@ contains the calculated vulnerability to poverty measures along with the relevan
 {opt MISSING}:
  enables the handling of missing data, allowing for custom handling of categorical variables.
 
+Additional options if setting(GMD) is not specified:
+
+{p 4 4 2}
+{opt age(varname numeric)}: specifies the age variable for the analysis.
+Default under setting(GMD): age
+
+{p 4 4 2}
+{opt male(varname numeric)}: specifies the gender variable (e.g., male/female).
+Default under setting(GMD): male
+
+{p 4 4 2}
+{opt edu(varname numeric)}: specifies the education level variable.
+Default under setting(GMD): educat4    
+
 {title:Example}
 
 {p 4 4 2}    
-{bf:pea table7} [aw=weight_p], welfare(welfppp) povlines(pline365) year(year) 
+{bf:pea table7} [aw=weight_p], welfare(welfppp) povlines(pline365) year(year) vulnerability(2) setting(GMD)
 

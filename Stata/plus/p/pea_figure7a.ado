@@ -117,7 +117,8 @@ program pea_figure7a, rclass
 		label define educat4_m 1 "No education" 2 "Primary" 3 "Secondary" 4 "Tertiary"
 		label values `edu' educat4_m
 	}	
-	
+	replace `edu' = . if `age'<16 & `age'==.
+
 	// Variable definitions
 	if "`age'"!="" {
 		su `age',d
@@ -220,7 +221,7 @@ program pea_figure7a, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 7a: Poverty rates by demographic groups"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: Figure presents poverty rates across different poverty lines within each group. Data from all individuals is used, not only household heads."
+	putexcel A4 = "Note: Figure presents poverty rates across different poverty lines within each group. Data from all individuals is used, not only household heads. Poverty rates by educational attainment are calculated only for individuals aged 16 and above."
 	putexcel A`u' = image("`graph'")
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
