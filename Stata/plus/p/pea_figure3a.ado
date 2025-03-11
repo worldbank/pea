@@ -18,7 +18,7 @@
 
 cap program drop pea_figure3a
 program pea_figure3a, rclass
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(string) setting(string) trim(string) excel(string) save(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(varname numeric) setting(string) trim(string) excel(string) save(string) scheme(string) palette(string)]
 	version 18.0
 	
 	//load data if defined

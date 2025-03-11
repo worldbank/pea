@@ -19,7 +19,7 @@
 cap program drop pea_figure3b
 program pea_figure3b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(string) setting(string) trim(string) YRange(string) CORE excel(string) save(string) by(varname numeric) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(varname numeric) setting(string) trim(string) YRange(string) CORE excel(string) save(string) by(varname numeric) scheme(string) palette(string)]
 	
 	//load data if defined
 	if "`using'"~="" {
