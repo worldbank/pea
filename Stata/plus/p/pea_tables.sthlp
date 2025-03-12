@@ -27,6 +27,7 @@ help for {hi:pea tables}{right:January 2025}
 {opt excel(string)}
 {opt save(string)}
 {opt byind(varlist numeric)}
+{opt vulnerability(string)}
 {opt age(varname numeric)}
 {opt male(varname numeric)}
 {opt hhhead(varname numeric)}
@@ -140,6 +141,10 @@ Main options:
 
 {p 4 4 2}
 {opt BYInd(varlist numeric)}: specifies the variables by which to break down the analysis (e.g., urban/rural, subnational).
+
+{p 4 4 2}
+{opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
+Default is vulnerability(1.5).
 
 {p 4 4 2}
 {opt ONELine(varname numeric)}: specifies the one-line poverty line variable.
