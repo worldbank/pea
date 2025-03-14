@@ -125,7 +125,7 @@ program pea_figure7a, rclass
 		label values `edu' educat4_m
 	}	
 	replace `edu' = . if `age'<16 & `age'==.
-	
+
 	// Variable definitions
 	if "`age'"!="" {
 		su `age',d
