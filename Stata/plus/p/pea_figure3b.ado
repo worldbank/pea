@@ -213,7 +213,7 @@ program pea_figure3b, rclass
 				
 		//Axis range
 		if "`yrange'" == "" {
-			 sum gic_2018_2021
+			sum `vargic'
 			if `r(min)' < 0 local ymin = floor(`r(min)')
 			else local ymin = 0
 			if `r(max)' > 0 local ymax = ceil(`r(max)')
@@ -230,6 +230,7 @@ program pea_figure3b, rclass
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
 			local act replace
+			cap rm "`dirpath'\\`figname'.xlsx"
 		}
 		else {
 			local excelout2 "`excelout'"
@@ -254,7 +255,6 @@ program pea_figure3b, rclass
 			local legend "`legend' `legend`i''"	
 		}	
 		
-		
 			tempfile graph`gr'
 			local lbltitle : label group_order `gr'	
 			
@@ -266,20 +266,21 @@ program pea_figure3b, rclass
 			
 			putexcel set "`excelout2'", modify sheet(Figure`fnum', replace)
 			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)
+			putexcel A`u' = image("`graph`gr''")
+			
 			putexcel A1 = ""
 			putexcel A2 = "Figure `fnum': Growth Incidence Curves"
 			putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 			putexcel A4 = "Note: Growth incidence curves display annualized household growth in per capita consumption or income by percentile of the welfare distribution between two periods. Growth incidence curves are only shown for years with comparable surveys, and the latest specified spell. Percentiles are trimmed below `1' and above `2'."
-			putexcel A`u' = image("`graph`gr''")
+			
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code:"
 			putexcel O7 = `"twoway `connected', yline(0, lp(-) lc(black*0.6)) legend(order("`legend'") rows(1) size(medium) position(6)) xtitle(Percentile, size(medium)) `yrange' ytitle("Annualized growth `varlbl' (%)", size(medium))"'
-			putexcel save					
-				
+			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
+			putexcel save
 		cap graph close	
 	} //qui	
 	
-	// Export data
 	// Export data
 	export excel * using "`excelout2'", sheet("Figure`fnum'", modify) cell(O11) keepcellfmt firstrow(variables)	
 		

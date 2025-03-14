@@ -19,11 +19,11 @@
 cap program drop pea_figure10d
 program pea_figure10d, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) YRange(string) scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]	
 
 	tempfile dataori pea_pg
-	global floor_ 0.25
-	global prosgline_ 25
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -59,6 +59,10 @@ program pea_figure10d, rclass
 		tempvar w
 		gen `w' = 1
 		local wvar `w'
+	}
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 	}
 	save `dataori', replace
 	
@@ -106,7 +110,7 @@ program pea_figure10d, rclass
 	
 	// Generate PG of PEA country
 	clonevar _pgtemp_`onewelfare' = `onewelfare' if `touse'	
-	replace _pgtemp_`onewelfare' = ${floor_} if _pgtemp_`onewelfare' < ${floor_} & _pgtemp_`onewelfare' ~= .	// Bottom code PG
+	*replace _pgtemp_`onewelfare' = ${floor_} if _pgtemp_`onewelfare' < ${floor_} & _pgtemp_`onewelfare' ~= .	// Bottom code PG
 	if "`onewelfare'"~="" {
 		gen double _prosgap_`onewelfare' = ${prosgline_}/_pgtemp_`onewelfare' if `touse'
 		groupfunction [aw=`wvar'] if `touse', mean(_prosgap_`onewelfare') by(`year')
@@ -191,6 +195,7 @@ program pea_figure10d, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure10d.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure10d.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -209,14 +214,17 @@ program pea_figure10d, rclass
 		
 	putexcel set "`excelout2'", modify sheet(Figure10d, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A`u' = image("`graph'")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 10d: Prosperity gap over time in benchmark countries (line-up)"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and lined-up estimates from PIP."
 	putexcel A4 = "Note: The prosperity gap for `country' for `lasty' comes from the survey, while the rest of the data points come from lined-up estimates. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. See Kraay et al. (2023) for more details on the prosperity gap."
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
 	putexcel O7 = `"twoway `line_cmd', legend(order(`legend')) ytitle("Prosperity Gap") xtitle("") xlabel(`=`lasty'-20'(4)`lasty') `yrange'"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data

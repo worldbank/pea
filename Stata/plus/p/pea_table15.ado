@@ -19,7 +19,10 @@
 cap program drop pea_table15
 program pea_table15, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) excel(string) save(string)]	
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) excel(string) save(string) PPPyear(integer 2017)]	
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -57,6 +60,11 @@ program pea_table15, rclass
 	local flist `"`wvar' `welfare' `year' `comparability'"'
 	markout `touse' `flist' 
 	
+	if "`welfare'"~="" { //reset to the floor
+		replace `welfare' = ${floor_} if `welfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+	}
+		
 	levelsof `year', local(yearlist)
 	gen __decile = .
 	foreach yr of local yearlist {
@@ -94,10 +102,15 @@ collect clear
 	qui collect: table (__decile) (`year'), stat(mean decile) nototal nformat(%20.1f) missing
 	collect style header __decile `year', title(hide)
 
-	collect title `"Table 15. Distribution of welfare by deciles"'
+	collect title `"Table 15. Distribution of welfare by deciles (%)"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the GMD."'
 	collect notes 2: `"Note: The table shows the share of total welfare held by each welfare decile (%)."'
 	collect style notes, font(, italic size(10))
+	collect style cell, shading( background(white) )	
+	collect style cell cell_type[corner], shading( background(lightskyblue) )
+	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+	collect style cell cell_type[item],  halign(center)
+	collect style cell cell_type[column-header], halign(center)	
 			
 	if "`excel'"=="" {
 		collect export "`dirpath'\\Table15.xlsx", sheet(Table15) modify 	
@@ -105,6 +118,9 @@ collect clear
 	}
 	else {
 		collect export "`excelout'", sheet(Table15, replace) modify 
+		putexcel set "`excelout'", modify sheet("Table15")		
+		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+		qui putexcel save
 	}
 	
 end

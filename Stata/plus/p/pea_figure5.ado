@@ -19,8 +19,11 @@
 cap program drop pea_figure5
 program pea_figure5, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) urban(varname numeric) CORE LINESORTED comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) urban(varname numeric) CORE LINESORTED comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string) PPPyear(integer 2017)]
 
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	//load data if defined
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -76,6 +79,11 @@ program pea_figure5, rclass
 			tempvar w
 			gen `w' = 1
 			local wvar `w'
+		}
+		
+		if "`onewelfare'"~="" { //reset to the floor
+			replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 		}
 	
 		//missing observation check
@@ -223,6 +231,7 @@ program pea_figure5, rclass
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
 			local act replace
+			cap rm "`dirpath'\\`figname'.xlsx"
 		}
 		else {
 			local excelout2 "`excelout'"
@@ -249,14 +258,17 @@ program pea_figure5, rclass
 									
 		putexcel set "`excelout2'", modify sheet("Figure5", replace)
 		graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
+		putexcel A`u' = image("`graph1'")
+		
 		putexcel A1 = ""
 		putexcel A2 = "Figure 5: Huppi-Ravallion decomposition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 		putexcel A4 = "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups. The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements using `note'. The decomposition follows Huppi and Ravallion (1991)."
-		putexcel A`u' = image("`graph1'")
+		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code"
 		putexcel O7 = `"twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion", color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) || scatter value1 spell_n if decomp=="Huppi-Ravallion", msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) legend(rows(1) size(medium) position(6) order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change")) ytitle("Total change in poverty" "(percentage points)", size(medium))"'
+		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		putexcel save
 		cap graph close	
 	} //qui

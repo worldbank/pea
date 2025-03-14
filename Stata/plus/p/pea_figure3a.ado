@@ -14,13 +14,13 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Fig 3a. Growth Incidence Curve
+//Fig 3a. Growth Incidence Curve over time
 
 cap program drop pea_figure3a
 program pea_figure3a, rclass
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(varname numeric) setting(string) trim(string) excel(string) save(string) scheme(string) palette(string)]
 	version 18.0
-	
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(varname numeric) setting(string) trim(string) YRange(string) excel(string) save(string) scheme(string) palette(string) ]
+
 	//load data if defined
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -229,7 +229,7 @@ program pea_figure3a, rclass
 			
 		//Axis range
 		if "`yrange'" == "" {
-			 sum gic_2018_2021
+			 sum `vargic'
 			if `r(min)' < 0 local ymin = floor(`r(min)')
 			else local ymin = 0
 			if `r(max)' > 0 local ymax = ceil(`r(max)')
@@ -245,6 +245,7 @@ program pea_figure3a, rclass
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
 			local act replace
+			cap rm "`dirpath'\\`figname'.xlsx"
 		}
 		else {
 			local excelout2 "`excelout'"
@@ -267,20 +268,22 @@ program pea_figure3a, rclass
 			
 			putexcel set "`excelout2'", modify sheet(Figure3a, replace)
 			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)
+			putexcel A`u' = image("`graph`gr''")
+			
 			putexcel A1 = ""
 			putexcel A2 = "Figure 3a: Growth Incidence Curves"
 			putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 			putexcel A4 = "Note: Growth incidence curves display annualized household growth in per capita consumption or income by percentile of the welfare distribution between two periods. Growth incidence curves are only shown for years with comparable surveys. Percentiles are trimmed below `1' and above `2'."
-			putexcel A`u' = image("`graph`gr''")
+			
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code:"
 			putexcel O7 = `"twoway (connected `vargic' percentile, yline(0, lp(-) lc(black*0.6)) lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr', legend(on order(`"`varlbl'"') rows(1) size(medium) position(6)) `yrange' xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium))"'
+			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 			putexcel save					
 		}		
 		cap graph close	
 	} //qui	
 	
-	// Export data
 	// Export data
 	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O11) keepcellfmt firstrow(variables)	
 		

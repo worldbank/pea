@@ -19,12 +19,12 @@
 cap program drop pea_figure10b
 program pea_figure10b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) YRange(string) scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]	
 
 	tempfile dataori pea_pg
-	global floor_ 0.25
-	global prosgline_ 25
-
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -59,6 +59,10 @@ program pea_figure10b, rclass
 		tempvar w
 		gen `w' = 1
 		local wvar `w'
+	}
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 	}
 	save `dataori', replace
 	
@@ -223,6 +227,7 @@ program pea_figure10b, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure10b.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure10b.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -242,14 +247,16 @@ program pea_figure10b, rclass
 		
 	putexcel set "`excelout2'", modify sheet(Figure10b, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A`u' = image("`graph'")
 	putexcel A1 = ""
 	putexcel A2 = "Figure 10b: Prosperity gap and GDP per-capita (line-up)"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and lined-up estimates from PIP."
 	putexcel A4 = "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. Benchmark countries are shown separately from the countries in the same region as `country'. See Kraay et al. (2023) for more details on the prosperity gap."
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
-	putexcel O7 = `"twoway `scatter_cmd' qfit pg ln_gdp_pc, lpattern(-) lcolor(gray), legend(order(`legend')) ytitle("Prosperity Gap") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
+	putexcel O7 = `"twoway `scatter_cmd' qfit pg ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Prosperity Gap") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data

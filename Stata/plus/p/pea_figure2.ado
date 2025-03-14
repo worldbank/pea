@@ -20,8 +20,16 @@
 cap program drop pea_figure2
 program pea_figure2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]	
 	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
+	//Check value of poverty lines (international ones)
+	_pea_povlines_check, ppp(`pppyear') povlines(`oneline')
+	local vlinetxt = r(vlinetxt)
+	local vlineval = r(vlineval)
+
 	tempfile dataori pea_pov 
 
 	local persdir : sysdir PERSONAL	
@@ -109,6 +117,10 @@ program pea_figure2, rclass
 	
 	// Generate poverty rate of PEA country
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+		if "`onewelfare'"~="" { //reset to the floor
+			replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
 		if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline') 
 	}
 
@@ -226,6 +238,7 @@ program pea_figure2, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure2.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure2.xlsx"		
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -238,7 +251,7 @@ program pea_figure2, rclass
 	tempfile graph
 	twoway `scatter_cmd'													///		
 		qfit 	headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) 	///
-		, legend(order(`legend')) 											///
+		 legend(order(`legend')) 											///
 		  `yrange'															///
 		  ytitle("Poverty rate (percent)") 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
@@ -246,18 +259,22 @@ program pea_figure2, rclass
 		
 	putexcel set "`excelout2'", modify sheet(Figure2, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(1500)	
+	putexcel A`u' = image("`graph'")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 2: Poverty rates and GDP per-capita"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 	putexcel A4 = "Note: The figure shows poverty rates using `lblline' against GDP per-capita (in logs). Data is for year `lasty' and lined-up estimates are used for the non-PEA countries. Benchmark countries are shown separately from the countries in the same region as `country'. Dashed line is a fitted quadratic line."
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
-	putexcel O7 = `"twoway `scatter_cmd' qfit headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray),  legend(order(`legend')) ytitle("Poverty rate (percent)") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
+	putexcel O7 = `"twoway `scatter_cmd' qfit headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Poverty rate (percent)") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 	putexcel save							
 	cap graph close	
 
 	// Export data
+	cap drop _merge
 	export excel * using "`excelout2'", sheet("Figure2", modify) cell(O11) keepcellfmt firstrow(variables)	
 	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure2.xlsx"	

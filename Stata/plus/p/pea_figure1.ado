@@ -20,10 +20,13 @@
 cap program drop pea_figure1
 program pea_figure1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NOEQUALSPACING YRange(string) BAR excel(string) save(string) MISSING scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NOEQUALSPACING YRange(string) BAR excel(string) save(string) MISSING scheme(string) palette(string) PPPyear(integer 2017)]
 
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	local persdir : sysdir PERSONAL	
-	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
+	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all	
 	
 	//house cleaning	
 	if "`urban'"=="" {
@@ -124,6 +127,11 @@ program pea_figure1, rclass
 	// Create fgt
 	use `dataori'
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+		
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
@@ -188,7 +196,7 @@ program pea_figure1, rclass
 	local varlblurb : value label `urban'
 	label define `varlblurb' `max_val' "Total", add  											// Add Total as last entry
 	//Prepare year variable without gaps if specified
-	if "`noequalspacing'"=="" {																// Year spacing option
+	if "`noequalspacing'"=="" {		// Year spacing option
 		egen year_nogap = group(`year'), label(year_nogap)										// Generate year variable without gaps
 		local year year_nogap
 	}
@@ -201,7 +209,8 @@ program pea_figure1, rclass
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
 		local legend "`legend' `legend`i''"	
-																								// If comparability specified, only comparable years are connected
+		
+		// If comparability specified, only comparable years are connected
 		foreach co of local compval {
 			local line_cmd`i'`co' = `"line var `year' if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 			local line_cmd "`line_cmd' `line_cmd`i'`co''"
@@ -213,7 +222,8 @@ program pea_figure1, rclass
 
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure1.xlsx"
-		local act replace
+		local act replace	
+		cap rm "`dirpath'\\Figure1.xlsx"		
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -225,9 +235,7 @@ program pea_figure1, rclass
 	putexcel set "`excelout2'", `act'
 	
 	//change all legend to bottom, and maybe 2 rows
-	if "`combine'" ~= "" {
-		local botlbl "rows(1) size(medium) position(6)"
-	}
+	if "`combine'" ~= "" local botlbl "rows(1) size(medium) position(6)"
 		
 	foreach var of varlist _fgt* {
 		rename `var' var
@@ -248,17 +256,24 @@ program pea_figure1, rclass
 				ytitle("Poverty rate (percent)") asyvars				///
 				name(ngraph`gr', replace)								
 		}
+		
 		local graphnames "`graphnames' ngraph`gr'"
 		if "`combine'" == "" {
 			putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
-			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)		
+			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1200)			
+			putexcel A`u' = image("`graph`gr''")
+			
 			putexcel A2 = "Figure 1: Poverty rates (`lbltitle')"
 			putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 			putexcel A4 = "Note: The figure shows the poverty rates against international and national poverty lines. `note_c'"
-			putexcel A`u' = image("`graph`gr''")
+			
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code to produce figure:"
-			putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") `botlbl') ytitle("Poverty rate (percent)") xtitle("") xlabel("`yearval'", valuelabel) `yrange`var''"'
+			putexcel O7 = "rename `var' var"
+			putexcel O8 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") `botlbl') ytitle("Poverty rate (percent)") xtitle("") xlabel("`yearval'", valuelabel) `yrange`var''"'
+						
+			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+					
 			putexcel save	
 			// Export data
 			export excel * using "`excelout2'", sheet("Figure1_`gr'", modify) cell(O11) keepcellfmt firstrow(variables)	
@@ -272,22 +287,25 @@ program pea_figure1, rclass
 		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) name(ngraphcomb, replace)		
 		*graph combine `graphnames', note(`note') name(ngraphcomb, replace)
 		putexcel set "`excelout2'", modify sheet(Figure1, replace)	  
-		graph export "`graph`gr''", replace as(png) name(ngraphcomb) wid(1500)		
+		graph export "`graph`gr''", replace as(png) name(ngraphcomb) wid(1600)
+		putexcel A`u' = image("`graph`gr''")
+				
 		putexcel A1 = ""
 		putexcel A2 = "Figure 1: Poverty rates"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 		putexcel A4 = "Note: The figure shows the poverty rates against international and national poverty lines. `note_c'"
-		putexcel A`u' = image("`graph`gr''")
+		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code to produce figure:"
 		if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") `botlbl') ytitle("Poverty rate (percent)") xtitle("") xlabel("`yearval'", valuelabel) `yrange`var''"'
 		else if "`bar'" ~= "" putexcel O7 = `"graph bar var, over(`urban') over(`year') `bcolors' ytitle("Poverty rate (percent)") asyvars"'
 		putexcel O8 = `"grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) name(ngraphcomb, replace)"'
+		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 		putexcel save
 		export excel * using "`excelout2'", sheet("Figure1", modify) cell(O11) keepcellfmt firstrow(variables)	
 	}
 	
 	cap graph close	
 	
-	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"	
 end	

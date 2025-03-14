@@ -19,8 +19,11 @@
 cap program drop pea_figure10a
 program pea_figure10a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOEQUALSPACING YRange(string) BAR scheme(string) palette(string) save(string) excel(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOEQUALSPACING YRange(string) BAR scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]
 
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
@@ -83,6 +86,11 @@ program pea_figure10a, rclass
 		tempvar w
 		gen `w' = 1
 		local wvar `w'
+	}
+	
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 	}
 	
 	//missing observation check
@@ -189,6 +197,7 @@ program pea_figure10a, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure10a.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure10a.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -220,19 +229,22 @@ program pea_figure10a, rclass
 	
 	putexcel set "`excelout2'", modify sheet(Figure10a, replace)	  
 	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)	
+	putexcel A`u' = image("`graph`gr''")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 10a: Prosperity gap by area over time"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 	putexcel A4 = "Note: The figure shows the prosperity gap over time. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. `note_c' See Kraay et al. (2023) for more details on the prosperity gap."
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
-	putexcel A`u' = image("`graph`gr''")
+	
 	if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") pos(6) row(1)) ytitle("`lbltitle'") xtitle("") xlabel(`yearval', valuelabel) `yrange'"'
 	else if "`bar'" ~= "" putexcel O7 = `"graph bar _prosgap_`onewelfare', over(`urban') over(`year') `bcolors' ytitle("`lbltitle'") asyvars"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data
 	export excel `year' `urban' _prosgap_* using "`excelout2'" , sheet("Figure10a", modify) cell(O11) keepcellfmt firstrow(variables)
-	if "`excel'"=="" shell start excel "`dirWpath'\\Figure10a.xlsx"
+	if "`excel'"=="" shell start excel "`dirpath'\\Figure10a.xlsx"
 
 end	

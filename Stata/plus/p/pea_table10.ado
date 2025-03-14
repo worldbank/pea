@@ -19,7 +19,15 @@
 cap program drop pea_table10
 program pea_table10, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Povlines(varlist numeric) Year(varname numeric) BENCHmark(string) CORE setting(string) LINESORTED excel(string) save(string) FGTVARS LATEST WITHIN3]
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Povlines(varlist numeric) Year(varname numeric) BENCHmark(string) CORE setting(string) LINESORTED excel(string) save(string) FGTVARS LATEST WITHIN3 PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
+	//Check value of poverty lines (international ones)
+	_pea_povlines_check, ppp(`pppyear') povlines(`povlines')
+	local vlinetxt = r(vlinetxt)
+	local vlineval = r(vlineval)
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -99,23 +107,41 @@ program pea_table10, rclass
 		use `dataori', clear
 	} //qui
 	
-	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+	if "`fgtvars'"=="" { //only create when the fgt are not defined	
+		if "`welfare'"~="" { //reset to the floor
+			replace `welfare' = ${floor_} if `welfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+		
 		if "`welfare'"~="" & "`povlines'"~="" _pea_gen_fgtvars if `touse', welf(`welfare') povlines(`povlines')		
 	}	
 	cap drop _fgt1* _fgt2*	
 	clonevar _Gini_`welfare' = `welfare' if `touse'
-	gen double _prosgap_`welfare' = 25/`welfare' if `touse'
+	gen double _prosgap_`welfare' = ${prosgline_}/`welfare' if `touse'
 	
 	//FGT
 	tempfile data2
-	groupfunction  [aw=`wvar'] if `touse', mean(_fgt0_`welfare'* _prosgap_`welfare') gini(_Gini_`welfare') by(code `year')
+	//rename to standard of PIP variables
+	foreach pl of local povlines {
+		qui sum `pl'		
+		local xval = r(mean)
+		local xval : display %4.2f `xval'		
+		local xval = `=trim("`xval'")'*100			
+		ren _fgt0_`welfare'_`pl' headcount`xval'
+	}
+	
+	groupfunction  [aw=`wvar'] if `touse', mean(headcount* _prosgap_`welfare') gini(_Gini_`welfare') by(code `year')
 	gen gdppc = .
+
+	/*
 	ren _fgt0_welfppp_pline215 headcount215
 	ren _fgt0_welfppp_pline365 headcount365
 	ren _fgt0_welfppp_pline685 headcount685
-	for var headcount*: replace X = X*100
+	*/
+	
 	ren _prosgap_welfppp pg
 	ren _Gini_welfppp gini
+	for var headcount*: replace X = X*100
 	save `data2', replace
 	
 	//obtain the data then move to cache so next time running is faster	
@@ -278,21 +304,29 @@ program pea_table10, rclass
 	drop var_year var_name
 	reshape long var_, i(code name survey_acronym) j(var) string
 	ren var_ value
+	
+	gen group = 0 if var=="gdppc"
+	replace group = 2 if var=="gini" |  var=="pg"
+	
 	gen indicatorlbl = .
 	replace indicatorlbl = 1 if var=="gdppc"
-	replace indicatorlbl = 2 if var=="headcount215"
-	replace indicatorlbl = 3 if var=="headcount365"
-	replace indicatorlbl = 4 if var=="headcount685"
+	la def indicatorlbl 1 "GDP per capita" 5 "Gini" 6 "Prosperity Gap"	
+	local m = 2
+	foreach vl of local vlineval {
+		replace group = 1 if var=="headcount`vl'"
+		replace indicatorlbl = `m' if var=="headcount`vl'"
+		la def indicatorlbl `m' "$`=`vl'/100'", add
+		local m = `m' + 1
+	}	
 	replace indicatorlbl = 5 if var=="gini"
 	replace indicatorlbl = 6 if var=="pg"
-	 
-	la def indicatorlbl 1 "GDP per capita" 2 "$2.15" 3 "$3.65" 4 "$6.85" 5 "Gini" 6 "Prosperity Gap"
 	la val indicatorlbl indicatorlbl
-	gen group = 0 if var=="gdppc"
-	replace group = 1 if var=="headcount215" | var=="headcount365" | var=="headcount685"
-	replace group = 2 if var=="gini" |  var=="pg"
-	la def group 1 "Poverty line (per day, 2017 PPP)" 2 "Shared Prosperity"
+	
+	la def group 1 "Poverty rate (%)" 2 "Shared Prosperity"
 	la val group group
+	
+	//Gini to 100
+	replace value = value*100 if var=="gini" & value~=.
 	
 	gen order = .
 	replace order = 1 if code=="`country'"
@@ -318,8 +352,14 @@ program pea_table10, rclass
 	*collect style cell, result halign(center)
 	collect title `"`tbltxt'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed from the GMD, PIP and the World Development Indicators."'
-	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Prosperity Gap captures how far a society is from $25 per person per day (expressed in 2017 purchasing power parity dollars), which is close to the average per capita household income when countries reach high-income status. The welfare variables for the benchmark countries are: `note_w'."'
+	collect notes 2: `"Note: Poverty rates reported for the `vlinetxt' per person per day poverty lines are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Prosperity Gap captures how far a society is from $${prosgline_} per person per day (expressed in `pppyear' purchasing power parity dollars), which is close to the average per capita household income when countries reach high-income status. The welfare variables for the benchmark countries are: `note_w'."'
 	collect style notes, font(, italic size(10))
+	collect style cell, shading( background(white) )	
+	collect style cell cell_type[corner], shading( background(lightskyblue) )
+	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+	collect style cell cell_type[item],  halign(center)
+	collect style cell cell_type[column-header], halign(center)	
+	
 	collect preview
 	
 	if "`excel'"=="" {
@@ -328,5 +368,8 @@ program pea_table10, rclass
 	}
 	else {
 		collect export "`excelout'", sheet(`tblname', replace) modify 
+		putexcel set "`excelout'", modify sheet("`tabname'")		
+		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+		qui putexcel save
 	}	
 end

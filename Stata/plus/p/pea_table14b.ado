@@ -19,7 +19,10 @@
 cap program drop pea_table14b
 program pea_table14b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 18) MISSING]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 18) MISSING PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -72,6 +75,11 @@ program pea_table14b, rclass
 		*local flist `"`wvar' `welfare' `povlines' `year' `hhid' `pid'"'
 		local flist `"`wvar' `welfare' `povlines' `year'"'
 		markout `touse' `flist' 
+		
+		if "`core'"~="" { //reset to the floor PPP lines
+			replace `welfare' = ${floor_} if `welfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
 		
 		tempfile dataori datalbl
 		save `dataori', replace
@@ -332,10 +340,8 @@ program pea_table14b, rclass
 	label var economic_class15 "One earner, no other adult/seniors, no children"									
 	label var economic_class16 "Other"
 	label var economic_class17 "Missing"
-
-	foreach var of varlist economic_class* {
-		replace `var' = `var' * 100
-	}
+	
+	for var economic_class* : replace X = X*100
 	
 	unab demographic_comp: demographic_class*
 	unab economic_comp: economic_class*
@@ -388,7 +394,7 @@ program pea_table14b, rclass
 		replace group1 = 2 if name=="`var'"
 	}
 	
-	la def group1 1 "Demographic composition" 2 "Economic composition"
+	la def group1 1 "Demographic composition (%)" 2 "Economic composition (%)"
 	la val group1 group1
 		
 	local i = 1
@@ -414,14 +420,20 @@ program pea_table14b, rclass
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
 	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. For the economic composition, earners are defined as those working and `earnage' years or older. Household typologies are an extended version of Munoz Boudet et al. (2018). `m_note'"' 
 	collect style notes, font(, italic size(10))
-
+	collect style cell, shading( background(white) )	
+	collect style cell cell_type[corner], shading( background(lightskyblue) )	
+	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	
+	collect style cell cell_type[item],  halign(center)
+	collect style cell cell_type[column-header], halign(center)
+	
 	if "`excel'"=="" {
-		collect export "`dirpath'\\`tbt'.xlsx", sheet("`tbt'") modify 	
+		collect export "`dirpath'\\`tbt'.xlsx", sheet("`tbt'") modify 
 		shell start excel "`dirpath'\\`tbt'.xlsx"
 	}
 	else {
 		collect export "`excelout'", sheet("`tbt'", replace) modify 
+		putexcel set "`excelout'", modify sheet("`tbt'")		
+		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+		qui putexcel save
 	}
-	
-	
 end

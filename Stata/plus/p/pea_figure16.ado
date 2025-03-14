@@ -18,7 +18,10 @@
 cap program drop pea_figure16
 program pea_figure16, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) setting(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 18) MISSING scheme(string) palette(string) excel(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) setting(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 18) MISSING scheme(string) palette(string) excel(string) PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -67,6 +70,11 @@ program pea_figure16, rclass
 	marksample touse
 	local flist `"`wvar' `onewelfare' `oneline' `year'"'
 	markout `touse' `flist' 
+	
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+	}
 	
 	//Only one year
 	qui sum `year', d   // Get last year of survey data (year of scatter plot)
@@ -338,6 +346,7 @@ program pea_figure16, rclass
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
 			local act replace
+			cap rm "`dirpath'\\`figname'.xlsx"
 		}
 		else {
 			local excelout2 "`excelout'"
@@ -355,14 +364,16 @@ program pea_figure16, rclass
 		
 		putexcel set "`excelout2'", modify sheet("Figure16a", replace)
 		graph export "`graph1'", replace as(png) name(gr_dem) wid(1500)
+		putexcel A`u' = image("`graph1'")
 		putexcel A1 = ""
 		putexcel A2 = "Figure 16a: Profiles of the poor by demographic composition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 		putexcel A4 = "Note: The figure shows the composition of poor households. The poor are defined against the `lblline'. Only groups with a share larger than 5% are shown. Demographic compositions follow Table 14. Data is from `year'. Household typologies are an extended version of Munoz Boudet et al. (2018)."
-		putexcel A`u' = image("`graph1'")
+		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
 		putexcel O7 = `"treemap var, by(Demographic) threshold(5) labsize(3) percent noval format(%3.1f) wrap(25) palette(tab20)"'
+		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		// Export data
 		export excel year Demographic var using "`excelout2'" if Demographic ~= ., sheet("Figure16a", modify) cell(O11) keepcellfmt firstrow(variables)	
 	
@@ -376,14 +387,16 @@ program pea_figure16, rclass
 		
 		putexcel set "`excelout2'", modify sheet("Figure16b", replace)
 		graph export "`graph1'", replace as(png) name(gr_econ) wid(1500)
+		putexcel A`u' = image("`graph1'")
 		putexcel A1 = ""
 		putexcel A2 = "Figure 16b: Profiles of the poor by economic composition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 		putexcel A4 = "Note: The figure shows the composition of poor households. The poor are defined against the `lblline'. Only groups with a share larger than 5% are shown. Economic compositions follow Table 14. For the economic composition, earners are defined as those working and `earnage' years or older. Data is from `year'. Household typologies are an extended version of Munoz Boudet et al. (2018)."
-		putexcel A`u' = image("`graph1'")
+		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
 		putexcel O7 = `"treemap var, by(Economic) threshold(5) labsize(3) percent noval format(%3.1f) wrap(25) palette(tab20)"'
+		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		// Export data
 		export excel year Economic var using "`excelout2'" if Economic ~= ., sheet("Figure16b", modify) cell(O11) keepcellfmt firstrow(variables)	
 			
@@ -405,14 +418,16 @@ program pea_figure16, rclass
 				
 		putexcel set "`excelout2'", modify sheet("Figure16c", replace)
 		graph export "`graph1'", replace as(png) name(bar_dem) wid(1500)
+		putexcel A`u' = image("`graph1'")
 		putexcel A1 = ""
 		putexcel A2 = "Figure 16c: Profiles of the poor by demographic composition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 		putexcel A4 = "Note: The figure shows the composition of poor households. The poor are defined against the `lblline'. Only groups with a share larger than 5% are shown. Demographic compositions follow Table 14. Data is from `year'. Household typologies are an extended version of Munoz Boudet et al. (2018)."
-		putexcel A`u' = image("`graph1'")
+		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
 		putexcel O7 = `"graph hbar var if (var > 5 | Demographic == 16) & var != ., over(Demographic, relabel(`r(relabel)')) ytitle("Share of poor population") bar(1, color("`: word 1 of ${colorpalette}'"))"'
+		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		// Export data
 		export excel year Demographic var using "`excelout2'" if Demographic ~= ., sheet("Figure16c", modify) cell(O11) keepcellfmt firstrow(variables)
 		
@@ -434,14 +449,16 @@ program pea_figure16, rclass
 			name(bar_econ, replace)						
 		putexcel set "`excelout2'", modify sheet("Figure16d", replace)
 		graph export "`graph1'", replace as(png) name(bar_econ) wid(1500)
+		putexcel A`u' = image("`graph1'")
 		putexcel A1 = ""
 		putexcel A2 = "Figure 16d: Profiles of the poor by economic composition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 		putexcel A4 = "Note: The figure shows the composition of poor households. The poor are defined against the `lblline'. Only groups with a share larger than 5% are shown. Economic compositions follow Table 14. For the economic composition, earners are defined as those working and `earnage' years or older. Data is from `year'. Household typologies are an extended version of Munoz Boudet et al. (2018). `m_note'"
-		putexcel A`u' = image("`graph1'")
+		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
 		putexcel O7 = `"graph hbar var if (var > 5 | Economic == 18) & var != ., over(Economic, relabel(`r(relabel)')) ytitle("Share of poor population") bar(1, color("`: word 1 of ${colorpalette}'"))"'
+		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		// Export data
 		export excel year Economic var using "`excelout2'" if Economic ~= ., sheet("Figure16d", modify) cell(O11) keepcellfmt firstrow(variables)
 				
@@ -449,5 +466,4 @@ program pea_figure16, rclass
 		cap graph close	
 		
 		if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"
-		
 end

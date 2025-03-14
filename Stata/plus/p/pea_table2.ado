@@ -19,7 +19,10 @@
 cap program drop pea_table2
 program pea_table2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) minobs(numlist) CORE setting(string) LINESORTED excel(string) save(string) MISSING]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) minobs(numlist) CORE setting(string) LINESORTED excel(string) save(string) MISSING PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -105,7 +108,12 @@ program pea_table2, rclass
 		use `dataori', clear
 	} //qui
 	
-	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+	if "`fgtvars'"=="" { //only create when the fgt are not defined		
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+		
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
@@ -200,27 +208,32 @@ program pea_table2, rclass
 	ren npoor value3
 
 	reshape long value, i( `year' combined_var indicatorlbl ) j(ind)
-	la def ind 1 "Poverty rate" 2 "Share of poor" 3 "Number of poor `xtxt'"
+	la def ind 1 "Poverty rate (%)" 2 "Share of poor (%)" 3 "Number of poor `xtxt'"
 	la val ind ind
 	local milab : value label combined_var
 	if ("`minobs'" ~= "") replace value = . if count < `minobs' & combined_var ~= "Missing":`milab'
+	
 	collect clear
 	qui collect: table (indicatorlbl combined_var) (ind `year'), stat(mean value) nototal nformat(%20.1f) missing
-	collect style header indicatorlbl combined_var ind `year', title(hide)
-	*collect style header subind[.], level(hide)
-	*collect style cell, result halign(center)
+	collect style header indicatorlbl combined_var ind `year', title(hide)	
 	collect title `"Table 2. Core poverty indicators by geographic areas"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU). `note_minobs'"'
+	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
 	collect style notes, font(, italic size(10))
-	*collect preview
-	*set trace on
-	
+	collect style cell, shading( background(white) )	
+	collect style cell cell_type[corner], shading( background(lightskyblue) )
+	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+	collect style cell cell_type[item],  halign(center)
+	collect style cell cell_type[column-header], halign(center)	
+
 	if "`excel'"=="" {
 		collect export "`dirpath'\\Table2.xlsx", sheet(Table2) replace 	
 		shell start excel "`dirpath'\\Table2.xlsx"
 	}
 	else {
 		collect export "`excelout'", sheet(Table2, replace) modify 
+		putexcel set "`excelout'", modify sheet("Table2")		
+		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+		qui putexcel save
 	}
 end

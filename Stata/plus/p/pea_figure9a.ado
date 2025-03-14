@@ -19,8 +19,10 @@
 cap program drop pea_figure9a
 program pea_figure9a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) comparability(string) NOOUTPUT NOEQUALSPACING YRange(string) ineqind(string) excel(string) save(string) BAR MISSING scheme(string) palette(string)]
-
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) comparability(string) NOOUTPUT NOEQUALSPACING YRange(string) ineqind(string) excel(string) save(string) BAR MISSING scheme(string) palette(string) PPPyear(integer 2017)]
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
@@ -86,6 +88,11 @@ program pea_figure9a, rclass
 		local wvar `w'
 	}
 	
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+	}
+		
 	//missing observation check
 	marksample touse
 	local flist `"`wvar' `onewelfare' `year'"'
@@ -266,6 +273,7 @@ program pea_figure9a, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure9a.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure9a.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -296,15 +304,18 @@ program pea_figure9a, rclass
 	}
 	putexcel set "`excelout2'", modify sheet(Figure9a, replace)	  
 	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)		
+	putexcel A`u' = image("`graph`gr''")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 9a: Inequality indices over time"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 	putexcel A4 = "Note: The figure shows `allindicators' over time. `note_k' `note_c'"
-	putexcel A`u' = image("`graph`gr''")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
 	if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") pos(6) row(1)) ytitle("Inequality indicators", axis(1)) xtitle("") xlabel(`yearval', valuelabel) `yrange'"'
 	else if "`bar'" ~= "" putexcel O7 = `"graph bar ind_, over(indicatorlbl) over(year) `bcolors' ytitle("Inequality indicators") asyvars"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data

@@ -20,7 +20,10 @@
 cap program drop pea_figure7a
 program pea_figure7a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) FGTVARS LINESORTED age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) setting(string) scheme(string) palette(string) excel(string) save(string) PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
@@ -104,7 +107,11 @@ program pea_figure7a, rclass
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 		
 	// Generate poverty measures
-	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+	if "`fgtvars'"=="" { //only create when the fgt are not defined	
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
@@ -117,6 +124,7 @@ program pea_figure7a, rclass
 		label define educat4_m 1 "No education" 2 "Primary" 3 "Secondary" 4 "Tertiary"
 		label values `edu' educat4_m
 	}	
+	replace `edu' = . if `age'<16 & `age'==.
 	
 	// Variable definitions
 	if "`age'"!="" {
@@ -197,6 +205,7 @@ program pea_figure7a, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure7a.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure7a.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -216,15 +225,18 @@ program pea_figure7a, rclass
 			name(ngraph`gr', replace)	
 
 	putexcel set "`excelout2'", modify sheet(Figure7a, replace)	  
-	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	graph export "`graph'", replace as(png) name(ngraph) wid(1500)	
+	putexcel A`u' = image("`graph'")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 7a: Poverty rates by demographic groups"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: Figure presents poverty rates across different poverty lines within each group. Data from all individuals is used, not only household heads."
-	putexcel A`u' = image("`graph'")
+	putexcel A4 = "Note: Figure presents poverty rates across different poverty lines within each group. Data from all individuals is used, not only household heads. Poverty rates by educational attainment are calculated only for individuals aged 16 and above."
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
-	putexcel O7 = `"graph dot `vars_graph' over(_group) marker(1, msymbol(O) mc("${col1}")) marker(2, msymbol(D) mc("${col2}")) marker(3, msymbol(S) mc("${col3}")) marker(4, msymbol(T) mc("${col4}")) legend(pos(6) order(`vars_label') row(2) on) ytitle("Poverty rate (percent)")"'
+	putexcel O7 = `"graph dot `vars_graph', over(_group) marker(1, msymbol(O) mc("${col1}")) marker(2, msymbol(D) mc("${col2}")) marker(3, msymbol(S) mc("${col3}")) marker(4, msymbol(T) mc("${col4}")) legend(pos(6) order(`vars_label') row(2) on) ytitle("Poverty rate (percent)")"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save								
 	cap graph close	
 	//Export data

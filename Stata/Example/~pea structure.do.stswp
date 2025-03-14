@@ -36,25 +36,58 @@ drop tmp1  tmp2  temp
 *within(3)  welfaretype(INC CONS)
 
 svyset psu [w= weight_p],  singleunit(certainty)
+/*
+gen head = relationharm==1 if relationharm~=.
+la def head 1 "HH head" 
+la val head head 
+gen nowork = lstatus==2|lstatus==3 if lstatus~=.
+gen married = marital==1 if marital~=.
+*/
 s
 
-pea_table1_std [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) std(right) svy
+pea_table1 [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) ppp(2017)
 
-pea_table1_std [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) std(inside) svy
+pea_table1 [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) std(right) svy ppp(2017)
 
-pea_table_A2_std [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing
+pea_table1 [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) std(inside) svy ppp(2017)
+
+pea_tableA2 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing
+
+pea_table3 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing ppp(2017)
+
+pea_table7 [aw=weight_p], welfare(welfppp) povlines(pline365) year(year) age(age) male(male) vul(1.5) edu(educat4) missing ppp(2017)
+
+pea_table6 [aw=weight_p], c(GNB) welfare(welfppp) year(year)  benchmark(ALB HRV XKX) setting(GMD) last3 ppp(2017)
+
+pea_table8 [aw=weight_p], welfare(welfare) year(year)  missing ppp(2017)
+*byind(urban)
+
+pea_table9, c(GNB) year(year) pppyear(2017)
+
+pea_table10 [aw=weight_p], c(GNB) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(ALB HRV XKX) latest ppp(2017)
+
+pea_table12 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2018 2021) year(year) ppp(2017)
+
+pea_table13 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2018 2021) year(year) urban(urban) ppp(2017)
+
+pea_table14a [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head)  urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) ppp(2017)
+
+pea tables [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2018 2021)
+
+pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021)
 
 pea figures [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(CIV GHA GMB) missing setting(GMD) spells(2018 2021)
 
 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban)
+pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) ppp(2017)
 
-pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine
+pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) combine ppp(2017)
 
 pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
 
-pea figure3 [aw=weight_p], year(year) welfare(welfppp)  spells(2018 2021)
-palette(viridis)
+pea figure3a [aw=weight_p], year(year) welfare(welfppp)  spells(2018 2021) palette(viridis)
+
+pea figure3b [aw=weight_p], year(year) welfare(welfppp)  spells(2018 2021) palette(viridis) by(urban)
 
 pea figure4 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021)
 
@@ -63,11 +96,15 @@ pea figure5 [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridi
 //issue in ARM
 pea figure6 [aw=weight_p], c(GNB) year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) comparability(comparability)
 
-pea figure7 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365   pline685) year(year) age(age) male(male) edu(educat4) urban(urban)
+pea figure7a [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365   pline685) year(year) age(age) male(male) edu(educat4) urban(urban)
 
-pea_figure9a [aw=weight_p], year(year) onewelfare(welfare) urban(urban) comparability(comparability) 
+pea figure7b [aw=weight_p], onew(welfare) onel(natline) year(year) age(age) male(male) edu(educat4) urban(urban)
+
+pea_figure9a [aw=weight_p], year(year) onewelfare(welfare)  comparability(comparability) 
  
 pea_figure9b [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfare) welfaretype(CONS) 
+
+pea_figure9c [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfare) welfaretype(CONS) 
 
 pea_figure10a [aw=weight_p], year(year) onewelfare(welfppp) urban(urban) comparability(comparability)
 
@@ -75,9 +112,11 @@ pea_figure10b [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewel
 
 pea_figure10c [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfppp) 
 
+pea_figure10d [aw=weight_p], c(GNB) year(year) benchmark(CIV GHA GMB SEN) onewelfare(welfppp) 
+
 pea figure12 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis) spells(2018 2021)
 
-pea figure13 [aw=weight_p], c(GNB) year(year) onew(welfppp) palette(viridis)
+pea figure13 [aw=weight_p],  year(year) onew(welfppp) palette(viridis)
 
 pea figure14 [aw=weight_p], c(GNB) welfare(welfppp) year(year)  benchmark(CIV GHA GMB SEN) within(5) setting(GMD)
 

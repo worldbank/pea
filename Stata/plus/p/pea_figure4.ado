@@ -19,8 +19,11 @@
 cap program drop pea_figure4
 program pea_figure4, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) CORE LINESORTED comparability(string) idpl(string) setting(string) excel(string) save(string) scheme(string) palette(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) CORE LINESORTED comparability(string) idpl(string) setting(string) excel(string) save(string) scheme(string) palette(string) PPPyear(integer 2017)]
 
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	//load data if defined
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -78,7 +81,7 @@ program pea_figure4, rclass
 	}
 	
 	// Figure colors
-	local groups = 4																					// number of bars
+	local groups = 4										// number of bars
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
 	qui {	
@@ -94,6 +97,11 @@ program pea_figure4, rclass
 			local wvar `w'
 		}
 	
+		if "`onewelfare'"~="" { //reset to the floor
+			replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+		
 		//missing observation check
 		marksample touse
 		local flist `"`wvar' `onewelfare' `by' `year'"'
@@ -228,6 +236,7 @@ program pea_figure4, rclass
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
 			local act replace
+			cap rm "`dirpath'\\`figname'.xlsx"
 		}
 		else {
 			local excelout2 "`excelout'"
@@ -253,14 +262,18 @@ program pea_figure4, rclass
 			
 		putexcel set "`excelout2'", modify sheet("Figure`fnum'", replace)
 		graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
+		putexcel A`u' = image("`graph1'")
+		
 		putexcel A1 = ""
 		putexcel A2 = "Figure `fnum': Datt-Ravallion decomposition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 		putexcel A4 = "Note: The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution using `note', following Datt and Ravallion (1992)."
-		putexcel A`u' = image("`graph1'")
+		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
 		putexcel O7 = `"twoway bar value_add3 value_add2 spell_n if decomp=="Datt-Ravallion", color("${col1}" "${col2}") barwidth(0.5 0.5) || scatter value1 spell_n if decomp=="Datt-Ravallion", msym(D) msize(2.5) mcolor("${col3}") mlcolor(black) legend(rows(1) size(medium) position(6) order(2 "Growth" 1 "Redistribution" 3 "Total change")) ytitle("Change in poverty" "(percentage points)", size(medium))"'
+		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
+		
 		//Export data
 		export excel * using "`excelout2'" if decomp=="Datt-Ravallion", sheet("Figure`fnum'", modify) cell(O11) keepcellfmt firstrow(variables)	
 			
@@ -282,14 +295,17 @@ program pea_figure4, rclass
 										
 			putexcel set "`excelout2'", modify sheet("Figure4b", replace)
 			graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
+			putexcel A`u' = image("`graph1'")
+			
 			putexcel A1 = ""
 			putexcel A2 = "Figure 4b: Shorrocks-Kolenikov decomposition"
 			putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 			putexcel A4 = "Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty can be attributed to income or consumption growth, redistribution, and price changes using `note', following Kolenikov and Shorrocks (2005). Note that there are no changes in prices if poverty lines are in constant terms. `idpl_note'."
-			putexcel A`u' = image("`graph1'")
+			
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code:"
 			putexcel O7 = `"twoway bar value_add4 value_add3 value_add2 spell_n if decomp=="Shorrocks-Kolenikov", color("${col1}" "${col2}" "${col3}") barwidth(0.5 0.5 0.5) || scatter value1 spell_n if decomp=="Shorrocks-Kolenikov", msym(D) msize(2.5) mcolor("${col4}") mlcolor(black) legend(rows(1) size(medium) position(6) order(3 "Growth" 2 "Redistribution" 1 "Price" 4 "Total change")) ytitle("Total change in poverty" "(percentage points)", size(medium))"'
+			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")			
 			putexcel save
 			//Export data
 			export excel * using "`excelout2'" if decomp=="Shorrocks-Kolenikov", sheet("Figure4b", modify) cell(O11) keepcellfmt firstrow(variables)	

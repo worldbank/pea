@@ -19,7 +19,10 @@
 cap program drop pea_tableA2
 program pea_tableA2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) CORE setting(string) LINESORTED excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) minobs(numlist) MISSING]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) CORE setting(string) LINESORTED excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) minobs(numlist) MISSING SVY std(string) PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -97,11 +100,38 @@ program pea_tableA2, rclass
 			gen `w' = 1
 			local wvar `w'
 		}
+		
+		//SVY setting
+		local svycheck = 0
+		if "`svy'"~="" {
+			cap svydescribe
+			if _rc~=0 {
+				noi dis "SVY is not set. Please do svyset to get the correct standard errors"
+				exit `=_rc'
+				//or svyset [w= `wvar'],  singleunit(certainty)
+			}
+			else {
+				//check on singleton, remove?
+				//std option: inside, below, right
+				if "`std'"=="" local std inside
+				else {
+					local std = lower("`std'")
+					if "`std'"~="inside" & "`std'"~="right" {
+						//"`std'"~="below"
+						noi dis "Wrong option for std(). Available options: inside, right"
+						exit 198
+					}
+				}	
+				local svycheck = 1
+			} //else svydescribe
+		} //svy
 	
 		//missing observation check
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind' `age'"'
 		markout `touse' `flist' 
+		
+		
 		
 		tempfile dataori datalbl
 		save `dataori', replace
@@ -111,6 +141,11 @@ program pea_tableA2, rclass
 	} //qui
 	
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+		
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
@@ -144,8 +179,8 @@ program pea_tableA2, rclass
 		use `data1', clear
 		local lbl0`var' : variable label `var'
 		if "`lbl0`var''"=="" local lbl0`var' "`var'"
-		gen count = 1
-		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(count) rawsum(_pop) by(`year' `var')
+		gen __count = 1
+		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(__count) rawsum(_pop) by(`year' `var')
 		ren `var' lbl`var'
 		append using `data2'
 		save `data2', replace
@@ -218,19 +253,20 @@ program pea_tableA2, rclass
 	la var npoor "Number of poor `xtxt'"
 	la var share_poor "Share of poor"
 	
-	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl group count
+	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl group __count
 
 	ren _fgt0_ value1
 	ren share_poor value2
 	ren npoor value3
 
 	reshape long value, i( `year' combined_var indicatorlbl group) j(ind)
-	la def ind 1 "Poverty rate" 2 "Share of poor" 3 "Number of poor `xtxt'"
+	la def ind 1 "Poverty rate (%)" 2 "Share of poor (%)" 3 "Number of poor `xtxt'"
 	la val ind ind
 	drop if group==.
 	drop if ind==2
 	local milab : value label combined_var
-	if ("`minobs'" ~= "") replace value = . if count < `minobs' & combined_var ~= "Missing":`milab'
+	if ("`minobs'" ~= "") replace value = . if __count < `minobs' & combined_var ~= "Missing":`milab'
+	
 	collect clear
 	qui collect: table ( group combined_var) (ind `year') (indicatorlbl), stat(mean value) nototal nformat(%20.1f) missing
 	collect style header indicatorlbl group combined_var ind `year', title(hide)
@@ -238,8 +274,17 @@ program pea_tableA2, rclass
 	*collect style cell, result halign(center)
 	collect title `"Table A.2. Poverty indicators by subgroup"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates are reported for the $`lbloneline' per person per day poverty line, expressed in 2017 purchasing power parity dollars. `note_minobs'"'
+	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. `note_minobs'"'
 	collect style notes, font(, italic size(10))
+	collect style cell, shading( background(white) )	
+	collect style cell cell_type[corner], shading( background(lightskyblue) )
+	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+	*collect style cell cell_type[row-header]#group, font(, bold)	
+	*collect style cell group, font(, bold)
+	*collect style cell indicatorlbl[1]#subind[1]#var[var9], font(, bold)
+	
+	collect style cell cell_type[item],  halign(center)
+	collect style cell cell_type[column-header], halign(center)	
 		
 	if "`excel'"=="" {
 		collect export "`dirpath'\\TableA2.xlsx", sheet(TableA2) replace 	
@@ -247,5 +292,8 @@ program pea_tableA2, rclass
 	}
 	else {
 		collect export "`excelout'", sheet(TableA2, replace) modify 
+		putexcel set "`excelout'", modify sheet("TableA2")		
+		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+		qui putexcel save
 	}
 end

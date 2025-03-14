@@ -19,11 +19,11 @@
 cap program drop pea_table1
 program pea_table1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric)]	
+	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric) SVY std(string) PPPyear(integer 2017)]	
 	
-	global floor_ 0.25
-	global prosgline_ 25
-	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -106,6 +106,31 @@ program pea_table1, rclass
 			local wvar `w'
 		}
 		
+		//SVY setting
+		local svycheck = 0
+		if "`svy'"~="" {
+			cap svydescribe
+			if _rc~=0 {
+				noi dis "SVY is not set. Please do svyset to get the correct standard errors"
+				exit `=_rc'
+				//or svyset [w= `wvar'],  singleunit(certainty)
+			}
+			else {
+				//check on singleton, remove?
+				//std option: inside, below, right
+				if "`std'"=="" local std inside
+				else {
+					local std = lower("`std'")
+					if "`std'"~="inside" & "`std'"~="right" {
+						//"`std'"~="below"
+						noi dis "Wrong option for std(). Available options: inside, right"
+						exit 198
+					}
+				}	
+				local svycheck = 1
+			} //else svydescribe
+		} //svy
+		
 		//missing observation check
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
@@ -118,7 +143,12 @@ program pea_table1, rclass
 		use `dataori', clear
 	} //qui
 	
-	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+	if "`fgtvars'"=="" { //only create when the fgt are not defined	
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+		
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
@@ -130,16 +160,19 @@ program pea_table1, rclass
 		
 		gen double _pop = `wvar'
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
-		noi dis "Replace the bottom for Prosperity gap at $0.25 2017 PPP"
-		replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}	
+		
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
 	}
 	
-	tempfile data1 data2 atriskdata
+	tempfile data1 data2 atriskdata data2a
 	save `data1', replace
 	
-	//FGT
+	clear
+	save `data2a', replace emptyok
+
+	//FGT - estimate points
+	use `data1', clear
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt* _prosgap_`pppwelfare' _vulpov_`onewelfare'_`oneline') gini(_Gini_`distwelf') rawsum(_pop _popB40_`distwelf' _popT60_`distwelf') by(`year')
 	save `data2', replace
 	
@@ -163,7 +196,61 @@ program pea_table1, rclass
 		drop _merge
 		save `data2', replace
 	}
-		
+	
+	//standard errors
+	if `svycheck'==1 {
+		use `data1', clear
+		levelsof `year', local(datalist)
+		qui foreach dat of local datalist {
+			use `data1', clear
+			keep if `year'==`dat'
+			tempvar single		
+			svydescribe, gen(`single')
+			drop if `single'==1
+			clonevar _mB40_`distwelf' = _WELFMEAN_`distwelf' if _B40_`distwelf'==1
+			clonevar _mT60_`distwelf' = _WELFMEAN_`distwelf' if _B40_`distwelf'==0
+			
+			//standard
+			svy: mean _fgt* _prosgap_`pppwelfare' _vulpov_`onewelfare'_`oneline' _WELFMEAN_`distwelf'  if `touse'
+			local names : colfullnames e(b)
+			mata: V = diagonal(st_matrix("e(V)"))
+			mata: st_matrix("varst", V)
+			mat rownames varst = `names'
+			mat varst1 = varst'
+			
+			//b40
+			svy: mean  _mB40_`distwelf' if `touse'
+			local names : colfullnames e(b)
+			mata: V = diagonal(st_matrix("e(V)"))
+			mata: st_matrix("varst", V)
+			mat rownames varst = `names'
+			mat varst2 = varst'
+			
+			//t60
+			svy: mean  _mT60_`distwelf' if `touse'
+			local names : colfullnames e(b)
+			mata: V = diagonal(st_matrix("e(V)"))
+			mata: st_matrix("varst", V)
+			mat rownames varst = `names'
+			mat varst3 = varst'
+			
+			//gini
+			svylorenz _Gini_`distwelf'
+			mat ginist = e(se_gini)^2
+			mat colnames ginist = _Gini_`distwelf'
+			
+			mat allst = varst1, varst2, varst3, ginist
+			clear
+			svmat allst, names(col)
+			xpose, varname clear
+			gen double std = sqrt(v1)
+			cap drop v1
+			gen `year' = `dat'
+			append using `data2a'
+			save `data2a', replace
+		} //each dat
+	} //svycheck
+	
 	// Check if folder exists
 	local cwd `"`c(pwd)'"'														// store current wd
 	quietly capture cd "`persdir'pea/Scorecard_Summary_Vision/"
@@ -172,7 +259,6 @@ program pea_table1, rclass
 	}
 	quietly cd `"`cwd'"'
 
-	
 	cap import excel "`persdir'pea/Scorecard_Summary_Vision/EN_CLM_VULN.xlsx", firstrow clear
 	if _rc==0 {
 		qui destring Time_Period, gen(year)
@@ -219,6 +305,12 @@ program pea_table1, rclass
 	drop in 1
 	reshape long d, i(_varname) j(year)
 	ren d value
+	if `svycheck'==1 {
+		//merge with STD data
+		merge 1:1 _varname `year' using `data2a', nogen		
+		//check on standard error for number of poors -need or not.
+	}
+	
 	split _varname, parse("_")
 	drop _varname1
 	
@@ -234,22 +326,22 @@ program pea_table1, rclass
 		local xtxt "(in millions)"
 	}
 	replace value = value/`xscale' if _varname2=="npoor0"
-	replace value = value*100 if _varname2=="fgt0"|_varname2=="fgt1"|_varname2=="fgt2"|_varname2=="vulpov"
+	replace value = value*100 if _varname2=="fgt0"|_varname2=="fgt1"|_varname2=="fgt2"|_varname2=="vulpov"|_varname2=="Gini"
 	gen subind = .
 	replace subind = 1 if _varname2=="fgt0"
 	replace subind = 2 if _varname2=="fgt1"
 	replace subind = 3 if _varname2=="fgt2"
 	replace subind = 4 if _varname2=="npoor0"	
-	replace subind = 10 if _varname2 =="WELFMEAN" & _varname3=="welfare" //total
-	replace subind = 11 if _varname2 =="WELFMEAN" & _varname3=="welfare1"
-	replace subind = 12 if _varname2 =="WELFMEAN" & _varname3=="welfare2"
-	replace subind = 13 if _varname2 =="WELFMEAN" & _varname3=="welfare3"
-	replace subind = 14 if _varname2 =="WELFMEAN" & _varname3=="welfare4"
-	replace subind = 15 if _varname2 =="WELFMEAN" & _varname3=="welfare5"
+	replace subind = 10 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'" //total
+	replace subind = 11 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'1"
+	replace subind = 12 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'2"
+	replace subind = 13 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'3"
+	replace subind = 14 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'4"
+	replace subind = 15 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'5"
 	replace subind = 16 if _varname2 =="mB40"
 	replace subind = 17 if _varname2 =="mT60"
 
-	la def subind 1 "Headcount" 2 "Gap" 3 "Severity" 4 "Number of poor `xtxt'" ///
+	la def subind 1 "Headcount (%)" 2 "Gap (%)" 3 "Severity (%)" 4 "Number of poor `xtxt'" ///
 	10 "Total" 11 "Q1 (poorest 20%)" 12 "Q2" 13 "Q3" 14 "Q4" 15 "Q5 (richest 20%)" 16 "B40" 17 "T60"	
 	la val subind subind
 
@@ -269,6 +361,11 @@ program pea_table1, rclass
 			la def indicatorlbl `i' "`lbl`var''", add
 			local i = `i' + 1
 		}
+	}
+	
+	//convert to same unit
+	if `svycheck'==1 {
+		replace std = std*100 if _varname2=="vulpov"|_varname2=="fgt0"|_varname2=="fgt1"|_varname2=="fgt2"|_varname2=="Gini"
 	}
 	
 	//setup	
@@ -293,7 +390,7 @@ program pea_table1, rclass
 		replace indicatorlbl = 60 if _varname2=="Gini"
 		replace indicatorlbl = 70 if _varname2=="prosgap"
 		replace indicatorlbl = 80 if _varname2=="mpmwb"
-		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline')" 55 "Percentage of people at high risk from climate-related hazards (2021*)" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (World Bank)" , add
+		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline', %)" 55 "Percentage of people at high risk from climate-related hazards (2021*)" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (%, World Bank)" , add
 	
 		replace indicatorlbl = 90 if _varname2 =="WELFMEAN"
 		replace indicatorlbl = 90 if _varname2=="mT60"
@@ -307,19 +404,61 @@ program pea_table1, rclass
 	drop if indicatorlbl==.
 	
 	collect clear
-	qui collect: table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
+	
+	qui if `svycheck'==0 {
+		collect: table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
+	}
+	else {
+		qui if "`std'"=="right" { //wide-form			
+			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
+			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append
+			*collect style header indicatorlbl subind `year', title(hide)
+			*collect style header subind[.], level(hide)
+			collect layout (indicatorlbl#subind) (`year'#var) (result)
+			collect style cell var[std], sformat((%s))
+			collect label levels var value "Estimate", modify
+			collect label levels var std "Standard error", modify
+		} //right
+	
+		qui if "`std'"=="inside" {
+			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
+			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append
+
+			*collect style header indicatorlbl subind `year', title(hide)
+			*collect style header subind[.], level(hide)
+			
+			collect remap result[mean] = result[estimate], fortags(var[value])
+			collect remap result[mean] = result[sd], fortags(var[std])
+
+			collect style cell result[sd], sformat((%s))
+
+			collect composite define new = estimate sd, trim
+			collect layout (indicatorlbl#subind) (`year') (result[new])
+			local stdtext "Standard errors are reported in parentheses."
+		} //inside
+	}
+	
 	collect style header indicatorlbl subind `year', title(hide)
 	collect style header subind[.], level(hide)
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day. Poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU)."'
+	collect notes 2: `"Note: Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `stdtext'"'
 	collect style notes, font(, italic size(10))
 	
+	collect style cell, shading( background(white) )	
+	collect style cell cell_type[corner], shading( background(lightskyblue) )	
+	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	
+	collect style cell cell_type[item],  halign(center)
+	collect style cell cell_type[column-header], halign(center)	
+	
 	if "`excel'"=="" {
-		collect export "`dirpath'\\Table1.xlsx", sheet("`tabname'") replace 	
+		collect export "`dirpath'\\Table1.xlsx", sheet("`tabname'") replace
 		shell start excel "`dirpath'\\Table1.xlsx"
 	}
 	else {
 		collect export "`excelout'", sheet("`tabname'", replace) modify 
+		putexcel set "`excelout'", modify sheet("`tabname'")		
+		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+		qui putexcel save
 	}
 end

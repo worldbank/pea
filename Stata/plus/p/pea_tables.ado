@@ -17,10 +17,13 @@
 cap program drop pea_tables
 program pea_tables, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) LATEST WITHIN3 BENCHmark(string) spells(string) earnage(integer 18) minobs(numlist)]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) LATEST WITHIN3 BENCHmark(string) spells(string) earnage(integer 18) minobs(numlist) SVY std(string) PPPyear(integer 2017)]	
 	
-	global floor_ 0.25
-	global prosgline_ 25
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
+	//Check value of poverty lines (international ones)
+	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
 	//house cleaning
 	qui if "`excel'"=="" {
@@ -93,10 +96,41 @@ program pea_tables, rclass
 			local wvar `w'
 		}
 		
+		//SVY setting
+		local svycheck = 0
+		if "`svy'"~="" {
+			cap svydescribe
+			if _rc~=0 {
+				noi dis "SVY is not set. Please do svyset to get the correct standard errors"
+				exit `=_rc'
+				//or svyset [w= `wvar'],  singleunit(certainty)
+			}
+			else {
+				//check on singleton, remove?
+				//std option: inside, below, right
+				if "`std'"=="" local std inside
+				else {
+					local std = lower("`std'")
+					if "`std'"~="inside" & "`std'"~="right" {
+						//"`std'"~="below"
+						noi dis "Wrong option for std(). Available options: inside, right"
+						exit 198
+					}
+				}	
+				local svycheck = 1
+			} //else svydescribe
+		} //svy
+		
 		//missing observation check
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
 		markout `touse' `flist' 
+		
+		//reset to the floor
+		if "`pppwelfare'"~="" {
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
 		
 		tempfile dataori datalbl
 		save `dataori', replace
@@ -113,7 +147,7 @@ program pea_tables, rclass
 		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
-		gen double _prosgap_`pppwelfare' = 25/`pppwelfare' if `touse'
+		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'	
 		gen double _pop = `wvar'
 		
@@ -121,16 +155,15 @@ program pea_tables, rclass
 		save `data1', replace
 	} //qui
 
-
 	global tablecount = 11
 	//table 1
 	qui use `data1', clear
-	cap pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") oneline(`oneline') onewelfare(`onewelfare')
+	cap pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") oneline(`oneline') onewelfare(`onewelfare') svy std(`std') pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 1....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 1. Core poverty indicators"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table1!A1", "Table 1. Core poverty indicators")
 		global tablecount = ${tablecount} + 1
 		qui putexcel save	
 	}
@@ -138,13 +171,13 @@ program pea_tables, rclass
 	
 	//table 2
 	qui use `data1', clear
-	cap pea_table2 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') byind(`byind') minobs(`minobs') fgtvars linesorted excel("`excelout'") `missing'
+	cap pea_table2 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') byind(`byind') minobs(`minobs') fgtvars linesorted excel("`excelout'") `missing' pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 2....... Done"
 		local ok = 1
 		di "`excelout'"
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 2. Core poverty indicators by geographic areas"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table2!A1", "Table 2. Core poverty indicators by geographic areas")
 		global tablecount = ${tablecount} + 1
 		qui putexcel save	
 	}
@@ -152,12 +185,13 @@ program pea_tables, rclass
 
 	//table 3
 	qui use `data1', clear
-	cap pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") age(`age') male(`male') hhhead(`hhhead') edu(`edu') minobs(`minobs') `missing'
+	cap pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") age(`age') male(`male') hhhead(`hhhead') edu(`edu') minobs(`minobs') `missing' pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 3....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Table list")
 		putexcel C${tablecount} = "Table 3. Subgroup poverty rates"
+		putexcel C${tablecount} = hyperlink("#Table3!A1", "Table 3. Subgroup poverty rates")
 		global tablecount = ${tablecount} + 1
 		qui putexcel save	
 	}
@@ -165,12 +199,13 @@ program pea_tables, rclass
 	
 	//table 6
 		qui use `data1', clear
-		cap pea_table6 [aw=`wvar'], c(`country') welfare(`pppwelfare') year(`year')  benchmark(`benchmark') last3 excel("`excelout'")
+		cap pea_table6 [aw=`wvar'], c(`country') welfare(`pppwelfare') year(`year')  benchmark(`benchmark') last3 excel("`excelout'") pppyear(`pppyear')
 		if _rc==0 {
 			noi dis in green "Table 6....... Done"
 			local ok = 1
 			putexcel set "`excelout'", modify sheet("Table list")
-			putexcel C${tablecount} = "Table 6a/6b. Multidimensional Poverty Measure across benchmark countries and by component"
+			*putexcel C${tablecount} = "Table 6a/6b. Multidimensional Poverty Measure across benchmark countries and by component"
+			putexcel C${tablecount} = hyperlink("#Table6!A1", "Table 6a/6b. Multidimensional Poverty Measure across benchmark countries and by component")
 			global tablecount = ${tablecount} + 1	
 			qui putexcel save	
 		}
@@ -179,12 +214,12 @@ program pea_tables, rclass
 	
 	//table 7
 	qui use `data1', clear
-	cap pea_table7 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') excel("`excelout'") 
+	cap pea_table7 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') excel("`excelout'") pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 7....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 7. Poverty vulnerability"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table7!A1", "Table 7. Poverty vulnerability")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 	}
@@ -192,12 +227,12 @@ program pea_tables, rclass
 	
 	//table 8
 	qui use `data1', clear
-	cap pea_table8 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") missing
+	cap pea_table8 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") missing pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 8....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 8. Core inequality indicators"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table8!A1", "Table 8. Core inequality indicators")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 	}
@@ -205,12 +240,13 @@ program pea_tables, rclass
 	
 	//table 9
 	qui use `data1', clear
-	cap pea_table9, c(`country') year(`year') excel("`excelout'")
+	cap pea_table9, c(`country') year(`year') excel("`excelout'") pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 9....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Table list")
 		putexcel C${tablecount} = "Table 9. Scorecard Vision Indicators"
+		putexcel C${tablecount} = hyperlink("#Table9!A1", "Table 9. Scorecard Vision Indicators")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 	}
@@ -218,12 +254,12 @@ program pea_tables, rclass
 	
 	//table 10
 	qui use `dataori', clear
-	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") 
+	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 10...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 10. Benchmarking of poverty and inequality"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table10!A1", "Table 10. Benchmarking of poverty and inequality")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 	}
@@ -231,12 +267,12 @@ program pea_tables, rclass
 
 	//table 12
 	qui use `dataori', clear
-	cap pea_table12 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') excel("`excelout'")
+	cap pea_table12 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') excel("`excelout'") pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 12...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 12. Datt-Ravallion and Shorroks-Kolenikov decompositions"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table12!A1", "Table 12. Datt-Ravallion and Shorroks-Kolenikov decompositions")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 	}
@@ -245,12 +281,12 @@ program pea_tables, rclass
 	//table 13
 	if "`urban'"~="" {
 		qui use `dataori', clear
-		cap pea_table13 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') urban(`urban') excel("`excelout'")
+		cap pea_table13 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') urban(`urban') excel("`excelout'") pppyear(`pppyear')
 		if _rc==0 {
 			noi dis in green "Table 13...... Done"
 			local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 13. Huppi-Ravallion decomposition"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table13!A1", "Table 13. Huppi-Ravallion decomposition")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 		}
@@ -259,12 +295,12 @@ program pea_tables, rclass
 	
 	//table 14a
 	qui use `dataori', clear		
-	cap pea_table14a [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') excel("`excelout'")
+	cap pea_table14a [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') excel("`excelout'") pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 14...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 14a. Profiles of the poor"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table14a!A1", "Table 14a. Profiles of the poor")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 	}
@@ -272,12 +308,12 @@ program pea_tables, rclass
 	
 	//table 14b
 	qui use `dataori', clear		
-	cap pea_table14b [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') hhsize(`hhsize') hhid(`hhid') pid(`pid') lstatus(`lstatus') empstat(`empstat') relationharm(`relationharm') earnage(`earnage') excel("`excelout'")
+	cap pea_table14b [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') hhsize(`hhsize') hhid(`hhid') pid(`pid') lstatus(`lstatus') empstat(`empstat') relationharm(`relationharm') earnage(`earnage') excel("`excelout'") pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 14b...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 14b. Demographic and economic household typologies"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table14b!A1", "Table 14b. Demographic and economic household typologies")
 		global tablecount = ${tablecount} + 1	
 		qui putexcel save	
 	}
@@ -285,12 +321,12 @@ program pea_tables, rclass
 	
 	//table 15
 	qui use `dataori', clear		
-	cap pea_table15 [aw=weight_p], welfare(`onewelfare') year(`year') excel("`excelout'")
+	cap pea_table15 [aw=weight_p], welfare(`onewelfare') year(`year') excel("`excelout'") pppyear(`pppyear')
 	if _rc==0 {
 		noi dis in green "Table 15...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Table list")
-		putexcel C${tablecount} = "Table 15. Distribtion of welfare by deciles"
+		putexcel set "`excelout'", modify sheet("Table list")		
+		putexcel C${tablecount} = hyperlink("#Table15!A1", "Table 15. Distribtion of welfare by deciles")
 		global tablecount = ${tablecount} + 1
 		qui putexcel save	
 	}

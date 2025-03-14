@@ -22,15 +22,20 @@ program _pea_pline_order, rclass
 		}
 	}
 	local sorted_line
+	local val_sorted_line
 	sort `_mean'
-	forv j=1(1)`i' {
+	forv j=1(1)`=`i'-1' {
 		local x = `_varname'[`j']
 		local sorted_line `sorted_line' `x'
+		local y = `_mean'[`j']		
+		local y : display %4.2f `y'
+		local val_sorted_line `val_sorted_line' `=trim("`y'")'
 	}
 	
 	sort `_x'
 	drop `_varname' `_mean' `_x'
 	return local sorted_line "`sorted_line'"
+	return local val_sorted_line "`val_sorted_line'"
 	foreach var of local sorted_line {
 		return local lbl`var' "`lbl`var''"
 	}

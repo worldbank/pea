@@ -19,7 +19,10 @@
 cap program drop pea_table6
 program pea_table6, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) MISSING BENCHmark(string) ALL LAST3]
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) setting(string) excel(string) save(string) MISSING BENCHmark(string) ALL LAST3 PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	//Country
 	if "`country'"=="" {
@@ -77,10 +80,9 @@ program pea_table6, rclass
 		tempfile dataori datalbl
 		save `dataori', replace		
 			
-		_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`welfare') setting(`setting')
+		_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`welfare') setting(`setting') pppyear(`pppyear')
 		save `dataori', replace			
 	} //qui
-	
 	
 	//benchmark
 	clear
@@ -105,7 +107,7 @@ program pea_table6, rclass
 		}
 	}
 		
-			//Update MPM data
+	//Update MPM data
 	local dl 0
 	local returnfile "`persdir'pea/WLD_GMI_MPM.dta"
 	cap confirm file "`returnfile'"
@@ -133,7 +135,7 @@ program pea_table6, rclass
 	
 	foreach cc of local benchmark {
 		local cc "`=upper("`cc'")'"
-		use "`persdir'pea/WLD_GMI_MPM.dta" if code=="`cc'", clear
+		use "`persdir'pea/WLD_GMI_MPM.dta" if code=="`cc' & ppp==`pppyear'", clear
 		if "`all'"~="" {
 			if _N>0 {				
 				ren dep_infra_impw2 dep_infra_impw
@@ -163,7 +165,7 @@ program pea_table6, rclass
 	for var dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1: replace X = X*100
 	
 	la var mdpoor_i1 "Multidimensional Poverty Measure headcount (%)"
-	la var dep_poor1 "Daily income less than US$2.15 per person"
+	la var dep_poor1 "Daily income less than $${mpmpline} per person"
 	la var dep_educ_com "No adult has completed primary education"
 	la var dep_educ_enr "At least one school-aged child is not enrolled in school"
 	la var dep_infra_elec "No access to electricity"
@@ -181,35 +183,43 @@ program pea_table6, rclass
 		collect clear
 		qui collect: table (order country_name) (year), stat(mean mdpoor_i1) nototal nformat(%20.1f) missing
 		collect style header order country_name year, title(hide)
-		collect style header order, level(hide)
-		*collect style header group[0], level(hide)
-		*collect style cell, result halign(center)
-		collect title `"Table 6a. Multidimensional poverty: Multidimensional Poverty Measure (World Bank)"'
+		collect style header order, level(hide)		
+		collect title `"Table 6a. Multidimensional poverty: Multidimensional Poverty Measure (World Bank) (%)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
-		collect notes 2: `"Note: The World Bank Multidimensional Poverty Measure (MPM) is a weighted aggregate of six components (weights in parantheses): income (1/3), education (1/6), school-enrolment (1/6), electricity (1/9), sanitation (1/9), drinking water (1/9)."'
+		collect notes 2: `"Note: The World Bank Multidimensional Poverty Measure (MPM) is a weighted aggregate of six components (weights in parantheses): income (1/3), education (1/6), school-enrolment (1/6), electricity (1/9), sanitation (1/9), drinking water (1/9) with `pppyear' PPP."'
 		collect style notes, font(, italic size(10))
-		*collect preview
+		collect style cell, shading( background(white) )	
+		collect style cell cell_type[corner], shading( background(lightskyblue) )
+		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+		collect style cell cell_type[item],  halign(center)
+		collect style cell cell_type[column-header], halign(center)	
+		
 		local tblname Table6a
 		if "`excel'"=="" {
-			collect export "`dirpath'\\Table6.xlsx", sheet(`tblname') modify 	
-			*shell start excel "`dirpath'\\`tblname'.xlsx"
+			collect export "`dirpath'\\Table6.xlsx", sheet(`tblname') modify 				
 		}
 		else {
 			collect export "`excelout'", sheet(`tblname', replace) modify 
+			putexcel set "`excelout'", modify sheet("`tblname'")		
+			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+			qui putexcel save
 		}
 		
 		//6b
 		collect clear
 		qui collect: table () (year) if code=="`country'", stat(mean dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw ) nototal nformat(%20.1f) missing	
 		collect style header year, title(hide)
-		*collect style header order, level(hide)
-		*collect style header group[0], level(hide)
-		*collect style cell, result halign(center)
+		
 		collect title `"Table 6b. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
-		collect notes 2: `"Note: The table shows deprivation rates of the six components of the World Bank Multidimensional Poverty Measure (MPM). See Table 6a for weights of each component."'
+		collect notes 2: `"Note: The table shows deprivation rates of the six components of the World Bank Multidimensional Poverty Measure (MPM) with `pppyear' PPP. See Table 6a for weights of each component."'
 		collect style notes, font(, italic size(10))
-		*collect preview
+		collect style cell, shading( background(white) )	
+		collect style cell cell_type[corner], shading( background(lightskyblue) )
+		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+		collect style cell cell_type[item],  halign(center)
+		collect style cell cell_type[column-header], halign(center)	
+		
 		local tblname Table6b
 		if "`excel'"=="" {
 			collect export "`dirpath'\\Table6.xlsx", sheet(`tblname') modify 	
@@ -217,6 +227,8 @@ program pea_table6, rclass
 		}
 		else {
 			collect export "`excelout'", sheet(`tblname', replace) modify 
+			putexcel set "`excelout'", modify sheet("`tblname'")		
+			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+			qui putexcel save
 		}
-	
 end

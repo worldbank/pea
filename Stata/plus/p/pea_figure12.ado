@@ -20,10 +20,10 @@
 cap program drop pea_figure12
 program pea_figure12, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT spells(string) excel(string) save(string) comparability(string) RELATIVECHANGE scheme(string) palette(string) ]	
+	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT spells(string) excel(string) save(string) comparability(string) RELATIVECHANGE scheme(string) palette(string) PPPyear(integer 2017)]	
 	
-	global floor_ 0.25
-	global prosgline_ 25
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -77,8 +77,10 @@ program pea_figure12, rclass
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
 	
-	noi dis "Replace the bottom for Prosperity gap at $0.25 2017 PPP"
-	replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+	}
 	
 	tempfile dataori datalbl data2 data2b
 	save `dataori', replace
@@ -214,12 +216,12 @@ program pea_figure12, rclass
 		name(ngraph`gr', replace)
 	}	
 
-	
 	//Export
 	local figname Figure12
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\`figname'.xlsx"
 		local act replace
+		cap rm "`dirpath'\\`figname'.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -230,11 +232,13 @@ program pea_figure12, rclass
 	tempfile graph
 	putexcel set "`excelout2'", modify sheet(`figname', replace)	  
 	graph export "`graph'", replace as(png) name(ngraph`gr') wid(1500)		
+	putexcel A`u' = image("`graph'")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 12: Decomposition of growth in prosperity gap"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 	putexcel A4 = "Note: The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. The figure shows the decomposition of the Prosperity Gap into income and inequality components. See Kraay et al. (2023) for more details."
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
 	if "`relativechange'" == "" {
@@ -244,6 +248,7 @@ program pea_figure12, rclass
 		putexcel O7 = `"graph hbar inq_share grow_share if inq_share~=., stack over(spell) ytitle("Contribution to prosperity gap growth (%)") `colors' title("Decomposition of growth in prosperity gap", size(medium)) legend(order(1 "Inequality contribution" 2 "Mean contribution") rows(1) size(medium) position(6))"'
 
 	}	
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data

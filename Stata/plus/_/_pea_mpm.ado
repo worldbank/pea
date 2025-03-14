@@ -17,7 +17,12 @@
 cap program drop _pea_mpm
 program _pea_mpm, rclass
 	version 16.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) SETting(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) SETting(string) PPPyear(integer 2017)]	
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	if `pppyear'==2017 global mpmpline 2.15
+	if `pppyear'==2021 global mpmpline 3.00
 	
 	if "`setting'"=="GMD" {
 		_pea_vars_set, setting(GMD)
@@ -29,8 +34,6 @@ program _pea_mpm, rclass
 	local country "`=upper("`country'")'"
 	cap drop code
 	gen code = "`country'"
-
-	global pline 2.15
 	
 	//trigger some sub-tables
 	qui {		
@@ -46,6 +49,11 @@ program _pea_mpm, rclass
 		marksample touse
 		local flist `"`wvar' `welfare' `year'"'
 		markout `touse' `flist' 
+		
+		if "`welfare'"~="" {
+			replace `welfare' = ${floor_} if `welfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
 		
 		tempfile dataori datalbl
 		save `dataori', replace				
@@ -204,10 +212,9 @@ program _pea_mpm, rclass
 	la var dep_infra_impw "Deprived if HH has No access to improved drinking water"
 	
 	drop if `welfare'<0 // bottom censoring
-	replace `welfare'=0.25 if `welfare'<0.25 //bottom censoring
-
-	gen dep_poor1 = `welfare'< 2.15 if `welfare'~=.
-	la var dep_poor1 "Poor household at $2.15"
+	
+	gen dep_poor1 = `welfare'< ${mpmpline} if `welfare'~=.
+	la var dep_poor1 "Poor household at $${mpmpline}"
 	
 	//missing obs for some HHs	
 	gen touse = dep_educ_com*dep_educ_enr*dep_infra_elec*dep_infra_impw*dep_infra_imps*dep_poor1~=.
@@ -306,7 +313,7 @@ program _pea_mpm, rclass
 	}
 		
 	local depr  dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw `welfare'
-	local zline 1            1            1              1              1               $pline
+	local zline 1            1            1              1              1               $mpmpline
 	
 	tokenize `zline'
 	local c = 1
@@ -323,10 +330,9 @@ program _pea_mpm, rclass
 	
 	//matrix dimension
 	replace dim_edu = 1 - dim_edu
-	replace dim_infra = 1 - dim_infra
-	*local pline 1.9	
+	replace dim_infra = 1 - dim_infra	
 	local depr2 dim_edu dim_infra `welfare'
-	local zline 1       1         $pline
+	local zline 1       1         $mpmpline
 	tokenize `zline'
 	local c = 1
 	foreach ind of local depr2 {

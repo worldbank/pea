@@ -19,7 +19,10 @@
 cap program drop pea_table3
 program pea_table3, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) MISSING age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) minobs(numlist)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) MISSING age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) minobs(numlist) PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	//house cleaning
 	if "`excel'"=="" {
@@ -98,6 +101,11 @@ program pea_table3, rclass
 	} //qui
 	
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+		
 		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
@@ -216,21 +224,30 @@ program pea_table3, rclass
 		drop if agecatind==.
 		local milab : value label agecatind
 		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & agecatind ~= "Missing":`milab'
+		
 		collect clear
 		qui collect: table (indicatorlbl agecatind) (_group) if `year'==`ymax', stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header indicatorlbl agecatind _group `year', title(hide)
 		*collect style header subind[.], level(hide)
 		*collect style cell, result halign(center)
-		collect title `"Table 3a. Subgroup poverty rates by gender and age-group (`ymax')"'
+		collect title `"Table 3a. Subgroup poverty rates by gender and age-group (`ymax', %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU). `note_minobs'"'
+		collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
 		collect style notes, font(, italic size(10))
+		collect style cell, shading( background(white) )	
+		collect style cell cell_type[corner], shading( background(lightskyblue) )
+		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+		collect style cell cell_type[item],  halign(center)
+		collect style cell cell_type[column-header], halign(center)
 				
 		if "`excel'"=="" {
 			collect export "`dirpath'\\Table3.xlsx", sheet(Table3a) replace 				
 		}
 		else {
 			collect export "`excelout'", sheet(Table3a, replace) modify 
+			putexcel set "`excelout'", modify sheet("Table3a")		
+			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+			qui putexcel save
 		}
 	}
 	
@@ -266,21 +283,29 @@ program pea_table3, rclass
 		drop if _eduXind==.
 		local milab : value label _eduXind
 		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & _eduXind ~= "Missing":`milab'
+		
 		collect clear
 		qui collect: table (indicatorlbl _eduXind) (`year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header indicatorlbl _eduXind `year', title(hide)
-		*collect style header subind[.], level(hide)
-		*collect style cell, result halign(center)
-		collect title `"Table 3b. Subgroup poverty rates by education (age 16+)"'
+		
+		collect title `"Table 3b. Subgroup poverty rates by education (age 16+, %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for individuals 16 or older. Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_minobs'"'
+		collect notes 2: `"Note: Poverty rates reported for individuals, age 16 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_minobs'"'
 		collect style notes, font(, italic size(10))
+		collect style cell, shading( background(white) )	
+		collect style cell cell_type[corner], shading( background(lightskyblue) )
+		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+		collect style cell cell_type[item],  halign(center)
+		collect style cell cell_type[column-header], halign(center)
 			
 		if "`excel'"=="" {
 			collect export "`dirpath'\\Table3.xlsx", sheet(Table3b) modify 				
 		}
 		else {
 			collect export "`excelout'", sheet(Table3b, replace) modify 
+			putexcel set "`excelout'", modify sheet("Table3b")		
+			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+			qui putexcel save
 		}
 	} //3b
 	
@@ -355,12 +380,17 @@ program pea_table3, rclass
 		collect clear
 		qui collect: table (group indicatorlbl combined_var) (`year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header group indicatorlbl combined_var `year', title(hide)
-		*collect style header subind[.], level(hide)
-		*collect style cell, result halign(center)
-		collect title `"Table 3c. Subgroup poverty rates of household head"'
+		
+		collect title `"Table 3c. Subgroup poverty rates of household head (%)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for household heads 18 or older. Poverty rates reported for the $2.15, $3.65, and $6.85 per person per day poverty lines are expressed in 2017 purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in 2017 local currency units (LCU). `note_minobs'"'
+		collect notes 2: `"Note: Poverty rates reported for household heads 18 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
 		collect style notes, font(, italic size(10))
+		collect style notes, font(, italic size(10))
+		collect style cell, shading( background(white) )	
+		collect style cell cell_type[corner], shading( background(lightskyblue) )
+		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
+		collect style cell cell_type[item],  halign(center)
+		collect style cell cell_type[column-header], halign(center)
 			
 		if "`excel'"=="" {
 			collect export "`dirpath'\\Table3.xlsx", sheet(Table3c) modify 	
@@ -368,6 +398,9 @@ program pea_table3, rclass
 		}
 		else {
 			collect export "`excelout'", sheet(Table3c, replace) modify 
+			putexcel set "`excelout'", modify sheet("Table3c")		
+			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+			qui putexcel save
 		}		
 	} //3c
 		

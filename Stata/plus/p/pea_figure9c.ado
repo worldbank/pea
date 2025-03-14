@@ -19,8 +19,10 @@
 cap program drop pea_figure9c
 program pea_figure9c, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(integer 3) YRange(string) scheme(string) palette(string) save(string) excel(string) welfaretype(string)]	
-
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(integer 3) YRange(string) scheme(string) palette(string) save(string) excel(string) welfaretype(string) PPPyear(integer 2017)]	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	tempfile dataori pea_gini
 
 	local persdir : sysdir PERSONAL	
@@ -75,6 +77,11 @@ program pea_figure9c, rclass
 		tempvar w
 		gen `w' = 1
 		local wvar `w'
+	}
+	
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 	}
 	save `dataori', replace
 	
@@ -206,6 +213,7 @@ program pea_figure9c, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure9c.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure9c.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -221,14 +229,17 @@ program pea_figure9c, rclass
 
 	putexcel set "`excelout2'", modify sheet(Figure9c, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A`u' = image("`graph'")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 9c: Gini index across benchmark countries"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and PIP."
 	putexcel A4 = "Note: The figure shows the Gini index across benchmark countries. Data is from the closest available survey within `within' years to `lasty'. Solid bars indicate a `w_note'-based welfare aggregate and dashed bars a `w_note_o'-based welfare aggregate."
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
 	putexcel O7 = `"graph bar gini, over(code, sort(gini)) `bars' ytitle("Gini index") asyvars showyvars legend(off)"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data

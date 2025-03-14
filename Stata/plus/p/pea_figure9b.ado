@@ -19,8 +19,11 @@
 cap program drop pea_figure9b
 program pea_figure9b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(integer 3) YRange(string) scheme(string) palette(string) save(string) excel(string) welfaretype(string)]	
-
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONEWelfare(varname numeric) within(integer 3) YRange(string) scheme(string) palette(string) save(string) excel(string) welfaretype(string) PPPyear(integer 2017)]	
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	tempfile dataori pea_gini
 
 	local persdir : sysdir PERSONAL	
@@ -75,6 +78,10 @@ program pea_figure9b, rclass
 		tempvar w
 		gen `w' = 1
 		local wvar `w'
+	}
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 	}
 	save `dataori', replace
 	
@@ -265,6 +272,7 @@ program pea_figure9b, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure9b.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure9b.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -284,14 +292,17 @@ program pea_figure9b, rclass
 		  
 	putexcel set "`excelout2'", modify sheet(Figure9b, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A`u' = image("`graph'")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 9b: Gini index and GDP per-capita"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and PIP."
 	putexcel A4 = "Note: The figure shows the Gini index across countries against GDP per-capita (in logs). Data is from the closest available survey within `within' years to `lasty'. Filled markers indicate a `w_note'-based welfare aggregate and hollow markers a `w_note_o'-based welfare aggregate. Benchmark countries are shown separately from the countries in the same region as `country'."
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
 	putexcel O7 = `"twoway `scatter_cmd' qfit gini ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Gini index") xtitle("LN(GDP per capita, PPP, US$)") name(ngraph`gr', replace) note("`notes'", size(small)) `yrange'"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data

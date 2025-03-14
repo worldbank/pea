@@ -19,7 +19,9 @@
 cap program drop pea_figure13
 program pea_figure13, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NOEQUALSPACING excel(string) save(string) scheme(string) palette(string) COMParability(varname numeric)]	
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NOEQUALSPACING excel(string) save(string) scheme(string) palette(string) COMParability(varname numeric) PPPyear(integer 2017)]	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	if "`using'"~="" {
 		cap use "`using'", clear
@@ -54,6 +56,11 @@ program pea_figure13, rclass
 		tempvar w
 		gen `w' = 1
 		local wvar `w'
+	}
+	
+	if "`onewelfare'"~="" { //reset to the floor
+		replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 	}
 	
 	//Comparability
@@ -197,6 +204,7 @@ program pea_figure13, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\`figname'.xlsx"
 		local act replace
+		cap rm "`dirpath'\\`figname'.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -207,14 +215,16 @@ program pea_figure13, rclass
 	tempfile graph
 	putexcel set "`excelout2'", modify sheet(`figname', replace)	  
 	graph export "`graph'", replace as(png) name(ngraph`gr') wid(1500)	
+	putexcel A`u' = image("`graph'")
 	putexcel A1 = ""
 	putexcel A2 = "Figure 13: Distribution of welfare by deciles"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
 	putexcel A4 = "Note: The figure shows the share of total welfare held by each welfare decile (%). `note2'"	
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
 	putexcel O7 = `"twoway 	`pcspike' `rarea', ytitle("Percentage of population") ylab(`yaxis', axis(2) angle(-45)) yscale(range(0 100) axis(1)) yscale(range(0 100) axis(2)) ytitle("", axis(2)) xlabel(`yearval', valuelabel) xtitle("") plotregion(margin(zero)) aspect(1) legend(off)"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	

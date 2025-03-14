@@ -19,7 +19,10 @@
 cap program drop pea_table12
 program pea_table12, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) spells(string) Year(varname numeric) CORE LINESORTED setting(string) NOOUTPUT excel(string) save(string) MISSING GRAPH]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) spells(string) Year(varname numeric) CORE LINESORTED setting(string) NOOUTPUT excel(string) save(string) MISSING GRAPH PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 
 	//load data if defined
 	if "`using'"~="" {
@@ -98,6 +101,11 @@ program pea_table12, rclass
 		marksample touse
 		local flist `"`wvar' `welfare' `by' `year'"'
 		markout `touse' `flist' 
+		
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
 		
 		tempfile dataori datalbl
 		save `dataori', replace
@@ -238,8 +246,13 @@ program pea_table12, rclass
 			*collect style header value[.], level(hide)
 			collect title `"Table 12b. Decomposition of poverty changes: growth and redistribution - Datt-Ravallion decomposition"'
 			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
-			collect notes 2: `"The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution using `note', following Datt and Ravallion (1992)."'
+			collect notes 2: `"The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution, following Datt and Ravallion (1992)."'
 			collect style notes, font(, italic size(10))
+			collect style cell, shading( background(white) )	
+			collect style cell cell_type[corner], shading( background(lightskyblue) )
+			collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )			
+			collect style cell cell_type[item],  halign(center)
+			collect style cell cell_type[column-header], halign(center)	
 			
 			local tabname Table12b
 			if "`excel'"=="" {
@@ -247,7 +260,10 @@ program pea_table12, rclass
 				if "`core'"~="" shell start excel "`dirpath'\\Table12.xlsx"
 			}
 			else {
-				collect export "`excelout'", sheet("`tabname'", replace) modify 
+				collect export "`excelout'", sheet("`tabname'", replace) modify
+				putexcel set "`excelout'", modify sheet("`tabname'")		
+				putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+				qui putexcel save
 			}
 			
 			//12c
@@ -258,8 +274,13 @@ program pea_table12, rclass
 				*collect style header value[.], level(hide)
 				collect title `"Table 12c. Decomposition of poverty changes: growth and redistribution - Shorrocks-Kolenikov decomposition"'
 				collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
-				collect notes 2: `"Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty can be attributed to income or consumption growth, redistribution, and price changes using `note', following Kolenikov and Shorrocks (2005). Note that there are no changes in prices if poverty lines are in constant terms."'
+				collect notes 2: `"Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty can be attributed to income or consumption growth, redistribution, and price changes, following Kolenikov and Shorrocks (2005). Note that there are no changes in prices if poverty lines are in constant terms."'
 				collect style notes, font(, italic size(10))				
+				collect style cell, shading( background(white) )	
+				collect style cell cell_type[corner], shading( background(lightskyblue) )
+				collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )			
+				collect style cell cell_type[item],  halign(center)
+				collect style cell cell_type[column-header], halign(center)	
 					
 				local tabname Table12c
 				if "`excel'"=="" {
@@ -268,6 +289,9 @@ program pea_table12, rclass
 				}
 				else {
 					collect export "`excelout'", sheet("`tabname'", replace) modify 
+					putexcel set "`excelout'", modify sheet("`tabname'")		
+					putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
+					qui putexcel save
 				}
 			}
 		}

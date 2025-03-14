@@ -19,8 +19,10 @@
 cap program drop pea_figure15
 program pea_figure15, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) excel(string) save(string)]
-
+syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) excel(string) save(string) PPPyear(integer 2017)]
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -91,6 +93,7 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure15.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure15.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -111,15 +114,17 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	bar(2, color("`: word 2 of ${colorpalette}'"))	
 		
 	putexcel set "`excelout2'", modify sheet(Figure15, replace)	  
-	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	graph export "`graph'", replace as(png) name(ngraph) wid(1500)	
+	putexcel A`u' = image("`graph'")
 	putexcel A1 = ""
 	putexcel A2 = "Figure 15: Climate risk and vulnerability dimensions"
 	putexcel A3 = "Source: World Bank calculations using data from the World Bank Scorecard Vision Indicators."
 	putexcel A4 = "Note: Population at risk is defined as the share of population exposed to any hazard, and vulnerable in any of the dimensions."
-	putexcel A`u' = image("`graph'")
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
 	putexcel O7 = `"graph hbar share_1 share_2, over(ind, sort((mean) share_) descending) over(over_group, label(angle(90))) nofill ytitle("Share of population (percent)") legend(off) bar(1, color("`: word 1 of ${colorpalette}'")) bar(2, color("`: word 2 of ${colorpalette}'"))"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	//Export data
 	export excel share_1 share_2 ind share_ over_group using "`excelout2'", sheet("Figure15", modify) cell(O11) keepcellfmt firstrow(variables)	

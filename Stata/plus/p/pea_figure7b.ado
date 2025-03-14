@@ -20,7 +20,10 @@
 cap program drop pea_figure7b
 program pea_figure7b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varlist numeric) Year(varname numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) FGTVARS setting(string) scheme(string) palette(string) excel(string) save(string)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varlist numeric) Year(varname numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) FGTVARS setting(string) scheme(string) palette(string) excel(string) save(string) PPPyear(integer 2017)]
+	
+	//Check PPPyear
+	_pea_ppp_check, ppp(`pppyear')
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
@@ -79,7 +82,11 @@ program pea_figure7b, rclass
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 		
 	// Generate poverty measures
-	if "`fgtvars'"=="" { //only create when the fgt are not defined			
+	if "`fgtvars'"=="" { //only create when the fgt are not defined	
+		if "`onewelfare'"~="" { //reset to the floor
+			replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
 		//FGT
 		if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline')
 		gen double _pop = `wvar'
@@ -91,6 +98,7 @@ program pea_figure7b, rclass
 		label define educat4_m 1 "No education" 2 "Primary" 3 "Secondary" 4 "Tertiary"
 		label values `edu' educat4_m
 	}	
+	replace `edu' = . if `age'<16 & `age'==.
 	
 	// Variable definitions
 	if "`age'"!="" {
@@ -154,6 +162,7 @@ program pea_figure7b, rclass
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure7b.xlsx"
 		local act replace
+		cap rm "`dirpath'\\Figure7b.xlsx"
 	}
 	else {
 		local excelout2 "`excelout'"
@@ -172,14 +181,17 @@ program pea_figure7b, rclass
 
 	putexcel set "`excelout2'", modify sheet(Figure7b, replace)	  
 	graph export "`graph'", replace as(png) name(ngraph) wid(1500)		
+	putexcel A`u' = image("`graph'")
+	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 7b: Poor and non-Poor by demographic groups"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: Figure presents the share of population in each group that is poor and non-poor, as defined by the `lblline' line. Data from all individuals is used, not only household heads."
-	putexcel A`u' = image("`graph'")
+	putexcel A4 = "Note: Figure presents the share of population in each group that is poor and non-poor, as defined by the `lblline' line. Data from all individuals is used, not only household heads. Poverty rates by educational attainment are calculated only for individuals aged 16 and above."
+	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
 	putexcel O7 = `"graph hbar poor nonpoor, stack over(_group) bar(1, color("${col1}")) bar(2, color("${col2}")) legend(pos(6) order(1 "Population below `lblline'" 2 "Population above `lblline'") row(2) on) ytitle("Share of poor (percent)")"'
+	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save								
 	cap graph close	
 	//Export data
