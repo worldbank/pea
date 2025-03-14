@@ -132,6 +132,7 @@ program pea_table2, rclass
 		use `data1', clear
 		gen count = 1
 		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(count) rawsum(_pop) by(`year' `var')
+		gen varname = "`var'"
 		ren `var' lbl`var'
 		append using `data2'
 		save `data2', replace
@@ -144,6 +145,7 @@ program pea_table2, rclass
 	local i=1
 	*label define combined_label
 	foreach var of local byind {
+		local lbl2`var' : variable label `var'
 		replace group = `j' if lbl`var'	~=.
 		local label1 : value label lbl`var'		
 		levelsof lbl`var', local(levels1)
@@ -158,7 +160,8 @@ program pea_table2, rclass
 		local j = `j'+1
 	}	
 	label values combined_var combined_label
-	reshape long _fgt0_ _fgt1_ _fgt2_ , i(`year' _pop combined_var group) j(_varname) string
+	reshape long _fgt0_ _fgt1_ _fgt2_ , i(`year' _pop combined_var group varname) j(_varname) string
+	
 	split _varname, parse("_")
 	drop _varname1
 	gen npoor = _fgt0_*_pop
@@ -201,25 +204,41 @@ program pea_table2, rclass
 	la var npoor "Number of poor `xtxt'"
 	la var share_poor "Share of poor"
 	
-	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl count
+	keep `year' combined_var _fgt0_ npoor share_poor indicatorlbl count varname
 
 	ren _fgt0_ value1
 	ren share_poor value2
 	ren npoor value3
 
-	reshape long value, i( `year' combined_var indicatorlbl ) j(ind)
+	reshape long value, i( `year' combined_var indicatorlbl varname) j(ind)
 	la def ind 1 "Poverty rate (%)" 2 "Share of poor (%)" 3 "Number of poor `xtxt'"
 	la val ind ind
+	
+	gen varlbl = .
+	local i = 1
+	foreach var of local byind {
+		replace varlbl = `i' if varname=="`var'"
+		la def varlbl `i' "`lbl2`var''", add
+		local i = `i' + 1
+	}
+	la val varlbl varlbl
+	
 	local milab : value label combined_var
+	s
 	if ("`minobs'" ~= "") replace value = . if count < `minobs' & combined_var ~= "Missing":`milab'
 	
 	collect clear
-	qui collect: table (indicatorlbl combined_var) (ind `year'), stat(mean value) nototal nformat(%20.1f) missing
-	collect style header indicatorlbl combined_var ind `year', title(hide)	
+	qui collect: table (indicatorlbl varlbl combined_var) (ind `year'), stat(mean value) nototal nformat(%20.1f) missing
+	collect style header varlbl indicatorlbl combined_var ind `year', title(hide)	
 	collect title `"Table 2. Core poverty indicators by geographic areas"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
 	collect style notes, font(, italic size(10))
+	
+	collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
+	collect style cell varlbl[]#cell_type[row-header], font(, nobold italic)
+	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
+	
 	collect style cell, shading( background(white) )	
 	collect style cell cell_type[corner], shading( background(lightskyblue) )
 	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )

@@ -70,14 +70,15 @@ program pea_figures, rclass
 		}
 		else local excelout "`excel'"
 	}
-	//Title sheet
-	putexcel set "`excelout'", replace sheet("Figure list")
-	putexcel C5 = "Poverty and Equity Assessments"
-	putexcel C6 = "Additional Figures"
-	putexcel C10 = "Generated Figures:"
-	qui putexcel save
 	
+	//Title sheet
 	qui {
+		putexcel set "`excelout'", replace sheet("Contents")
+		putexcel C5 = "Poverty and Equity Assessments 3.0"
+		putexcel C6 = "Additional Figures"
+		putexcel C10 = "Generated Figures:"
+		putexcel save
+	
 		local country "`=upper("`country'")'"
 		cap drop code
 		gen code = "`country'"
@@ -150,209 +151,222 @@ program pea_figures, rclass
 	//Figure 1
 	qui use `data1', clear	
 	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') `combine' `noequalspacing' yrange(`yrange') `bar' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 1....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
-		putexcel C${tablecount} = hyperlink("#Figure1!A1", "Figure 1. Poverty rates by year")
-		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel set "`excelout'", modify sheet("Contents")	
+		if "`combine'"~="" {
+			putexcel C${tablecount} = hyperlink("#Figure1!A1", "Figure 1. Poverty rates by year")
+			global tablecount = ${tablecount} + 1
+		}
+		else {
+			local nlines : word count `natpovlines' `ppppovlines'
+			forv n=1(1)`nlines' {
+				putexcel C${tablecount} = hyperlink("#Figure1_`n'!A1", "Figure 1.`n' Poverty rates by year - poverty line `n'")
+				global tablecount = ${tablecount} + 1
+			}
+		}
+		putexcel save	
 	}
 	else noi dis in red "Figure 1....... Not done"
 	
 	//Figure 2
 	qui use `data1', clear
 	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars yrange(`yrange') onewelfare(`onewelfare') oneline(`oneline') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 2....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure2!A1", "Figure 2. Poverty and GDP per capita in benchmark countries")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 2....... Not done"
 	
 	//Figure 3a
 	qui use `dataori0', clear
 	cap pea_figure3a [aw=`wvar'], year(`year') welfare(`onewelfare') comparability(`comparability') spells(`spells') trim(`trim') scheme(`scheme') palette(`palette') excel("`excelout'")
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 3a....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure3a!A1", "Figure 3a. Growth Incidence Curves over time")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 3a....... Not done"
 	
 	//Figure 3b
 	qui use `dataori0', clear
 	cap pea_figure3b [aw=`wvar'], year(`year') welfare(`onewelfare') comparability(`comparability') spells(`spells') trim(`trim') by(`urban') scheme(`scheme') palette(`palette') excel("`excelout'")
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 3b....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure3b!A1", "Figure 3b. Growth Incidence Curves by area")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 3b....... Not done"
 	
 	//Figure 4
 	qui use `dataori0', clear
 	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') comparability(`comparability') spells(`spells') idpl(`idpl') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 4....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
-		putexcel C${tablecount} = hyperlink("#Figure4!A1", "Figure 4a/4b. Datt-Ravallion and Shorrocks-Kolenikov decompositions")
+		putexcel set "`excelout'", modify sheet("Contents")		
+		putexcel C${tablecount} = hyperlink("#Figure4a!A1", "Figure 4a. Datt-Ravallion decompositions")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		
+		putexcel C${tablecount} = hyperlink("#Figure4b!A1", "Figure 4b. Shorrocks-Kolenikov decompositions")
+		global tablecount = ${tablecount} + 1
+		putexcel save	
 	}
 	else noi dis in red "Figure 4....... Not done"
 	
 	//Figure 5
 	qui use `dataori0', clear
 	cap pea_figure5 [aw=weight_p], year(`year') onew(`onewelfare') onel(`oneline') comparability(`comparability') spells(`spells') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 5....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure5!A1", "Figure 5. Huppi-Ravallion decomposition")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 5....... Not done"
 	
 	//Figure 6
 	qui use `dataori0', clear	
 	cap pea_figure6 [aw=`wvar'], c(`country') year(`year') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability') spells(`spells')  scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 6....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure6!A1", "Figure 6. GDP - Poverty elasticity")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 6....... Not done"
 	
 	//Figure 7a
 	qui use `data1', clear	
 	cap pea_figure7a [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted age(`age') male(`male') edu(`edu') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 7a....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure7a!A1", "Figure 7a. Poverty rates by demographic groups")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 7a....... Not done"
 	
 	//Figure 7b
 	qui use `data1', clear	
 	cap pea_figure7b [aw=`wvar'], onewelfare(`onewelfare') oneline(`oneline') year(`year') fgtvars age(`age') male(`male') edu(`edu') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 7b....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure7b!A1", "Figure 7b. Share of poor and non-poor by demographic groups")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 7b....... Not done"	
+	
 	//Figure 8 - TBC
 	
 	//Figure 9a
 	qui use `dataori0', clear	
 	cap pea_figure9a [aw=`wvar'], year(`year') onewelfare(`onewelfare') comparability(`comparability') `noequalspacing' yrange(`yrange') ineqind(`ineqind') `bar' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 9a...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure9a!A1", "Figure 9a. Inequality by year")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 9a...... Not done"
 	
 	//Figure 9b
 	qui use `dataori0', clear	
 	cap pea_figure9b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') welfaretype(`welfaretype') within(`within') yrange(`yrange') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 9b...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure9b!A1", "Figure 9b. Gini and GDP per capita scatter")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 9b...... Not done"
 	
 	//Figure 9b
 	qui use `dataori0', clear	
 	cap pea_figure9c [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') welfaretype(`welfaretype') within(`within') yrange(`yrange') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 9c...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure9c!A1", "Figure 9c. Benchmark countries ranked by Gini index")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 9c...... Not done"
 	
 	//Figure 10a
 	qui use `dataori0', clear	
 	cap pea_figure10a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `noequalspacing' yrange(`yrange') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 10a...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure10a!A1", "Figure 10a. Prosperity gap by year and area")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 10a...... Not done"
 	
 	//Figure 10b
 	qui use `dataori0', clear	
 	cap pea_figure10b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') yrange(`yrange') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 10b...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure10b!A1", "Figure 10b: Prosperity gap (line-up) and GDP per capita scatter")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 10b...... Not done"
 	
 	//Figure 10c
 	qui use `dataori0', clear	
 	cap pea_figure10c [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') yrange(`yrange') within(`within') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 10c...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure10c!A1", "Figure 10c: Prosperity gap (survey) and GDP per capita scatter")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 10c...... Not done"
 	
 	//Figure 10d
 	qui use `dataori0', clear	
 	cap pea_figure10d [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') scheme(`scheme') yrange(`yrange') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 10d...... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure10d!A1", "Figure 10d: Prosperity gap over time in benchmark countries (line-up)")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 10d...... Not done"
 	
@@ -361,69 +375,84 @@ program pea_figures, rclass
 	//Figure 12
 	qui use `dataori0', clear
 	cap pea_figure12 [aw=`wvar'], c(`country') year(`year') onew(`onewelfare') comparability(`comparability') spells(`spells') `relativechange' palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 12....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure12!A1", "Figure 12. Decomposition of growth in prosperity gap")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 12....... Not done"
 	
 	//Figure 13
 	qui use `dataori0', clear
 	cap pea_figure13 [aw=`wvar'], year(`year') onew(`onewelfare') comparability(`comparability') `noequalspacing' palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 13....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
+		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#Figure13!A1", "Figure 13. Distribution of welfare by deciles")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 13....... Not done"
 	
 	//Figure 14
 	qui use `dataori0', clear
 	cap pea_figure14 [aw=`wvar'], c(`country') welfare(welfppp) year(`year') benchmark(`benchmark') within(`within') palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 14....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
-		putexcel C${tablecount} = hyperlink("#Figure14!A1", "Figure 14a/14b/14c. Multidimensional Poverty Measure, by components, versus benchmark countries")
+		putexcel set "`excelout'", modify sheet("Contents")		
+		putexcel C${tablecount} = hyperlink("#Figure14a!A1", "Figure 14a. Multidimensional Poverty Measure, by components, versus benchmark countries")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		
+		putexcel C${tablecount} = hyperlink("#Figure14b!A1", "Figure 14b. Multidimensional poverty and poverty rates, versus benchmark countries")
+		global tablecount = ${tablecount} + 1
+		
+		putexcel C${tablecount} = hyperlink("#Figure14c!A1", "Figure 14c. Multidimensional poverty and poverty rates, contributions")
+		global tablecount = ${tablecount} + 1
+		putexcel save	
 	}
 	else noi dis in red "Figure 14....... Not done"
 	
 	//Figure 15
 	qui use `dataori0', clear	
 	cap pea_figure15, c(`country') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 15....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")
+		putexcel set "`excelout'", modify sheet("Contents")
 		putexcel C${tablecount} = hyperlink("#Figure15!A1", "Figure 15: Climate risk and vulnerability")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure 15....... Not done - no data for `country'"
 
 	//Figure 16
 	qui use `dataori0', clear	
 	cap pea_figure16, onew(`onewelfare') onel(`oneline') year(`year')  age(`age') male(`male') edu(`edu') hhhead(`hhhead') hhid(`hhid') pid(`pid') urban(`urban') married(`married') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') hhsize(`hhsize') relationharm(`relationharm') earnage(`earnage') missing scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure 16....... Done"
 		local ok = 1
-		putexcel set "`excelout'", modify sheet("Figure list")		
-		putexcel C${tablecount} = hyperlink("#Figure16!A1", "Figure 16a/16b/16c/16d. Share of poor by demographic and economic typologies")
+		putexcel set "`excelout'", modify sheet("Contents")		
+		
+		putexcel C${tablecount} = hyperlink("#Figure16a!A1", "Figure 16a: Profiles of the poor by demographic composition (treemap)")
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		
+		putexcel C${tablecount} = hyperlink("#Figure16b!A1", "Figure 16b: Profiles of the poor by economic composition (treemap)")
+		global tablecount = ${tablecount} + 1
+		
+		putexcel C${tablecount} = hyperlink("#Figure16c!A1", "Figure 16c: Profiles of the poor by demographic composition (bar)")
+		global tablecount = ${tablecount} + 1
+		
+		putexcel C${tablecount} = hyperlink("#Figure16d!A1", "Figure 16d: Profiles of the poor by economic composition (bar)")
+		global tablecount = ${tablecount} + 1
+		putexcel save	
 	}
 	else noi dis in red "Figure 16....... Not done"
-	
-	
+		
 	//Final open	
 	if `ok'==1 {
 		shell start excel "`excelout'"

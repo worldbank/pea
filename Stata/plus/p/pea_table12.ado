@@ -239,14 +239,16 @@ program pea_table12, rclass
 			save `save', replace
 		}
 		else {
-			//12b			
+			//12a			
 			collect clear
 			qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Datt-Ravallion" & subind<=3, statistic(mean value) nototal nformat(%20.1f) missing
 			collect style header decomp indicatorlbl subind spell, title(hide)
 			*collect style header value[.], level(hide)
-			collect title `"Table 12b. Decomposition of poverty changes: growth and redistribution - Datt-Ravallion decomposition"'
+			collect title `"Table 12a. Decomposition of poverty changes: growth and redistribution - Datt-Ravallion decomposition"'
 			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
 			collect notes 2: `"The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution, following Datt and Ravallion (1992)."'
+			collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
+			collect style cell subind[]#cell_type[row-header], warn font(, nobold)
 			collect style notes, font(, italic size(10))
 			collect style cell, shading( background(white) )	
 			collect style cell cell_type[corner], shading( background(lightskyblue) )
@@ -254,7 +256,7 @@ program pea_table12, rclass
 			collect style cell cell_type[item],  halign(center)
 			collect style cell cell_type[column-header], halign(center)	
 			
-			local tabname Table12b
+			local tabname Table12a
 			if "`excel'"=="" {
 				collect export "`dirpath'\\Table12.xlsx", sheet("`tabname'") replace 	
 				if "`core'"~="" shell start excel "`dirpath'\\Table12.xlsx"
@@ -266,23 +268,25 @@ program pea_table12, rclass
 				qui putexcel save
 			}
 			
-			//12c
+			//12b
 			if "`core'"=="" {
 				collect clear
 				qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Shorrocks-Kolenikov", statistic(mean value) nototal nformat(%20.1f) missing
 				collect style header decomp indicatorlbl subind spell, title(hide)
 				*collect style header value[.], level(hide)
-				collect title `"Table 12c. Decomposition of poverty changes: growth and redistribution - Shorrocks-Kolenikov decomposition"'
+				collect title `"Table 12b. Decomposition of poverty changes: growth and redistribution - Shorrocks-Kolenikov decomposition"'
 				collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
 				collect notes 2: `"Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty can be attributed to income or consumption growth, redistribution, and price changes, following Kolenikov and Shorrocks (2005). Note that there are no changes in prices if poverty lines are in constant terms."'
-				collect style notes, font(, italic size(10))				
+				collect style notes, font(, italic size(10))	
+				collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
+				collect style cell subind[]#cell_type[row-header], warn font(, nobold)
 				collect style cell, shading( background(white) )	
 				collect style cell cell_type[corner], shading( background(lightskyblue) )
 				collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )			
 				collect style cell cell_type[item],  halign(center)
 				collect style cell cell_type[column-header], halign(center)	
 					
-				local tabname Table12c
+				local tabname Table12b
 				if "`excel'"=="" {
 					collect export "`dirpath'\\Table12.xlsx", sheet("`tabname'") modify 	
 					shell start excel "`dirpath'\\Table12.xlsx"

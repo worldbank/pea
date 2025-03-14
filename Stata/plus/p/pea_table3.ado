@@ -14,7 +14,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Table 2 and 3. Core poverty indicators - test
+//Table 2 and 3. Core poverty indicators
 
 cap program drop pea_table3
 program pea_table3, rclass
@@ -234,6 +234,8 @@ program pea_table3, rclass
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
 		collect style notes, font(, italic size(10))
+		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
+		collect style cell agecatind[]#cell_type[row-header], warn font(, nobold)
 		collect style cell, shading( background(white) )	
 		collect style cell cell_type[corner], shading( background(lightskyblue) )
 		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
@@ -292,6 +294,8 @@ program pea_table3, rclass
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates reported for individuals, age 16 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_minobs'"'
 		collect style notes, font(, italic size(10))
+		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
+		collect style cell _eduXind[]#cell_type[row-header], warn font(, nobold)
 		collect style cell, shading( background(white) )	
 		collect style cell cell_type[corner], shading( background(lightskyblue) )
 		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
@@ -378,14 +382,16 @@ program pea_table3, rclass
 		local milab : value label combined_var
 		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & combined_var ~= "Missing":`milab'
 		collect clear
-		qui collect: table (group indicatorlbl combined_var) (`year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
+		qui collect: table (group  combined_var) (indicatorlbl `year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header group indicatorlbl combined_var `year', title(hide)
 		
 		collect title `"Table 3c. Subgroup poverty rates of household head (%)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates reported for household heads 18 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
-		collect style notes, font(, italic size(10))
-		collect style notes, font(, italic size(10))
+		collect style notes, font(, italic size(10))		
+		collect style cell group[]#cell_type[row-header], font(, bold)
+		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
+		collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
 		collect style cell, shading( background(white) )	
 		collect style cell cell_type[corner], shading( background(lightskyblue) )
 		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )

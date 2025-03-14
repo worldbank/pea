@@ -276,6 +276,8 @@ program pea_tableA2, rclass
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. `note_minobs'"'
 	collect style notes, font(, italic size(10))
+	collect style cell group[]#cell_type[row-header], font(, bold)
+	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
 	collect style cell, shading( background(white) )	
 	collect style cell cell_type[corner], shading( background(lightskyblue) )
 	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )

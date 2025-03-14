@@ -368,7 +368,7 @@ program pea_table10, rclass
 	}
 	else {
 		collect export "`excelout'", sheet(`tblname', replace) modify 
-		putexcel set "`excelout'", modify sheet("`tabname'")		
+		putexcel set "`excelout'", modify sheet("`tblname'")		
 		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 		qui putexcel save
 	}	

@@ -338,6 +338,8 @@ program pea_table14a, rclass
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
 	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Household dependency ratio is the ratio of children (0-14) and elderly (65+) over working-age population (15-64). Improved drinking water sources include piped water on premises (piped household water connection located inside the user"s dwelling, plot or yard), and other improved drinking water sources (public taps or standpipes, tube wells or boreholes, protected dug wells, protected springs, and rainwater collection) (WHO/UNICEF Joint Monitoring Programme). Improved sanitation facilities are sanitation facilities likely to ensure hygienic separation of human excreta from human contact, including flush/pour flush (to piped sewer system, septic tank, pit latrine), ventilated improved pit latrine, pit latrine with slab, and composting toilet (WHO/UNICEF Joint Monitoring Programme)."' 
 	collect style notes, font(, italic size(10))
+	collect style cell group1[]#cell_type[row-header], font(, bold)
+	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)
 	collect style cell, shading( background(white) )	
 	collect style cell cell_type[corner], shading( background(lightskyblue) )	
 	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	

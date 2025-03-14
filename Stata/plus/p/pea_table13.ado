@@ -245,6 +245,8 @@ program pea_table13, rclass
 			collect title `"Table 13. Decomposition of poverty changes: Huppi-Ravallion decomposition"'
 			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups, following Huppi and Ravallion (1991). The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
+			collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
+			collect style cell subind[]#cell_type[row-header], warn font(, nobold)
 			collect style notes, font(, italic size(10))
 			collect style cell, shading( background(white) )	
 			collect style cell cell_type[corner], shading( background(lightskyblue) )

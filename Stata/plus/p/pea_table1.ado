@@ -19,7 +19,7 @@
 cap program drop pea_table1
 program pea_table1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric) SVY std(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) CORE setting(string) LINESORTED excel(string) save(string) ONELine(varname numeric) ONEWelfare(varname numeric) SVY std(string) PPPyear(integer 2017) VULnerability(real 1.5)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -55,6 +55,10 @@ program pea_table1, rclass
 		else local excelout "`excel'"
 	}
 	
+	if "`vulnerability'"=="" {
+		local vulnerability = 1.5
+		noi di in yellow "Default multiple of poverty line to define vulnerability is 1.5"
+	}
 	//variable checks
 	//check plines are not overlapped.
 	//trigger some sub-tables
@@ -162,7 +166,7 @@ program pea_table1, rclass
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
 		
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
-		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
+		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability'  if `touse'
 	}
 	
 	tempfile data1 data2 atriskdata data2a
@@ -341,8 +345,7 @@ program pea_table1, rclass
 	replace subind = 16 if _varname2 =="mB40"
 	replace subind = 17 if _varname2 =="mT60"
 
-	la def subind 1 "Headcount (%)" 2 "Gap (%)" 3 "Severity (%)" 4 "Number of poor `xtxt'" ///
-	10 "Total" 11 "Q1 (poorest 20%)" 12 "Q2" 13 "Q3" 14 "Q4" 15 "Q5 (richest 20%)" 16 "B40" 17 "T60"	
+	la def subind 1 "Headcount (%)" 2 "Gap (%)" 3 "Severity (%)" 4 "Number of poor `xtxt'" 10 "Total" 11 "Q1 (poorest 20%)" 12 "Q2" 13 "Q3" 14 "Q4" 15 "Q5 (richest 20%)" 16 "B40" 17 "T60"	
 	la val subind subind
 
 	gen indicatorlbl = .
@@ -390,7 +393,7 @@ program pea_table1, rclass
 		replace indicatorlbl = 60 if _varname2=="Gini"
 		replace indicatorlbl = 70 if _varname2=="prosgap"
 		replace indicatorlbl = 80 if _varname2=="mpmwb"
-		la def indicatorlbl 50 "Poverty vulnerability - 1.5*PL (`lbloneline', %)" 55 "Percentage of people at high risk from climate-related hazards (2021*)" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (%, World Bank)" , add
+		la def indicatorlbl 50 "Poverty vulnerability - `vulnerability'*PL (`lbloneline', %)" 55 "Percentage of people at high risk from climate-related hazards (2021*)" 60 "Gini index" 70 "Prosperity Gap" 80 "Multidimensional poverty (%, World Bank)" , add
 	
 		replace indicatorlbl = 90 if _varname2 =="WELFMEAN"
 		replace indicatorlbl = 90 if _varname2=="mT60"
@@ -411,9 +414,7 @@ program pea_table1, rclass
 	else {
 		qui if "`std'"=="right" { //wide-form			
 			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
-			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append
-			*collect style header indicatorlbl subind `year', title(hide)
-			*collect style header subind[.], level(hide)
+			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append			
 			collect layout (indicatorlbl#subind) (`year'#var) (result)
 			collect style cell var[std], sformat((%s))
 			collect label levels var value "Estimate", modify
@@ -423,15 +424,9 @@ program pea_table1, rclass
 		qui if "`std'"=="inside" {
 			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
 			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append
-
-			*collect style header indicatorlbl subind `year', title(hide)
-			*collect style header subind[.], level(hide)
-			
 			collect remap result[mean] = result[estimate], fortags(var[value])
 			collect remap result[mean] = result[sd], fortags(var[std])
-
 			collect style cell result[sd], sformat((%s))
-
 			collect composite define new = estimate sd, trim
 			collect layout (indicatorlbl#subind) (`year') (result[new])
 			local stdtext "Standard errors are reported in parentheses."
@@ -444,6 +439,9 @@ program pea_table1, rclass
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `stdtext'"'
 	collect style notes, font(, italic size(10))
+	collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
+	collect style cell subind[]#cell_type[row-header], warn font(, nobold)
+	*collect style cell indicatorlbl[]#cell_type[row-header], warn font(, nobold)
 	
 	collect style cell, shading( background(white) )	
 	collect style cell cell_type[corner], shading( background(lightskyblue) )	

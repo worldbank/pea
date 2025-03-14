@@ -130,9 +130,10 @@ program pea_table7, rclass
 	gen _All = 1
 	label define laball 1 "All sample"
 	label values _All laball
-	gen _vulpov_`welfare'_`povlines' = (`welfare' < `vulnerability'*`povlines') if `welfare'~=. & `touse'
-	gen double _pop = `wvar'
-	
+	if "`core'"=="" {
+		gen _vulpov_`welfare'_`povlines' = (`welfare' < `vulnerability'*`povlines') if `welfare'~=. & `touse'
+		gen double _pop = `wvar'
+	}
 	//trigger some sub-tables
 	tempfile data1 data2
 	save `data1', replace
@@ -228,6 +229,8 @@ program pea_table7, rclass
 	collect notes 2: `"Note: Vulnerability to poverty is defined as `vulnerability' times the `lbl`povlines''. All individual are used in the sample. Poverty statistics by educational attainment are only calculated for those aged 16 and above. `note_minobs'"'
 		
 	collect style notes, font(, italic size(10))
+	collect style cell group[]#cell_type[row-header], font(, bold)
+	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
 	collect style cell, shading( background(white) )	
 	collect style cell cell_type[corner], shading( background(lightskyblue) )
 	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )

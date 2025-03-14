@@ -51,6 +51,9 @@ pea_table1 [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) p
 
 pea_table1 [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) std(inside) svy ppp(2017)
 
+pea_table2 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) 
+
+
 pea_tableA2 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) age(age) male(male) edu(educat4) missing
 
 pea_table3 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year)  age(age) male(male) hhhead(head) edu(educat4) missing ppp(2017)
@@ -72,7 +75,15 @@ pea_table13 [aw=weight_p], natw(welfare) natp(natline ) pppw(welfppp) pppp(pline
 
 pea_table14a [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head)  urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) ppp(2017)
 
-pea figures [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(CIV GHA GMB) missing setting(GMD) spells(2018 2021)
+pea_table14b [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) age(age) male(male) hhsize(hsize) hhid(hhid) pid(pid) lstatus(lstatus) empstat(empstat) relationharm(relationharm) earnage(18) pppyear(2017) 
+
+missing
+
+pea tables [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2018 2021)
+
+pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021) age(age) male(male) hhsize(hsize) hhid(hhid) pid(pid) lstatus(lstatus) empstat(empstat) relationharm(relationharm) earnage(18) ppp(2017) svy
+
+pea figures [aw=weight_p], c(ARM) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(CIV GHA GMB) missing setting(GMD) spells(2018 2021) welfaretype(CONS) 
 
 
 pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) ppp(2017)
@@ -118,7 +129,13 @@ pea figure14 [aw=weight_p], c(GNB) welfare(welfppp) year(year)  benchmark(CIV GH
 
 pea figure15, c(ARM) 
  
-
+pea_figure16 [aw=weight_p], onewelfare(welfppp) oneline(pline215) year(year) 			 	///
+							age(age) male(male) hhhead(head) 								///
+							married(married) empstat(empstat) 								///	
+							hhsize(hsize) hhid(hhid) pid(pid) 								///
+							industrycat4(industrycat4) lstatus(lstatus) 					///
+							relationharm(relationharm) earnage(15) missing
+							
 *gen head = relationharm==1 if relationharm~=.
 *la def head 1 "HH head" 
 *la val head head

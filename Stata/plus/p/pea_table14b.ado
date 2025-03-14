@@ -43,11 +43,11 @@ program pea_table14b, rclass
 	if "`missing'"~="" { //show missing
 		foreach var of varlist `male' `relationharm' `age' `empstat' {
 			su `var'
-			local miss = r(max)
-			replace `var' = `=`miss'+10' if `var'==.
+			local max_`var' = r(max) + 10
+			replace `var' = `max_`var'' if `var'==.
 			local varlbl : value label `var'
 			if "`varlbl'" == "" local varlbl `var'
-			la def `varlbl' `=`miss'+10' "Missing", add
+			la def `varlbl' `max_`var'' "Missing", add
 			la values `var' `varlbl'
 		}
 	}	
@@ -105,7 +105,6 @@ program pea_table14b, rclass
 	
 	//FGT
 	gen _fgt0_`welfare'_`povlines' = (`welfare' < `povlines') if `welfare'~=. & `touse'
-	
 	gen double _pop = `wvar' if `touse'
 		
 	gen _total = 1 if `touse'
@@ -127,11 +126,11 @@ program pea_table14b, rclass
 	bys `year' `hhid' (`pid'): egen any_spousebelow18 = max(anyspousebelow18)
 	bys `year' `hhid' (`pid'): egen any_hhheadbelow18 = max(hhheadisbelow18)
 	* Identify number of adults
-	gen adult = `age' > 17 & `age' < 65
-	bys  `year' `hhid' (`pid'): egen number_adults = sum(adult)
+	gen _pea_adult = `age' > 17 & `age' < 65
+	bys  `year' `hhid' (`pid'): egen number_adults = sum(_pea_adult)
 	* Identify children
-	gen child = `age' < 18
-	bys `year' `hhid' (`pid'): egen any_children = max(child)
+	gen _pea_child = `age' < 18
+	bys `year' `hhid' (`pid'): egen any_children = max(_pea_child)
 	* Female adult or senior
 	gen femaleolder17 = `age' > 17 &  `male' == 0
 	bys `year' `hhid' (`pid'): egen female_older17 = sum(femaleolder17)
@@ -139,15 +138,14 @@ program pea_table14b, rclass
 	gen maleolder17 = `age' > 17 & `male' == 1
 	bys `year' `hhid' (`pid'): egen male_older17 = sum(maleolder17)
 	* Senior
-	gen senior = `age' > 64
-	bys `year' `hhid' (`pid'): egen number_seniors = sum(senior)
+	gen _pea_senior = `age' > 64
+	bys `year' `hhid' (`pid'): egen number_seniors = sum(_pea_senior)
 	* Missing demographics
 	gen dem_miss = 0
 	if "`missing'" ~= "" {
-		foreach var in `male' `relationharm' `age' {
-			local milab : value label `var'
-			sum `var' if `var' == "Missing":`milab'									// check what missing value is (because in this table missing values are changed)
-			local `var'_mis = `r(mean)'
+		foreach var in `male' `relationharm' `age' {			
+			su `var' if `var' ==`max_`var''			
+			local `var'_mis = r(mean)
 			replace dem_miss = 1 if `var' == ``var'_mis'
 		}
 	}
@@ -156,8 +154,9 @@ program pea_table14b, rclass
 	* Earners
 	local empstat empstat
  	if "`missing'" ~= "" {
-		local milab : value label `empstat'
-		sum `empstat' if `empstat' == "Missing":`milab'									// check what missing value is (because in this table empstat missing values are changed)
+		*local milab : value label `empstat'		
+		*sum `empstat' if `empstat' == "Missing":`milab'									// check what missing value is (because in this table empstat missing values are changed)
+		su `empstat' if `empstat' ==`max_`empstat''	
 		if "`r(mean)'" ~= "" local empstat_mis = `r(mean)'
 		if "`empstat_mis'" ~= "" {
 			gen earner = `lstatus'== 0 | `empstat'==1 | `empstat'==3 | `empstat' == 4 if `lstatus' ~= . | `empstat' ~= `empstat_mis'				// Employed, self-employed, or employer (`lstatus' is nowork)	
@@ -233,31 +232,27 @@ program pea_table14b, rclass
 		gen demographic_class15 = any_dem_miss == 1
 		replace demographic_class15 = 1 if demographic_class15==1
 		label var demographic_class15 "Missing"
-		foreach var of varlist demographic_class* {
-			replace `var' = 0 if `var' == .
-		}
+		for var demographic_class*: replace X = 0 if X==.		
  	}
 	
-	foreach var of varlist demographic_class* {
-		replace `var' = `var' * 100
-	}
+	for var demographic_class*: replace X = X*100
 	
 	* Label 
-	label var demographic_class1 "Adult couple, with children, no other adults/seniors"							
-	label var demographic_class2 "Adult couple, with children, and other adults/seniors"							
-	label var demographic_class3 "Adult couple, no children, no other adults/seniors"								
-	label var demographic_class4 "Couple (at least one spouse below 18), with children, no other adult/seniors"	
-	label var demographic_class5 "Couple (at least one spouse below 18), no children, no other adult/seniors"		
-	label var demographic_class6 "One female adult (no couple), with children, no other adult/seniors"				
-	label var demographic_class7 "One male adult (no couple), with children, no other adult/seniors"				
-	label var demographic_class8 "One adult or senior, no children, no other adult/seniors"						
-	label var demographic_class9 "Multiple female only adults (no couple), with children"							
-	label var demographic_class10 "Other adults combinations, with children"										
-	label var demographic_class11 "Other adults combinations, no children"											
-	label var demographic_class12 "Senior(s), with children, no adults"												
-	label var demographic_class13 "Senior(s), no children, no adults"													
-	label var demographic_class14 "Children only households (no couple)"
-	label var demographic_class15 "Missing"
+	cap label var demographic_class1 "Adult couple, with children, no other adults/seniors"							
+	cap label var demographic_class2 "Adult couple, with children, and other adults/seniors"							
+	cap label var demographic_class3 "Adult couple, no children, no other adults/seniors"								
+	cap label var demographic_class4 "Couple (at least one spouse below 18), with children, no other adult/seniors"	
+	cap label var demographic_class5 "Couple (at least one spouse below 18), no children, no other adult/seniors"		
+	cap label var demographic_class6 "One female adult (no couple), with children, no other adult/seniors"				
+	cap label var demographic_class7 "One male adult (no couple), with children, no other adult/seniors"				
+	cap label var demographic_class8 "One adult or senior, no children, no other adult/seniors"						
+	cap label var demographic_class9 "Multiple female only adults (no couple), with children"							
+	cap label var demographic_class10 "Other adults combinations, with children"										
+	cap label var demographic_class11 "Other adults combinations, no children"											
+	cap label var demographic_class12 "Senior(s), with children, no adults"												
+	cap label var demographic_class13 "Senior(s), no children, no adults"													
+	cap label var demographic_class14 "Children only households (no couple)"
+	cap label var demographic_class15 "Missing"
 
 	// Economic classification
 	* 1) One male earner, at least one adult female nonearner, with children
@@ -306,7 +301,7 @@ program pea_table14b, rclass
 	* 14) Non-earning adult(s)/senior(s), no earners, with children
 	gen economic_class14 = number_earners == 0 & any_children == 1 if any_earner_miss ~= 1
 	* 15) One earner, no other adult/seniors, without children
-	gen economic_class15 = number_earners == 1 & hsize == 1 & any_children == 0 if any_earner_miss ~= 1
+	gen economic_class15 = number_earners == 1 & `hhsize' == 1 & any_children == 0 if any_earner_miss ~= 1
 	* 16) Other
 	cap drop ecc_any
 	egen ecc_any = rowtotal(economic_class*)
@@ -317,29 +312,27 @@ program pea_table14b, rclass
 		gen economic_class17 = any_earner_miss == 1
 		label var economic_class17 "Missing"
 		local m_note "Households are classified as 'missing' in the economic typology if any adult has no information on labor market or employment status."
-		foreach var of varlist economic_class* {
-			replace `var' = 0 if `var' == .
-		}
+		for var economic_class*: replace X = 0 if X==.			
  	}
 	
 	* Label 
-	label var economic_class1 "One male earner, at least one adult female nonearner, with children"						
-	label var economic_class2 "One male earner, at least one adult female nonearner, no children"					
-	label var economic_class3 "One female earner, at least one adult male nonearner, with children"						
-	label var economic_class4 "One female earner, at least one adult male nonearner, no children"					
-	label var economic_class5 "One female earner, no other earners or nonearners, with children"					
-	label var economic_class6 "Two earners that are couple, no other earners/nonearners, with children"			
-	label var economic_class7 "Two earners that are couple, with other nonearners, with children"			
-	label var economic_class8 "Two earners that are couple, no other earners/nonearners, no children"		
-	label var economic_class9 "At least two non-couple earners, no nonearners, with children"		
-	label var economic_class10 "At least two non-couple earners, with nonearners, with children"			
-	label var economic_class11 "At least two non-couple earners, no nonearners, no children"	
-	label var economic_class12 "At least two non-couple earners, with nonearners, no children"		
-	label var economic_class13 "Non-earning adult(s)/senior(s), no earners, no children"								
-	label var economic_class14 "Non-earning adult(s)/senior(s), no earners, with children"								
-	label var economic_class15 "One earner, no other adult/seniors, no children"									
-	label var economic_class16 "Other"
-	label var economic_class17 "Missing"
+	cap label var economic_class1 "One male earner, at least one adult female nonearner, with children"						
+	cap label var economic_class2 "One male earner, at least one adult female nonearner, no children"					
+	cap label var economic_class3 "One female earner, at least one adult male nonearner, with children"						
+	cap label var economic_class4 "One female earner, at least one adult male nonearner, no children"					
+	cap label var economic_class5 "One female earner, no other earners or nonearners, with children"					
+	cap label var economic_class6 "Two earners that are couple, no other earners/nonearners, with children"			
+	cap label var economic_class7 "Two earners that are couple, with other nonearners, with children"			
+	cap label var economic_class8 "Two earners that are couple, no other earners/nonearners, no children"		
+	cap label var economic_class9 "At least two non-couple earners, no nonearners, with children"		
+	cap label var economic_class10 "At least two non-couple earners, with nonearners, with children"			
+	cap label var economic_class11 "At least two non-couple earners, no nonearners, no children"	
+	cap label var economic_class12 "At least two non-couple earners, with nonearners, no children"		
+	cap label var economic_class13 "Non-earning adult(s)/senior(s), no earners, no children"								
+	cap label var economic_class14 "Non-earning adult(s)/senior(s), no earners, with children"								
+	cap label var economic_class15 "One earner, no other adult/seniors, no children"									
+	cap label var economic_class16 "Other"
+	cap label var economic_class17 "Missing"
 	
 	for var economic_class* : replace X = X*100
 	
@@ -420,6 +413,8 @@ program pea_table14b, rclass
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
 	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. For the economic composition, earners are defined as those working and `earnage' years or older. Household typologies are an extended version of Munoz Boudet et al. (2018). `m_note'"' 
 	collect style notes, font(, italic size(10))
+	collect style cell group1[]#cell_type[row-header], font(, bold)
+	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)
 	collect style cell, shading( background(white) )	
 	collect style cell cell_type[corner], shading( background(lightskyblue) )	
 	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	

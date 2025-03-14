@@ -17,13 +17,13 @@
 cap program drop pea_core
 program pea_core, rclass
 	version 18.0	
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) comparability(varname numeric) MISSING Country(string) trim(string) LATEST WITHIN3 BENCHmark(string) spells(string) minobs(numlist) earnage(integer 18) SVY std(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) comparability(varname numeric) MISSING Country(string) trim(string) LATEST WITHIN3 BENCHmark(string) spells(string) minobs(numlist) earnage(integer 18) SVY std(string) PPPyear(integer 2017) VULnerability(real 1.5)]	
 		
 	//Check PPPyear
-	_pea_ppp_check, ppp(`pppyear')
+	qui _pea_ppp_check, ppp(`pppyear')
 	
 	//Check value of poverty lines (international ones)
-	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
+	qui _pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
 	//load setting
 	qui if "`setting'"=="GMD" {
@@ -33,9 +33,11 @@ program pea_core, rclass
 			local `st' "${pea_`st'}"
 		}		
 	}
-	
-	//house cleaning
-	
+	if "`vulnerability'"=="" {
+		local vulnerability = 1.5
+		noi di in yellow "Default multiple of poverty line to define vulnerability is 1.5"
+	}
+	//house cleaning	
 	//variable checks
 	//missing rate of key variables
 	qui if "`excel'"=="" {
@@ -56,13 +58,16 @@ program pea_core, rclass
 		}
 		else local excelout "`excel'"
 	}
+	
 	//Title sheet
-	putexcel set "`excelout'", replace sheet("Contents")
-	putexcel C5 = "Poverty and Equity Assessments 3.0"
-	putexcel C6 = "Core Tables and Figures"
-	putexcel C10 = "Generated Outputs:"
-	qui putexcel save
-			
+	qui {
+		putexcel set "`excelout'", replace sheet("Contents")
+		putexcel C5 = "Poverty and Equity Assessments 3.0"
+		putexcel C6 = "Core Tables and Figures"
+		putexcel C10 = "Generated Outputs:"
+		putexcel save
+	}	
+	
 	if "`latest'"~="" & "`within3'"~="" {
 		noi dis as error "Either latest or wtihin3, not both options"
 		error 1
@@ -150,7 +155,7 @@ program pea_core, rclass
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
-		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
+		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability'  if `touse'
 		gen double _pop = `wvar'
 		
 		tempfile data1 data2
@@ -162,92 +167,92 @@ program pea_core, rclass
 	
 	//table 1
 	qui use `data1', clear
-	cap pea_table1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") core oneline(`oneline') onewelfare(`onewelfare') `svy' std(`std') pppyear(`pppyear')
-	if _rc==0 {
+	cap pea_table1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") core oneline(`oneline') onewelfare(`onewelfare') `svy' std(`std') pppyear(`pppyear') vulnerability(`vulnerability')
+	qui if _rc==0 {
 		noi dis in green "Table A.1....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#TableA1!A1", "Table A.1. Core poverty and equity indicators")		
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Table A.1....... Not done"
-	
+	s
 	//table 2
 	qui use `dataori', clear		
 	cap pea_tableA2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' minobs(`minobs') excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Table A.2....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#TableA2!A1", "Table A.2. Poverty indicators by subgroup")		
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Table A.2....... Not done"
 	
 	//table 3
 	qui use `dataori', clear	
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") core pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Table A.3....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#TableA3!A1", "Table A.3. Benchmarking of poverty and inequality")		
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Table A.3....... Not done"
 	
 	//table 4a
 	qui use `dataori', clear		
 	cap pea_table14a [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') excel("`excelout'") core pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Table A.4a....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#TableA4a!A1", "Table A.4a. Profiles of the poor")		
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Table A.4a....... Not done"
 
 	//table 4b
 	qui use `dataori', clear		
 	cap pea_table14b [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') hhsize(`hhsize') hhid(`hhid') pid(`pid') lstatus(`lstatus') empstat(`empstat') relationharm(`relationharm') earnage(`earnage') excel("`excelout'") core pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Table A.4b....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#TableA4b!A1", "Table A.4b. Demographic and economic household typologies")		
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Table A.4b....... Not done"
 	
 	//GIC graph
 	qui use `dataori', clear
 	 cap pea_figure3b [aw=`wvar'], year(`year') welfare(`onewelfare') spells(`spells') trim(`trim') by(`urban') scheme(`scheme') palette(`palette') comparability(`comparability') core excel("`excelout'")
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure A.1....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#FigureA.1!A1", "Figure A.1 Growth Incidence Curves")		
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure A.1....... Not done"
 
 	//Datt-Ravallion graph
 	qui use `dataori', clear
 	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') comparability(`comparability') spells(`spells') scheme(`scheme') palette(`palette') core excel("`excelout'") pppyear(`pppyear')
-	if _rc==0 {
+	qui if _rc==0 {
 		noi dis in green "Figure A.2....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		putexcel C${tablecount} = hyperlink("#FigureA.2!A1", "Figure A.2 Datt-Ravallion decomposition")		
 		global tablecount = ${tablecount} + 1
-		qui putexcel save	
+		putexcel save	
 	}
 	else noi dis in red "Figure A.2....... Not done"
 	
