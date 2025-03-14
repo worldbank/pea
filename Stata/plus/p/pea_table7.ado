@@ -49,6 +49,54 @@ program pea_table7, rclass
 		else local excelout "`excel'"
 	}
 	
+	if "`vulnerability'"=="" {
+		local vulnerability = 1.5
+		noi di in yellow "Default multiple of poverty line to define vulnerability is 1.5"
+	}
+	
+	// Variable definitions
+	if "`age'"!="" {
+		su `age',d
+		if r(N)>0 {
+			gen agecatind = 1 if `age'>=0 & `age'<=14
+			replace agecatind = 2 if `age'>=15 & `age'<=65
+			replace agecatind = 3 if `age'>=66 & `age'<=.
+			la def agecatind 1 "Age 0-14" 2 "Age 15-65" 3 "Age 66+"
+			la val agecatind agecatind
+			la var agecatind "Age categories"
+			local agevar agecatind
+			if "`edu'"~="" {
+				clonevar _eduXind = `edu' if `age'>=16 & `age'~=.
+				local eduvar _eduXind
+			}
+		}
+	}
+	
+	// Shorten value labels - educat4 GMD
+	if "`edu'"~="" {
+		local lbl: value label `edu'
+		if "`lbl'" == "educat4" {
+			label define educat4_m 1 "No education" 2 "Primary" 3 "Secondary" 4 "Tertiary"
+			label values _eduXind educat4_m
+		}		
+	}
+	
+	/*
+	if "`missing'"~="" { //show missing
+		foreach var of local byind {
+			su `var'
+			local miss = r(max)
+			replace `var' = `=`miss'+10' if `var'==.
+			local varlbl : value label `var'
+			la def `varlbl' `=`miss'+10' "Missing", add
+		}
+	}
+	*/
+	
+	if "`minobs'"~="" { 
+		local note_minobs "Cells with less than `minobs' observations are dropped."
+	}
+	
 	qui {
 		//order the lines
 		local lbl`povlines' : variable label `povlines'		
@@ -71,6 +119,11 @@ program pea_table7, rclass
 		local flist `"`wvar' `welfare' `povlines' `year'"'		
 		markout `touse' `flist' 
 		
+		tempfile dataori datalbl
+		save `dataori', replace
+		des, replace clear
+		save `datalbl', replace
+		use `dataori', clear
 	} //qui
 	
 	//FGT
