@@ -177,7 +177,7 @@ program pea_core, rclass
 		putexcel save	
 	}
 	else noi dis in red "Table A.1....... Not done"
-	s
+	
 	//table 2
 	qui use `dataori', clear		
 	cap pea_tableA2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' minobs(`minobs') excel("`excelout'") pppyear(`pppyear')
