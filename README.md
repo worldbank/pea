@@ -30,13 +30,13 @@ Step 4: Run the pea codes
 * Help files for each command can be accessed in Stata by typing _help pea core_, _help pea tables_, _help pea figures_, _help pea table1_, _help pea figure1_, etc.
 
 ## Example code syntax
-pea core [aw=weight_p], c(GNB) year(year) 								natw(welfare) natp(natline) 								pppw(welfppp) pppp(pline365 pline215 pline685)					onew(welfppp) oneline(pline365)								byind(urban subnatvar) 								benchmark(CIV GHA GMB SEN)							setting(GMD) missing									spells(2018 2021)	
+pea core [aw=weight_p], c(GNB) year(year) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) onew(welfppp) oneline(pline365) byind(urban subnatvar) benchmark(CIV GHA GMB SEN) setting(GMD) missing spells(2018 2021) svy
 <br/>
 
-pea tables [aw=weight_p], c(GNB)  year(year) 							natw(welfare) natp(natline) 								pppw(welfppp) pppp(pline365 pline215 pline685)					onew(welfppp) oneline(pline365)								byind(urban subnatvar) 									benchmark(CIV GHA GMB SEN)								setting(GMD) missing										spells(2018 2021)
+pea tables [aw=weight_p], c(GNB) year(year) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) onew(welfppp) oneline(pline365) byind(urban subnatvar) benchmark(CIV GHA GMB SEN) setting(GMD) missing spells(2018 2021) svy
 <br/>
 
-pea figures [aw=weight_p], c(GNB) year(year)							natw(welfare) natp(natline) 								pppw(welfppp) pppp(pline365 pline215 pline685) 					onew(welfppp) oneline(pline215) 								byind(urban) benchmark(CIV GHA GMB SEN AGA) 					spells(2010 2018; 2018 2021) 								setting(GMD) urban(urban)	within(3) 							comparability(comparability) welfaretype(CONS)					combine nonotes
+pea figures [aw=weight_p], c(GNB) year(year) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) onew(welfppp) oneline(pline215) byind(urban) benchmark(CIV GHA GMB SEN AGA) spells(2010 2018; 2018 2021) setting(GMD) urban(urban)	within(3) comparability(comparability) welfaretype(CONS)					
 
 ## Additional notes
 Access to the internet is needed to run the pea commands, as additional data files are downloaded using Stata’s pip command. All outputs are automatically created by running the three main commands, with minimum manual inputs needed from users. Codes can nevertheless be tailored to county contexts, for instance by specifying country-specific education or industry groups. The codes can be run for any number of surveys for a country. That is, the output produced can include a single year or multiple years to allow for easy comparisons of indicators over time.
