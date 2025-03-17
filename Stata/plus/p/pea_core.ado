@@ -105,28 +105,7 @@ program pea_core, rclass
 		
 		//SVY setting
 		local svycheck = 0
-		if "`svy'"~="" {
-			cap svydescribe
-			if _rc~=0 {
-				noi dis "SVY is not set. Please do svyset to get the correct standard errors"
-				exit `=_rc'
-				//or svyset [w= `wvar'],  singleunit(certainty)
-			}
-			else {
-				//check on singleton, remove?
-				//std option: inside, below, right
-				if "`std'"=="" local std inside
-				else {
-					local std = lower("`std'")
-					if "`std'"~="inside" & "`std'"~="right" {
-						//"`std'"~="below"
-						noi dis "Wrong option for std(). Available options: inside, right"
-						exit 198
-					}
-				}	
-				local svycheck = 1
-			} //else svydescribe
-		} //svy
+		if "`svy'"~="" _pea_svycheck, std(`std')
 		
 		//missing observation check
 		marksample touse

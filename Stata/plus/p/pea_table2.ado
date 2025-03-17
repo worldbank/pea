@@ -19,7 +19,7 @@
 cap program drop pea_table2
 program pea_table2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) minobs(numlist) CORE setting(string) LINESORTED excel(string) save(string) MISSING PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) minobs(numlist) CORE setting(string) LINESORTED excel(string) save(string) MISSING PPPyear(integer 2017) SVY std(string)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -52,16 +52,15 @@ program pea_table2, rclass
 	if "`missing'"~="" { //show missing
 		foreach var of local byind {
 			su `var'
-			local miss = r(max)
-			replace `var' = `=`miss'+10' if `var'==.
+			local max_`var' = r(max) + 10			
+			replace `var' = `max_`var'' if `var'==.
 			local varlbl : value label `var'
-			la def `varlbl' `=`miss'+10' "Missing", add
+			la def `varlbl' `max_`var'' "Missing", add
+			la values `var' `varlbl'
 		}
 	}
 
-	if "`minobs'"~="" { 
-		local note_minobs "Cells with less than `minobs' observations are dropped."
-	}
+	if "`minobs'"~="" local note_minobs "Cells with less than `minobs' observations are dropped."
 	
 	qui {
 		//order the lines
@@ -95,7 +94,15 @@ program pea_table2, rclass
 			gen `w' = 1
 			local wvar `w'
 		}
-	
+		
+		foreach var of local byind {
+			local lbl2`var' : variable label `var'
+		}
+		
+		//SVY setting
+		local svycheck = 0
+		if "`svy'"~="" _pea_svycheck, std(`std')
+		
 		//missing observation check
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind'"'
@@ -145,7 +152,7 @@ program pea_table2, rclass
 	local i=1
 	*label define combined_label
 	foreach var of local byind {
-		local lbl2`var' : variable label `var'
+		*local lbl2`var' : variable label `var'
 		replace group = `j' if lbl`var'	~=.
 		local label1 : value label lbl`var'		
 		levelsof lbl`var', local(levels1)
@@ -223,9 +230,10 @@ program pea_table2, rclass
 	}
 	la val varlbl varlbl
 	
-	local milab : value label combined_var
-	s
-	if ("`minobs'" ~= "") replace value = . if count < `minobs' & combined_var ~= "Missing":`milab'
+	if ("`minobs'" ~= "") {
+		decode combined_var, gen(combined_var_str)
+		replace value = . if count < `minobs' & combined_var_str ~= "Missing"
+	}
 	
 	collect clear
 	qui collect: table (indicatorlbl varlbl combined_var) (ind `year'), stat(mean value) nototal nformat(%20.1f) missing
@@ -234,11 +242,9 @@ program pea_table2, rclass
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
 	collect style notes, font(, italic size(10))
-	
 	collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 	collect style cell varlbl[]#cell_type[row-header], font(, nobold italic)
-	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
-	
+	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold noitalic)
 	collect style cell, shading( background(white) )	
 	collect style cell cell_type[corner], shading( background(lightskyblue) )
 	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )

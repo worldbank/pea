@@ -112,28 +112,7 @@ program pea_table1, rclass
 		
 		//SVY setting
 		local svycheck = 0
-		if "`svy'"~="" {
-			cap svydescribe
-			if _rc~=0 {
-				noi dis "SVY is not set. Please do svyset to get the correct standard errors"
-				exit `=_rc'
-				//or svyset [w= `wvar'],  singleunit(certainty)
-			}
-			else {
-				//check on singleton, remove?
-				//std option: inside, below, right
-				if "`std'"=="" local std inside
-				else {
-					local std = lower("`std'")
-					if "`std'"~="inside" & "`std'"~="right" {
-						//"`std'"~="below"
-						noi dis "Wrong option for std(). Available options: inside, right"
-						exit 198
-					}
-				}	
-				local svycheck = 1
-			} //else svydescribe
-		} //svy
+		if "`svy'"~="" _pea_svycheck, std(`std')
 		
 		//missing observation check
 		marksample touse
@@ -168,13 +147,17 @@ program pea_table1, rclass
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability'  if `touse'
 	}
+	else {
+		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
+		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
+	}
 	
 	tempfile data1 data2 atriskdata data2a
 	save `data1', replace
 	
 	clear
 	save `data2a', replace emptyok
-
+	
 	//FGT - estimate points
 	use `data1', clear
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt* _prosgap_`pppwelfare' _vulpov_`onewelfare'_`oneline') gini(_Gini_`distwelf') rawsum(_pop _popB40_`distwelf' _popT60_`distwelf') by(`year')
@@ -213,6 +196,9 @@ program pea_table1, rclass
 			drop if `single'==1
 			clonevar _mB40_`distwelf' = _WELFMEAN_`distwelf' if _B40_`distwelf'==1
 			clonevar _mT60_`distwelf' = _WELFMEAN_`distwelf' if _B40_`distwelf'==0
+			forv v=1(1)5 {
+				clonevar _WELFMEAN_`distwelf'`v' = _WELFMEAN_`distwelf' if __quintile==`v'
+			}
 			
 			//standard
 			svy: mean _fgt* _prosgap_`pppwelfare' _vulpov_`onewelfare'_`oneline' _WELFMEAN_`distwelf'  if `touse'
@@ -222,28 +208,25 @@ program pea_table1, rclass
 			mat rownames varst = `names'
 			mat varst1 = varst'
 			
-			//b40
-			svy: mean  _mB40_`distwelf' if `touse'
-			local names : colfullnames e(b)
-			mata: V = diagonal(st_matrix("e(V)"))
-			mata: st_matrix("varst", V)
-			mat rownames varst = `names'
-			mat varst2 = varst'
-			
-			//t60
-			svy: mean  _mT60_`distwelf' if `touse'
-			local names : colfullnames e(b)
-			mata: V = diagonal(st_matrix("e(V)"))
-			mata: st_matrix("varst", V)
-			mat rownames varst = `names'
-			mat varst3 = varst'
+			//loop of subgroup
+			local svysubgr _mB40_`distwelf' _mT60_`distwelf' _WELFMEAN_welfarenom1 _WELFMEAN_welfarenom2 _WELFMEAN_welfarenom3 _WELFMEAN_welfarenom4 _WELFMEAN_welfarenom5
+			foreach svygr of local svysubgr {
+				svy: mean `svygr' if `touse'
+				local names : colfullnames e(b)
+				mata: V = diagonal(st_matrix("e(V)"))
+				mata: st_matrix("varst", V)
+				mat rownames varst = `names'
+				mat varst2 = varst'
+				mat varsvygr = (nullmat(varsvygr), varst2)
+			}
 			
 			//gini
 			svylorenz _Gini_`distwelf'
 			mat ginist = e(se_gini)^2
 			mat colnames ginist = _Gini_`distwelf'
 			
-			mat allst = varst1, varst2, varst3, ginist
+			mat allst = varst1, varsvygr, ginist
+			cap mat drop varst1 varsvygr ginist
 			clear
 			svmat allst, names(col)
 			xpose, varname clear
@@ -336,7 +319,7 @@ program pea_table1, rclass
 	replace subind = 2 if _varname2=="fgt1"
 	replace subind = 3 if _varname2=="fgt2"
 	replace subind = 4 if _varname2=="npoor0"	
-	replace subind = 10 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'" //total
+	replace subind = 10 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'"
 	replace subind = 11 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'1"
 	replace subind = 12 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'2"
 	replace subind = 13 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'3"
@@ -381,8 +364,8 @@ program pea_table1, rclass
 		replace indicatorlbl = 92 if _varname2=="Median"
 		*replace indicatorlbl = 93 if _varname2=="Min"							// Remove min/max for now
 		*replace indicatorlbl = 94 if _varname2=="Max"
-		replace indicatorlbl = 95 if _varname2=="SD"		
-		la def indicatorlbl 90 "Income/consumption (LCU)" 91 "Mean" 92 "Median" 93 "Min" 94 "Max" 95 "SD", add
+		*replace indicatorlbl = 95 if _varname2=="SD"		
+		la def indicatorlbl 90 "Income/consumption (LCU)" 91 "Mean income/consumption (LCU)" 92 "Median income/consumption (LCU)" 93 "Min" 94 "Max" 95 "SD", add
 		local tabtitle "Table 1. Core poverty indicators"
 		local tabname Table1
 	}

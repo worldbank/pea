@@ -43,7 +43,7 @@ la val head head
 gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 gen married = marital==1 if marital~=.
 */
-s
+sn
 
 pea_table1 [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) core onew(welfppp) onel(pline215) ppp(2017)
 
@@ -81,9 +81,9 @@ pea_table14b [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) age(a
 
 missing
 
-pea tables [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2018 2021) svy
+pea tables [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing setting(GMD) spells(2018 2021) svy std(right)
 
-pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021) age(age) male(male) hhsize(hsize) hhid(hhid) pid(pid) lstatus(lstatus) empstat(empstat) relationharm(relationharm) earnage(18) ppp(2017) svy
+pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021) age(age) male(male) hhsize(hsize) hhid(hhid) pid(pid) lstatus(lstatus) empstat(empstat) relationharm(relationharm) earnage(18) ppp(2017) svy std(right)
 
 pea figures [aw=weight_p], c(ARM) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(CIV GHA GMB) missing setting(GMD) spells(2018 2021) welfaretype(CONS) 
 
