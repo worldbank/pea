@@ -247,24 +247,8 @@ program pea_table13, rclass
 			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups, following Huppi and Ravallion (1991). The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
 			collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 			collect style cell subind[]#cell_type[row-header], warn font(, nobold)
-			collect style notes, font(, italic size(10))
-			collect style cell, shading( background(white) )	
-			collect style cell cell_type[corner], shading( background(lightskyblue) )
-			collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )			
-			collect style cell cell_type[item],  halign(center)
-			collect style cell cell_type[column-header], halign(center)	
-				
-			local tabname Table13
-			if "`excel'"=="" {
-				collect export "`dirpath'\\Table13.xlsx", sheet("`tabname'") replace 	
-				shell start excel "`dirpath'\\Table13.xlsx"
-			}
-			else {
-				collect export "`excelout'", sheet("`tabname'", replace) modify
-				putexcel set "`excelout'", modify sheet("`tabname'")		
-				putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-				qui putexcel save
-			}
+			_pea_tbtformat
+			_pea_tbt_export, filename(Table13) tbtname(Table13) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell				
 		}
 	} //qui
 end

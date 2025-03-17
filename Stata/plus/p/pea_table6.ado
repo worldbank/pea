@@ -187,23 +187,8 @@ program pea_table6, rclass
 		collect title `"Table 6a. Multidimensional poverty: Multidimensional Poverty Measure (World Bank) (%)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
 		collect notes 2: `"Note: The World Bank Multidimensional Poverty Measure (MPM) is a weighted aggregate of six components (weights in parantheses): income (1/3), education (1/6), school-enrolment (1/6), electricity (1/9), sanitation (1/9), drinking water (1/9) with `pppyear' PPP."'
-		collect style notes, font(, italic size(10))
-		collect style cell, shading( background(white) )	
-		collect style cell cell_type[corner], shading( background(lightskyblue) )
-		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-		collect style cell cell_type[item],  halign(center)
-		collect style cell cell_type[column-header], halign(center)	
-		
-		local tblname Table6a
-		if "`excel'"=="" {
-			collect export "`dirpath'\\Table6.xlsx", sheet(`tblname') modify 				
-		}
-		else {
-			collect export "`excelout'", sheet(`tblname', replace) modify 
-			putexcel set "`excelout'", modify sheet("`tblname'")		
-			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-			qui putexcel save
-		}
+		_pea_tbtformat
+		_pea_tbt_export, filename(Table6) tbtname(Table6a) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	
 		
 		//6b
 		collect clear
@@ -213,22 +198,6 @@ program pea_table6, rclass
 		collect title `"Table 6b. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
 		collect notes 2: `"Note: The table shows deprivation rates of the six components of the World Bank Multidimensional Poverty Measure (MPM) with `pppyear' PPP. See Table 6a for weights of each component."'
-		collect style notes, font(, italic size(10))
-		collect style cell, shading( background(white) )	
-		collect style cell cell_type[corner], shading( background(lightskyblue) )
-		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-		collect style cell cell_type[item],  halign(center)
-		collect style cell cell_type[column-header], halign(center)	
-		
-		local tblname Table6b
-		if "`excel'"=="" {
-			collect export "`dirpath'\\Table6.xlsx", sheet(`tblname') modify 	
-			shell start excel "`dirpath'\\Table6.xlsx"
-		}
-		else {
-			collect export "`excelout'", sheet(`tblname', replace) modify 
-			putexcel set "`excelout'", modify sheet("`tblname'")		
-			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-			qui putexcel save
-		}
+		_pea_tbtformat		
+		_pea_tbt_export, filename(Table6) tbtname(Table6b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	shell
 end

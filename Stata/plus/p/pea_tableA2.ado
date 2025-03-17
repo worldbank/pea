@@ -264,38 +264,22 @@ program pea_tableA2, rclass
 	la val ind ind
 	drop if group==.
 	drop if ind==2
-	local milab : value label combined_var
-	if ("`minobs'" ~= "") replace value = . if __count < `minobs' & combined_var ~= "Missing":`milab'
+	
+	if ("`minobs'" ~= "") {
+		decode combined_var, gen(combined_var_str)
+		replace value = . if __count < `minobs' & combined_var_str ~= "Missing"
+	}
 	
 	collect clear
 	qui collect: table ( group combined_var) (ind `year') (indicatorlbl), stat(mean value) nototal nformat(%20.1f) missing
 	collect style header indicatorlbl group combined_var ind `year', title(hide)
-	*collect style header subind[.], level(hide)
-	*collect style cell, result halign(center)
 	collect title `"Table A.2. Poverty indicators by subgroup"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. `note_minobs'"'
-	collect style notes, font(, italic size(10))
+	
 	collect style cell group[]#cell_type[row-header], font(, bold)
 	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-	*collect style cell cell_type[row-header]#group, font(, bold)	
-	*collect style cell group, font(, bold)
-	*collect style cell indicatorlbl[1]#subind[1]#var[var9], font(, bold)
+	_pea_tbtformat
+	_pea_tbt_export, filename(TableA2) tbtname(TableA2) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 	
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
-		
-	if "`excel'"=="" {
-		collect export "`dirpath'\\TableA2.xlsx", sheet(TableA2) replace 	
-		shell start excel "`dirpath'\\TableA2.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet(TableA2, replace) modify 
-		putexcel set "`excelout'", modify sheet("TableA2")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
 end

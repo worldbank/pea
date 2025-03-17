@@ -227,24 +227,9 @@ program pea_table7, rclass
 	collect title `"Table 7. Vulnerability to poverty (1.5* `lbl`povlines'')"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Vulnerability to poverty is defined as `vulnerability' times the `lbl`povlines''. All individual are used in the sample. Poverty statistics by educational attainment are only calculated for those aged 16 and above. `note_minobs'"'
-		
-	collect style notes, font(, italic size(10))
+			
 	collect style cell group[]#cell_type[row-header], font(, bold)
 	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
-
-	if "`excel'"=="" {
-		collect export "`dirpath'\\Table7.xlsx", sheet(Table7) replace 	
-		shell start excel "`dirpath'\\Table7.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet(Table7, replace) modify 
-		putexcel set "`excelout'", modify sheet("Table7")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
+	_pea_tbtformat
+	_pea_tbt_export, filename(Table7) tbtname(Table7) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 end

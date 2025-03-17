@@ -249,13 +249,10 @@ program pea_table12, rclass
 			collect notes 2: `"The Datt-Ravallion decomposition shows how much changes in total poverty can be attributed to income or consumption growth and redistribution, following Datt and Ravallion (1992)."'
 			collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 			collect style cell subind[]#cell_type[row-header], warn font(, nobold)
-			collect style notes, font(, italic size(10))
-			collect style cell, shading( background(white) )	
-			collect style cell cell_type[corner], shading( background(lightskyblue) )
-			collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )			
-			collect style cell cell_type[item],  halign(center)
-			collect style cell cell_type[column-header], halign(center)	
-			
+			_pea_tbtformat
+			_pea_tbt_export, filename(Table12) tbtname(Table12a) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	
+				
+			/*
 			local tabname Table12a
 			if "`excel'"=="" {
 				collect export "`dirpath'\\Table12.xlsx", sheet("`tabname'") replace 	
@@ -267,6 +264,7 @@ program pea_table12, rclass
 				putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 				qui putexcel save
 			}
+			*/
 			
 			//12b
 			if "`core'"=="" {
@@ -277,26 +275,11 @@ program pea_table12, rclass
 				collect title `"Table 12b. Decomposition of poverty changes: growth and redistribution - Shorrocks-Kolenikov decomposition"'
 				collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database and the World Development Indicators."'
 				collect notes 2: `"Note: The Shorrocks-Kolenikov decomposition shows how much changes in total poverty can be attributed to income or consumption growth, redistribution, and price changes, following Kolenikov and Shorrocks (2005). Note that there are no changes in prices if poverty lines are in constant terms."'
-				collect style notes, font(, italic size(10))	
+				
 				collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 				collect style cell subind[]#cell_type[row-header], warn font(, nobold)
-				collect style cell, shading( background(white) )	
-				collect style cell cell_type[corner], shading( background(lightskyblue) )
-				collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )			
-				collect style cell cell_type[item],  halign(center)
-				collect style cell cell_type[column-header], halign(center)	
-					
-				local tabname Table12b
-				if "`excel'"=="" {
-					collect export "`dirpath'\\Table12.xlsx", sheet("`tabname'") modify 	
-					shell start excel "`dirpath'\\Table12.xlsx"
-				}
-				else {
-					collect export "`excelout'", sheet("`tabname'", replace) modify 
-					putexcel set "`excelout'", modify sheet("`tabname'")		
-					putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-					qui putexcel save
-				}
+				_pea_tbtformat
+				_pea_tbt_export, filename(Table12) tbtname(Table12b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell	
 			}
 		}
 	} //qui

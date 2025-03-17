@@ -389,24 +389,20 @@ program pea_table1, rclass
 	la val indicatorlbl indicatorlbl
 	drop if indicatorlbl==.
 	
-	collect clear
+	collect clear	
+	collect: table (indicatorlbl subind) (`year'), statistic(mean value) nototal nformat(%20.1f) missing
 	
-	qui if `svycheck'==0 {
-		collect: table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
-	}
-	else {
-		qui if "`std'"=="right" { //wide-form			
-			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
-			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append			
+	if `svycheck'==1 { //STD
+		table (indicatorlbl subind) (`year') if std!=., statistic(mean std) nototal nformat(%20.1f) missing append	
+			
+		qui if "`std'"=="right" { //wide-form						
 			collect layout (indicatorlbl#subind) (`year'#var) (result)
 			collect style cell var[std], sformat((%s))
 			collect label levels var value "Estimate", modify
 			collect label levels var std "Standard error", modify
 		} //right
 	
-		qui if "`std'"=="inside" {
-			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
-			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append
+		qui if "`std'"=="inside" {			
 			collect remap result[mean] = result[estimate], fortags(var[value])
 			collect remap result[mean] = result[sd], fortags(var[std])
 			collect style cell result[sd], sformat((%s))
@@ -421,25 +417,9 @@ program pea_table1, rclass
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `stdtext'"'
-	collect style notes, font(, italic size(10))
+	
 	collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
-	collect style cell subind[]#cell_type[row-header], warn font(, nobold)
-	*collect style cell indicatorlbl[]#cell_type[row-header], warn font(, nobold)
-	
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )	
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
-	
-	if "`excel'"=="" {
-		collect export "`dirpath'\\Table1.xlsx", sheet("`tabname'") replace
-		shell start excel "`dirpath'\\Table1.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet("`tabname'", replace) modify 
-		putexcel set "`excelout'", modify sheet("`tabname'")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
+	collect style cell subind[]#cell_type[row-header], warn font(, nobold)	
+	_pea_tbtformat
+	_pea_tbt_export, filename(Table1) tbtname("`tabname'") excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 end

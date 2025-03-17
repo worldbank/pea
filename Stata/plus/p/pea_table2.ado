@@ -241,24 +241,11 @@ program pea_table2, rclass
 	collect title `"Table 2. Core poverty indicators by geographic areas"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
-	collect style notes, font(, italic size(10))
+	
 	collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 	collect style cell varlbl[]#cell_type[row-header], font(, nobold italic)
 	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold noitalic)
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
-
-	if "`excel'"=="" {
-		collect export "`dirpath'\\Table2.xlsx", sheet(Table2) replace 	
-		shell start excel "`dirpath'\\Table2.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet(Table2, replace) modify 
-		putexcel set "`excelout'", modify sheet("Table2")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
+	
+	_pea_tbtformat
+	_pea_tbt_export, filename(Table2) tbtname(Table2) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 end

@@ -353,23 +353,7 @@ program pea_table10, rclass
 	collect title `"`tbltxt'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed from the GMD, PIP and the World Development Indicators."'
 	collect notes 2: `"Note: Poverty rates reported for the `vlinetxt' per person per day poverty lines are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Prosperity Gap captures how far a society is from $${prosgline_} per person per day (expressed in `pppyear' purchasing power parity dollars), which is close to the average per capita household income when countries reach high-income status. The welfare variables for the benchmark countries are: `note_w'."'
-	collect style notes, font(, italic size(10))
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
-	
-	collect preview
-	
-	if "`excel'"=="" {
-		collect export "`dirpath'\\`tblname'.xlsx", sheet(`tblname') modify 	
-		shell start excel "`dirpath'\\`tblname'.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet(`tblname', replace) modify 
-		putexcel set "`excelout'", modify sheet("`tblname'")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}	
+	_pea_tbtformat	
+	_pea_tbt_export, filename(`tblname') tbtname(`tblname') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
+		
 end
