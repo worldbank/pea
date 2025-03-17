@@ -22,8 +22,8 @@ program pea, rclass
 	gettoken subcmd 0 : 0, parse(" :,=[]()+-")
 	local l = strlen("`subcmd'")
 	
-	tempfile __datax
-	save `__datax', replace
+	qui	tempfile __datax
+	qui save `__datax', replace
 	
 	noi _pea_logo
 	//run pea setup first

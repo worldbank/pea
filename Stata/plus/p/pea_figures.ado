@@ -18,7 +18,7 @@ cap program drop pea_figures
 program pea_figures, rclass
 	version 18.0	
 
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) within(integer 3) COMBINE COMParability(varname numeric) BENCHmark(string) spells(string) NOEQUALSPACING YRange(string) trim(string) BAR RELATIVECHANGE ineqind(string) idpl(varname numeric) earnage(integer 18) scheme(string) palette(string) welfaretype(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) within(integer 3) COMBINE COMParability(varname numeric) BENCHmark(string) spells(string) NOEQUALSPACING YRange(string) trim(string) BAR RELATIVECHANGE ineqind(string) idpl(varname numeric) earnage(integer 18) scheme(string) palette(string) welfaretype(string) PPPyear(integer 2017) VULnerability(real 1.5)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -69,6 +69,11 @@ program pea_figures, rclass
 			error `=_rc'	
 		}
 		else local excelout "`excel'"
+	}
+	
+	if "`vulnerability'"=="" {
+		local vulnerability = 1.5
+		noi di in yellow "Default multiple of poverty line to define vulnerability is 1.5"
 	}
 	
 	//Title sheet
@@ -132,14 +137,14 @@ program pea_figures, rclass
 		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
 		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
-		noi dis "Replace the bottom for Prosperity gap at $0.25 2017 PPP"
-		replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}		
+		*noi dis "Replace the bottom for Prosperity gap at $0.25 2017 PPP"
+		*replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}		
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen double _pop = `wvar'
 		
 		//B40 T60 Mean - only for one distribution
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
-		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*1.5  if `touse'
+		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability'  if `touse'
 		
 		tempfile data1 data2
 		save `data1', replace

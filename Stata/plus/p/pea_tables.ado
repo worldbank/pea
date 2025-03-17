@@ -34,7 +34,7 @@ program pea_tables, rclass
 		local date = c(current_date)
 		local time = c(current_time) 
 		local time : subinstr local time ":" "_", all		
-		local excelout "`dirpath'\\PEA_tables_`date'_`time'.xlsx"		
+		local excelout "`dirpath'\\PEA_tables_`date'_`time'.xlsx"
 	}
 	else {
 		cap confirm file "`excel'"
