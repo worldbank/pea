@@ -105,22 +105,7 @@ collect clear
 	collect title `"Table 15. Distribution of welfare by deciles (%)"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the GMD."'
 	collect notes 2: `"Note: The table shows the share of total welfare held by each welfare decile (%)."'
-	collect style notes, font(, italic size(10))
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
-			
-	if "`excel'"=="" {
-		collect export "`dirpath'\\Table15.xlsx", sheet(Table15) modify 	
-		shell start excel "`dirpath'\\Table15.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet(Table15, replace) modify 
-		putexcel set "`excelout'", modify sheet("Table15")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
+	_pea_tbtformat
+	_pea_tbt_export, filename(Table15) tbtname(Table15) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell		
 	
 end

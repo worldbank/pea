@@ -112,28 +112,7 @@ program pea_table1, rclass
 		
 		//SVY setting
 		local svycheck = 0
-		if "`svy'"~="" {
-			cap svydescribe
-			if _rc~=0 {
-				noi dis "SVY is not set. Please do svyset to get the correct standard errors"
-				exit `=_rc'
-				//or svyset [w= `wvar'],  singleunit(certainty)
-			}
-			else {
-				//check on singleton, remove?
-				//std option: inside, below, right
-				if "`std'"=="" local std inside
-				else {
-					local std = lower("`std'")
-					if "`std'"~="inside" & "`std'"~="right" {
-						//"`std'"~="below"
-						noi dis "Wrong option for std(). Available options: inside, right"
-						exit 198
-					}
-				}	
-				local svycheck = 1
-			} //else svydescribe
-		} //svy
+		if "`svy'"~="" _pea_svycheck, std(`std')
 		
 		//missing observation check
 		marksample touse
@@ -168,13 +147,17 @@ program pea_table1, rclass
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability'  if `touse'
 	}
+	else {
+		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
+		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
+	}
 	
 	tempfile data1 data2 atriskdata data2a
 	save `data1', replace
 	
 	clear
 	save `data2a', replace emptyok
-
+	
 	//FGT - estimate points
 	use `data1', clear
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt* _prosgap_`pppwelfare' _vulpov_`onewelfare'_`oneline') gini(_Gini_`distwelf') rawsum(_pop _popB40_`distwelf' _popT60_`distwelf') by(`year')
@@ -213,6 +196,9 @@ program pea_table1, rclass
 			drop if `single'==1
 			clonevar _mB40_`distwelf' = _WELFMEAN_`distwelf' if _B40_`distwelf'==1
 			clonevar _mT60_`distwelf' = _WELFMEAN_`distwelf' if _B40_`distwelf'==0
+			forv v=1(1)5 {
+				clonevar _WELFMEAN_`distwelf'`v' = _WELFMEAN_`distwelf' if __quintile==`v'
+			}
 			
 			//standard
 			svy: mean _fgt* _prosgap_`pppwelfare' _vulpov_`onewelfare'_`oneline' _WELFMEAN_`distwelf'  if `touse'
@@ -222,28 +208,25 @@ program pea_table1, rclass
 			mat rownames varst = `names'
 			mat varst1 = varst'
 			
-			//b40
-			svy: mean  _mB40_`distwelf' if `touse'
-			local names : colfullnames e(b)
-			mata: V = diagonal(st_matrix("e(V)"))
-			mata: st_matrix("varst", V)
-			mat rownames varst = `names'
-			mat varst2 = varst'
-			
-			//t60
-			svy: mean  _mT60_`distwelf' if `touse'
-			local names : colfullnames e(b)
-			mata: V = diagonal(st_matrix("e(V)"))
-			mata: st_matrix("varst", V)
-			mat rownames varst = `names'
-			mat varst3 = varst'
+			//loop of subgroup
+			local svysubgr _mB40_`distwelf' _mT60_`distwelf' _WELFMEAN_welfarenom1 _WELFMEAN_welfarenom2 _WELFMEAN_welfarenom3 _WELFMEAN_welfarenom4 _WELFMEAN_welfarenom5
+			foreach svygr of local svysubgr {
+				svy: mean `svygr' if `touse'
+				local names : colfullnames e(b)
+				mata: V = diagonal(st_matrix("e(V)"))
+				mata: st_matrix("varst", V)
+				mat rownames varst = `names'
+				mat varst2 = varst'
+				mat varsvygr = (nullmat(varsvygr), varst2)
+			}
 			
 			//gini
 			svylorenz _Gini_`distwelf'
 			mat ginist = e(se_gini)^2
 			mat colnames ginist = _Gini_`distwelf'
 			
-			mat allst = varst1, varst2, varst3, ginist
+			mat allst = varst1, varsvygr, ginist
+			cap mat drop varst1 varsvygr ginist
 			clear
 			svmat allst, names(col)
 			xpose, varname clear
@@ -336,7 +319,7 @@ program pea_table1, rclass
 	replace subind = 2 if _varname2=="fgt1"
 	replace subind = 3 if _varname2=="fgt2"
 	replace subind = 4 if _varname2=="npoor0"	
-	replace subind = 10 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'" //total
+	replace subind = 10 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'"
 	replace subind = 11 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'1"
 	replace subind = 12 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'2"
 	replace subind = 13 if _varname2 =="WELFMEAN" & _varname3=="`distwelf'3"
@@ -381,8 +364,8 @@ program pea_table1, rclass
 		replace indicatorlbl = 92 if _varname2=="Median"
 		*replace indicatorlbl = 93 if _varname2=="Min"							// Remove min/max for now
 		*replace indicatorlbl = 94 if _varname2=="Max"
-		replace indicatorlbl = 95 if _varname2=="SD"		
-		la def indicatorlbl 90 "Income/consumption (LCU)" 91 "Mean" 92 "Median" 93 "Min" 94 "Max" 95 "SD", add
+		*replace indicatorlbl = 95 if _varname2=="SD"		
+		la def indicatorlbl 90 "Income/consumption (LCU)" 91 "Mean income/consumption (LCU)" 92 "Median income/consumption (LCU)" 93 "Min" 94 "Max" 95 "SD", add
 		local tabtitle "Table 1. Core poverty indicators"
 		local tabname Table1
 	}
@@ -406,24 +389,20 @@ program pea_table1, rclass
 	la val indicatorlbl indicatorlbl
 	drop if indicatorlbl==.
 	
-	collect clear
+	collect clear	
+	collect: table (indicatorlbl subind) (`year'), statistic(mean value) nototal nformat(%20.1f) missing
 	
-	qui if `svycheck'==0 {
-		collect: table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
-	}
-	else {
-		qui if "`std'"=="right" { //wide-form			
-			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
-			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append			
+	if `svycheck'==1 { //STD
+		table (indicatorlbl subind) (`year') if std!=., statistic(mean std) nototal nformat(%20.1f) missing append	
+			
+		qui if "`std'"=="right" { //wide-form						
 			collect layout (indicatorlbl#subind) (`year'#var) (result)
 			collect style cell var[std], sformat((%s))
 			collect label levels var value "Estimate", modify
 			collect label levels var std "Standard error", modify
 		} //right
 	
-		qui if "`std'"=="inside" {
-			table (indicatorlbl subind) (`year') ,statistic(mean value) nototal nformat(%20.1f) missing
-			table (indicatorlbl subind) (`year') if std!=. ,statistic(mean std) nototal nformat(%20.1f) missing append
+		qui if "`std'"=="inside" {			
 			collect remap result[mean] = result[estimate], fortags(var[value])
 			collect remap result[mean] = result[sd], fortags(var[std])
 			collect style cell result[sd], sformat((%s))
@@ -438,25 +417,9 @@ program pea_table1, rclass
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `stdtext'"'
-	collect style notes, font(, italic size(10))
+	
 	collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
-	collect style cell subind[]#cell_type[row-header], warn font(, nobold)
-	*collect style cell indicatorlbl[]#cell_type[row-header], warn font(, nobold)
-	
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )	
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
-	
-	if "`excel'"=="" {
-		collect export "`dirpath'\\Table1.xlsx", sheet("`tabname'") replace
-		shell start excel "`dirpath'\\Table1.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet("`tabname'", replace) modify 
-		putexcel set "`excelout'", modify sheet("`tabname'")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
+	collect style cell subind[]#cell_type[row-header], warn font(, nobold)	
+	_pea_tbtformat
+	_pea_tbt_export, filename(Table1) tbtname("`tabname'") excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 end

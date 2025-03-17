@@ -226,24 +226,7 @@ program pea_table8, rclass
 	collect title `"Table 8. Core inequality indicators"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 	collect notes 2: `"Note: The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Theil Index belongs to the Generalized Entropy (GE) class. The Palma (Kuznets) ratio measures the top 10 percent income share relative to the bottom 40 percent share. The Atkinson index is an inequality measure with a weighting parameter which measures aversion to inequality. Sen. The Watts index is the average log-point differences from the poverty line. Welfare ratios are presented for different percentiles; For example, p10/p50 refers to the ratio of consumption or income between those who are at the 10th percentile and those who are at the 50th percentile of the welfare distribution. The bottom 20% share of incomes indicates the share of total income or consumption held by the bottom 20% of the welfare distribution."'
-	collect style notes, font(, italic size(10))
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )	
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
+	_pea_tbtformat
+	_pea_tbt_export, filename(Table8) tbtname(Table8) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 	
-	if "`excel'"=="" {
-		collect export "`dirpath'\\Table8.xlsx", sheet(Table8) modify 	
-		shell start excel "`dirpath'\\Table8.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet(Table8, replace) modify 
-		putexcel set "`excelout'", modify sheet("Table8")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
 end 
-	
-	
-	

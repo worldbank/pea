@@ -193,22 +193,8 @@ program pea_table9, rclass
 	collect title `"Table 9. Scorecard Vision Indicators"'
 	collect notes 1: `"Source: World Bank calculations using data from the World Bank Group Scorecard, retrieved from https://scorecard.worldbank.org/en/scorecard/home."'
 	collect notes 2: `"Notes: Poverty rates and the prosperity gap are reported using `pppyear' purchasing power parity dollars. When available, indicators are presented for the year for which the latest survey data for the PEA is available. Otherwise, the latest available year for each indicator is used. Numbers in square brackets indicate year of data for the country (left) or the region aggregate (right). The high inequality indicator takes a value of 1 if the country GINI is above 40, and 0 otherwise. On the regional level, it depicts the number of economies with high inequality."' 
-	collect notes 3: `"The Number of hectares of key ecosystems is not available on the regional level. Basic water refers to water from an improved source within collection time of 30 minutes for a roundtrip including queuing. Basic sanitation refers to the use of improved facilities which are not shared with other households. Basic hygiene refers to the availability of a handwashing facility with soap and water at home (WHO/UNICEF Joint Monitoring Programme)."' 	
-	collect style notes, font(, italic size(10))
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )	
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)	
+	collect notes 3: `"The Number of hectares of key ecosystems is not available on the regional level. Basic water refers to water from an improved source within collection time of 30 minutes for a roundtrip including queuing. Basic sanitation refers to the use of improved facilities which are not shared with other households. Basic hygiene refers to the availability of a handwashing facility with soap and water at home (WHO/UNICEF Joint Monitoring Programme)."' 
+	_pea_tbtformat
+	_pea_tbt_export, filename(Table9) tbtname(Table9) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 	
-	if "`excel'"=="" {
-		collect export "`dirpath'\\Table9.xlsx", sheet("`tabname'") replace 	
-		shell start excel "`dirpath'\\Table9.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet("`tabname'", replace) modify 
-		putexcel set "`excelout'", modify sheet("`tabname'")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
 end	

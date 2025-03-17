@@ -412,23 +412,10 @@ program pea_table14b, rclass
 	collect style header order, level(hide)
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
 	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. For the economic composition, earners are defined as those working and `earnage' years or older. Household typologies are an extended version of Munoz Boudet et al. (2018). `m_note'"' 
-	collect style notes, font(, italic size(10))
+	
 	collect style cell group1[]#cell_type[row-header], font(, bold)
 	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)
-	collect style cell, shading( background(white) )	
-	collect style cell cell_type[corner], shading( background(lightskyblue) )	
-	collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )	
-	collect style cell cell_type[item],  halign(center)
-	collect style cell cell_type[column-header], halign(center)
+	_pea_tbtformat
+	_pea_tbt_export, filename(`tbt') tbtname(`tbt') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 	
-	if "`excel'"=="" {
-		collect export "`dirpath'\\`tbt'.xlsx", sheet("`tbt'") modify 
-		shell start excel "`dirpath'\\`tbt'.xlsx"
-	}
-	else {
-		collect export "`excelout'", sheet("`tbt'", replace) modify 
-		putexcel set "`excelout'", modify sheet("`tbt'")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		qui putexcel save
-	}
 end

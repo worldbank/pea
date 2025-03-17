@@ -233,24 +233,11 @@ program pea_table3, rclass
 		collect title `"Table 3a. Subgroup poverty rates by gender and age-group (`ymax', %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
-		collect style notes, font(, italic size(10))
+		
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 		collect style cell agecatind[]#cell_type[row-header], warn font(, nobold)
-		collect style cell, shading( background(white) )	
-		collect style cell cell_type[corner], shading( background(lightskyblue) )
-		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-		collect style cell cell_type[item],  halign(center)
-		collect style cell cell_type[column-header], halign(center)
-				
-		if "`excel'"=="" {
-			collect export "`dirpath'\\Table3.xlsx", sheet(Table3a) replace 				
-		}
-		else {
-			collect export "`excelout'", sheet(Table3a, replace) modify 
-			putexcel set "`excelout'", modify sheet("Table3a")		
-			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-			qui putexcel save
-		}
+		_pea_tbtformat
+		_pea_tbt_export, filename(Table3) tbtname(Table3a) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")				
 	}
 	
 	//Table 3b - FGT individual educat
@@ -293,24 +280,11 @@ program pea_table3, rclass
 		collect title `"Table 3b. Subgroup poverty rates by education (age 16+, %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates reported for individuals, age 16 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_minobs'"'
-		collect style notes, font(, italic size(10))
+		
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 		collect style cell _eduXind[]#cell_type[row-header], warn font(, nobold)
-		collect style cell, shading( background(white) )	
-		collect style cell cell_type[corner], shading( background(lightskyblue) )
-		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-		collect style cell cell_type[item],  halign(center)
-		collect style cell cell_type[column-header], halign(center)
-			
-		if "`excel'"=="" {
-			collect export "`dirpath'\\Table3.xlsx", sheet(Table3b) modify 				
-		}
-		else {
-			collect export "`excelout'", sheet(Table3b, replace) modify 
-			putexcel set "`excelout'", modify sheet("Table3b")		
-			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-			qui putexcel save
-		}
+		_pea_tbtformat
+		_pea_tbt_export, filename(Table3) tbtname(Table3b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")			
 	} //3b
 	
 	//Table 3c - FGT HH head agecat male educat
@@ -378,9 +352,12 @@ program pea_table3, rclass
 			}
 		}
 		la val indicatorlbl indicatorlbl
-		drop if group==.
-		local milab : value label combined_var
-		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & combined_var ~= "Missing":`milab'
+		drop if group==.		
+		if ("`minobs'" ~= "") {
+			decode combined_var, gen(combined_var_str)			
+			replace _fgt0_ = . if count < `minobs' & combined_var_str ~= "Missing"
+		}
+		
 		collect clear
 		qui collect: table (group  combined_var) (indicatorlbl `year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header group indicatorlbl combined_var `year', title(hide)
@@ -388,26 +365,11 @@ program pea_table3, rclass
 		collect title `"Table 3c. Subgroup poverty rates of household head (%)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates reported for household heads 18 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
-		collect style notes, font(, italic size(10))		
+		
 		collect style cell group[]#cell_type[row-header], font(, bold)
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 		collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
-		collect style cell, shading( background(white) )	
-		collect style cell cell_type[corner], shading( background(lightskyblue) )
-		collect style cell cell_type[column-header corner], font(, bold) shading( background(seashell) )
-		collect style cell cell_type[item],  halign(center)
-		collect style cell cell_type[column-header], halign(center)
-			
-		if "`excel'"=="" {
-			collect export "`dirpath'\\Table3.xlsx", sheet(Table3c) modify 	
-			shell start excel "`dirpath'\\Table3.xlsx"
-		}
-		else {
-			collect export "`excelout'", sheet(Table3c, replace) modify 
-			putexcel set "`excelout'", modify sheet("Table3c")		
-			putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-			qui putexcel save
-		}		
+		_pea_tbtformat
+		_pea_tbt_export, filename(Table3) tbtname(Table3c) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	shell
 	} //3c
-		
 end 
