@@ -19,6 +19,7 @@ help for {hi:pea figure13}{right:January 2025}
 	[{it:aw pw fw}]
 	[{opt ,}  
 	{opt ONEWelfare(varname numeric)} 
+	{opt PPPyear(integer)}
 	{opt Year(varname numeric)} 
 	{opt NOOUTPUT} 
     {opt NOEQUALSPACING}
@@ -42,6 +43,10 @@ Specifies the numeric welfare variable to analyze and visualize.
 {p 4 4 2} 
 {opt Year(varname numeric)}:
 The year variable used for grouping comparisons over time. 
+  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2} 
 {opt NOOUTPUT}:

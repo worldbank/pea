@@ -19,6 +19,7 @@ help for {hi:pea figure7b}{right:January 2025}
         [,{opt ONELine(varlist numeric)}  
         {opt ONEWelfare(varname numeric)}  
         {opt Year(varname numeric)}  
+		{opt PPPyear(integer)}
         {opt age(varname numeric)}  
         {opt male(varname numeric)}  
         {opt hhhead(varname numeric)} 
@@ -46,6 +47,10 @@ computes poverty statistics, and exports figures/poverty analysis results.
 
 {p 4 4 2}
 {opt Year(varname numeric)}: Name of the variable indicating the year in your dataset.
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2}
 {opt age(varname numeric)}: Variable that defines age groups for subgroup analysis.

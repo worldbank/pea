@@ -20,7 +20,8 @@ help for {hi:pea figure6}{right:January 2025}
 	{opt Year(varname numeric)}
 	{opt ONELine(varname numeric)}
 	{opt ONEWelfare(varname numeric)} 
-    {opt  FGTVARS} 
+	{opt PPPyear(integer)}
+    {opt FGTVARS} 
 	{opt spells(string)}
 	{opt comparability(string)} 
 	{opt scheme(string)} 
@@ -59,6 +60,10 @@ file or directly depending on the `excel()` or `save()` options.
 
 {p 4 4 2}
 {opt ONEWelfare(varname numeric)}: Designates a specific welfare measure for analysis.
+  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2}
 {opt FGTVARS}: Flag to specify welfare aggregation and analysis options.

@@ -20,6 +20,7 @@ help for {hi:pea figure5}{right:January 2025}
     {opt oneline(varname numeric)}  
     {opt spells(string)} 
     {opt year(varname numeric)} 
+	{opt PPPyear(integer)}
 	{opt urban(varname numeric)}
 	{opt LINESORTED(string)}
 	{opt comparability(varname numeric)}
@@ -44,6 +45,10 @@ time periods or population groups. The results can help analysts and policymaker
 
 {p 4 4 2} 
 {opt oneline(varname numeric)}: Specifies the numeric variable representing the poverty line used for comparison in the analysis.
+  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2} 
 {opt spells(string)}: Defines time periods (spells) to perform the decomposition. Use pairs of years separated by a space, with multiple spells separated by semicolons (e.g., "2000 2005; 2005 2010").  

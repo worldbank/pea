@@ -20,6 +20,7 @@ help for {hi:pea figure7a}{right:January 2025}
         {opt NATPovlines(varlist numeric)}  
         {opt PPPWelfare(varname numeric)}  
         {opt PPPPovlines(varlist numeric)}  
+		{opt PPPyear(integer)}
         {opt Year(varname numeric)}  
         {opt LINESORTED}  
         {opt age(varname numeric)}  
@@ -52,6 +53,10 @@ computes poverty statistics, and exports figures/poverty analysis results.
 
 {p 4 4 2}
 {opt PPPPovlines(varlist numeric)}: List of numeric PPP poverty thresholds for PPP calculations.
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2}
 {opt Year(varname numeric)}: Name of the variable indicating the year in your dataset.

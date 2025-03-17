@@ -18,6 +18,7 @@ help for {hi:pea table8}{right:January 2025}
 [{opt in} {it:exp}] 
 [{opt ,} 
 {opt Welfare(varname numeric)} 
+{opt PPPyear(integer)}
 {opt Year(varname numeric)} 
 {opt setting(string)} 
 {opt excel(string)} 
@@ -48,6 +49,10 @@ help for {hi:pea table8}{right:January 2025}
 {opt Year(varname numeric)}:
  specifies the year variable for the analysis.
  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+
 {p 4 4 2} 
 {opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and 
 additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) 

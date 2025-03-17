@@ -19,6 +19,7 @@ help for {hi:pea figure10b}{right:January 2025}
 	[{opt ,}  
 	{opt ONEWelfare(varname numeric)}  
 	{opt Year(varname numeric)}  
+	{opt PPPyear(integer)}
 	{opt Country(string)}  
 	{opt BENCHmark(string)}  
 	{opt YRange(string)} 
@@ -41,6 +42,10 @@ Specifies the numeric welfare variable, such as income, consumption, or wealth, 
 {p 4 4 2}  
 {opt Year(varname numeric)}: 
 Specifies the numeric variable indicating survey years or temporal intervals for visualization.  
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2}  
 {opt Country(string)}:  

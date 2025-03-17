@@ -21,6 +21,7 @@ help for {hi:pea figure1}{right:January 2025}
 	{opt NATPovlines(varlist numeric)}
 	{opt PPPWelfare(varname numeric)}
 	{opt PPPPovlines(varlist numeric)}
+	{opt PPPyear(integer)}
 	{opt FGTVARS}
 	{opt Year(varname numeric)}
 	{opt urban(varname numeric)}
@@ -59,6 +60,10 @@ Specifies the numeric variable for PPP-based welfare comparisons.
 {p 4 4 2} 
 {opt PPPPovlines(varlist numeric)}:
 List of PPP-based poverty line values to compare against PPP welfare levels.
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2} 
 {opt FGTVARS}:

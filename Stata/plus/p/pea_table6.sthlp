@@ -19,6 +19,7 @@ help for {hi:pea table6}{right:January 2025}
 [{opt ,}  
   {opt Country(string)} 
   {opt Welfare(varname numeric)} 
+  {opt PPPyear(integer)}
   {opt Year(varname numeric)} 
   {opt setting(string)} 
   {opt excel(string)}
@@ -52,6 +53,10 @@ The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {he
 {opt Year(varname numeric)}:
  specifies the variable for the year of observation.
  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+
 {p 4 4 2} 
 {opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
 (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 

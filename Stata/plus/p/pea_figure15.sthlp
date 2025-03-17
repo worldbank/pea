@@ -17,6 +17,7 @@ help for {hi:pea figure15}{right:January 2025}
 	[{it:in}] 
 	[{it:aw pw fw}]
 	[,{opt Country(string)} 
+	{opt PPPyear(integer)}
 	{opt scheme(string)} 
 	{opt palette(string)} 
 	{opt save(string)} 
@@ -33,6 +34,10 @@ This visualization highlights the impact of climate risks on population groups.
 {p 4 4 2} 
 {opt Country(string)}: 
 Specifies the name or code of the country to visualize data for.
+  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2} 
 {opt scheme(string)}: 
