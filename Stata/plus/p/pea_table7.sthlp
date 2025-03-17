@@ -19,6 +19,7 @@ help for {hi:pea table7}{right:January 2025}
 [{opt ,}  
 {opt Welfare(varname numeric numeric)} 
 {opt Povlines(varname numeric numeric)}
+{opt PPPyear(integer)}
 {opt Year(varname numeric numeric)} 
 {opt setting(string)}
 {opt excel(string)}
@@ -52,6 +53,10 @@ contains the calculated vulnerability to poverty measures along with the relevan
 {opt Povlines(varname numeric numeric)}:
  specifies the variable for the poverty lines to be used in calculations.
  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+
 {p 4 4 2} 
 {opt Year(varname numeric numeric)}:
  specifies the year variable for the analysis.

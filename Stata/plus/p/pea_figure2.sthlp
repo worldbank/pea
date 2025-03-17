@@ -21,6 +21,7 @@ help for {hi:pea figure2}{right:January 2025}
 	{opt BENCHmark(string)} 
 	{opt ONELine(varname numeric)} 
 	{opt ONEWelfare(varname numeric)} 
+	{opt PPPyear(integer)}
 	{opt FGTVARS} 
 	{opt yrange(string)} 
 	{opt scheme(string)} 
@@ -57,7 +58,11 @@ is the variable containing the selected national poverty line for the country.
 {p 4 4 2} 
 {opt ONEWelfare(varname numeric)}: 
 is the welfare variable to be used in the analysis.
-    
+      
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+
 {p 4 4 2} 
 {opt FGTVARS}: 
 generates additional Foster-Greer-Thorbecke poverty indices.

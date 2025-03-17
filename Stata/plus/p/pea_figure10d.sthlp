@@ -22,6 +22,7 @@ help for {hi:pea table10d}{right:January 2025}
     {opt BENCHmark(string)} 
 	{opt YRange(string)} 
 	{opt ONEWelfare(varname numeric)}  
+	{opt PPPyear(integer)}
 	{opt scheme(string)}  
 	{opt palette(string)}  
 	{opt save(string)}  
@@ -39,6 +40,10 @@ help for {hi:pea table10d}{right:January 2025}
 
 {p 4 4 2}  
 {opt Year(varname numeric)}: specifies the year variable for the analysis.  
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2}  
 {opt BENCHmark(string)}: is a list of benchmark countries for comparison (e.g., "India, Bhutan").  
