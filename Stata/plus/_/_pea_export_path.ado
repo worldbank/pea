@@ -14,22 +14,25 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-cap program drop _pea_tbt_export
-program _pea_tbt_export, rclass
+cap program drop _pea_export_path
+program _pea_export_path, rclass
 	version 16.0
-	syntax, [filename(string) tbtname(string) excel(string) dirpath(string) excelout(string) shell modify]	
+	syntax, [excel(string)]	
 
 	if "`excel'"=="" {
-		local act replace
-		if "`modify'"~="" local act modify
-		collect export "`dirpath'\\`filename'.xlsx", sheet("`tbtname'") `act' 	
-		if "`shell'"~="" shell start excel "`dirpath'\\`filename'.xlsx"
+		tempfile xlsxout 
+		local excelout `xlsxout'		
+		local path "`xlsxout'"		
+		local lastslash = strrpos("`path'", "\")
+		c_local dirpath = substr("`path'", 1, `lastslash')
 	}
 	else {
-		collect export "`excelout'", sheet("`tbtname'", replace) modify 
-		putexcel set "`excelout'", modify sheet("`tbtname'")		
-		putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-		putexcel save
+		cap confirm file "`excel'"
+		if _rc~=0 {
+			noi dis as error "Unable to confirm the file in excel()"
+			error `=_rc'	
+		}
+		else c_local excelout "`excel'"
 	}
 end
 	

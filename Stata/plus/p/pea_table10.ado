@@ -48,21 +48,7 @@ program pea_table10, rclass
 	if "`latest'"=="" & "`within3'"=="" local latest latest
 	
 	//house cleaning
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
 	
 	qui {
 		//Keep only the latest data
@@ -132,13 +118,6 @@ program pea_table10, rclass
 	
 	groupfunction  [aw=`wvar'] if `touse', mean(headcount* _prosgap_`welfare') gini(_Gini_`welfare') by(code `year')
 	gen gdppc = .
-
-	/*
-	ren _fgt0_welfppp_pline215 headcount215
-	ren _fgt0_welfppp_pline365 headcount365
-	ren _fgt0_welfppp_pline685 headcount685
-	*/
-	
 	ren _prosgap_welfppp pg
 	ren _Gini_welfppp gini
 	for var headcount*: replace X = X*100

@@ -39,21 +39,7 @@ program pea_table1, rclass
 	if "`save'"=="" tempfile saveout
 	
 	//house cleaning
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
 	
 	if "`vulnerability'"=="" {
 		local vulnerability = 1.5
@@ -209,7 +195,7 @@ program pea_table1, rclass
 			mat varst1 = varst'
 			
 			//loop of subgroup
-			local svysubgr _mB40_`distwelf' _mT60_`distwelf' _WELFMEAN_welfarenom1 _WELFMEAN_welfarenom2 _WELFMEAN_welfarenom3 _WELFMEAN_welfarenom4 _WELFMEAN_welfarenom5
+			local svysubgr _mB40_`distwelf' _mT60_`distwelf' _WELFMEAN_`distwelf'1 _WELFMEAN_`distwelf'2 _WELFMEAN_`distwelf'3 _WELFMEAN_`distwelf'4 _WELFMEAN_`distwelf'5
 			foreach svygr of local svysubgr {
 				svy: mean `svygr' if `touse'
 				local names : colfullnames e(b)

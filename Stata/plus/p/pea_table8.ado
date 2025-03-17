@@ -38,21 +38,7 @@ program pea_table8, rclass
 	local byind "_all_" //  `byind'
 	
 	//house cleaning
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
 	
 	if "`missing'"~="" { //show missing
 		foreach var of local byind {
@@ -80,8 +66,7 @@ program pea_table8, rclass
 		
 		foreach var of varlist `byind' {
 			local lbl`var' : variable label `var'
-			local label1 : value label `var'	
-			//`lvl`var1'_`lv''
+			local label1 : value label `var'				
 			levelsof `var', local(lvgr)
 			foreach lv of local lvgr {
 				local lvl`var'_`lv' : label `label1' `lv'

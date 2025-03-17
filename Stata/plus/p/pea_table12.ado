@@ -46,21 +46,7 @@ program pea_table12, rclass
 		error 1
 	}
 	//house cleaning
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
 	
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
@@ -109,9 +95,7 @@ program pea_table12, rclass
 		
 		tempfile dataori datalbl
 		save `dataori', replace
-		*des, replace clear
-		*save `datalbl', replace
-		*use `dataori', clear
+		
 		levelsof `year' if `touse', local(yrlist)
 		local same : list yrlist === keepyears
 		if `same'==0 {
@@ -137,7 +121,7 @@ program pea_table12, rclass
 		while "``i''" != "" {
 			if "``i''"~=";" {
 				local spell`a' "``i''"		
-				dis "`spell`a''"
+				*dis "`spell`a''"
 				local a = `a' + 1
 			}	
 			local i = `i' + 1
@@ -158,7 +142,7 @@ program pea_table12, rclass
 				foreach var of local ppppovlines {
 					//Datt-Ravallion decomposition
 					drdecomp `pppwelfare' [aw=`wvar'] if `year'==`1'|`year'==`2', by(`year') varpl(`var')
-					mat a = r(b)
+					mat a = r(b)					
 					local value1 = a[1,3]
 					local value2 = a[2,3]
 					local value3 = a[3,3]
@@ -169,7 +153,7 @@ program pea_table12, rclass
 					if "`core'"=="" {
 						//Shorrocks-Kolenikov 
 						skdecomp `pppwelfare' [aw=`wvar'] if `year'==`1'|`year'==`2', by(`year') varpl(`var')
-						mat a = r(b)
+						mat a = r(b)						
 						local value1 = a[1,3]
 						local value2 = a[2,3]
 						local value3 = a[3,3]
@@ -186,7 +170,7 @@ program pea_table12, rclass
 					mat a = r(b)
 					local value1 = a[1,3]
 					local value2 = a[2,3]
-					local value3 = a[3,3]
+					local value3 = a[3,3]					
 					* Post the results to the frame
 					frame decomp_results {  
 						frame post decomp_results ("Datt-Ravallion") ("`1'-`2'") ("`var'") (`value3') (`value1') (`value2') (-9999)	
@@ -198,7 +182,7 @@ program pea_table12, rclass
 						local value1 = a[1,3]
 						local value2 = a[2,3]
 						local value3 = a[3,3]
-						local value4 = a[4,3]
+						local value4 = a[4,3]						
 						* Post the results to the frame
 						frame decomp_results {  
 							frame post decomp_results ("Shorrocks-Kolenikov") ("`1'-`2'") ("`var'") (`value4') (`value1') (`value2') (`value3') 
@@ -252,20 +236,6 @@ program pea_table12, rclass
 			_pea_tbtformat
 			_pea_tbt_export, filename(Table12) tbtname(Table12a) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	
 				
-			/*
-			local tabname Table12a
-			if "`excel'"=="" {
-				collect export "`dirpath'\\Table12.xlsx", sheet("`tabname'") replace 	
-				if "`core'"~="" shell start excel "`dirpath'\\Table12.xlsx"
-			}
-			else {
-				collect export "`excelout'", sheet("`tabname'", replace) modify
-				putexcel set "`excelout'", modify sheet("`tabname'")		
-				putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-				qui putexcel save
-			}
-			*/
-			
 			//12b
 			if "`core'"=="" {
 				collect clear
@@ -279,7 +249,7 @@ program pea_table12, rclass
 				collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 				collect style cell subind[]#cell_type[row-header], warn font(, nobold)
 				_pea_tbtformat
-				_pea_tbt_export, filename(Table12) tbtname(Table12b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell	
+				_pea_tbt_export, filename(Table12) tbtname(Table12b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell modify	
 			}
 		}
 	} //qui

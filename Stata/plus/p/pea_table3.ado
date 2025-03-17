@@ -25,21 +25,7 @@ program pea_table3, rclass
 	_pea_ppp_check, ppp(`pppyear')
 	
 	//house cleaning
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
 	
 	if "`missing'"~="" { //show missing
 		foreach var of varlist `male' `hhhead' `edu' {
@@ -221,15 +207,14 @@ program pea_table3, rclass
 		replace _fgt0_ = _fgt0_*100
 		su `year',d
 		local ymax = r(max)
-		drop if agecatind==.
-		local milab : value label agecatind
-		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & agecatind ~= "Missing":`milab'
-		
+		drop if agecatind==.		
+		if ("`minobs'" ~= "") {
+			decode agecatind, gen(_agecatind_str)			
+			replace _fgt0_ = . if count < `minobs' & agecatind_str ~= "Missing"
+		}
 		collect clear
 		qui collect: table (indicatorlbl agecatind) (_group) if `year'==`ymax', stat(mean _fgt0_) nototal nformat(%20.1f) missing
-		collect style header indicatorlbl agecatind _group `year', title(hide)
-		*collect style header subind[.], level(hide)
-		*collect style cell, result halign(center)
+		collect style header indicatorlbl agecatind _group `year', title(hide)		
 		collect title `"Table 3a. Subgroup poverty rates by gender and age-group (`ymax', %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
@@ -269,10 +254,11 @@ program pea_table3, rclass
 		}
 		la val indicatorlbl indicatorlbl
 		replace _fgt0_ = _fgt0_*100
-		drop if _eduXind==.
-		local milab : value label _eduXind
-		if ("`minobs'" ~= "") replace _fgt0_ = . if count < `minobs' & _eduXind ~= "Missing":`milab'
-		
+		drop if _eduXind==.		
+		if ("`minobs'" ~= "") {
+			decode _eduXind, gen(_eduXind_str)			
+			replace _fgt0_ = . if count < `minobs' & _eduXind_str ~= "Missing"
+		}
 		collect clear
 		qui collect: table (indicatorlbl _eduXind) (`year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header indicatorlbl _eduXind `year', title(hide)
@@ -284,7 +270,7 @@ program pea_table3, rclass
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 		collect style cell _eduXind[]#cell_type[row-header], warn font(, nobold)
 		_pea_tbtformat
-		_pea_tbt_export, filename(Table3) tbtname(Table3b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")			
+		_pea_tbt_export, filename(Table3) tbtname(Table3b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	modify		
 	} //3b
 	
 	//Table 3c - FGT HH head agecat male educat
@@ -370,6 +356,6 @@ program pea_table3, rclass
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 		collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
 		_pea_tbtformat
-		_pea_tbt_export, filename(Table3) tbtname(Table3c) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	shell
+		_pea_tbt_export, filename(Table3) tbtname(Table3c) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	shell modify
 	} //3c
 end 

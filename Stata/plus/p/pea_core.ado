@@ -18,7 +18,7 @@ cap program drop pea_core
 program pea_core, rclass
 	version 18.0	
 	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) comparability(varname numeric) MISSING Country(string) trim(string) LATEST WITHIN3 BENCHmark(string) spells(string) minobs(numlist) earnage(integer 18) SVY std(string) PPPyear(integer 2017) VULnerability(real 1.5)]	
-		
+	
 	//Check PPPyear
 	qui _pea_ppp_check, ppp(`pppyear')
 	

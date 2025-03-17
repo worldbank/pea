@@ -24,21 +24,8 @@ program pea_figure16, rclass
 	_pea_ppp_check, ppp(`pppyear')
 	
 	//house cleaning
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
+	
 	if "`missing'"~="" { //show missing
 		foreach var of varlist `male' `relationharm' `age' `empstat' {
 			su `var'

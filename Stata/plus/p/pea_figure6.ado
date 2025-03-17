@@ -34,22 +34,7 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	if "`comparability'"=="" {
 		noi di in red "Warning: Comparability option not specified for Figure 6. Non-comparable spells may be shown."
 	}
-	
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
 	
 	// Clean spells
 	if "`spells'"=="" {

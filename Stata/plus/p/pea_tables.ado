@@ -155,7 +155,7 @@ program pea_tables, rclass
 		putexcel save	
 	}
 	else noi dis in red "Table 1....... Not done"
-	s
+	
 	//table 2
 	qui use `data1', clear
 	cap pea_table2 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') byind(`byind') minobs(`minobs') fgtvars linesorted excel("`excelout'") `missing' pppyear(`pppyear')

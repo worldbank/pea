@@ -25,6 +25,7 @@ program pea, rclass
 	tempfile __datax
 	save `__datax', replace
 	
+	noi _pea_logo
 	//run pea setup first
 	cap mata: mata describe pea_setup
 	if _rc~=0 pea_setup

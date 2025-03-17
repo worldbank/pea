@@ -43,23 +43,9 @@ program pea_figure3b, rclass
 		error 1
 	}
 	//house cleaning
-	if "`excel'"=="" {
-		tempfile xlsxout 
-		local excelout `xlsxout'		
-		local path "`xlsxout'"		
-		local lastslash = strrpos("`path'", "\") 				
-		local dirpath = substr("`path'", 1, `lastslash')		
-	}
-	else {
-		cap confirm file "`excel'"
-		if _rc~=0 {
-			noi dis as error "Unable to confirm the file in excel()"
-			error `=_rc'	
-		}
-		else local excelout "`excel'"
-	}
+	_pea_export_path, excel("`excel'")
+	
 	// Keep only last spell
-
 	local fy = word("`spells'", `=wordcount("`spells'")-1')
 	local sy = word("`spells'", `=wordcount("`spells'")')
 	local spells "`fy' `sy'"
