@@ -1,0 +1,276 @@
+********************************************************************************
+* 	PEA code example PHL
+* 	(For questions contact Henry Stemmler hstemmler@worldbank.org)
+********************************************************************************
+clear all
+global pea_path "C:/Users/wb567239/OneDrive - WBG/PEA 3.0/Min core analytics/PEA ado"
+
+* Pull data from DLW
+clear all
+datalibweb, country(GNB) year(2010 2018 2021) type(gmd) mod(all) clear
+
+gen welfppp = welfare/cpi2017/icp2017/365
+gen pline215 = 2.15
+gen pline365 = 3.65
+gen pline685 = 6.85
+gen 	natline = 298083.5 if year == 2021
+replace natline = 271071.8 if year == 2018
+replace natline = 200000 if year == 2010
+la var pline215 "Poverty line: $2.15 per day (2017 PPP)"
+la var pline365 "Poverty line: $3.65 per day (2017 PPP)"
+la var pline685 "Poverty line: $6.85 per day (2017 PPP)"
+la var natline	"Poverty line: 298,083.5 per year (2017 LCU)"
+split subnatid, parse("-") gen(tmp)
+replace tmp2 = ustrlower( ustrregexra( ustrnormalize( tmp2, "nfd" ) , "\p{Mark}", "" ) )
+replace tmp2 = " bolama/bijagos" if tmp2 == " bolama_bijagos"
+replace tmp2 = proper(tmp2)
+encode tmp2, gen(subnatvar)
+label var subnatvar "Regions"
+label var urban "Urban or Rural"
+replace countrycode = "GNB" if countrycode == ""
+svyset psu [w= weight_p], singleunit(certainty)
+save "$pea_path/data/GNB_GMD_ALL_clean.dta", replace
+
+********************************************************************************
+* Main
+********************************************************************************
+
+******************** Core Tables
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) svy std(right)
+
+******************** Appendix Figures
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figures [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) comparability(comparability) welfaretype(CONS) 
+
+******************** Appendix Tables
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea tables [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) svy std(inside)
+
+
+********************************************************************************
+* Individual Figures
+********************************************************************************
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure1 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) comparability(comparability) yrange(0(10)100) bar combine
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure3a [aw=weight_p], welfare(welfppp) year(year) spells(2018 2021)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure3b [aw=weight_p], welfare(welfppp) year(year) spells(2010 2018; 2018 2021) by(urban)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea_figure4 [aw=weight_p], onewelfare(welfare) oneline(natline) year(year) spells(2010 2018; 2018 2021) setting(GMD) idpl(urban)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure5 [aw=weight_p], onewelfare(welfppp) oneline(pline215) year(year) spells(2010 2018; 2018 2021) setting(GMD) urban(urban)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure6 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) spells(2010 2018; 2018 2021)   
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure7a [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure7b [aw=weight_p], onewelfare(welfare) oneline(natline) year(year) setting(GMD)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea_figure9a [aw=weight_p], onewelfare(welfppp) year(year) comparability(comparability)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure9b [aw=weight_p], c(GNB) year(year) onew(welfppp) benchmark(SEN CIV GHA SLE ) within(3) welfaretype(CONS)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure9c [aw=weight_p], c(GNB) year(year) onew(welfppp) benchmark(SEN CIV GHA SLE ) within(3) welfaretype(CONS)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure10a [aw=weight_p], onewelfare(welfppp) year(year) setting(GMD) urban(urban) comparability(comparability) bar
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure10b [aw=weight_p], c(GNB) year(year) onew(welfppp) benchmark(CIV GHA GMB SEN AGA)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure10c [aw=weight_p], c(GNB) year(year) onew(welfppp) benchmark(CIV GHA GMB SEN AGA)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure10d [aw=weight_p], c(GNB) year(year) onew(welfppp) benchmark(CIV GHA GMB SEN AGA)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure12 [aw=weight_p], onewelfare(welfppp) year(year) spells(2010 2018; 2018 2021; 2010 2021) comparability(comparability)  
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure13 [aw=weight_p], onewelfare(welfppp) year(year)    
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea figure14 [aw=weight_p], country(GNB) welfare(welfppp)  year(year) benchmark(CIV GHA GMB SEN AGA) 
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+*pea figure15, c(GMB)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+gen head = relationharm==1 if relationharm~=.
+la def head 1 "HH head" 
+la val head head 
+gen nowork = lstatus==2|lstatus==3 if lstatus~=.
+gen married = marital==1 if marital~=.
+pea figure16 [aw=weight_p], onewelfare(welfppp) oneline(pline215) year(year) 			 	///
+							age(age) male(male) hhhead(head) 								///
+							married(married) empstat(empstat) 								///	
+							hhsize(hsize) hhid(hhid) pid(pid) 								///
+							industrycat4(industrycat4) lstatus(lstatus) 					///
+							relationharm(relationharm) earnage(15) missing
+
+											
+********************************************************************************
+* Individual Tables
+********************************************************************************
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea table1 [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) onew(welfppp) onel(pline215) std(inside) svy ppp(2017)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+// Generate urban area to have capital region separate
+clonevar urban_cap = urban
+replace	 urban_cap = 2 if subnatvar == 8
+label define urban 2  "Capital region", modify		
+pea table2 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban_cap) 
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+gen head = relationharm==1 if relationharm~=.
+la def head 1 "HH head" 
+la val head head 
+gen nowork = lstatus==2|lstatus==3 if lstatus~=.
+gen married = marital==1 if marital~=.
+pea table3 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) age(age) male(male) hhhead(head) edu(educat4) missing ppp(2017)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea table6 [aw=weight_p], c(ARM) welfare(welfppp) year(year)  benchmark(CIV GHA GMB SEN AGA) setting(GMD) last3
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea table7 [aw=weight_p],  year(year) setting(GMD) welfare(welfppp) povlines(pline215) vulnerability(1.5) edu(educat4) male(male) age(age)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea table8 [aw=weight_p], welfare(welfppp) year(year) missing
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+pea table9, c(GNB) year(year) 					
+		
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"		
+pea table10 [aw=weight_p], c(GNB) welfare(welfppp) povlines(pline365 pline215 pline685) year(year) benchmark(CIV GHA GMB SEN AGA) latest
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"	
+pea table12 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2018 2021) year(year) 
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"	
+pea table13 [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2018 2021) year(year) urban(urban)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+gen head = relationharm==1 if relationharm~=.
+la def head 1 "HH head" 
+la val head head 
+gen nowork = lstatus==2|lstatus==3 if lstatus~=.
+gen married = marital==1 if marital~=.
+pea table14a [aw=weight_p], welfare(welfare) povlines(natline) 						///
+						  year(year) urban(urban)									///	
+						  missing age(age) male(male) hhhead(head) 					///
+						  edu(educat4) married(married) 				///	
+						  school(school) 											///
+						  services(imp_wat_rec imp_san_rec electricity) 			///
+						  assets(tv car cellphone computer fridge) 					///
+						  hhsize(hsize) hhid(hhid) pid(pid) 						///
+						  industrycat4(industrycat4) lstatus(nowork) 				///
+						  empstat(empstat)											
+						  
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
+gen head = relationharm==1 if relationharm~=.
+la def head 1 "HH head" 
+la val head head 
+gen nowork = lstatus==2|lstatus==3 if lstatus~=.
+gen married = marital==1 if marital~=.						  
+pea table14b [aw=weight_p], welfare(welfppp) povlines(pline215) 						///
+						  year(year) missing age(age) male(male) 					///
+						  hhsize(hsize) hhid(hhid) pid(pid) 						///
+						   lstatus(lstatus) 				///
+						  empstat(empstat) relationharm(relationharm) earnage(18)	
+							
+							
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"							
+pea table15 [aw=weight_p], welfare(welfppp)  year(year)

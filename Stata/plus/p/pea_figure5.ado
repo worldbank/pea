@@ -196,8 +196,7 @@ program pea_figure5, rclass
 		replace num = . if subind == 1
 		gen value_add = value  if subind != 1
 		foreach y of local spells {
-			bys decomp spell_n value_negative (num) : replace value_add = value_add + value_add[_n-1] if value_negative == 0 & num != . & num > 1 & spell_n == `y'			
-			bys decomp spell_n value_negative (num) : replace value_add = value_add - value_add[_n-1] if value_negative == 1 & num != . & num > 1 & spell_n == `y'				
+			bys decomp spell_n value_negative (num) : replace value_add = value_add + value_add[_n-1] if num != . & num > 1 & spell_n == `y'			
 		}
 		drop subind_cat value_negative num spell
 		local x = 4										

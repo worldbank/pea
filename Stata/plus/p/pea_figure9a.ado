@@ -220,16 +220,19 @@ program pea_figure9a, rclass
 	qui levelsof `year'		 , local(yearval)	
 	sort `year'
 
-	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
-	
+	if "`comparability'"~="" {
+		qui levelsof `comparability', local(compval)
+		local compgroups = `:word count `compval''
+	}
+	else local compgroups = 1
 	// Put together graph components
 	qui levelsof indicatorlbl, local(ind)
 	local j = 1
 	foreach i of local ind {
 		
 		local label_`i': label(indicatorlbl) `i'
-		if (`i'~=4) local legend`i' `"`j' "`label_`i''""'									// Leave out Palma, because it needs to be counted from back as second axis..
-		else if (`i'==4)  local legend`i' `"`=`groups'*`nyear'-`nyear'+1' "`label_`i''""'		// For Palma count from back - years, for each data point
+		if (`i'~=4) local legend`i' `"`j' "`label_`i''""'						// Leave out Palma, because it needs to be counted from back as second axis..
+		else if (`i'==4)  local legend`i' `"`=`groups'*(`compgroups'+1)-`compgroups'' "`label_`i''""'		// For Palma, take first entry of last legend group
 		local legend "`legend' `legend`i''"	
 		local allindicators "`allindicators' `label_`i''"
 	
@@ -255,7 +258,8 @@ program pea_figure9a, rclass
 		
 		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
 		local j = `j' + 1
-	}	
+	}
+
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure9a.xlsx"
 		local act replace
