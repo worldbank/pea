@@ -19,6 +19,7 @@ help for {hi:pea figure16}{right:January 2025}
 	[,{opt Country(string)} 
 	{opt Welfare(varname numeric)} 
 	{opt ONELine(varlist numeric)}
+	{opt PPPyear(integer)}
 	{opt Year(varname numeric)} 
 	{opt setting(string)}
 	{opt excel(string)} 
@@ -62,6 +63,10 @@ Specifies the name or code of the country to visualize data for.
 {opt ONELine(varname numeric)}:
 specifies the poverty line used to define the poor.
   
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+
 {p 4 4 2} 
 {opt Year(varname numeric)}:
 specifies the year variable for the analysis (only the last year is taken).

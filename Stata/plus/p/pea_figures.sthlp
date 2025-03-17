@@ -21,6 +21,7 @@ help for {hi:pea figures}{right:January 2025}
  {opt natpovlines(varlist numeric)} 
  {opt pppwelfare(varname numeric)} 
  {opt ppppovlines(varlist numeric)}
+ {opt pppyear(integer)}
  {opt year(varname numeric)} 
  {opt setting(string)} 
  {opt excel(string)} 
@@ -161,6 +162,10 @@ Main options:
 
 {p 4 4 2}
 {opt PPPPovlines(varlist numeric)}: specifies a list of PPP-adjusted poverty lines.
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011). This is for example relevant for welfare measures from benchmark countries.
+Default is 2017.
 
 {p 4 4 2}
 {opt Year(varname numeric)}: specifies the year variable for the analysis.

@@ -20,6 +20,7 @@ help for {hi:pea table13}{right:January 2025}
 {opt NATPovlines(varlist numeric)} 
 {opt PPPWelfare(varname numeric)} 
 {opt PPPPovlines(varlist numeric)} 
+{opt PPPyear(integer)}
 {opt spells(string)} 
 {opt Year(varname numeric)} 
 {opt LINESORTED} 
@@ -53,6 +54,10 @@ Poverty changes are disaggregated into urban, rural and population shift compone
 {p 4 4 2}
 {opt PPPPovlines(varlist numeric)}: 
  specifies the list of PPP-adjusted poverty lines.
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2}
 {opt spells(string)}:

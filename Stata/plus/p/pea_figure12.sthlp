@@ -19,6 +19,7 @@ help for {hi:pea figure12}{right:January 2025}
 	[{opt ,}  
 	{opt Country(string)} 
     {opt ONEWelfare(varname numeric)} 
+	{opt PPPyear(integer)}
     {opt Year(varname numeric)} 
     {opt spells(string)} 
     {opt comparability(string)} 
@@ -44,6 +45,10 @@ specifies the name of the country or region for which this visualization is gene
 
 {p 4 4 2} {opt Year(varname numeric)}:
  specifies the variable that identifies the survey year for the observations.
+   
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2} {opt spells(string)}:
  defines the time spells (ranges of years) for which the analysis should be computed. Example: `spells("2000;2004")`.

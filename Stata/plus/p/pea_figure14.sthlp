@@ -19,6 +19,7 @@ help for {hi:pea figure14}{right:January 2025}
 	[{opt ,} 
 	[Country(string)} 
 	{opt Welfare(varname numeric)} 
+	{opt PPPyear(integer)}
 	{opt Year(varname numeric)} 
 	{opt setting(string)} 
 	{opt excel(string)}
@@ -37,17 +38,23 @@ Figure 14c shows stacked bars depicting monetary poverty and additional poverty 
 
 {title:Options}
 
-{p 4 4 2} {opt Country(string)}:    
-        Specifies the country code to analyze. Example: "USA", "IND", "BRA".  
+{p 4 4 2} 
+{opt Country(string)}: Specifies the country code to analyze. Example: "USA", "IND", "BRA".  
         This is a required argument.
 
-{p 4 4 2} {opt Welfare(varname numeric)}:  
-        The name of the numeric variable representing welfare or income measures used for Multidimensional Poverty analysis. Required. Example: `welfare_var`.
+{p 4 4 2} 
+{opt Welfare(varname numeric)}: The name of the numeric variable representing welfare or income measures used for Multidimensional Poverty analysis. Required. Example: `welfare_var`.
 
-{p 4 4 2} {opt Year(varname numeric)}:  
-        The numeric variable representing survey years. Required. Example: `survey_year`.
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
-{p 4 4 2} {opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+
+{p 4 4 2} 
+{opt Year(varname numeric)}: The numeric variable representing survey years. Required. Example: `survey_year`.
+
+{p 4 4 2} 
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
 
 {p 4 4 2} {opt excel(string)}:  
         Path to an Excel file location for saving results. If omitted, defaults are used.

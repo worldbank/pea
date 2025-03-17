@@ -19,6 +19,7 @@ help for {hi:pea table10a}{right:January 2025}
 	[{opt ,}  
 	{opt ONEWelfare(varname numeric)}  
 	{opt Year(varname numeric)}  
+	{opt PPPyear(integer)}
 	{opt urban(varname numeric)}  
 	{opt comparability(string)}  
 	{opt NOEQUALSPACING}  
@@ -43,6 +44,10 @@ Specifies the variable representing the numeric welfare measure for analysis, su
 {p 4 4 2}  
 {opt Year(varname numeric)}: 
 Specifies the numeric variable that represents the time periods for the visualization analysis (e.g., survey years).  
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2}  
 {opt urban(varname numeric)}: 

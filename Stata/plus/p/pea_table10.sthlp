@@ -19,6 +19,7 @@ help for {hi:pea table10}{right:January 2025}
 {opt Country(string)}
 {opt Welfare(varname numeric)} 
 {opt Povlines(varlist numeric)}
+{opt PPPyear(integer)}
 {opt Year(varname numeric)} 
 {opt BENCHmark(string)}
 {opt setting(string)}
@@ -49,6 +50,10 @@ Results can be exported to Excel or saved in a specified file format.
 {opt Povlines(varlist numeric)}:
  provides a list of poverty lines adjusted for PPP.
  
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+
 {p 4 4 2} 
 {opt Year(varname numeric)}:
  specifies the year variable for the analysis.

@@ -20,7 +20,8 @@ help for {hi:pea figure9c}{right:March 2025}
 	{opt Country(string)}
 	{opt Year(varname numeric)}   
 	{opt BENCHmark(string)} 
-	{opt ONEWelfare(varname numeric)}    
+	{opt ONEWelfare(varname numeric)}  
+	{opt PPPyear(integer)}
 	{opt within(integer 3)}  
 	{opt yrange(string)} 
 	{opt scheme(string)} 
@@ -47,6 +48,10 @@ help for {hi:pea figure9c}{right:March 2025}
 
 {p 4 4 2} 
 {opt ONEWelfare(varname numeric)}: specifies the one-line welfare variable.
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
 
 {p 4 4 2} 
 {opt within(integer)}: specifies the number of years to search for the survey overlap within the range of survey years (default is 3).  

@@ -18,6 +18,7 @@ help for {hi:pea table15}{right:January 2025}
 [{opt ,} 
 	{opt Year(varname numeric)} 
 	{opt Welfare(varname numeric)} 
+	{opt PPPyear(integer)}
 	{opt excel(string)} 
 	{opt save(string)}]{p_end}
 
@@ -36,6 +37,10 @@ help for {hi:pea table15}{right:January 2025}
 {opt Welfare(varname numeric)}:
  specifies the welfare variable to be used for poverty calculations.
  
+ {p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+
 {p 4 4 2} 
 {opt excel(string)}:
  specifies the file path for the Excel output. If omitted, a temporary file is created.

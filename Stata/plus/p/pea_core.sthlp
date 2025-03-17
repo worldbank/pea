@@ -22,6 +22,9 @@ help for {hi:pea core}{right:January 2025}
 {opt NATPovlines(varlist numeric)} 
 {opt PPPWelfare(varname numeric)} 
 {opt PPPPovlines(varlist numeric)} 
+{opt PPPyear(integer)}
+{opt SVY}
+{opt std(string)}
 {opt Year(varname numeric)} 
 {opt SETting(string)} 
 {opt excel(string)} 
@@ -84,6 +87,17 @@ Main options:
 
 {p 4 4 2}
 {opt PPPPovlines(varlist numeric)}: specifies a list of PPP-adjusted poverty lines.
+
+{p 4 4 2}
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+     
+{p 4 4 2} 
+{opt SVY}: triggers 'svy set' in Stata. If the data is not svy set, no standard errors will be produced. Only relevant for Table A.1.
+ 
+{p 4 4 2} 
+{opt std(string)}: Only works when data is svy set. Specifies where standard-errors are displayed. Available options are 'inside' or 'right', where inside means that the standard-error will be added in the same cell as the main statistic, and right means that it will be added in a separate cell to the right.
+Default is inside.
 
 {p 4 4 2}
 {opt Year(varname numeric)}: specifies the year variable for the analysis.
