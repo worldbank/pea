@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea figure4}{right:January 2025}
+help for {hi:pea figure5b}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea figure4} — Poverty Decomposition with Datt-Ravallion and Shorrocks-Kolenikov Methods.
+{bf:pea figure5b} — Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion (sectoral)
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea figure4} 
+{opt pea figure5b} 
 	[{it:if}]
 	[{it:in}] 
 	[{it:aw pw fw}], 
@@ -21,19 +21,22 @@ help for {hi:pea figure4}{right:January 2025}
     {opt spells(string)} 
     {opt year(varname numeric)} 
 	{opt PPPyear(integer)}
+	{opt industrycat4(varname numeric)}
+	{opt hhhead(varname numeric)}
+	{opt hhid(string)}
 	{opt LINESORTED(string)}
 	{opt comparability(varname numeric)}
-	{opt idpl(varname numeric)}
     {opt save(string)}
     {opt excel(string)}
 	{opt scheme(string)}
 	{opt palette(string)}]{p_end}  
 
+
 {title:Description}
 
 {p 4 4 2}
-{opt pea figure4} performs poverty decomposition over time using the Datt-Ravallion and Shorrocks-Kolenikov methods. The program generates visualizations and numerical results showing the contribution of changes in income or welfare across different 
-time periods or population groups. The results can help analysts and policymakers identify the drivers behind changes in poverty.
+{opt pea figure5b} performs poverty decomposition over time using the Huppi-Ravallion method. 
+The program generates visualizations and numerical results showing the contribution of changes in income or welfare across different time periods and the agricultural and non-agricultural sectors. The results can help analysts and policymakers identify the drivers behind changes in poverty. All individuals are assigned the sector of their household head.
 
 {title:Options}
 
@@ -53,6 +56,18 @@ Default is 2017.
 {p 4 4 2} 
 {opt year(varname numeric)}: Specifies the numeric variable representing the year for time association in the analysis.
 
+{p 4 4 2}
+{opt industrycat4(varname numeric)}: Specifies the industry category variable. The command assumes that the value 1 of the variable corresponds to the Agriculture sector. Ensure that this is the case.
+
+{p 4 4 2} 
+{opt hhhead(varname numeric)}:
+ specifies the variable indicating household head status (typically 1 for head, 0 for non-head).
+
+{p 4 4 2} 
+{opt hhid(string)}:
+ specifies the variable indicating the household id. 
+ This is needed to assign the household head sector to other household members.
+ 
 {p 4 4 2} 
 {opt LINESORTED(string)}:
 Allows users to sort lines based on a specific setting for better visualization clarity.
@@ -60,9 +75,6 @@ Allows users to sort lines based on a specific setting for better visualization 
 {p 4 4 2}
 {opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. 
 Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
-
-{p 4 4 2}
-{opt idpl(varname numeric)}: Optional. If national poverty lines are different within one year, specify the variable grouping the poverty lines here. This is relevant for the Shorrocks-Kolenikov decomposition. Example: idpl(urban).
 
 {p 4 4 2} 
 {opt save(string)} Specifies the file path for saving the processed data or results from the decomposition analysis. 
@@ -81,5 +93,4 @@ Specifies a custom color palette for use in visualizations.
 {title:Examples}
 
 {p 4 4 2} 
-{bf: pea figure4} [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021)
-
+{bf: pea figure5b} [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) industrycat4(industrycat4) hhhead(head) hhid(hhid)

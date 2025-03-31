@@ -22,7 +22,6 @@ help for {hi:pea table10}{right:January 2025}
 {opt PPPyear(integer)}
 {opt Year(varname numeric)} 
 {opt BENCHmark(string)}
-{opt setting(string)}
 {opt LINESORTED}
 {opt excel(string)} 
 {opt save(string)} 
@@ -60,10 +59,6 @@ Default is 2017.
 
 {p 4 4 2}
 {opt BENCHmark(string)}: specifies a list of benchmark countries (e.g., ALB HRV XKX).
-
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
 
 {p 4 4 2} 
 {opt LINESORTED}:

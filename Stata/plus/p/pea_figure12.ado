@@ -200,6 +200,16 @@ program pea_figure12, rclass
 		legend(order(1 "Inequality contribution" 2 "Mean contribution") rows(1) size(medium) position(6)) 	///
 		name(ngraph`gr', replace)
 	}	
+	//Some labeling
+	label var mean "Average welfare"
+	label var inq_y_ybar "Average distance from mean welfare"
+	label var prosgap "Prosperity Gap"
+	label var ch_lnprosgap "Growth in Prosperity Gap"
+	label var ch_lninq_y_ybar "Growth in mean welfare contribution"
+	label var ch_lnmean "Growth in inequality contribution"
+	label var ch_lninq_y_ybar "Growth in mean welfare contribution"
+	label var ch_lnmean "Growth in inequality contribution"
+	label var ch_lninq_y_ybar_add "For figure preparation: Additional contribution in inequality over mean welfare"
 
 	//Export
 	local figname Figure12
@@ -226,6 +236,8 @@ program pea_figure12, rclass
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
+	putexcel N11 = "Labels:"
+	putexcel N12 = "Variables:"
 	if "`relativechange'" == "" {
 		putexcel O7 = `"graph twoway bar ch_lninq_y_ybar_add ch_lnmean spell_num if ch_lninq_y_ybar_add~=., color("${col1}" "${col2}") barwidth(0.5 0.5) || scatter ch_lnprosgap spell_num if ch_lninq_y_ybar_add~=., msym(D) msize(2.5) mcolor("${col3}") mlcolor(black) || bar zero spell_num if ch_lninq_y_ybar_add~=., yline(0) xlabel("`spells'", valuelabel) ytitle("Annual growth (%)") xtitle("") legend(order(1 "Contribution of growth in inequality" 2 "Contribution of growth in mean growth" 3 "Growth in Prosperity Gap") rows(3) position(6))"'
 	}
@@ -238,10 +250,12 @@ program pea_figure12, rclass
 	cap graph close	
 	//Export data
 	if "`relativechange'" == "" {
-		export excel spell year mean inq_y_ybar prosgap lnprosgap ch_lnprosgap lninq_y_ybar ch_lninq_y_ybar lnmean ch_lnmean ch_lninq_y_ybar_add spell_num using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables)	
+		export excel spell year mean inq_y_ybar prosgap lnprosgap ch_lnprosgap lninq_y_ybar ch_lninq_y_ybar lnmean ch_lnmean ch_lninq_y_ybar_add spell_num using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(varlabels) nolabel			
+		export excel spell year mean inq_y_ybar prosgap lnprosgap ch_lnprosgap lninq_y_ybar ch_lninq_y_ybar lnmean ch_lnmean ch_lninq_y_ybar_add spell_num using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables) nolabel	 
 	}
 	else if "`relativechange'" ~= "" {
-		export excel spell year inq_share grow_share using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables)	
+		export excel spell year inq_share grow_share using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(varlabels)	
+		export excel spell year inq_share grow_share using "`excelout2'", sheet("`figname'", modify) cell(O12) keepcellfmt firstrow(variables) nolabel	
 	}
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
 end

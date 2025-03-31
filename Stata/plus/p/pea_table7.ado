@@ -45,9 +45,9 @@ program pea_table7, rclass
 		su `age',d
 		if r(N)>0 {
 			gen agecatind = 1 if `age'>=0 & `age'<=14
-			replace agecatind = 2 if `age'>=15 & `age'<=65
-			replace agecatind = 3 if `age'>=66 & `age'<=.
-			la def agecatind 1 "Age 0-14" 2 "Age 15-65" 3 "Age 66+"
+			replace agecatind = 2 if `age'>=15 & `age'<=64
+			replace agecatind = 3 if `age'>=65 & `age'<=.
+			la def agecatind 1 "Age 0-14" 2 "Age 15-64" 3 "Age 65+"
 			la val agecatind agecatind
 			la var agecatind "Age categories"
 			local agevar agecatind
@@ -193,7 +193,7 @@ program pea_table7, rclass
 	replace group = 2 if _variable == "`male'"
 	replace group = 3 if _variable == "_eduXind"
 	replace group = 4 if _variable == "agecatind"
-	la def group 1 "All sample" 2 "By gender" 3 "By educational attainment (16+)" 4 "By age"
+	la def group 1 "All sample" 2 "By sex" 3 "By educational attainment (16+)" 4 "By age"
 	la val group group	
 	sort group `year'
 	

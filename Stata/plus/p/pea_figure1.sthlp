@@ -126,10 +126,10 @@ Specifies a custom color palette for use in visualizations.
 {title:Examples}
 
 {p 4 4 2} 
-{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) yrange(0(10)100)
+{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) urban(urban) yrange(0(10)100)
 
 {p 4 4 2} 
-{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) yrange(0(10)100) combine noequalspacing
+{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) urban(urban) yrange(0(10)100) combine noequalspacing
 
 {p 4 4 2} 
-{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) setting(GMD) urban(urban) yrange(0(10)100) combine comparability(comparability)
+{bf: pea figure1} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) urban(urban) yrange(0(10)100) combine comparability(comparability)

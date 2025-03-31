@@ -149,9 +149,8 @@ program pea_figure1, rclass
 		local ymin = 0
 		foreach var of varlist _fgt* {											// maximum y value of fgt variables
 			qui sum `var'
-			local max = round(`r(max)',10)
-			if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
-			local yrange`var' "ylabel(0(10)`max')"
+			nicelabels `ymin' `r(max)', local(yla)
+			local yrange`var' "ylabel(`yla')"
 		}
 	}
 	else {
@@ -159,7 +158,7 @@ program pea_figure1, rclass
 			local yrange`var' "ylabel(`yrange')"
 		}
 	}
-		
+	
 	// Clean and label
 	*label values `urban' urban
 	if "`ppppovlines'"~="" {
@@ -241,6 +240,7 @@ program pea_figure1, rclass
 		else if "`bar'" ~= "" {
 			graph bar var, over(`urban') over(`year') `bcolors'			///
 				ytitle("Poverty rate (percent)") asyvars				///
+				`yrange`var''											///
 				name(ngraph`gr', replace)								
 		}
 		
@@ -257,7 +257,7 @@ program pea_figure1, rclass
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code to produce figure:"
 			putexcel O7 = "rename `var' var"
-			putexcel O8 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") `botlbl') ytitle("Poverty rate (percent)") xtitle("") xlabel("`yearval'", valuelabel) `yrange`var''"'
+			putexcel O8 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") `botlbl') ytitle("Poverty rate (percent, `lbltitle')") xtitle("") xlabel("`yearval'", valuelabel) `yrange`var''"'
 						
 			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 					
@@ -283,13 +283,13 @@ program pea_figure1, rclass
 		putexcel A4 = "Note: The figure shows the poverty rates against international and national poverty lines. `note_c'"
 		
 		putexcel O10 = "Data:"
-		putexcel O6	= "Code to produce figure:"
+		putexcel O6	= "Code:"
 		if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") `botlbl') ytitle("Poverty rate (percent)") xtitle("") xlabel("`yearval'", valuelabel) `yrange`var''"'
-		else if "`bar'" ~= "" putexcel O7 = `"graph bar var, over(`urban') over(`year') `bcolors' ytitle("Poverty rate (percent)") asyvars"'
+		else if "`bar'" ~= "" putexcel O7 = `"graph bar var, over(`urban') over(`year') `bcolors' ytitle("Poverty rate (percent)") asyvars `yrange`var''"'
 		putexcel O8 = `"grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) name(ngraphcomb, replace)"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 		putexcel save
-		export excel * using "`excelout2'", sheet("Figure1", modify) cell(O11) keepcellfmt firstrow(variables)	
+		export excel * using "`excelout2'", sheet("Figure1", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	}
 	
 	cap graph close	

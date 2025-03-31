@@ -21,7 +21,6 @@ help for {hi:pea figure14}{right:January 2025}
 	{opt Welfare(varname numeric)} 
 	{opt PPPyear(integer)}
 	{opt Year(varname numeric)} 
-	{opt setting(string)} 
 	{opt excel(string)}
 	{opt save(string)}
 	{opt BENCHmark(string)} 
@@ -52,9 +51,6 @@ Default is 2017.
 
 {p 4 4 2} 
 {opt Year(varname numeric)}: The numeric variable representing survey years. Required. Example: `survey_year`.
-
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
 
 {p 4 4 2} {opt excel(string)}:  
         Path to an Excel file location for saving results. If omitted, defaults are used.

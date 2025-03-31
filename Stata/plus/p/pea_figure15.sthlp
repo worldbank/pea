@@ -7,7 +7,7 @@ help for {hi:pea figure15}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea figure15} — Visualizing Climate Risk and Vulnerability. Climate hazard exposure visualization by survey comparison and country grouping
+{bf:pea figure15} — Visualizing Climate Risk and Vulnerability. Climate hazard exposure visualization of PEA country and region
 
 {title:Syntax}
 
@@ -26,8 +26,7 @@ help for {hi:pea figure15}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea figure15} generates a bar graph visualization that maps climate risk and vulnerability by population share across various dimensions, such as exposure to hazards, financial access, education levels, and other climate risk indicators. 
-This visualization highlights the impact of climate risks on population groups.
+{opt pea figure15} generates a bar graph visualization that maps climate risk and vulnerability by population share across various dimensions, such as exposure to hazards, financial access, education levels, and other climate risk indicators. The survey country is compared to the regional averages. Data are from ca. 2021. This visualization highlights the impact of climate risks on population groups.
 
 {title:Options}
 

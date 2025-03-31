@@ -14,31 +14,22 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Figure 7b. Share of poor and non poor by subgroup
+//Figure 7b. Poverty rates by demographic groups
 
 
 cap program drop pea_figure7b
 program pea_figure7b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varlist numeric) Year(varname numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) FGTVARS setting(string) scheme(string) palette(string) excel(string) save(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varlist numeric) Year(varname numeric) age(varname numeric) male(varname numeric) edu(varname numeric) urban(varname numeric) FGTVARS setting(string) scheme(string) palette(string) excel(string) save(string) PPPyear(integer 2017)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
-	
-	//load setting
-	qui if "`setting'"=="GMD" {
-		_pea_vars_set, setting(GMD)
-		local vlist age male hhhead edu urban married  
-		foreach st of local vlist {
-			local `st' "${pea_`st'}"
-		}		
-	}
-	
+		
 	//house cleaning
 	_pea_export_path, excel("`excel'")
 	
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `hhhead' `edu' {
+		foreach var of varlist `male' `edu' {
 			su `var'
 			local miss = r(max)
 			replace `var' = `=`miss'+10' if `var'==.
@@ -58,7 +49,7 @@ program pea_figure7b, rclass
 	
 	//missing observation check
 	marksample touse
-	local flist `"`wvar' `onewelfare' `oneline' `year' `male' `edu' `age' `urban'"'
+	local flist `"`wvar' `onewelfare' `oneline' `year'"' // `male' `edu' `age' `urban'
 	markout `touse' `flist' 
 		
 	//Number of groups (for colors)
@@ -91,9 +82,9 @@ program pea_figure7b, rclass
 		su `age',d
 		if r(N)>0 {
 			gen agecatind = 1 if `age'>=0 & `age'<=14
-			replace agecatind = 2 if `age'>=15 & `age'<=65
-			replace agecatind = 3 if `age'>=66 & `age'<=.
-			la def agecatind 1 "Age 0-14" 2 "Age 15-65" 3 "Age 66+"
+			replace agecatind = 2 if `age'>=15 & `age'<=64
+			replace agecatind = 3 if `age'>=65 & `age'<=.
+			la def agecatind 1 "Age 0-14" 2 "Age 15-64" 3 "Age 65+"
 			la val agecatind agecatind
 		}
 	}
@@ -124,7 +115,7 @@ program pea_figure7b, rclass
 			use `data1', clear
 			keep if `var'==`lvl'
 			local lbllvl : label `label1' `lvl'			
-			groupfunction  [aw=`wvar'] if `touse', mean(_fgt0*) rawsum(_pop) by(`year')
+			groupfunction  [aw=`wvar'] if `touse', mean(_fgt0_`onewelfare'_`oneline') rawsum(_pop) by(`year')
 			gen _group = `i'			
 			la def _group `i' "`lbllvl'", add
 			la val _group _group
@@ -158,11 +149,9 @@ program pea_figure7b, rclass
 	
 	tempfile graph
 	putexcel set "`excelout2'", `act'
-	graph hbar poor nonpoor, stack 				///
+	graph hbar poor, 				///
 			over(_group) bar(1, color("${col1}")) bar(2, color("${col2}")) ///  
-			legend(pos(6) order(1 "Population below `lblline'" ///
-			2 "Population above `lblline'") row(2) on) 	///
-			ytitle("Share of poor (percent)") 				///
+			ytitle("Poverty rate (percent)") 				///
 			name(ngraph`gr', replace)	
 
 	putexcel set "`excelout2'", modify sheet(Figure7b, replace)	  
@@ -170,18 +159,18 @@ program pea_figure7b, rclass
 	putexcel A`u' = image("`graph'")
 	
 	putexcel A1 = ""
-	putexcel A2 = "Figure 7b: Poor and non-Poor by demographic groups"
+	putexcel A2 = "Figure 7b: Poverty rates by demographic groups"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: Figure presents the share of population in each group that is poor and non-poor, as defined by the `lblline' line. Data from all individuals is used, not only household heads. Poverty rates by educational attainment are calculated only for individuals aged 16 and above."
+	putexcel A4 = "Note: Figure presents the share of population in each group that is poor and non-poor, as defined by the `lblline' line, for `year'. Data from all individuals is used, not only household heads. Poverty rates by educational attainment are calculated only for individuals aged 16 and above. Education level refers to the highest level attended, complete or incomplete."
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
-	putexcel O7 = `"graph hbar poor nonpoor, stack over(_group) bar(1, color("${col1}")) bar(2, color("${col2}")) legend(pos(6) order(1 "Population below `lblline'" 2 "Population above `lblline'") row(2) on) ytitle("Share of poor (percent)")"'
+	putexcel O7 = `"graph hbar poor, over(_group) bar(1, color("${col1}")) bar(2, color("${col2}")) ytitle("Poverty rate (percent)")"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save								
 	cap graph close	
 	//Export data
-	export excel `year' poor nonpoor _group using "`excelout2'" , sheet("Figure7b", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel `year' poor _group using "`excelout2'" , sheet("Figure7b", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure7b.xlsx"	
 		
 end	

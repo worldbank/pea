@@ -149,6 +149,7 @@ program pea_figure10b, rclass
 	gen   group = `groupcount' if country_code == "`country'"
 	qui sum count if country_code == "`country'"
 	local cname `=country_name[r(min)]'
+	local cname_l `=country_name[r(min)]'
 	local legend `"`legend' `leg_elem' "`cname'""'								// PEA country last and so on, so that PEA marker is on top
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}				// Palette defined in pea_figure_setup
 	gen   mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
@@ -189,9 +190,8 @@ program pea_figure10b, rclass
 	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum pg
-		local max = round(`r(max)',5)
-		if `max' < `r(max)' local max = `max' + 5								// round up to nearest 5
-		local yrange "ylabel(0(5)`max')"
+		nicelabels `ymin' `r(max)', local(yla)
+		local yrange "ylabel(`yla')"
 	}
 	else {
 		local yrange "ylabel(`yrange')"
@@ -207,6 +207,16 @@ program pea_figure10b, rclass
 	// Data Preparation 
 	gen 	ln_gdp_pc = ln(gdppc)
 	format  pg %5.0f
+	//Axis label (log scale)
+	niceloglabels gdppc, local(xla) style(1)
+	local lnum = 1
+	foreach l of local xla {
+		local xl`lnum' log(`l') `l'
+		local lxlab = log(`l')
+		local xlab `xlab' `lxlab' "`l'"
+		local lnum = `lnum' + 1		
+	}
+	local xrange "xlabel(`xlab')"
 	
 	// Figure
 	if "`excel'"=="" {
@@ -227,7 +237,7 @@ program pea_figure10b, rclass
 		, legend(order(`legend')) 											///
 		  ytitle("Prosperity Gap")		 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
-		  `yrange'															///
+		  `yrange' `xrange'													///
 		  name(ngraph`gr', replace)
 		
 	putexcel set "`excelout2'", modify sheet(Figure10b, replace)	  
@@ -236,16 +246,16 @@ program pea_figure10b, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 10b: Prosperity gap and GDP per-capita (line-up)"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and lined-up estimates from PIP."
-	putexcel A4 = "Note: Data is for year `lasty' and lined-up estimates are used for the non-PEA countries. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. Benchmark countries are shown separately from the countries in the same region as `country'. See Kraay et al. (2023) for more details on the prosperity gap."
+	putexcel A4 = "Note: Data for `cname_l' is for `lasty' and lined-up estimates for `lasty' are used for other countries. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. Benchmark countries are shown separately from the countries in the same region as `country'. See Kraay et al. (2023) for more details on the prosperity gap. GDP per capita is expressed in constant 2015 PPP terms."
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
-	putexcel O7 = `"twoway `scatter_cmd' qfit pg ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Prosperity Gap") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
+	putexcel O7 = `"twoway `scatter_cmd' qfit pg ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Prosperity Gap") xtitle("LN(GDP per capita, PPP, US$)") `yrange' `xrange'"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data
-	export excel country_code year pg ln_gdp_pc group using "`excelout2'" , sheet("Figure10b", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel country_code year pg ln_gdp_pc group using "`excelout2'" , sheet("Figure10b", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure10b.xlsx"	
 	
 end

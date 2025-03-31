@@ -20,7 +20,6 @@ help for {hi:pea table14b}{right:January 2025}
 	{opt Povlines(varlist numeric)}
 	{opt PPPyear(integer)}
 	{opt Year(varname numeric)} 
-	{opt setting(string)}
 	{opt excel(string)} 
 	{opt save(string)}
 	{opt age(varname numeric)} 
@@ -58,10 +57,6 @@ Default is 2017.
 {opt Year(varname numeric)}:
  specifies the year variable for the analysis.
 
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), hhsize(), hhid(), pid(), lstatus(), empstat(), and relationharm()) do not need to be specified. 
- 
  {p 4 4 2}
 {opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
 Default: 18
@@ -76,8 +71,6 @@ Default: 18
 
 {p 4 4 2}
 {opt MISSING}: Optional. Includes missing data in the analysis.
-
-Additional options if setting(GMD) is not specified:
 
 {p 4 4 2}
 {opt age(varname numeric)}: specifies the age variable for the analysis.
@@ -104,7 +97,7 @@ Default under setting(GMD): hhid
 Default under setting(GMD): pid
 
 {p 4 4 2}
-{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed).
+{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed). Please not that the input variable should have 'not working' (i.e. unemployed or out of labor force) as the value = 1, and employed as a different value. 
 Default under setting(GMD): nowork
 
 {p 4 4 2}

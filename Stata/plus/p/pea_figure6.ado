@@ -254,16 +254,19 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 		putexcel A1 = ""
 		putexcel A2 = "Figure 6: GDP - poverty elasticity"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-		putexcel A4 = "Note: The figure shows change in poverty rates, GDP per capita, and the elasticity between poverty and GDP per capita."
+		putexcel A4 = "Note: The figure shows change in poverty rates, GDP per capita, and the elasticity between poverty and GDP per capita. GDP per capita is expressed in 2015 PPP terms."
 		
 		putexcel O10 = "Data:"
-		putexcel O6	= "Code to produce figure:"
+		putexcel O6	= "Code:"
+		putexcel N11 = "Labels:"
+		putexcel N12 = "Variables:"
 		putexcel O7 = `"twoway `bar' `scatter', xlabel(`xlabel') yline(0) legend(order(`legend') pos(6) row(2) holes(2)) ytitle("Annualized growth rate (percent)") name(ngraph`gr', replace)"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data
 	drop a
-	export excel * using "`excelout2'" , sheet("Figure6", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel * using "`excelout2'" , sheet("Figure6", modify) cell(O11) keepcellfmt firstrow(varlabels)
+	export excel * using "`excelout2'" , sheet("Figure6", modify) cell(O12) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure6.xlsx"
 end
