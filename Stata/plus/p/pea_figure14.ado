@@ -221,7 +221,7 @@ program pea_figure14, rclass
 		twoway `bar' `line', 								///
 			xlabel(`xlabel') xtitle("")						///
 			legend(order(`legbar') pos(6) row(2) holes(2)) 	///
-			ytitle("Share of population, %")				///
+			ytitle("Share of population (%)")				///
 			name(gr_mpm1, replace)	
 			
 		putexcel set "`excelout2'", modify sheet("Figure14a", replace)
@@ -235,7 +235,7 @@ program pea_figure14, rclass
 		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
-		putexcel O7 = `"twoway `bar' `line', xlabel(`xlabel') xtitle("") legend(order(`legbar') pos(6) row(2) holes(2)) ytitle("Share of population, %")"'
+		putexcel O7 = `"twoway `bar' `line', xlabel(`xlabel') xtitle("") legend(order(`legbar') pos(6) row(2) holes(2)) ytitle("Share of population (%)")"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		//Export data
 		export excel code dep_poor1 dep_educ_com dep_educ_enr dep_infra_elec dep_infra_imps dep_infra_impw mdpoor_i1 year ycount2 using "`excelout2'" if code=="`country'", sheet("Figure14a", modify) cell(O11) keepcellfmt firstrow(variables)	
@@ -254,6 +254,7 @@ program pea_figure14, rclass
 		local grcolor`groupcount': word `groupcount' of ${colorpalette}			// Palette defined in pea_figure_setup
 		gen   mlabel = "{bf:" + code + "}" if code == "`country'"
 		local msym`groupcount' "D"
+		local note_c "`country' = `cname'"
 
 		* Benchmark countries
 		local b_count = 1
@@ -267,6 +268,8 @@ program pea_figure14, rclass
 			local b_count = `b_count' + 1
 			local grcolor`groupcount': word `groupcount' of ${colorpalette}
 			local msym`groupcount' "t"
+			qui sum mdpoor_i1  if code == "`c'"
+			if `r(N)' > 0 local note_c "`note_c', `c' = `cname' "
 		}
 		// Scatter command (14b)
 		qui levelsof group, local(group_num)
@@ -286,7 +289,7 @@ program pea_figure14, rclass
 		replace y = `mpmmax' in 2
 		
 		twoway `scatter_cmd' || line x y, lpattern(-) lcolor(gray) ///
-			xtitle("Poverty rate, %", size(medium)) ytitle("Multidimensional poverty measure, %", size(medium)) ///
+			xtitle("Monetary poverty rate (%)", size(medium)) ytitle("Multidimensional poverty measure (%)", size(medium)) ///
 			legend(order(`legend')) name(gr_mpm2, replace)
 		
 		putexcel set "`excelout2'", modify sheet("Figure14b", replace)
@@ -299,7 +302,7 @@ program pea_figure14, rclass
 		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
-		putexcel O7 = `"twoway `scatter_cmd' || line x y, lpattern(-) lcolor(gray), ytitle("Poverty rate, %", size(medium)) xtitle("Multidimensional poverty measure, %", size(medium)) legend(order(`legend'))"'
+		putexcel O7 = `"twoway `scatter_cmd' || line x y, lpattern(-) lcolor(gray), ytitle("Monetary poverty rate (%)", size(medium)) xtitle("Multidimensional poverty measure (%)", size(medium)) legend(order(`legend'))"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		putexcel save
 		//Export data
@@ -311,7 +314,7 @@ program pea_figure14, rclass
 		gen pea_country = code == "`country'"	
 		graph bar dep_poor1 add_mpm, stack over(code, sort(pea_country mdpoor_i1)) ///
 			legend(pos(6) order(1 "Monetary poverty" 2 "Additional multidimensional poverty") row(1) on) 	///
-			ytitle("Multidimensional poverty rate (percent)") name(gr_mpm3, replace)	
+			ytitle("Multidimensional poverty rate (%)") name(gr_mpm3, replace)	
 			
 		putexcel set "`excelout2'", modify sheet("Figure14c", replace)
 		graph export "`graph1'", replace as(png) name(gr_mpm3) wid(1500)
@@ -319,15 +322,18 @@ program pea_figure14, rclass
 		putexcel A1 = ""
 		putexcel A2 = "Figure 14c: Monetary and multidimensional poverty rates"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-		putexcel A4 = "Note: Data is from the closest available survey within `within' years to `lasty'. Figure shows monetary poor, and the additional poverty rates from other multidimensional rates. Monetary poverty rates refer to the international poverty line per day (`pppyear' PPP) line. See Table 6a for the weights of each MPM component."	
+		putexcel A4 = "Note: Data is from the closest available survey within `within' years to `lasty'. Figure shows monetary poor, and the additional poverty rates from other multidimensional rates. Monetary poverty rates refer to the international poverty line per day (`pppyear' PPP) line. See Table 6a for the weights of each MPM component. `note_c'"	
 		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
-		putexcel O7 = `"graph bar dep_poor1 add_mpm, stack over(code, sort(pea_country mdpoor_i1)) legend(pos(6) order(1 "Monetary poverty" 2 "Additional multidimensional poverty") row(1) on) ytitle("Poverty rate (percent)")"'
+		putexcel N11 = "Labels:"
+		putexcel N12 = "Variables:"
+		putexcel O7 = `"graph bar dep_poor1 add_mpm, stack over(code, sort(pea_country mdpoor_i1)) legend(pos(6) order(1 "Monetary poverty" 2 "Additional multidimensional poverty") row(1) on) ytitle("Multidimensional poverty rate (%)")"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		putexcel save
 		//Export data
-		export excel code mdpoor_i1 dep_poor1 x y using "`excelout2'", sheet("Figure14c", modify) cell(O11) keepcellfmt firstrow(variables)	
+		export excel code mdpoor_i1 dep_poor1 using "`excelout2'", sheet("Figure14c", modify) cell(O11) keepcellfmt firstrow(varlabels)
+		export excel code mdpoor_i1 dep_poor1 using "`excelout2'", sheet("Figure14c", modify) cell(O12) keepcellfmt firstrow(variables)	nolabel
 		cap graph close	
 		
 	} //qui

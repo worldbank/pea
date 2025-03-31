@@ -62,6 +62,8 @@ program _pea_vars_set, rclass
 			if r(r)>0 {
 				gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 				global pea_lstatus "nowork"
+				label define nowork 0 "Working" 1 "Not working (unemployed or out of labor force)"
+				label values nowork nowork
 			}
 			else {				
 				noi dis as error "Variable lstatus is missing in the GMD data."				

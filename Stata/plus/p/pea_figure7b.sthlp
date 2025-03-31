@@ -7,7 +7,7 @@ help for {hi:pea figure7b}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea figure7b} — Share of poor and non-poor by demographic groups.
+{bf:pea figure7b} — Poverty rates by demographic groups.
 
 {title:Syntax}
 
@@ -25,7 +25,6 @@ help for {hi:pea figure7b}{right:January 2025}
         {opt hhhead(varname numeric)} 
         {opt edu(varname numeric)} 
         {opt urban(varname numeric)}  
-        {opt setting(string)}  
         {opt scheme(string)}  
         {opt palette(string)}  
         {opt excel(string)}  
@@ -34,7 +33,7 @@ help for {hi:pea figure7b}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea figure7b} shows the share of demographic subgroups which are poor and non-poor for sa pecified poverty threshold, such as `pline365`. This program performs necessary data preparation,
+{opt pea figure7b} shows the share of demographic subgroups which are poor and non-poor for a specified poverty threshold, such as `pline365`. This program performs necessary data preparation,
 computes poverty statistics, and exports figures/poverty analysis results.
 	
 {title:Options}
@@ -68,10 +67,6 @@ Default is 2017.
 {opt urban(varname numeric)}: Urban/Rural classification variable for subgroup analysis.
 
 {p 4 4 2}
-{opt SETting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
-
-{p 4 4 2}
 {opt scheme(string)}: Graph/plotting scheme (not implemented in full).
 
 {p 4 4 2}
@@ -86,4 +81,4 @@ Default is 2017.
 {title:Examples}
 
 {p 4 4 2}
-{bf: pea figure7b} [aw=weight_p], onewelfare(welfare) oneline(natline) year(year) setting(GMD)
+{bf: pea figure7b} [aw=weight_p], onewelfare(welfare) oneline(natline) year(year) age(age) male(male) edu(educat4) urban(urban)

@@ -140,6 +140,7 @@ program pea_figure10d, rclass
 	gen   group = `groupcount' if country_code == "`country'"
 	qui sum count if country_code == "`country'"
 	local cname `=country_name[r(min)]'
+	local cname_l `=country_name[r(min)]'
 	local legend `"`legend' `leg_elem' "`cname'""'								// PEA country last and so on, so that PEA marker is on top
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}				// Palette defined in pea_figure_setup
 	local lp`groupcount' "l"
@@ -169,9 +170,8 @@ program pea_figure10d, rclass
 	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum pg
-		local max = round(`r(max)',5)
-		if `max' < `r(max)' local max = `max' + 5								// round up to nearest 5
-		local yrange "ylabel(0(5)`max')"
+		nicelabels `ymin' `r(max)', local(yla)
+		local yrange "ylabel(`yla')"
 	}
 	else {
 		local yrange "ylabel(`yrange')"
@@ -203,8 +203,8 @@ program pea_figure10d, rclass
 	
 	putexcel A1 = ""
 	putexcel A2 = "Figure 10d: Prosperity gap over time in benchmark countries (line-up)"
-	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and lined-up estimates from PIP."
-	putexcel A4 = "Note: The prosperity gap for `country' for `lasty' comes from the survey, while the rest of the data points come from lined-up estimates. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. See Kraay et al. (2023) for more details on the prosperity gap."
+	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and line-up estimates from PIP."
+	putexcel A4 = "Note: The prosperity gap for `cname_l' for `lasty' comes from the survey, while the rest of the data points are from line-up year estimates. The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. See Kraay et al. (2023) for more details on the prosperity gap."
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
@@ -213,7 +213,7 @@ program pea_figure10d, rclass
 	putexcel save							
 	cap graph close	
 	//Export data
-	export excel country_code year pg using "`excelout2'" , sheet("Figure10d", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel country_code year pg using "`excelout2'" , sheet("Figure10d", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure10d.xlsx"	
 	
 end

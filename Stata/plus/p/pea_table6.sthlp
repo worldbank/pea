@@ -21,7 +21,6 @@ help for {hi:pea table6}{right:January 2025}
   {opt Welfare(varname numeric)} 
   {opt PPPyear(integer)}
   {opt Year(varname numeric)} 
-  {opt setting(string)} 
   {opt excel(string)}
   {opt save(string)} 
   {opt MISSING}
@@ -57,10 +56,6 @@ The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {he
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
 Default is 2017.
 
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
- 
 {p 4 4 2} 
 {opt excel(string)}:
  specifies the file path for exporting results to Excel. If omitted, results are stored in a temporary file.

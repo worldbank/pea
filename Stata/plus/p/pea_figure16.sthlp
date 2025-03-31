@@ -21,7 +21,6 @@ help for {hi:pea figure16}{right:January 2025}
 	{opt ONELine(varlist numeric)}
 	{opt PPPyear(integer)}
 	{opt Year(varname numeric)} 
-	{opt setting(string)}
 	{opt excel(string)} 
 	{opt save(string)}
 	{opt age(varname numeric)} 
@@ -83,13 +82,9 @@ Defines a color palette to differentiate bars in the graph visualization.
 {opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
 Default: 18
 
-
 {p 4 4 2} 
 {opt excel(string)}:
 Path to an Excel file to save visualization results to.
-
-
-Additional options if setting(GMD) is not specified:
 
 {p 4 4 2}
 {opt age(varname numeric)}: specifies the age variable for the analysis.
@@ -132,7 +127,7 @@ Default under setting(GMD): pid
 Default under setting(GMD): industrycat4
 
 {p 4 4 2}
-{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed).
+{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed). Please not that the input variable should have 'not working' (i.e. unemployed or out of labor force) as the value = 1, and employed as a different value. 
 Default under setting(GMD): nowork
 
 {p 4 4 2}

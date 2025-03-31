@@ -402,7 +402,7 @@ program pea_table1, rclass
 	collect style header subind[.], level(hide)
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `stdtext'"'
+	collect notes 2: `"Note: Table shows poverty rates and the number of poor for each subgroup, such as the poverty rate among children. Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `stdtext'"'
 	
 	collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 	collect style cell subind[]#cell_type[row-header], warn font(, nobold)	

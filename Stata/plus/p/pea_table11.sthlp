@@ -18,7 +18,6 @@ help for {hi:pea table11}{right:January 2025}
 	{opt Welfare(varname numeric)} 
 	{opt spells(string)} 
 	{opt Year(varname numeric)} 
-	{opt setting(string)} 
 	{opt excel(string)} 
 	{opt save(string)} 
 	{opt missing} 
@@ -44,10 +43,6 @@ specifies the welfare indicator to use for the GIC calculation (e.g., per capita
 {p 4 4 2} 
 {opt Year(varname numeric)}:
  specifies the year variable for the analysis.
-
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
 
 {p 4 4 2} 
 {opt excel(string)}:

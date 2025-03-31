@@ -162,9 +162,9 @@ program pea_figure9a, rclass
 	replace indicatorlbl = 2 if indicator=="Theil"
 	replace indicatorlbl = 3 if indicator=="Top20"
 	replace indicatorlbl = 4 if indicator=="Palma"
+	replace ind_ = ind_ * 10 if indicator == "Palma"	// Need to add *10 to Palma ratio for axis range
 
-	if "`bar'"=="" la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Top 20% share of incomes (%)" 4 "Palma (Kuznets) ratio"
-	else if "`bar'"~="" la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Top 20% share of incomes (%)" 4 "Palma (Kuznets) ratio (*10)"		// Need to add *10 to Palma ratio
+	la def indicatorlbl 1 "Gini index" 2 "Theil index" 3 "Top 20% share of incomes (%)" 4 "Palma (Kuznets) ratio (*10)"		// Need to add *10 to Palma ratio
 	la val indicatorlbl indicatorlbl
 
 	*Keep only those that are specified
@@ -175,38 +175,18 @@ program pea_figure9a, rclass
 	keep if keep == 1
 	drop keep
 	
-	// Check if Kuznets is among list, for second axis
-	local kuz "Palma"
-	local a: list ineqind & kuz
-	gen kuz = 1 if "`a'" == "Palma"
-	
+
 	//Axis range
-	*NEED TO DO FOR ALL INEQ INDICATORS
 	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum ind_
-		local max = round(`r(max)',10)
-		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
-		local yrange "ylabel(0(10)`max')"
+		nicelabels `ymin' `r(max)', local(yla)
+		local yrange "ylabel(`yla')"
 	}
 	else {
 		local yrange "ylabel(`yrange')"
 	}
-	// For second y axis, if Kuznets ratio is one of the indicators
-	if  kuz == 1 & "`bar'" == "" {
-		local ymin = 0
-		qui sum ind_ if indicator == "Palma"
-		local max = round(`r(max)',1)
-		if `max' < `r(max)' local max = `max' + 1								// round up to nearest 10
-		local yrange2 "ylabel(0(1)`max', axis(2))"
-		local note_k "Palma (Kuznets) ratio is shown on the right y-axis."
-	}
-	else if kuz == 1 & "`bar'" ~= "" {
-		local note_k "Palma (Kuznets) ratio multiplied by 10 to ensure visibility."
-	}
-	else {
-		local yrange2 "ylabel(`=`yrange'/10'', axis(2))"
-	}	
+
 	// Add comparability variable
 	if "`comparability'"~="" {
 		merge m:1 `year' using `datacomp', nogen
@@ -231,28 +211,24 @@ program pea_figure9a, rclass
 	foreach i of local ind {
 		
 		local label_`i': label(indicatorlbl) `i'
-		if (`i'~=4) local legend`i' `"`j' "`label_`i''""'						// Leave out Palma, because it needs to be counted from back as second axis..
-		else if (`i'==4)  local legend`i' `"`=`groups'*(`compgroups'+1)-`compgroups'' "`label_`i''""'		// For Palma, take first entry of last legend group
+		local legend`i' `"`j' "`label_`i''""'						
 		local legend "`legend' `legend`i''"	
 		local allindicators "`allindicators' `label_`i''"
 	
-		if `i'~= 4 local scatter_cmd`i' = `"scatter ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") || "'	// Colors defined in pea_figure_setup
-		else if `i'== 4 local scatter_cmd`i' = `"scatter ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") yaxis(2) `yrange2' ytitle("`label_`i''", axis(2)) || "'
+		local scatter_cmd`i' = `"scatter ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") || "'	// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		// Connect years (only if comparable if option is specified)
 		
 		if "`comparability'"~="" {												// If comparability specified, only comparable years are connected
 			foreach co of local compval {
-				if `i'~= 4 local line_cmd`i'`co' = `"line ind_ `year' if indicatorlbl==`i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
-				else if `i'== 4 local line_cmd`i'`co' = `"line ind_ `year' if indicatorlbl==`i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") yaxis(2) `yrange2' || "'
+				local line_cmd`i'`co' = `"line ind_ `year' if indicatorlbl==`i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 				local line_cmd "`line_cmd' `line_cmd`i'`co''"
 			}
 				local note_c "Non-connected dots indicate that survey-years are not comparable."
 			}
 			
 		else if "`comparability'"=="" {
-			if `i'~= 4 local line_cmd`i'= `"line ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
-			else if `i'== 4 local line_cmd`i'= `"line ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") yaxis(2) `yrange2' || "' 					
+			local line_cmd`i'= `"line ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") || "' 					
 			local line_cmd "`line_cmd' `line_cmd`i''"
 		}
 		
@@ -287,10 +263,9 @@ program pea_figure9a, rclass
 			  name(ngraph`gr', replace)	
 	}		  
 	else if "`bar'" ~= "" {
-		replace ind_ = ind_ * 10 if indicator == "Palma"
-		graph bar ind_, over(indicatorlbl) over(`year') `bcolors'		///
-				ytitle("Inequality indicators") asyvars			///
-				name(ngraph`gr', replace)								
+		graph bar ind_, over(indicatorlbl) over(`year') `bcolors'	///
+				ytitle("Inequality indicators") asyvars				///
+				`yrange' name(ngraph`gr', replace)								
 	}
 	putexcel set "`excelout2'", modify sheet(Figure9a, replace)	  
 	graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)		
@@ -299,18 +274,17 @@ program pea_figure9a, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 9a: Inequality indices over time"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: The figure shows `allindicators' over time. `note_k' `note_c'"
+	putexcel A4 = "Note: The figure shows `allindicators' over time. The Palma (Kuznets) ratio measures the top 10 percent income share relative to the bottom 40 percent share. Its values have been multiplied by 10 to display them on the same scale as the other inequality indicators. A Palma ratio of 2 appears as 20 on this graph. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Theil Index measures the distance of the welfare distribution from perfect equality. The top 20% share of incomes indicates the share of total income or consumption held by the top 20% of the welfare distribution. `note_c'"
 	
 	putexcel O10 = "Data:"
-	putexcel O6	= "Code"
+	putexcel O6	= "Code:"
 	if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") pos(6) row(1)) ytitle("Inequality indicators", axis(1)) xtitle("") xlabel(`yearval', valuelabel) `yrange'"'
-	else if "`bar'" ~= "" putexcel O7 = `"graph bar ind_, over(indicatorlbl) over(year) `bcolors' ytitle("Inequality indicators") asyvars"'
+	else if "`bar'" ~= "" putexcel O7 = `"graph bar ind_, over(indicatorlbl) over(year) `bcolors' ytitle("Inequality indicators") `yrange' asyvars"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data
-	drop kuz
-	export excel * using "`excelout2'" , sheet("Figure9a", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel * using "`excelout2'" , sheet("Figure9a", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure9a.xlsx"
 
 end	

@@ -28,7 +28,6 @@ help for {hi:pea table1}{right:January 2025}
     {opt FGTVARS} 
 	{opt using(string)} 
     {opt Year(varname numeric)} 
-	{opt setting(string)} 
     {opt LINESORTED} 
 	{opt excel(string)} 
 	{opt save(string)} 
@@ -87,10 +86,6 @@ Default is inside.
 {p 4 4 2} 
 {opt Year(varname numeric)}:
  is the variable indicating the year for each observation.
-    
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
     
 {p 4 4 2} 
 {opt LINESORTED}:

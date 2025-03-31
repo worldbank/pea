@@ -116,7 +116,7 @@ program pea_figure3a, rclass
 		save `dataori', replace
 		
 		levelsof `year' if `touse', local(yrlist)
-		local same : list yrlist === keepyears
+		local same : list keepyears in yrlist
 		if `same'==0 {
 			noi dis "There are different years requested, and some not available in the data."
 			noi dis "Requested: `keepyears'. Available: `yrlist'"
@@ -188,7 +188,7 @@ program pea_figure3a, rclass
 		}
 		la val var_order var_order
 		la val group_order group_order
-				
+		drop var_lvl var		
 		local vargic 
 		local varlbl
 
@@ -215,12 +215,21 @@ program pea_figure3a, rclass
 			
 		//Axis range
 		if "`yrange'" == "" {
-			 sum `vargic'
-			if `r(min)' < 0 local ymin = floor(`r(min)')
+			local m = 1
+			foreach var of local vargic {
+				sum `var'													// min/max can come from different variables
+				if (`m' == 1) local max = `r(max)'
+				if (`m' == 1) local min = `r(min)'
+				if (`r(max)' > `max') local max = `r(max)'
+				if (`r(min)' < `min') local min = `r(min)'
+				local m = `m' + 1
+			}
+			if `min' < 0 local ymin = floor(`min')
 			else local ymin = 0
-			if `r(max)' > 0 local ymax = ceil(`r(max)')
+			if `max' > 0 local ymax = ceil(`max')
 			else local ymax = 0
-			local yrange "ylabel(`ymin'(1)`ymax')"
+			nicelabels `ymin' `ymax', local(yla)
+			local yrange "ylabel(`yla')"
 		}
 		else {
 			local yrange "ylabel(`yrange')"
@@ -249,8 +258,8 @@ program pea_figure3a, rclass
 			local lbltitle : label group_order `gr'	
 			
 			twoway (connected `vargic' percentile, yline(0, lp(-) lc(black*0.6)) lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr', ///
-				legend(on order(`"`varlbl'"') rows(1) size(medium) position(6)) `yrange' ///
-				xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium)) name(ngraph`gr', replace)
+				legend(on order(`"`varlbl'"') rows(1) position(6)) `yrange' ///
+				xtitle(Percentile) ytitle("Annualized growth, %") name(ngraph`gr', replace)
 			
 			putexcel set "`excelout2'", modify sheet(Figure3a, replace)
 			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)
@@ -263,7 +272,9 @@ program pea_figure3a, rclass
 			
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code:"
-			putexcel O7 = `"twoway (connected `vargic' percentile, yline(0, lp(-) lc(black*0.6)) lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr', legend(on order(`"`varlbl'"') rows(1) size(medium) position(6)) `yrange' xtitle(Percentile, size(medium)) ytitle("Annualized growth, %", size(medium))"'
+			putexcel N11 = "Labels:"
+			putexcel N12 = "Variables:"
+			putexcel O7 = `"twoway (connected `vargic' percentile, yline(0, lp(-) lc(black*0.6)) lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr', legend(on order(`"`varlbl'"') rows(1) position(6)) `yrange' xtitle(Percentile) ytitle("Annualized growth, %")"'
 			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 			putexcel save					
 		}		
@@ -271,7 +282,8 @@ program pea_figure3a, rclass
 	} //qui	
 	
 	// Export data
-	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O11) keepcellfmt firstrow(variables)	
+	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O11) keepcellfmt firstrow(varlabels)	
+	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O12) keepcellfmt firstrow(variables)	nolabel
 		
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
 end

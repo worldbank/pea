@@ -27,7 +27,6 @@ help for {hi:pea table2}{right:January 2025}
 	{opt using(string)}
 	{opt Year(varname numeric)}
     {opt byind(varlist numeric)} 
-	{opt setting(string)} 
 	{opt LINESORTED} 
 	{opt excel(string)} 
     {opt save(string)} 
@@ -81,10 +80,6 @@ Default is 2017.
  {p 4 4 2}
 {opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value.
 
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
- 
 {p 4 4 2} 
 {opt LINESORTED}:
  ensures that poverty lines are processed in sorted order if specified.

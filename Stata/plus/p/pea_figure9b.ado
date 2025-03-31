@@ -218,9 +218,8 @@ program pea_figure9b, rclass
 	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum gini
-		local max = round(`r(max)',10)
-		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
-		local yrange "ylabel(0(10)`max')"
+		nicelabels `ymin' `r(max)', local(yla)
+		local yrange "ylabel(`yla')"
 	}
 	else {
 		local yrange "ylabel(`yrange')"
@@ -252,6 +251,16 @@ program pea_figure9b, rclass
 	// Data Preparation 
 	gen 	ln_gdp_pc = ln(gdppc)
 	format  gini %5.0f
+	//Axis label (log scale)
+	niceloglabels gdppc, local(xla) style(1)
+	local lnum = 1
+	foreach l of local xla {
+		local xl`lnum' log(`l') `l'
+		local lxlab = log(`l')
+		local xlab `xlab' `lxlab' "`l'"
+		local lnum = `lnum' + 1		
+	}
+	local xrange "xlabel(`xlab')"
 	
 	// Figure
 	if "`excel'"=="" {
@@ -270,7 +279,7 @@ program pea_figure9b, rclass
 	twoway `scatter_cmd'													///		
 		qfit 	gini ln_gdp_pc, lpattern(-) lcolor(gray) 					///
 		  legend(order(`legend')) 											///
-		  `yrange'															///
+		  `yrange' `xrange'													///
 		  ytitle("Gini index")			 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)										
@@ -282,15 +291,15 @@ program pea_figure9b, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 9b: Gini index and GDP per-capita"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and PIP."
-	putexcel A4 = "Note: The figure shows the Gini index across countries against GDP per-capita (in logs). Data is from the closest available survey within `within' years to `lasty'. Filled markers indicate a `w_note'-based welfare aggregate and hollow markers a `w_note_o'-based welfare aggregate. Benchmark countries are shown separately from the countries in the same region as `country'."
+	putexcel A4 = "Note: The figure shows the Gini index across countries against GDP per-capita (in logs). Data is from the closest available survey within `within' years to `lasty'. Filled markers indicate a `w_note'-based welfare aggregate and hollow markers a `w_note_o'-based welfare aggregate. Benchmark countries are shown separately from the countries in the same region as `country'. GDP per capita is expressed in constant 2015 PPP terms."
 	
 	putexcel O10 = "Data:"
-	putexcel O6	= "Code"
-	putexcel O7 = `"twoway `scatter_cmd' qfit gini ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Gini index") xtitle("LN(GDP per capita, PPP, US$)") name(ngraph`gr', replace) note("`notes'", size(small)) `yrange'"'
+	putexcel O6	= "Code:"
+	putexcel O7 = `"twoway `scatter_cmd' qfit gini ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Gini index") xtitle("LN(GDP per capita, PPP, US$)") name(ngraph`gr', replace) note("`notes'", size(small)) `yrange' `xrange'"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data
-	export excel country_code year gini ln_gdp_pc group using "`excelout2'" , sheet("Figure9b", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel country_code year gini ln_gdp_pc group using "`excelout2'" , sheet("Figure9b", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure9b.xlsx"	
 end

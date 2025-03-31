@@ -19,7 +19,6 @@ help for {hi:pea figure3b}{right:January 2025}
     [{opt Welfare(varname numeric)} 
     {opt Year(varname numeric)} 
     {opt comparability(varname numeric)} 
-    {opt setting(string)} 
 	{opt trim(string)}
     {opt excel(string)} 
     {opt save(string)} 
@@ -44,10 +43,6 @@ Specifies the numeric variable representing welfare (e.g., income or consumption
 Specifies the numeric variable indicating the year associated with each observation.
 
 {p 4 4 2}{opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
-
-{p 4 4 2}{opt setting(string)}:
-Defines additional settings for customizing the output. Currently, this option is not utilized 
-explicitly but reserved for future extensions.
 
 {p 4 4 2}{opt excel(string)}:
 Specifies the file path for exporting results to an Excel file. If not provided, a temporary Excel file 

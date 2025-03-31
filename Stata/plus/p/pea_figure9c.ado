@@ -125,13 +125,15 @@ program pea_figure9c, rclass
 	bys country_code (year): egen min_d = min(y_d)
 	keep if (y_d == min_d) & y_d < `within' & gini ~= .
 	bys country_code (year): keep if _n == _N 									// use latest year if there are two with equal distance
-	keep country_code year gini code welfaretype
+	keep country_code year gini code welfaretype country_name
 	// Insert PEA country manually, because survey could be newer than data in PIP
+	qui levelsof country_name if country_code == "`country'", local(peacountry) clean
 	drop if country_code == "`country'"
 	insobs 1
 	replace country_code = "`country'"		if country_code == ""
 	replace year  		 = `lasty' 			if country_code == "`country'"
 	replace code 		 = "`country'"		if country_code == "`country'"
+	replace country_name = "`peacountry'"	if country_code == "`country'"
 	replace welfaretype  = "`welfaretype'"	if country_code == "`country'"
 	
 	// Merge in PEA GINI
@@ -144,12 +146,16 @@ program pea_figure9c, rclass
 	// Figure colors
 	local groups = 2				
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
-	
 	// Keep PEA and benchmark countries
 	gen keep = 1 if country_code == "`country'"
 	foreach b of local benchmark {
 		replace keep = 1 if country_code == "`b'"
+		qui levelsof country_name if code == "`b'", local(bcountry) clean
+		qui sum year if code == "`b'"
+		if `r(N)' > 0 local note_c "`note_c', `b' = `bcountry' "
 	}
+	local note_c "`country' = `peacountry', `note_c'"
+	
 	keep if keep == 1
 	drop keep
 	
@@ -157,9 +163,8 @@ program pea_figure9c, rclass
 	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum gini
-		local max = round(`r(max)',10)
-		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
-		local yrange "ylabel(0(10)`max')"
+		nicelabels `ymin' `r(max)', local(yla)
+		local yrange "ylabel(`yla')"
 	}
 	else {
 		local yrange "ylabel(`yrange')"
@@ -219,15 +224,14 @@ program pea_figure9c, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 9c: Gini index across benchmark countries"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD and PIP."
-	putexcel A4 = "Note: The figure shows the Gini index across benchmark countries. Data is from the closest available survey within `within' years to `lasty'. Solid bars indicate a `w_note'-based welfare aggregate and dashed bars a `w_note_o'-based welfare aggregate."
-	
+	putexcel A4 = "Note: The figure shows the Gini index across benchmark countries. Data is from the closest available survey within `within' years to `lasty'. Solid bars indicate a `w_note'-based welfare aggregate and dashed bars a `w_note_o'-based welfare aggregate. `note_c'."
 	putexcel O10 = "Data:"
-	putexcel O6	= "Code"
+	putexcel O6	= "Code:"
 	putexcel O7 = `"graph bar gini, over(code, sort(gini)) `bars' ytitle("Gini index") asyvars showyvars legend(off)"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data
-	export excel country_code year using "`excelout2'" , sheet("Figure9c", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel country_code year gini using "`excelout2'" , sheet("Figure9c", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure9c.xlsx"	
 end

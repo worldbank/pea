@@ -87,12 +87,14 @@ program pea, rclass
 	else if ("`subcmd'"=="table13") {
 		pea_table13 `0'		
     }
-	else if ("`subcmd'"=="table14a") {
-		pea_table14a `0'		
+	else if ("`subcmd'"=="table14") {
+		pea_table14 `0'		
     }
+	/*
 	else if ("`subcmd'"=="table14b") {
 		pea_table14b `0'		
     }
+	*/
 	else if ("`subcmd'"=="table15") {
 		pea_table15 `0'		
     }

@@ -179,7 +179,7 @@ program pea_figure3b, rclass
 		}
 		la val var_order var_order
 		la val group_order group_order
-				
+		drop var var_lvl 		
 		tokenize "`spell'"
 		if "`1'"~="" & "`2'"~="" {
 			dis "Spell: `1'-`2'"		
@@ -199,12 +199,21 @@ program pea_figure3b, rclass
 				
 		//Axis range
 		if "`yrange'" == "" {
-			sum `vargic'
-			if `r(min)' < 0 local ymin = floor(`r(min)')
+			local m = 1
+			foreach var of local vargic {
+				sum `var'													// min/max can come from different variables
+				if (`m' == 1) local max = `r(max)'
+				if (`m' == 1) local min = `r(min)'
+				if (`r(max)' > `max') local max = `r(max)'
+				if (`r(min)' < `min') local min = `r(min)'
+				local m = `m' + 1
+			}
+			if `min' < 0 local ymin = floor(`min')
 			else local ymin = 0
-			if `r(max)' > 0 local ymax = ceil(`r(max)')
+			if `max' > 0 local ymax = ceil(`max')
 			else local ymax = 0
-			local yrange "ylabel(`ymin'(1)`ymax')"
+			nicelabels `ymin' `ymax', local(yla)
+			local yrange "ylabel(`yla')"
 		}
 		else {
 			local yrange "ylabel(`yrange')"
@@ -244,10 +253,10 @@ program pea_figure3b, rclass
 			tempfile graph`gr'
 			local lbltitle : label group_order `gr'	
 			
-			twoway `connected' , yline(0, lp(-) lc(black*0.6))											///
-					legend(order("`legend'") rows(1) size(medium) position(6)) 				    ///
-					xtitle(Percentile, size(medium)) `yrange'									///
-					ytitle("Annualized growth `varlbl' (%)", size(medium)) 						///
+			twoway `connected' , yline(0, lp(-) lc(black*0.6))					///
+					legend(order("`legend'") rows(1) position(6)) 	///
+					xtitle(Percentile) `yrange'									///
+					ytitle("Annualized growth `varlbl' (%)") 					///
 					name(ngraph`gr', replace)
 			
 			putexcel set "`excelout2'", modify sheet(Figure`fnum', replace)
@@ -261,14 +270,17 @@ program pea_figure3b, rclass
 			
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code:"
-			putexcel O7 = `"twoway `connected', yline(0, lp(-) lc(black*0.6)) legend(order("`legend'") rows(1) size(medium) position(6)) xtitle(Percentile, size(medium)) `yrange' ytitle("Annualized growth `varlbl' (%)", size(medium))"'
+			putexcel N11 = "Labels:"
+			putexcel N12 = "Variables:"
+			putexcel O7 = `"twoway `connected', yline(0, lp(-) lc(black*0.6)) legend(order("`legend'") rows(1) position(6)) xtitle(Percentile) `yrange' ytitle("Annualized growth `varlbl' (%)")"'
 			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 			putexcel save
 		cap graph close	
 	} //qui	
 	
 	// Export data
-	export excel * using "`excelout2'", sheet("Figure`fnum'", modify) cell(O11) keepcellfmt firstrow(variables)	
+	export excel * using "`excelout2'", sheet("Figure`fnum'", modify) cell(O11) keepcellfmt firstrow(varlabels)	
+	export excel * using "`excelout2'", sheet("Figure`fnum'", modify) cell(O12) keepcellfmt firstrow(variables)	nolabel
 		
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
 end

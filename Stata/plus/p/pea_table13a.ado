@@ -14,10 +14,10 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Table 13. Decomposition of poverty changes: Huppi-Ravallion decomposition				
+//Table 13a. Decomposition of poverty changes: Huppi-Ravallion decomposition (urban/rural)				
 
-cap program drop pea_table13
-program pea_table13, rclass
+cap program drop pea_table13a
+program pea_table13a, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) spells(string) Year(varname numeric) urban(varname numeric) CORE LINESORTED setting(string) NOOUTPUT excel(string) save(string) MISSING GRAPH PPPyear(integer 2017)]
 	
@@ -88,7 +88,7 @@ program pea_table13, rclass
 	
 		//missing observation check
 		marksample touse
-		local flist `"`wvar' `welfare' `by' `year'"'
+		local flist `"`wvar' `welfare' `urban' `year'"'
 		markout `touse' `flist' 
 		
 		if "`pppwelfare'"~="" { //reset to the floor
@@ -111,11 +111,6 @@ program pea_table13, rclass
 		}
 		keep if _keep==1 & `touse'
 		drop _keep
-		gen _all_ = 1 if `touse'
-		la var _all_ "All sample"
-		la def _all_ 1 "All sample"
-		la val _all_ _all_
-		local by "_all_ `by'"		
 		save `dataori', replace
 		
 		tokenize "`spells'", parse(";")	
@@ -228,13 +223,13 @@ program pea_table13, rclass
 			qui collect: table ( indicatorlbl subind) ( spell) if decomp=="Huppi-Ravallion", statistic(mean value) nototal nformat(%20.1f) missing
 			collect style header indicatorlbl subind spell, title(hide)
 			*collect style header value[.], level(hide)
-			collect title `"Table 13. Decomposition of poverty changes: Huppi-Ravallion decomposition"'
+			collect title `"Table 13a. Decomposition of poverty changes: Huppi-Ravallion decomposition (urban/rural)"'
 			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups, following Huppi and Ravallion (1991). The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
 			collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 			collect style cell subind[]#cell_type[row-header], warn font(, nobold)
 			_pea_tbtformat
-			_pea_tbt_export, filename(Table13) tbtname(Table13) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell				
+			_pea_tbt_export, filename(Table13a) tbtname(Table13a) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell				
 		}
 	} //qui
 end

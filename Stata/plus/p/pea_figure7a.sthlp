@@ -7,7 +7,7 @@ help for {hi:pea figure7a}{right:January 2025}
 {title:Title}
 
 {p 4 15}
-{bf:pea figure7a} — Welfare Figure with poverty line breakdowns.
+{bf:pea figure7a} — Share of poor and population by demographic groups
 
 {title:Syntax}
 
@@ -16,19 +16,16 @@ help for {hi:pea figure7a}{right:January 2025}
 	[{it:if}] 
 	[{it:in}] 
 	[{it:aw pw fw}]
-        [,{opt NATWelfare(varname numeric)}
-        {opt NATPovlines(varlist numeric)}  
-        {opt PPPWelfare(varname numeric)}  
-        {opt PPPPovlines(varlist numeric)}  
+        [,{opt ONELine(varlist numeric)}  
+        {opt ONEWelfare(varname numeric)}  
 		{opt PPPyear(integer)}
         {opt Year(varname numeric)}  
-        {opt LINESORTED}  
+        {opt missing}  
         {opt age(varname numeric)}  
         {opt male(varname numeric)}  
         {opt hhhead(varname numeric)} 
         {opt edu(varname numeric)} 
         {opt urban(varname numeric)}  
-        {opt setting(string)}  
         {opt scheme(string)}  
         {opt palette(string)}  
         {opt excel(string)}  
@@ -37,22 +34,15 @@ help for {hi:pea figure7a}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea figure7a} generates welfare visualizations with breakdowns for specified poverty thresholds, such as `pline365`, `pline215`. This program performs necessary data preparation,
-computes poverty statistics, and exports figures/poverty analysis results.
+{opt pea figure7a} generates visualizations of the share of the poor and of population in different groups, such as urban/rural, for a specified poverty threshold, such as `pline365`. This program performs necessary data preparation, computes poverty statistics, and exports figures/poverty analysis results.
 	
 {title:Options}
 
-{p 4 4 2}
-{opt NATWelfare(varname numeric)}: Specifies the variable name corresponding to national welfare.
+{p 4 4 2} 
+{opt ONEWelfare(varname numeric)}: Specifies the numeric variable representing welfare (e.g., income or consumption) for poverty analysis. 
 
-{p 4 4 2}
-{opt NATPovlines(varlist numeric)}: List of numeric poverty thresholds used for national poverty calculation.
-
-{p 4 4 2}
-{opt PPPWelfare(varname numeric)}: Specifies the variable name for purchasing power parity welfare measures.
-
-{p 4 4 2}
-{opt PPPPovlines(varlist numeric)}: List of numeric PPP poverty thresholds for PPP calculations.
+{p 4 4 2} 
+{opt ONELine(varname numeric)}: Specifies the numeric variable representing the poverty line used for comparison in the analysis.
 
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
@@ -60,6 +50,9 @@ Default is 2017.
 
 {p 4 4 2}
 {opt Year(varname numeric)}: Name of the variable indicating the year in your dataset.
+
+{p 4 4 2}
+{opt missing}: When specified, missing values will be added as a separate group for each categories, and will be included in the total of the poor.
 
 {p 4 4 2}
 {opt age(varname numeric)}: Variable that defines age groups for subgroup analysis.
@@ -77,10 +70,6 @@ Default is 2017.
 {opt urban(varname numeric)}: Urban/Rural classification variable for subgroup analysis.
 
 {p 4 4 2}
-{opt SETting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
-
-{p 4 4 2}
 {opt scheme(string)}: Graph/plotting scheme (not implemented in full).
 
 {p 4 4 2}
@@ -95,4 +84,4 @@ Default is 2017.
 {title:Examples}
 
 {p 4 4 2}
-{bf: pea figure7a} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline685) year(year) age(age) male(male) edu(educat4) urban(urban)
+{bf: pea figure7a} [aw=weight_p], onewelfare(welfare) oneline(natline) year(year) age(age) male(male) edu(educat4) urban(urban)

@@ -14,10 +14,10 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Table 14a
+//Table 4a and b: Demographic and labor market profiles
 
-cap program drop pea_table14a
-program pea_table14a, rclass
+cap program drop pea_table4
+program pea_table4, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) MISSING PPPyear(integer 2017)]
 	
@@ -28,7 +28,7 @@ program pea_table14a, rclass
 	_pea_export_path, excel("`excel'")
 	
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `hhhead' `edu' `industrycat4' `empstat' {
+		foreach var of varlist `male' `hhhead' `edu' `lstatus' `industrycat4' `empstat' {
 			su `var'
 			local miss = r(max)
 			replace `var' = `=`miss'+10' if `var'==.
@@ -37,12 +37,11 @@ program pea_table14a, rclass
 		}
 	}
 	
-	qui {
+	  {
 		//order the lines
 		local lbl`povlines' : variable label `povlines'		
-		su `povlines',d
-		if `=r(sd)'==0 local lblline: var label `povlines'		
-		
+		local lblline: var label `povlines'		
+
 		//Weights
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
@@ -112,7 +111,7 @@ program pea_table14a, rclass
 			gen dep_ratio = (depnum/age15t64sum)*100
 			gen age6t18_sh = (age6t18sum/_hhx)*100
 			gen age65p_sh = (age65psum/_hhx)*100
-			la var dep_ratio "Household dependency ratio"
+			la var dep_ratio "Household dependency ratio (average)"
 			la var age6t18_sh "Share of children (age 6-18) in household (%)"
 			la var age65p_sh "Share of elderly (age 65+) in household (%)"
 			local agevars dep_ratio age6t18_sh age65p_sh
@@ -134,7 +133,7 @@ program pea_table14a, rclass
 			
 			if "`hhhead'"~="" {
 				gen age_head = `age' if `hhhead'==1
-				la var age_head "Age of household head"
+				la var age_head "Age of household head (average)"
 				local headvars age_head
 				local age_head age_head
 			}
@@ -198,12 +197,19 @@ program pea_table14a, rclass
 		}
 		
 		if "`lstatus'"~="" {
-			gen doesnotwork_head = 100*(`lstatus'==1) if `hhhead'==1 & `lstatus'~=.
-			la var doesnotwork_head "Does not work (unemployed or out of labor force)"
-			local headvars "`headvars' doesnotwork_head"
-			local doesnotwork_head doesnotwork_head
+			local work_head
+			clonevar work_head = `lstatus'
+			replace work_head = . if `hhhead'~=1 		
+			levelsof work_head, local(worklvl)
+			local label1 : value label work_head	
+			foreach lvl of local worklvl {
+				gen work_head`lvl' = 100*(work_head==`lvl') if work_head~=.
+				local labelname1 : label `label1' `lvl'				
+				la var work_head`lvl' "`labelname1'"
+				local headvars "`headvars' work_head`lvl'"
+				local work_head "`work_head' work_head`lvl'"
+			}
 		}
-		
 		if "`empstat'"~="" {
 			local empstat_head
 			clonevar empstat_head = `empstat'
@@ -229,12 +235,12 @@ program pea_table14a, rclass
 	for var `urban' `services' `assets': replace X = 100 if X==1
 	
 	local demographics `urban' `age_head' `female_head' `married_head' `edu_head' `age6t18_sch_ratio' `hhsize' `age6t18_sh' `age65p_sh' `dep_ratio'
-	local headactivity `doesnotwork_head' `empstat_head'
+	local headactivity `work_head' `empstat_head'
 
 	//bys `year' `hhid' (`pid'): egen double hhwgt = total(`wvar')
 	//household can have more than one head, that is data problem, we dont fix this.
 	//the indicators are defined at the household level, thus using weight.
-	tempfile data1 data2 data3 datalbl
+	tempfile data1 data2 data3 data4 datalbl
 	save `data1', replace
 	des, clear replace
 	save `datalbl', replace
@@ -281,53 +287,81 @@ program pea_table14a, rclass
 	foreach var of local assets {
 		replace group1 = 3 if name=="`var'"
 	}
-	foreach var of local headactivity {
-		replace group1 = 4 if name=="`var'"
-	}
-	foreach var of local industry_head {
-		replace group1 = 5 if name=="`var'"		
-	}
-
-	la def group1 1 "Demographics" 2 "Access to services (%)" 3 "Asset ownership (%)" 4 "Employment status of household head (%)" 5 "Economic sector of household head (%)"
-	la val group1 group1
-	
 	gen group2 = .
-	foreach var of local edu_head {
+	foreach var of local work_head {
 		replace group2 = 1 if name=="`var'"
 	}
-	la def group2 1 "Household head's highest level of education" 
+	foreach var of local empstat_head {
+		replace group2 = 2 if name=="`var'"
+	}
+	foreach var of local industry_head {
+		replace group2 = 3 if name=="`var'"		
+	}
+
+	la def group1 1 "Demographics" 2 "Access to services (%)" 3 "Asset ownership (%)" 
+	la val group1 group1
+	la def group2 1 "Labor force status of household head (%)" 2 "Employment status of household head (%)" 3 "Economic sector of household head (%)"
 	la val group2 group2
-	
+
 	foreach var of local edu_head {
 		replace varlab = "Household head's highest level of education: " + varlab if name=="`var'"
 	}
 	
 	local i = 1
 	gen order = .
-	foreach var in `demographics' `services' `assets' `headactivity' `industry_head' {
+	foreach var in `demographics' `services' `assets' `work_head' `empstat_head' `industry_head' {
 		replace order = `i' if name=="`var'"
 		local i = `i' + 1
 	}
+	save `data4', replace
+	
+	// 4a/A4a
+	keep if group1 ~= .
 	if "`core'"=="" {
-		local tabtitle "Table 14a. Profiles of the poor"
-		local tbt Table14a
+		local tabtitle "Table 4a. Demographic profiles of the poor"
+		local tbt Table4
+		local sht Table4a
 	}
 	else {
-		local tabtitle "Table A.4a. Poverty profiles"	
-		local tbt TableA4a
+		local tabtitle "Table A.4a. Demographic profiles of the poor"	
+		local tbt TableA4
+		local sht TableA4a
 	}
 	collect clear
-	qui collect: table (group1 order   varlab) (`year' _bygroup2), statistic(mean value) nototal nformat(%20.1f) missing	
-	collect style header group1 order   varlab `year' _bygroup2, title(hide)
+	qui collect: table (group1 order varlab) (`year' _bygroup2), statistic(mean value) nototal nformat(%20.1f) missing	
+	collect style header group1 order varlab `year' _bygroup2, title(hide)
 	collect title `"`tabtitle'"'
-	*collect style header group2[.], level(hide)
 	collect style header order, level(hide)
-	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
-	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Household dependency ratio is the ratio of children (0-14) and elderly (65+) over working-age population (15-64). Improved drinking water sources include piped water on premises (piped household water connection located inside the user"s dwelling, plot or yard), and other improved drinking water sources (public taps or standpipes, tube wells or boreholes, protected dug wells, protected springs, and rainwater collection) (WHO/UNICEF Joint Monitoring Programme). Improved sanitation facilities are sanitation facilities likely to ensure hygienic separation of human excreta from human contact, including flush/pour flush (to piped sewer system, septic tank, pit latrine), ventilated improved pit latrine, pit latrine with slab, and composting toilet (WHO/UNICEF Joint Monitoring Programme)."' 
-	
 	collect style cell group1[]#cell_type[row-header], font(, bold)
 	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
+	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Age, marital status, sex and eduation refer to household heads only. Household dependency ratio is the ratio of children (0-14) and elderly (65+) over working-age population (15-64). Education level refers to the highest level attended, complete or incomplete. Improved drinking water sources include piped water on premises, and other improved drinking water sources (public taps or standpipes, tube wells or boreholes, protected dug wells, protected springs, and rainwater collection) (WHO/UNICEF Joint Monitoring Programme). Improved sanitation facilities are sanitation facilities likely to ensure hygienic separation of human excreta from human contact, including flush/pour flush (to piped sewer system, septic tank, pit latrine), ventilated improved pit latrine, pit latrine with slab, and composting toilet (WHO/UNICEF Joint Monitoring Programme)."' 
 	_pea_tbtformat
-	_pea_tbt_export, filename(`tbt') tbtname(`tbt') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
+	_pea_tbt_export, filename(`tbt') tbtname(`sht') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")
+	
+	// 4b/A4b
+	use `data4', clear
+	keep if group2 ~= .
+
+	if "`core'"=="" {
+		local tabtitle "Table 4b. Labor market profiles of the poor"
+		local sht Table4b
+	}
+	else {
+		local tabtitle "Table A.4b. Labor market profiles of the poor"	
+		local sht TableA4b
+	}
+	collect clear
+	qui collect: table (group2 order varlab) (`year' _bygroup2), statistic(mean value) nototal nformat(%20.1f) missing	
+	collect style header group2 order varlab `year' _bygroup2, title(hide)
+	collect title `"`tabtitle'"'
+	collect style header order, level(hide)
+	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
+	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations, among household heads only. The poor are defined using `lblline'."' 
+	
+	collect style cell group2[]#cell_type[row-header], font(, bold)
+	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)
+	_pea_tbtformat
+	_pea_tbt_export, filename(`tbt') tbtname(`sht') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") modify shell
 	
 end

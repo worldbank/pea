@@ -26,7 +26,6 @@ help for {hi:pea}{right:January 2025}
     {opt FGTVARS}
 	{opt using(string)} 
     {opt Year(varname numeric)} 
-	{opt setting(string)} 
     {opt LINESORTED} 
 	{opt excel(string)} 
 	{opt save(string)} 
@@ -42,9 +41,8 @@ help for {hi:pea}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}  
-{opt pea table3} generates a detailed table that provides poverty and welfare statistics based on both 
-    national and international poverty lines, as well as specified welfare measures. It also enables subgroup analysis 
-    by age, gender, household head status, and education level. 
+{opt pea table3} generates three detailed tables that provides poverty statistics based on both 
+    national and international poverty lines, as well as specified welfare measures. Table 3a presents poverty rates by sex and age-group, Table 3b by education, and Table 3c by age, gender, and education level of the household head. 
 
 {title:Options}
 
@@ -83,11 +81,7 @@ Default is 2017.
 {p 4 4 2}
 {opt Year(varname numeric)}:
  is the variable indicating the year for each observation.
-    
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
-
+  
 {p 4 4 2} 
 {opt LINESORTED}:
  indicates that the poverty lines are already sorted and skips internal sorting for efficiency.
@@ -122,17 +116,6 @@ Default is 2017.
 
  {p 4 4 2}
 {opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value.
-
-{title:Remarks}
-
-{p 4 4 2}
-The {opt  pea table3} command performs poverty and welfare analysis based on a range of national and 
-    international measures. It includes subgroup analysis by variables such as age, gender, education, and household head status. 
-    The output table includes poverty headcount, poverty gap, poverty severity, welfare means, and inequality indices such as 
-    the Gini index. It can be used to generate summary statistics and break down welfare measures by specific subgroups. 
-    If the MPM option is used, it calculates the multidimensional poverty measure based on the World Bank’s framework.
-
-    {pstd} Missing data in the core demographic variables can be handled and cleaned using the `MISSING` option to ensure accurate results.
 
 {title:Examples}
   

@@ -183,7 +183,7 @@ program pea_table6, rclass
 		
 		collect title `"Table 6b. Multidimensional poverty: Multidimensional poverty components (%) (World Bank)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
-		collect notes 2: `"Note: The table shows deprivation rates of the six components of the World Bank Multidimensional Poverty Measure (MPM) with `pppyear' PPP. See Table 6a for weights of each component."'
+		collect notes 2: `"Note: The table shows deprivation rates of the six components of the World Bank Multidimensional Poverty Measure (MPM) with `pppyear' PPP. See Table 6a for weights of each component. Limited-standard drinking water refers to water from an improved source within collection time of 30 minutes for a roundtrip including queuing. Limited-standard sanitation refers to the use of improved facilities which are not shared with other households (WHO/UNICEF Joint Monitoring Programme)."'
 		_pea_tbtformat		
 		_pea_tbt_export, filename(Table6) tbtname(Table6b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	shell
 end
