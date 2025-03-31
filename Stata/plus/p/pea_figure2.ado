@@ -160,6 +160,7 @@ program pea_figure2, rclass
 	gen   group = `groupcount' if country_code == "`country'"
 	qui sum count if country_code == "`country'"
 	local cname `=country_name[r(min)]'
+	local cname_l `=country_name[r(min)]'
 	local legend `"`legend' `leg_elem' "`cname'""'														// PEA country last and so on, so that PEA marker is on top
 	local grcolor`groupcount': word `groupcount' of ${colorpalette}										// Palette defined in pea_figure_setup
 	gen   mlabel = "{bf:" + country_code + "}" if country_code == "`country'"
@@ -207,17 +208,25 @@ program pea_figure2, rclass
 	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum headcount`povline_100'
-		local max = round(`r(max)',10)
-		if `max' < `r(max)' local max = `max' + 10								// round up to nearest 10
-		local yrange "ylabel(0(10)`max')"
+		nicelabels `ymin' `r(max)', local(yla)
+		local yrange "ylabel(`yla')"
 	}
 	else {
 		local yrange "ylabel(`yrange')"
-	}
-	
+	}	
 	// Data Preparation 
 	gen ln_gdp_pc = ln(gdppc)
 	format headcount`povline_100' %5.0f
+	//Axis label (log scale)
+	niceloglabels gdppc, local(xla) style(1)
+	local lnum = 1
+	foreach l of local xla {
+		local xl`lnum' log(`l') `l'
+		local lxlab = log(`l')
+		local xlab `xlab' `lxlab' "`l'"
+		local lnum = `lnum' + 1		
+	}
+	local xrange "xlabel(`xlab')"
 	
 	// Figure
 	if "`excel'"=="" {
@@ -237,7 +246,7 @@ program pea_figure2, rclass
 	twoway `scatter_cmd'													///		
 		qfit 	headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) 	///
 		 legend(order(`legend')) 											///
-		  `yrange'															///
+		  `yrange' `xrange'													///
 		  ytitle("Poverty rate (percent)") 									///
 		  xtitle("LN(GDP per capita, PPP, US$)")							///
 		  name(ngraph`gr', replace)		
@@ -249,18 +258,18 @@ program pea_figure2, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 2: Poverty rates and GDP per-capita"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: The figure shows poverty rates using `lblline' against GDP per-capita (in logs). Data is for year `lasty' and lined-up estimates are used for the non-PEA countries. Benchmark countries are shown separately from the countries in the same region as `country'. Dashed line is a fitted quadratic line."
+	putexcel A4 = "Note: The figure shows poverty rates using `lblline' against GDP per-capita (in logs). Data for `cname_l' is for `lasty' and lined-up estimates for `lasty' are used for other countries. Benchmark countries are shown separately from the countries in the same region as `country'. Dashed line is a fitted quadratic line. GDP per capita is expressed in constant 2015 PPP terms."
 	
 	putexcel O10 = "Data:"
-	putexcel O6	= "Code"
-	putexcel O7 = `"twoway `scatter_cmd' qfit headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Poverty rate (percent)") xtitle("LN(GDP per capita, PPP, US$)") `yrange'"'
+	putexcel O6	= "Code:"
+	putexcel O7 = `"twoway `scatter_cmd' qfit headcount`povline_100' ln_gdp_pc, lpattern(-) lcolor(gray) legend(order(`legend')) ytitle("Poverty rate (percent)") xtitle("LN(GDP per capita, PPP, US$)") `yrange' `xrange'"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 	putexcel save							
 	cap graph close	
 
 	// Export data
 	cap drop _merge
-	export excel * using "`excelout2'", sheet("Figure2", modify) cell(O11) keepcellfmt firstrow(variables)	
+	export excel * using "`excelout2'", sheet("Figure2", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure2.xlsx"	
 	

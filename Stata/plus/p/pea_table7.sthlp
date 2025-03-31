@@ -21,7 +21,6 @@ help for {hi:pea table7}{right:January 2025}
 {opt Povlines(varname numeric numeric)}
 {opt PPPyear(integer)}
 {opt Year(varname numeric numeric)} 
-{opt setting(string)}
 {opt excel(string)}
 {opt save(string)}
 {opt MISSING}]{p_end}
@@ -60,10 +59,6 @@ Default is 2017.
 {p 4 4 2} 
 {opt Year(varname numeric numeric)}:
  specifies the year variable for the analysis.
- 
-{p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
 
 {p 4 4 2}
 {opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
@@ -80,8 +75,6 @@ Default is vulnerability(1.5).
 {p 4 4 2} 
 {opt MISSING}:
  enables the handling of missing data, allowing for custom handling of categorical variables.
-
-Additional options if setting(GMD) is not specified:
 
 {p 4 4 2}
 {opt age(varname numeric)}: specifies the age variable for the analysis.

@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea figure5}{right:January 2025}
+help for {hi:pea figure5a}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea figure5} — Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion.
+{bf:pea figure5a} — Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion (rural/urban)	
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea figure5} 
+{opt pea figure5a} 
 	[{it:if}]
 	[{it:in}] 
 	[{it:aw pw fw}], 
@@ -24,7 +24,6 @@ help for {hi:pea figure5}{right:January 2025}
 	{opt urban(varname numeric)}
 	{opt LINESORTED(string)}
 	{opt comparability(varname numeric)}
-	{opt setting(string)} 
     {opt save(string)}
     {opt excel(string)}
 	{opt scheme(string)}
@@ -34,9 +33,9 @@ help for {hi:pea figure5}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea figure5} performs poverty decomposition over time using the Huppi-Ravallion method. 
+{opt pea figure5a} performs poverty decomposition over time using the Huppi-Ravallion method. 
 The program generates visualizations and numerical results showing the contribution of changes in income or welfare across different 
-time periods or population groups. The results can help analysts and policymakers identify the drivers behind changes in poverty.
+time periods and urban and rural areas. The results can help analysts and policymakers identify the drivers behind changes in poverty.
 
 {title:Options}
 
@@ -67,9 +66,6 @@ Allows users to sort lines based on a specific setting for better visualization 
 {opt comparability(varname numeric)}: Recommended: This variable denotes which survey rounds are comparable over time. 
 Non-comparable survey rounds are not connected in figures. Example:	comparability(comparability).
 
-{p 4 4 2}
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
-
 {p 4 4 2} 
 {opt save(string)} Specifies the file path for saving the processed data or results from the decomposition analysis. 
 
@@ -87,4 +83,4 @@ Specifies a custom color palette for use in visualizations.
 {title:Examples}
 
 {p 4 4 2} 
-{bf: pea figure5} [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) urban(urban)
+{bf: pea figure5a} [aw=weight_p], year(year) onew(welfare) onel(natline) palette(viridis) spells(2018 2021) urban(urban)

@@ -176,7 +176,7 @@ program pea_figure13, rclass
 	//Figure
 
 	twoway 	`pcspike' `rarea' , ///		
-			ytitle("Percentage of population") /// 
+			ytitle("Share of population (%)") /// 
 			ylab(`yaxis', axis(2) angle(-45)) /// 
 			yscale(range(0 100) axis(1)) /// 
 			yscale(range(0 100) axis(2)) /// 
@@ -209,12 +209,12 @@ program pea_figure13, rclass
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code"
-	putexcel O7 = `"twoway 	`pcspike' `rarea', ytitle("Percentage of population") ylab(`yaxis', axis(2) angle(-45)) yscale(range(0 100) axis(1)) yscale(range(0 100) axis(2)) ytitle("", axis(2)) xlabel(`yearval', valuelabel) xtitle("") plotregion(margin(zero)) aspect(1) legend(off)"'
+	putexcel O7 = `"twoway 	`pcspike' `rarea', ytitle("Share of population (%)") ylab(`yaxis', axis(2) angle(-45)) yscale(range(0 100) axis(1)) yscale(range(0 100) axis(2)) ytitle("", axis(2)) xlabel(`yearval', valuelabel) xtitle("") plotregion(margin(zero)) aspect(1) legend(off)"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	
 	//Export data
-	export excel year decile* using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables)	
+	export excel year decile* using "`excelout2'", sheet("`figname'", modify) cell(O11) keepcellfmt firstrow(variables)	nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
 end

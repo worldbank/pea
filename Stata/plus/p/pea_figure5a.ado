@@ -14,10 +14,10 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Figure 5. Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion 			
+//Figure 5a. Decomposition of poverty changes: growth and redistribution: Huppi-Ravallion (rural/urban)			
 
-cap program drop pea_figure5
-program pea_figure5, rclass
+cap program drop pea_figure5a
+program pea_figure5a, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) urban(varname numeric) CORE LINESORTED comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string) PPPyear(integer 2017)]
 
@@ -51,9 +51,7 @@ program pea_figure5, rclass
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
 	qui {	
-		foreach var of varlist `oneline' {
-			local lbl`var' : variable label `var'
-		}
+		local lblline : variable label `oneline'
 		
 		// Figure colors
 		local groups = 5																					// number of bars
@@ -74,7 +72,7 @@ program pea_figure5, rclass
 	
 		//missing observation check
 		marksample touse
-		local flist `"`wvar' `onewelfare' `by' `year'"'
+		local flist `"`wvar' `onewelfare' `urban' `year'"'
 		markout `touse' `flist' 
 		
 		tempfile dataori datalbl
@@ -91,12 +89,7 @@ program pea_figure5, rclass
 			replace _keep=1 if `year'==`yr' & `touse'
 		}
 		keep if _keep==1 & `touse'
-		drop _keep
-		gen _all_ = 1 if `touse'
-		la var _all_ "All sample"
-		la def _all_ 1 "All sample"
-		la val _all_ _all_
-		local by "_all_ `by'"		
+		drop _keep	
 		save `dataori', replace
 		
 		// Prepare spells
@@ -177,14 +170,8 @@ program pea_figure5, rclass
 		la def subind 1 "Total change in p.p." `rlbl' 4 "Population shift" 5 "Interaction"		
 		la val subind subind
 		replace value = . if value==-9999
-		gen indicatorlbl = .
-		local i = 1
-		
-		foreach var of local oneline {
-			replace indicatorlbl = `i' if povline=="`var'"
-			la def indicatorlbl `i' "`lbl`var''", add
-			local i = `i' + 1
-		}
+		replace povline = "`lblline'"
+
 		// Spells
 		encode spell, gen(spell_n)
 		qui levelsof spell_n, local(spells)
@@ -196,8 +183,7 @@ program pea_figure5, rclass
 		replace num = . if subind == 1
 		gen value_add = value  if subind != 1
 		foreach y of local spells {
-			bys decomp spell_n value_negative (num) : replace value_add = value_add + value_add[_n-1] if value_negative == 0 & num != . & num > 1 & spell_n == `y'			
-			bys decomp spell_n value_negative (num) : replace value_add = value_add - value_add[_n-1] if value_negative == 1 & num != . & num > 1 & spell_n == `y'				
+			bys decomp spell_n value_negative (num) : replace value_add = value_add + value_add[_n-1] if num != . & num > 1 & spell_n == `y'			
 		}
 		drop subind_cat value_negative num spell
 		local x = 4										
@@ -208,12 +194,20 @@ program pea_figure5, rclass
 
 		// Reshape for stacked bars
 		compress decomp
+		qui levelsof subind, local(sind)
+		foreach s of local sind {
+			local subind`s' : label subind `s'
+		}
 		reshape wide value value_add, i(decomp spell_n) j(subind)
+		foreach s of local sind {
+			label var value`s' "`subind`s''"
+			label var value_add`s' "Stacked bars: `subind`s''"
+		}
 		order decomp spell_n value? value_add?
 		gen zero = 0	// zero needed so twoway bar starts at 0..
 		
 		// Figure
-		local figname Figure5
+		local figname Figure5a
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
 			local act replace
@@ -230,35 +224,37 @@ program pea_figure5, rclass
 		
 		//Huppi-Ravallion
 		tempfile graph1
-		local note : label indicatorlbl 1	
 
 		twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion",			/// 
 				color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) ||						///
 				scatter value1 spell_n if decomp=="Huppi-Ravallion", 											///
 				msym(D) msize(2.5) mcolor("${col1}") mlcolor(black)		||										///
 				bar zero spell_n, yline(0) xlabel("`spells'", valuelabel) xtitle("")							///
-				legend(rows(1) size(medium) position(6)															///
+				legend(rows(1) position(6)																		///
 				order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change"))							///
-				ytitle("Total change in poverty" "(percentage points)", size(medium)) 							///
+				ytitle("Total change in poverty" "(percentage points)") 										///
 				name(gr_decomp, replace)
 									
-		putexcel set "`excelout2'", modify sheet("Figure5", replace)
+		putexcel set "`excelout2'", modify sheet("Figure5a", replace)
 		graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
 		putexcel A`u' = image("`graph1'")
 		
 		putexcel A1 = ""
-		putexcel A2 = "Figure 5: Huppi-Ravallion decomposition"
+		putexcel A2 = "Figure 5a: Huppi-Ravallion decomposition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-		putexcel A4 = "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups. The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements using `note'. The decomposition follows Huppi and Ravallion (1991)."
+		putexcel A4 = "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups. The intra-sectoral component displays how the incidence of poverty in rural and urban areas has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements using `lblline'. The decomposition follows Huppi and Ravallion (1991)."
 		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code"
-		putexcel O7 = `"twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion", color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) || scatter value1 spell_n if decomp=="Huppi-Ravallion", msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) legend(rows(1) size(medium) position(6) order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change")) ytitle("Total change in poverty" "(percentage points)", size(medium))"'
+		putexcel N11 = "Labels:"
+		putexcel N12 = "Variables:"
+		putexcel O7 = `"twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion", color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) || scatter value1 spell_n if decomp=="Huppi-Ravallion", msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) legend(rows(1) position(6) order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change")) ytitle("Total change in poverty" "(percentage points)")"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		putexcel save
 		cap graph close	
 	} //qui
 	//Export data
-	export excel * using "`excelout2'" if decomp=="Huppi-Ravallion", sheet("Figure5", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel * using "`excelout2'" if decomp=="Huppi-Ravallion", sheet("Figure5a", modify) cell(O11) keepcellfmt firstrow(varlabels)
+	export excel * using "`excelout2'" if decomp=="Huppi-Ravallion", sheet("Figure5a", modify) cell(O12) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"
 end

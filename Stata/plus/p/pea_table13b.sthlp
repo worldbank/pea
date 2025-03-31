@@ -1,18 +1,18 @@
 {smcl}
 {* 10Nov2024}{...}
 {hline}
-help for {hi:pea table13}{right:January 2025}
+help for {hi:pea table13b}{right:January 2025}
 {hline}
 
 {title:Title}
 
 {p 4 15}
-{bf:pea table13} — Decomposition of poverty changes: Huppi-Ravallion decomposition
+{bf:pea table13b} — Decomposition of poverty changes: Huppi-Ravallion decomposition (sectoral)
 
 {title:Syntax}
 
 {p 4 15}
-{opt pea table13} 
+{opt pea table13b} 
 [{opt if} {it:exp}] 
 [{opt in} {it:exp}] 
 [{opt ,}
@@ -21,10 +21,12 @@ help for {hi:pea table13}{right:January 2025}
 {opt PPPWelfare(varname numeric)} 
 {opt PPPPovlines(varlist numeric)} 
 {opt PPPyear(integer)}
+{opt industrycat4(varname numeric)}
+{opt hhhead(varname numeric)}
+{opt hhid(string)}
 {opt spells(string)} 
 {opt Year(varname numeric)} 
 {opt LINESORTED} 
-{opt setting(string)} 
 {opt NOOUTPUT} 
 {opt excel(string)} 
 {opt save(string)} 
@@ -34,8 +36,7 @@ help for {hi:pea table13}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea table13} calculates and generates tables for the decomposition of poverty changes based on income and non-income factors. 
-Poverty changes are disaggregated into urban, rural and population shift components, as well as their interactions.
+{opt pea table13b} calculates and generates tables for the decomposition of poverty changes based on income and non-income factors. Poverty changes are disaggregated into agricultural and non-agricultural sectors, and population shift components, as well as their interactions.  All individuals are assigned the sector of their household head.
 
 {title:Options}
 
@@ -67,10 +68,18 @@ Default is 2017.
 {opt Year(varname numeric)}:
  specifies the variable representing the year for the analysis.
 
+{p 4 4 2}
+{opt industrycat4(varname numeric)}: Specifies the industry category variable. The command assumes that the value 1 of the variable corresponds to the Agriculture sector. Ensure that this is the case.
+
 {p 4 4 2} 
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
- 
+{opt hhhead(varname numeric)}:
+ specifies the variable indicating household head status (typically 1 for head, 0 for non-head).
+
+{p 4 4 2} 
+{opt hhid(string)}:
+ specifies the variable indicating the household id. 
+ This is needed to assign the household head sector to other household members.
+
 {p 4 4 2}
 {opt LINESORTED}:
  orders the poverty lines before decomposition.
@@ -98,4 +107,4 @@ Default is 2017.
 {title:Example}
 
 {p 4 4 2}
-{bf:pea table13} [aw=weight_p], natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) urban(urban)
+{bf:pea table13b} [aw=weight_p], natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) spells(2015 2016; 2016 2017;2018 2025;2017 2025) year(year) industrycat4(industrycat4) hhhead(head) hhid(hhid)

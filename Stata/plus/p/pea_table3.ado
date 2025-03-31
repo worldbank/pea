@@ -40,7 +40,9 @@ program pea_table3, rclass
 	if "`minobs'"~="" { 
 		local note_minobs "Cells with less than `minobs' observations are dropped."
 	}
-	
+	if "`missing'"~="" {
+		local note_miss "Missing indicates the poverty rates of those with missing values for education for each poverty line."
+	}
 	qui {
 		//order the lines
 		if "`linesorted'"=="" {
@@ -103,7 +105,7 @@ program pea_table3, rclass
 		su `age',d
 		if r(N)>0 {
 			gen agecatind = 1 if `age'>=0 & `age'<=14
-			replace agecatind = 2 if `age'>=15 & `age'<=29
+			replace agecatind = 2 if `age'>=15 & `age'<=64
 			replace agecatind = 3 if `age'>=65 & `age'<=.
 			qui sum agecatind
 			local agemax = `r(max)'
@@ -120,7 +122,7 @@ program pea_table3, rclass
 				clonevar _eduXhh = `edu' if `hhhead'==1 & `age'>=18 & `age'~=.
 				clonevar _maleXhh = `male' if `hhhead'==1 & `age'>=18 & `age'~=.
 				la var _eduXhh "By education of household head"
-				la var _maleXhh "By gender of household head"
+				la var _maleXhh "By sex of household head"
 			} //head		
 		} //rn
 	} //age
@@ -215,7 +217,7 @@ program pea_table3, rclass
 		collect clear
 		qui collect: table (indicatorlbl agecatind) (_group) if `year'==`ymax', stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header indicatorlbl agecatind _group `year', title(hide)		
-		collect title `"Table 3a. Subgroup poverty rates by gender and age-group (`ymax', %)"'
+		collect title `"Table 3a. Subgroup poverty rates by sex and age-group (`ymax', %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
 		collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
 		
@@ -265,7 +267,7 @@ program pea_table3, rclass
 		
 		collect title `"Table 3b. Subgroup poverty rates by education (age 16+, %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for individuals, age 16 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_minobs'"'
+		collect notes 2: `"Note: Poverty rates reported for individuals, age 16 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_miss' `note_minobs'"'
 		
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 		collect style cell _eduXind[]#cell_type[row-header], warn font(, nobold)
@@ -350,7 +352,7 @@ program pea_table3, rclass
 		
 		collect title `"Table 3c. Subgroup poverty rates of household head (%)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for household heads 18 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `note_minobs'"'
+		collect notes 2: `"Note: Poverty rates reported for household heads 18 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_miss' `note_minobs'"'
 		
 		collect style cell group[]#cell_type[row-header], font(, bold)
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)

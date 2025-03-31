@@ -254,6 +254,11 @@ program pea_table10, rclass
 	ren incgroup_historical name	
 	replace code = "Incgroup"
 	keep code name year headcount* pg gdppc
+	replace name = "Low-income" 			if name == "Low income"
+	replace name = "Lower-middle-income" 	if name == "Lower middle income"
+	replace name = "Upper-middle-income" 	if name == "Lower middle income"
+	replace name = "High-income"			if name == "High income"
+	
 	save `povincgr', replace
 	
 	//Bring all back
@@ -273,14 +278,19 @@ program pea_table10, rclass
 	ren var_survey_acronym survey_acronym
 	ren var_welfaretype welfaretype
 	*replace var_name = "Country of analysis" if code=="`country'"
-	gen name = var_name + " (" + string(var_year) +")"
+	rename var_name name 
 	
 	foreach cc of local benchmark {
 		qui levelsof welfaretype if code == "`cc'", local(welf`cc') clean
-		local note_w "`note_w' `cc': `welf`cc'' "
+		qui levelsof var_year if code == "`cc'", local(year`cc') clean
+		qui sum var_year if code == "`cc'"
+		if `r(N)' > 0 local note_w "`note_w', `cc' (`year`cc''): `welf`cc'' "
 	}
+
+	if "`latest'"=="" local note_y "Table shows data from the latest available year to `ymax' for each country."
+	else if "`within3'"=="" local note_y "Table shows data from the latest available year within 3 years of `ymax' for each country."
 	
-	drop var_year var_name
+	drop var_year
 	reshape long var_, i(code name survey_acronym) j(var) string
 	ren var_ value
 	
@@ -289,7 +299,7 @@ program pea_table10, rclass
 	
 	gen indicatorlbl = .
 	replace indicatorlbl = 1 if var=="gdppc"
-	la def indicatorlbl 1 "GDP per capita" 5 "Gini" 6 "Prosperity Gap"	
+	la def indicatorlbl 1 "GDP per capita (2015 PPP)" 5 "Gini" 6 "Prosperity Gap"	
 	local m = 2
 	foreach vl of local vlineval {
 		replace group = 1 if var=="headcount`vl'"
@@ -331,7 +341,7 @@ program pea_table10, rclass
 	*collect style cell, result halign(center)
 	collect title `"`tbltxt'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed from the GMD, PIP and the World Development Indicators."'
-	collect notes 2: `"Note: Poverty rates reported for the `vlinetxt' per person per day poverty lines are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Prosperity Gap captures how far a society is from $${prosgline_} per person per day (expressed in `pppyear' purchasing power parity dollars), which is close to the average per capita household income when countries reach high-income status. The welfare variables for the benchmark countries are: `note_w'."'
+	collect notes 2: `"Note: `note_y' Poverty rates reported for the `vlinetxt' per person per day poverty lines are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. GDP per capita is expressed in constant 2015 PPP terms. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Prosperity Gap captures how far a society is from $${prosgline_} per person per day (expressed in `pppyear' purchasing power parity dollars), which is close to the average per capita household income when countries reach high-income status. The welfare variables and survey year (in parantheses) of the benchmark countries are: `note_w'."'
 	_pea_tbtformat	
 	_pea_tbt_export, filename(`tblname') tbtname(`tblname') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 		

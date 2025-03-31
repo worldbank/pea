@@ -171,9 +171,8 @@ program pea_figure10a, rclass
 	if "`yrange'" == "" {
 		local ymin = 0
 		qui sum _prosgap_`onewelfare'
-		local max = round(`r(max)',5)
-		if `max' < `r(max)' local max = `max' + 5								// round up to nearest 10
-		local yrange "ylabel(0(5)`max')"
+		nicelabels `ymin' `r(max)', local(yla)
+		local yrange "ylabel(`yla')"
 	}
 	else {
 		local yrange "ylabel(`yrange')"
@@ -210,7 +209,7 @@ program pea_figure10a, rclass
 	else if "`bar'" ~= "" {
 		graph bar _prosgap_`onewelfare', over(`urban') over(`year') `bcolors'		///
 				ytitle("`lbltitle'") asyvars			///
-				name(ngraph`gr', replace)								
+				`yrange' name(ngraph`gr', replace)								
 	}	
 	
 	putexcel set "`excelout2'", modify sheet(Figure10a, replace)	  
@@ -225,12 +224,12 @@ program pea_figure10a, rclass
 	putexcel O6	= "Code:"
 	
 	if "`bar'" == "" putexcel O7 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") pos(6) row(1)) ytitle("`lbltitle'") xtitle("") xlabel(`yearval', valuelabel) `yrange'"'
-	else if "`bar'" ~= "" putexcel O7 = `"graph bar _prosgap_`onewelfare', over(`urban') over(`year') `bcolors' ytitle("`lbltitle'") asyvars"'
+	else if "`bar'" ~= "" putexcel O7 = `"graph bar _prosgap_`onewelfare', over(`urban') over(`year') `bcolors' ytitle("`lbltitle'") asyvars `yrange'"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 	putexcel save							
 	cap graph close	
 	//Export data
-	export excel `year' `urban' _prosgap_* using "`excelout2'" , sheet("Figure10a", modify) cell(O11) keepcellfmt firstrow(variables)
+	export excel `year' `urban' _prosgap_* using "`excelout2'" , sheet("Figure10a", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure10a.xlsx"
 
 end	

@@ -62,9 +62,10 @@ program pea_core, rclass
 	//Title sheet
 	qui {
 		putexcel set "`excelout'", replace sheet("Contents")
-		putexcel C5 = "Poverty and Equity Assessments 3.0"
-		putexcel C6 = "Core Tables and Figures"
+		putexcel C5 = "Poverty and Equity Assessments 3.0", bold font( "", 16)
+		putexcel C7 = "Core Tables and Figures", bold font( "", 14)
 		putexcel C10 = "Generated Outputs:"
+		putexcel (A1:AZ100), fpattern(solid, white)
 		putexcel save
 	}	
 	
@@ -159,7 +160,7 @@ program pea_core, rclass
 	
 	//table 2
 	qui use `dataori', clear		
-	cap pea_tableA2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' minobs(`minobs') excel("`excelout'") pppyear(`pppyear')
+	cap pea_tableA2 [aw=`wvar'], pppw(`onewelfare') pppp(`oneline') year(`year') byind(`byind') age(`age') male(`male') edu(`edu') `missing' minobs(`minobs') excel("`excelout'") pppyear(`pppyear') core
 	qui if _rc==0 {
 		noi dis in green "Table A.2....... Done"
 		local ok = 1
@@ -183,33 +184,37 @@ program pea_core, rclass
 	}
 	else noi dis in red "Table A.3....... Not done"
 	
-	//table 4a
+	//table 4a, 4b
 	qui use `dataori', clear		
-	cap pea_table14a [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') excel("`excelout'") core pppyear(`pppyear')
+	cap pea_table4 [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead')  urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') excel("`excelout'") pppyear(`pppyear') core
 	qui if _rc==0 {
-		noi dis in green "Table A.4a....... Done"
+		noi dis in green "Table A.4....... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
-		putexcel C${tablecount} = hyperlink("#TableA4a!A1", "Table A.4a. Profiles of the poor")		
+		
+		putexcel C${tablecount} = hyperlink("#TableA4a!A1", "Table A.4a. Demographic profiles of the poor")
+		global tablecount = ${tablecount} + 1
+		
+		putexcel C${tablecount} = hyperlink("#TableA4b!A1", "Table A.4b. Labor market profiles of the poor")
 		global tablecount = ${tablecount} + 1
 		putexcel save	
 	}
-	else noi dis in red "Table A.4a....... Not done"
-
-	//table 4b
-	qui use `dataori', clear		
-	cap pea_table14b [aw=weight_p], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') hhsize(`hhsize') hhid(`hhid') pid(`pid') lstatus(`lstatus') empstat(`empstat') relationharm(`relationharm') earnage(`earnage') excel("`excelout'") core pppyear(`pppyear')
-	qui if _rc==0 {
-		noi dis in green "Table A.4b....... Done"
-		local ok = 1
-		putexcel set "`excelout'", modify sheet("Contents")		
-		putexcel C${tablecount} = hyperlink("#TableA4b!A1", "Table A.4b. Demographic and economic household typologies")		
-		global tablecount = ${tablecount} + 1
-		putexcel save	
-	}
-	else noi dis in red "Table A.4b....... Not done"
+	else noi dis in red "Table A.4....... Not done"
 	
-	//GIC graph
+	//table 5 
+	qui use `dataori', clear
+	cap pea_table5 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") age(`age') male(`male') urban(`urban') edu(`edu') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') `missing' core
+	qui if _rc==0 {
+		noi dis in green "Table A.5....... Done"
+		local ok = 1
+		putexcel set "`excelout'", modify sheet("Contents")		
+		putexcel C${tablecount} = hyperlink("#TableA.5!A1", "Table A.5. Key labor market indicators")
+		global tablecount = ${tablecount} + 1	
+		putexcel save	
+	}
+	else noi dis in red "Table A.5....... Not done"
+	
+	//Figure A1. GIC graph
 	qui use `dataori', clear
 	 cap pea_figure3b [aw=`wvar'], year(`year') welfare(`onewelfare') spells(`spells') trim(`trim') by(`urban') scheme(`scheme') palette(`palette') comparability(`comparability') core excel("`excelout'")
 	qui if _rc==0 {
@@ -222,7 +227,7 @@ program pea_core, rclass
 	}
 	else noi dis in red "Figure A.1....... Not done"
 
-	//Datt-Ravallion graph
+	//Figure A2. Datt-Ravallion graph
 	qui use `dataori', clear
 	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') comparability(`comparability') spells(`spells') scheme(`scheme') palette(`palette') core excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
