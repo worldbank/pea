@@ -209,7 +209,7 @@ program pea_tables, rclass
 	
 	//table 5 
 	qui use `data1', clear
-	cap pea_table5 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") age(`age') male(`male') urban(`urban') edu(`edu') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') `missing'  core
+	cap pea_table5 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") age(`age') male(`male') urban(`urban') edu(`edu') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') `missing'
 	qui if _rc==0 {
 		noi dis in green "Table 5....... Done"
 		local ok = 1
