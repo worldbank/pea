@@ -27,19 +27,6 @@ program pea_figure8, rclass
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
 	//house cleaning	
-	if "`comparability'"=="" {
-		noi di in red "Warning: Comparability option not specified for Figure 8. Non-comparable spells may be shown."	// Not a strict condition
-	}
-	else if "`comparability'"~="" {
-		qui ta `year'
-		local nyear = r(r)
-		qui ta `comparability'
-		local ncomp = r(r)
-		if `ncomp' > `nyear' {
-			noi dis as error "Inconsistency between number of years and number of comparable data points."
-			error 1
-		}
-	}	
 	if "`using'"~="" {
 		cap use "`using'", clear
 		if _rc~=0 {
@@ -117,9 +104,9 @@ program pea_figure8, rclass
 	use `data1', clear	
 	local varlbl : value label `male'
 	qui levelsof `male', local(groups)
+	local k = 1
 	foreach j of local groups {
 		local i = 1
-		local k = 1
 		use `data1', clear
 		local labl`j': label `varlbl' `j'
 		local legend `"`legend' `k' "`labl`j''""'
