@@ -178,8 +178,8 @@ program pea_table5, rclass
 	replace overgroup = 2 if overlbl == "`empstat'"
 	replace overgroup = 3 if overlbl == "`industrycat4'"
 	label define overgroup	1 "Labor force status as share of working-age population (age 15-64)"	///
-							2 "Employment status, as share of working"								///
-							3 "Sector of activity, as share of working"
+							2 "Employment status, as share of working-age population (age 15-64)"	///
+							3 "Sector of activity, as share of working-age population (age 15-64)"
 	label values overgroup overgroup
 	gen 	categn = 0 if categ == "_All"
 	replace	categn = 1 if categ == "`urban'"
