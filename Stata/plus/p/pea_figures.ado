@@ -178,7 +178,7 @@ program pea_figures, rclass
 	
 	//Figure 2
 	qui use `data1', clear
-	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars yrange(`yrange') onewelfare(`onewelfare') oneline(`oneline') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
+	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars yrange(`yrange') pppw(`pppwelfare') oneline(`oneline') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
 		noi dis in green "Figure 2....... Done"
 		local ok = 1
@@ -187,7 +187,10 @@ program pea_figures, rclass
 		global tablecount = ${tablecount} + 1
 		putexcel save	
 	}
-	else noi dis in red "Figure 2....... Not done"
+	else {
+		noi dis in red "Figure 2....... Not done"
+		if _rc == 200 noi dis in red  "Value of poverty line in  oneline() option is not among the standard poverty lines for the `pppyear' PPP. Please enter a valid international poverty line for Figure 2."
+	}
 	
 	//Figure 3a
 	qui use `dataori0', clear
