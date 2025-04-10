@@ -20,7 +20,7 @@ help for {hi:pea figure2}{right:January 2025}
 	{opt Year(varname numeric)} 
 	{opt BENCHmark(string)} 
 	{opt ONELine(varname numeric)} 
-	{opt ONEWelfare(varname numeric)} 
+	{opt PPPWelfare(varname numeric)} 
 	{opt PPPyear(integer)}
 	{opt FGTVARS} 
 	{opt yrange(string)} 
@@ -56,8 +56,8 @@ is a list of benchmark countries to be included in the analysis.
 is the variable containing the selected national poverty line for the country.
     
 {p 4 4 2} 
-{opt ONEWelfare(varname numeric)}: 
-is the welfare variable to be used in the analysis.
+{opt PPPWelfare(varname numeric)}: 
+is the PPP-adjusted welfare variable to be used in the analysis. It needs to PPP adjusted so that it is comparable to other countries.
       
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
@@ -90,4 +90,4 @@ specifies an Excel file path to store the output.
 {title:Examples}
 
 {p 4 4 2} 
-{bf: pea figure2} [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
+{bf: pea figure2} [aw=weight_p], c(GNB) year(year) pppw(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(viridis)
