@@ -179,7 +179,7 @@ program pea_figure4, rclass
 		* See results
 		frame change decomp_results	
 		reshape long value, i(decomp spell povline) j(subind)
-		la def subind 1 "Total change in p.p." 2 "Growth" 3 "Redistribution" 4 "Line"
+		la def subind 1 "Total change" 2 "Growth" 3 "Redistribution" 4 "Prices"
 		la val subind subind
 		replace value = . if value==-9999
 		replace povline = "`lblline'"
@@ -207,7 +207,7 @@ program pea_figure4, rclass
 		reshape wide value value_add, i(decomp spell_n) j(subind)
 		foreach s of local sind {
 			label var value`s' "`subind`s''"
-			label var value_add`s' "Stacked bars: `subind`s''"
+			label var value_add`s' "`subind`s''"
 		}
 		order decomp spell_n value? value_add?
 		gen zero = 0	// zero needed so twoway bar starts at 0..
@@ -238,7 +238,7 @@ program pea_figure4, rclass
 				scatter value1 spell_n if decomp=="Datt-Ravallion", 										///
 				msym(D) msize(2.5) mcolor("${col1}") mlcolor(black)						||	///
 				bar zero spell_n, yline(0)  xlabel("`spells'", valuelabel) xtitle("")						///
-			legend(rows(1) position(6) order(2 "Growth" 1 "Redistribution" 3 "Total change"))	///
+			legend(rows(1) position(6) order(3 2 1))	///
 			ytitle("Change in poverty" "(percentage points)") 								///
 			name(gr_decomp, replace)
 			
@@ -259,11 +259,20 @@ program pea_figure4, rclass
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		
 		//Export data
+		foreach var of varlist value_add* {
+			local lbl: variable label `var'
+			label var `var' `"Stacked bar: `lbl'"'									// Add so that it is clear in Excel output that this is value of stacked bar.
+		}
 		export excel * using "`excelout2'" if decomp=="Datt-Ravallion", sheet("Figure`fnum'", modify) cell(O11) keepcellfmt firstrow(varlabels)	
 		export excel * using "`excelout2'" if decomp=="Datt-Ravallion", sheet("Figure`fnum'", modify) cell(O12) keepcellfmt firstrow(variables)	nolabel
 			
 		//Shorrocks-Kolenikov
 		if "`core'" == "" {
+			foreach var of varlist value_add* {
+				local vlabel: variable label `var'
+				local vlabel : subinstr local vlabel "Stacked bar: " "" // Remove again
+				label var `var' "`vlabel'"										
+			}
 			local gr 1
 			local u  = 5
 			tempfile graph1
@@ -273,7 +282,7 @@ program pea_figure4, rclass
 					msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) 		||									///
 					bar zero spell_n, yline(0) xlabel("`spells'", valuelabel) xtitle("")							///
 					legend(rows(1) position(6)																		///
-					order(3 "Growth" 2 "Redistribution" 1 "Price" 4 "Total change"))								///
+					order(4 3 2 1))								///
 					ytitle("Total change in poverty" "(percentage points)") 										///
 					name(gr_decomp, replace)
 										
@@ -294,6 +303,10 @@ program pea_figure4, rclass
 			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")			
 			putexcel save
 			//Export data
+			foreach var of varlist value_add* {
+				local lbl: variable label `var'
+				label var `var' `"Stacked bar: `lbl'"'									// Add so that it is clear in Excel output that this is value of stacked bar.
+			}
 			export excel * using "`excelout2'" if decomp=="Shorrocks-Kolenikov", sheet("Figure4b", modify) cell(O11) keepcellfmt firstrow(varlabels)	
 			export excel * using "`excelout2'" if decomp=="Shorrocks-Kolenikov", sheet("Figure4b", modify) cell(O12) keepcellfmt firstrow(variables) nolabel	
 		}
