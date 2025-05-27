@@ -58,6 +58,7 @@ help for {hi:pea figures}{right:January 2025}
  {opt bar} 
  {opt scheme(string)}
  {opt palette(string)} 
+ {opt earnage(integer)}
  {opt welfaretype(string)}]{p_end}
 
 {p 4 4 2}
@@ -246,6 +247,10 @@ Figures showing scatters of inequality display different symbols for countries w
 
 {p 4 4 2}
 {opt idpl(varname numeric)}: This option affects only Figure 4: If national poverty lines are different within one year, specify the variable grouping the poverty lines here. This is relevant for the Shorrocks-Kolenikov decomposition. Example: idpl(urban).
+
+{p 4 4 2}
+{opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
+Default: 16
 
 Additional options if setting(GMD) is not specified:
 

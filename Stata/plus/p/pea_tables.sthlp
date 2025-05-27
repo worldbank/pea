@@ -158,7 +158,7 @@ Default is inside.
 
 {p 4 4 2}
 {opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
-Default is vulnerability(1.5).
+Vulnerability to poverty is defined as being between the main and the multiple of the poverty line. Default is vulnerability(1.5).
 
 {p 4 4 2}
 {opt ONELine(varname numeric)}: specifies the one-line poverty line variable.
@@ -186,7 +186,7 @@ Default is vulnerability(1.5).
 
 {p 4 4 2}
 {opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
-Default: 18
+Default: 16
 
 Additional options if setting(GMD) is not specified:
 

@@ -48,6 +48,7 @@ program pea_figure5b, rclass
 		noi dis as error "Need at least two years in spells(), i.e. 2000 2004"
 		error 1
 	}
+	
 	//house cleaning
 	_pea_export_path, excel("`excel'")
 	
@@ -55,10 +56,6 @@ program pea_figure5b, rclass
 	local keepyears : list uniq x
 	qui {	
 		local lblline : variable label `oneline'
-		
-		// Figure colors
-		local groups = 5																					// number of bars
-		pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 	
 		//Weights
 		local wvar : word 2 of `exp'
@@ -83,28 +80,43 @@ program pea_figure5b, rclass
 		markout `touse' `flist' 
 		
 		tempfile dataori datalbl
-		save `dataori', replace
+
+		// Check if any years don't have sector
+		foreach y of local keepyears {
+			sum `industrycat4' if `year' == `y'
+			if `r(N)' == 0 {
+			noi disp in red "No values for `industrycat4' for year `y'. Please select other years, or a different sector variable."
+				exit
+			}
+		}
 		
+		// Check year list
 		levelsof `year' if `touse', local(yrlist)
 		local same : list yrlist === keepyears
 		if `same'==0 {
 			noi dis "There are different years requested, and some not available in the data."
 			noi dis "Requested: `keepyears'. Available: `yrlist'"
 		}
-		gen _keep =. if `touse'
 		
+		
+		gen _keep =. if `touse'
 		foreach yr of local keepyears {
 			replace _keep=1 if `year'==`yr' & `touse'
 		}
 		keep if _keep==1 & `touse'
 		drop _keep	
 		
-		// Create ag - non-ag sector  
-		gen sector_nonag = `industrycat4' ~= 1 if `industrycat4' ~= .			// Only works if sector = 1 is agriculture
-		label define nonag 0 "Agriculture" 1 "Non-agriculture"
-		label values sector_nonag nonag
-		label var 	sector_nonag "Non-agriculture sector"
 		save `dataori', replace
+		
+		// Number of sectors
+		qui levelsof `industrycat4', local(indlev)
+		local indnum = `: word count `indlev''
+		
+		// Prepare frames for output saving
+		local totdecomp = `indnum' + 3 														// Sectors + Total + Population + Interaction 
+		forval i = 1/`totdecomp' {
+			local values "`values' value`i'"
+		}
 		
 		// Prepare spells
 		tokenize "`spells'", parse(";")	
@@ -140,7 +152,7 @@ program pea_figure5b, rclass
 		cap frame create temp_frame
 		cap frame change temp_frame
 		cap frame drop decomp_results2			
-		frame create decomp_results2 strL(decomp spell povline) float(value1 value2 value3 value4 value5)
+		frame create decomp_results2 strL(decomp spell povline) float(`values')
 			  		
 		use `dataori', clear					  
 		forv j=1(1)`=`a'-1' {
@@ -155,33 +167,45 @@ program pea_figure5b, rclass
 				
 				//Huppi-Ravallion decomposition
 				use `dataori' if `year'==`1', clear					
-				sedecomposition using `data_y2' [aw=`wvar'], sector(sector_nonag) pline1(`oneline') pline2(`oneline') var1(`onewelfare') var2(`onewelfare') hc
+				sedecomposition using `data_y2' [aw=`wvar'], sector(`industrycat4') pline1(`oneline') pline2(`oneline') var1(`onewelfare') var2(`onewelfare') hc
 				mat a = r(b_sec)
-				mat b = r(b_tot)					
+				mat b = r(b_tot)		
 				local rnames : rowfullnames a
 				local rlbl
-				local x = 2
+				local x = 4
 				foreach rn of local rnames {
 					local rlbl `"`rlbl' `x' "`rn'""'
 					local x = `x' + 1
-				}					
-				local value1 = b[1,1]
-				local value2 = a[1,2]
-				local value3 = a[2,2]
-				local value4 = b[3,1]
-				local value5 = b[4,1]
+				}		
+
+				// Create variables
+				local value1 = b[1,1]		// Total
+				local value2 = b[3,1]		// Population
+				local value3 = b[4,1]		// Interaction
 				
+				forval i = 1/`indnum' {
+					local j = `i' + 3						// Name of value has to start at 4
+					local value`j' = a[`i',2]
+				}			
+				
+				local categ					
+				// Get correct number values
+				forval i = 1/`totdecomp' {
+					local categ "`categ' (`value`i'')"
+				}
+
 				* Post the results to the frame
 				frame decomp_results2 {  
-					frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") (`value1') (`value2') (`value3') (`value4') (`value5')
+					frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`oneline'") `categ'
 				}				
 			} //1 2
 		} //j
 		
 		* See results
 		frame change decomp_results2	
+		
 		reshape long value, i(decomp spell povline) j(subind)
-		la def subind 1 "Total change in p.p." `rlbl' 4 "Population shift" 5 "Interaction"		
+		la def subind 1 "Total change" 2 "Population shift" 3 "Interaction"	`rlbl' 	
 		la val subind subind
 		replace value = . if value==-9999
 		replace povline = "`lblline'"
@@ -189,22 +213,18 @@ program pea_figure5b, rclass
 		// Spells
 		encode spell, gen(spell_n)
 		qui levelsof spell_n, local(spells)
+		
 		// Stacked bars
 		gen subind_cat 		= subind - 1
-		replace subind_cat = . if subind == 1
+		replace subind_cat 	= . if subind == 1
 		gen value_negative 	= value < 0
 		bys decomp spell_n value_negative (subind_cat): gen num = _n
-		replace num = . if subind == 1
-		gen value_add = value  if subind != 1
+		replace num 		= . if subind == 1
+		gen value_add 		= value  if subind != 1
 		foreach y of local spells {
 			bys decomp spell_n value_negative (num) : replace value_add = value_add + value_add[_n-1] if num != . & num > 1 & spell_n == `y'			
 		}
 		drop subind_cat value_negative num spell
-		local x = 4										
-		foreach rn of local rnames {					// Need different numbers for label for figure
-			local rlbl2 `"`rlbl2' `x' "`rn'""'
-			local x = `x' - 1
-		}
 
 		// Reshape for stacked bars
 		compress decomp
@@ -215,10 +235,14 @@ program pea_figure5b, rclass
 		reshape wide value value_add, i(decomp spell_n) j(subind)
 		foreach s of local sind {
 			label var value`s' "`subind`s''"
-			label var value_add`s' "Stacked bars: `subind`s''"
+			label var value_add`s' "`subind`s''"
 		}
 		order decomp spell_n value? value_add?
 		gen zero = 0	// zero needed so twoway bar starts at 0..
+		
+		// Figure colors
+		local groups = `totdecomp'																			// number of bars
+		pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")						//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
 		
 		// Figure
 		local figname Figure5b
@@ -237,18 +261,23 @@ program pea_figure5b, rclass
 		putexcel set "`excelout2'", `act'
 		
 		//Huppi-Ravallion
+		forval i = 2/`totdecomp' {
+			local cols `""${col`i'}" `cols'"'
+			local value_add "value_add`i' `value_add'"
+			local bw	"`bw' 0.5"
+			local lorder "`i' `lorder'"							// Reverse ordering in legend
+		}
+		local rows = ceil(`totdecomp' / 4)							// Rows in legend (max. 4 in one row)
 		tempfile graph1
 
-		twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion",			/// 
-				color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) ||						///
+		twoway bar `value_add' spell_n if decomp=="Huppi-Ravallion",											/// 
+				color(`cols') barwidth(`bw') ||																	///
 				scatter value1 spell_n if decomp=="Huppi-Ravallion", 											///
 				msym(D) msize(2.5) mcolor("${col1}") mlcolor(black)		||										///
 				bar zero spell_n, yline(0) xlabel("`spells'", valuelabel) xtitle("")							///
-				legend(rows(2) position(6)																		///
-				order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change"))							///
+				legend(rows(`rows') position(6) order(`lorder' 1))													///
 				ytitle("Total change in poverty" "(percentage points)") 										///
-				name(gr_decomp, replace)
-									
+				name(gr_decomp, replace)							
 		putexcel set "`excelout2'", modify sheet("Figure5b", replace)
 		graph export "`graph1'", replace as(png) name(gr_decomp) wid(1500)
 		putexcel A`u' = image("`graph1'")
@@ -256,18 +285,23 @@ program pea_figure5b, rclass
 		putexcel A1 = ""
 		putexcel A2 = "Figure 5b: Huppi-Ravallion decomposition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-		putexcel A4 = "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups.  The total change displayed in this figure may differ from the total change displayed in Figure 5a, due to missing values for the economic sector. Every household member is assigned the sector of employment of the household head. The intra-sectoral component displays how the incidence of poverty in the agricultural and non-agricultural sectors has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements using `lblline'. The decomposition follows Huppi and Ravallion (1991)."
+		putexcel A4 = "Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups.  The total change displayed in this figure may differ from the total change displayed in other figures, due to missing values for the economic sector. Every household member is assigned the sector of employment of the household head. The intra-sectoral component displays how the incidence of poverty in the agricultural and non-agricultural sectors has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements using `lblline'. The decomposition follows Huppi and Ravallion (1991)."
 		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code"
 		putexcel N11 = "Labels:"
 		putexcel N12 = "Variables:"
-		putexcel O7 = `"twoway bar value_add5 value_add4 value_add3 value_add2 spell_n if decomp=="Huppi-Ravallion", color("${col5}" "${col4}" "${col3}" "${col2}") barwidth(0.5 0.5 0.5 0.5) || scatter value1 spell_n if decomp=="Huppi-Ravallion", msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) legend(rows(1) position(6) order(`rlbl2' 2 "Population shift" 1 "Interaction" 5 "Total change")) ytitle("Total change in poverty" "(percentage points)")"'
+		putexcel O7 = `"twoway bar `value_add' if decomp=="Huppi-Ravallion", color(`cols') barwidth(`bw') || scatter value1 spell_n if decomp=="Huppi-Ravallion", msym(D) msize(2.5) mcolor("${col1}") mlcolor(black) legend(rows(`rows') position(6) order(`lorder' 1))) ytitle("Total change in poverty" "(percentage points)")"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		putexcel save
 		cap graph close	
 	} //qui
 	//Export data
+	foreach var of varlist value_add* {
+		local lbl: variable label `var'
+		label var `var' `"Stacked bar: `lbl'"'									// Add so that it is clear in Excel output that this is value of stacked bar.
+	}
+
 	export excel * using "`excelout2'" if decomp=="Huppi-Ravallion", sheet("Figure5b", modify) cell(O11) keepcellfmt firstrow(varlabels)
 	export excel * using "`excelout2'" if decomp=="Huppi-Ravallion", sheet("Figure5b", modify) cell(O12) keepcellfmt firstrow(variables) nolabel
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"

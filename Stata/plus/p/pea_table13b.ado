@@ -101,7 +101,15 @@ program pea_table13b, rclass
 		}
 		
 		tempfile dataori datalbl
-		save `dataori', replace
+
+		// Check if any years don't have sector
+		foreach y of local keepyears {
+			sum `industrycat4' if `year' == `y'
+			if `r(N)' == 0 {
+			noi disp in red "No values for `industrycat4' for year `y'. Please select other years, or a different sector variable."
+				exit
+			}
+		}
 		
 		levelsof `year' if `touse', local(yrlist)
 		local same : list yrlist === keepyears
@@ -116,13 +124,20 @@ program pea_table13b, rclass
 		keep if _keep==1 & `touse'
 		drop _keep
 		
-		// Create ag - non-ag sector  
-		gen sector_nonag = `industrycat4' ~= 1 if `industrycat4' ~= .			// Only works if sector = 1 is agriculture
-		label define nonag 0 "Agriculture" 1 "Non-agriculture"
-		label values sector_nonag nonag
-		label var 	sector_nonag "Non-agriculture sector"
 		save `dataori', replace
+
 		
+		// Number of sectors
+		qui levelsof `industrycat4', local(indlev)
+		local indnum = `: word count `indlev''
+		
+		// Prepare frames for output saving
+		local totdecomp = `indnum' + 3 														// Sectors + Total + Population + Interaction 
+		forval i = 1/`totdecomp' {
+			local values "`values' value`i'"
+		}
+		
+		// Prepare spells		
 		tokenize "`spells'", parse(";")	
 		local i = 1
 		local a = 1
@@ -138,7 +153,7 @@ program pea_table13b, rclass
 		cap frame create temp_frame
 		cap frame change temp_frame
 		cap frame drop decomp_results2	
-		frame create decomp_results2 strL(decomp spell povline) float(value1 value2 value3 value4 value5)
+		frame create decomp_results2 strL(decomp spell povline) float(`values')
 							  		
 		forv j=1(1)`=`a'-1' {
 			local spell`j' : list sort spell`j'
@@ -151,61 +166,83 @@ program pea_table13b, rclass
 				foreach var of local ppppovlines {
 					//Huppi-Ravallion decomposition
 					use `dataori' if `year'==`1', clear					
-					sedecomposition using `data_y2' [aw=`wvar'], sector(sector_nonag) pline1(`var') pline2(`var') var1(`pppwelfare') var2(`pppwelfare') hc
+					sedecomposition using `data_y2' [aw=`wvar'], sector(`industrycat4') pline1(`var') pline2(`var') var1(`pppwelfare') var2(`pppwelfare') hc
 					mat a = r(b_sec)
-					mat b = r(b_tot)					
+					mat b = r(b_tot)		
 					local rnames : rowfullnames a
 					local rlbl
-					local x = 2
+					local x = 4
 					foreach rn of local rnames {
 						local rlbl `"`rlbl' `x' "`rn'""'
 						local x = `x' + 1
-					}					
-					local value1 = b[1,1]
-					local value2 = a[1,2]
-					local value3 = a[2,2]
-					local value4 = b[3,1]
-					local value5 = b[4,1]
+					}		
+
+					// Create variables
+					local value1 = b[1,1]		// Total
+					local value2 = b[3,1]		// Population
+					local value3 = b[4,1]		// Interaction
+					
+					forval i = 1/`indnum' {
+						local j = `i' + 3						// Name of value has to start at 4
+						local value`j' = a[`i',2]
+					}			
+					
+					local categ					
+					// Get correct number values
+					forval i = 1/`totdecomp' {
+						local categ "`categ' (`value`i'')"
+					}
 					
 					* Post the results to the frame
 					frame decomp_results2 {  
-						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") (`value1') (`value2') (`value3') (`value4') (`value5')
+						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") `categ'
 					}
 				}
 				foreach var of local natpovlines {
 					//Huppi-Ravallion decomposition
 					use `dataori' if `year'==`1', clear					
-					sedecomposition using `data_y2' [aw=`wvar'], sector(sector_nonag) pline1(`var') pline2(`var') var1(`natwelfare') var2(`natwelfare') hc
+					sedecomposition using `data_y2' [aw=`wvar'], sector(`industrycat4') pline1(`var') pline2(`var') var1(`natwelfare') var2(`natwelfare') hc
 					mat a = r(b_sec)
-					mat b = r(b_tot)
+					mat b = r(b_tot)		
 					local rnames : rowfullnames a
 					local rlbl
-					local x = 2
+					local x = 4
 					foreach rn of local rnames {
 						local rlbl `"`rlbl' `x' "`rn'""'
 						local x = `x' + 1
-					}
-					local value1 = b[1,1]
-					local value2 = a[1,2]
-					local value3 = a[2,2]
-					local value4 = b[3,1]
-					local value5 = b[4,1]
+					}		
+
+					// Create variables
+					local value1 = b[1,1]		// Total
+					local value2 = b[3,1]		// Population
+					local value3 = b[4,1]		// Interaction
 					
+					forval i = 1/`indnum' {
+						local j = `i' + 3						// Name of value has to start at 4
+						local value`j' = a[`i',2]
+					}			
+					
+					local categ					
+					// Get correct number values
+					forval i = 1/`totdecomp' {
+						local categ "`categ' (`value`i'')"
+					}
 					* Post the results to the frame
 					frame decomp_results2 {  
-						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") (`value1') (`value2') (`value3') (`value4') (`value5')
+						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") `categ'
 					}
 				}	
 			} //1 2
 		} //j
 		
 		* See results
-		frame change decomp_results2	
+		frame change decomp_results2			
 		
 		reshape long value, i(decomp spell povline) j(subind)
-		la def subind 1 "Total change in p.p." `rlbl' 4 "Population shift" 5 "Interaction"
+		la def subind 1 "Total change" 2 "Population shift" 3 "Interaction"	`rlbl' 	
 		la val subind subind
 		replace value = . if value==-9999
+
 		gen indicatorlbl = .
 		local i = 1
 		if "`ppppovlines'"~="" {
@@ -236,7 +273,7 @@ program pea_table13b, rclass
 			*collect style header value[.], level(hide)
 			collect title `"Table 13b. Decomposition of poverty changes: Huppi-Ravallion decomposition (sectoral)"'
 			collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups, following Huppi and Ravallion (1991). The total change displayed in this table may differ from the total change displayed in Table 13a, due to missing values for the economic sector. Every household member is assigned the sector of employment of the household head. The intra-sectoral component displays how the incidence of poverty in the agricultural and non-agricultural sectors has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
+			collect notes 2: `"Note: The Huppi-Ravallion decomposition shows how progress in poverty changes can be attributed to different groups, following Huppi and Ravallion (1991). The total change displayed in this table may differ from the total change displayed in other tables, due to missing values for the economic sector. Every household member is assigned the sector of employment of the household head. The intra-sectoral component displays how the incidence of poverty in the agricultural and non-agricultural sectors has changed, assuming the relative population size in each of these has remained constant. Population shift refers to the contribution of changes in population shares, assuming poverty incidence in each group has remained constant. The interaction between the two indicates whether there is a correlation between changes in poverty incidence and population movements."'
 			collect style cell indicatorlbl[]#cell_type[row-header], font(, bold)
 			collect style cell subind[]#cell_type[row-header], warn font(, nobold)
 			_pea_tbtformat

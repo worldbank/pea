@@ -36,7 +36,7 @@ help for {hi:pea table13b}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea table13b} calculates and generates tables for the decomposition of poverty changes based on income and non-income factors. Poverty changes are disaggregated into agricultural and non-agricultural sectors, and population shift components, as well as their interactions.  All individuals are assigned the sector of their household head.
+{opt pea table13b} calculates and generates tables for the decomposition of poverty changes based on income and non-income factors. Poverty changes are disaggregated into sectors, and population shift components, as well as their interactions.  All individuals are assigned the sector of their household head.
 
 {title:Options}
 
@@ -69,7 +69,7 @@ Default is 2017.
  specifies the variable representing the year for the analysis.
 
 {p 4 4 2}
-{opt industrycat4(varname numeric)}: Specifies the industry category variable. The command assumes that the value 1 of the variable corresponds to the Agriculture sector. Ensure that this is the case.
+{opt industrycat4(varname numeric)}: Specifies the sector category variable.
 
 {p 4 4 2} 
 {opt hhhead(varname numeric)}:

@@ -56,7 +56,7 @@ help for {hi:pea table4}{right:January 2025}
  
 {p 4 4 2}  
 {opt Povlines(varlist numeric)}:
- provides a list of poverty lines adjusted for PPP.
+ provides a list of poverty lines adjusted for PPP. Only one should be entered for this table.
  
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).

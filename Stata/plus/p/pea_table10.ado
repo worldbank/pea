@@ -289,8 +289,8 @@ program pea_table10, rclass
 
 	if "`latest'"=="" local note_y "Table shows data from the latest available year to `ymax' for each country."
 	else if "`within3'"=="" local note_y "Table shows data from the latest available year within 3 years of `ymax' for each country."
-	
-	drop var_year
+
+	rename var_year year
 	reshape long var_, i(code name survey_acronym) j(var) string
 	ren var_ value
 	
@@ -304,7 +304,7 @@ program pea_table10, rclass
 	foreach vl of local vlineval {
 		replace group = 1 if var=="headcount`vl'"
 		replace indicatorlbl = `m' if var=="headcount`vl'"
-		la def indicatorlbl `m' "$`=`vl'/100'", add
+		la def indicatorlbl `m' "Poverty rate at $`=`vl'/100' (%)", add
 		local m = `m' + 1
 	}	
 	replace indicatorlbl = 5 if var=="gini"
@@ -334,11 +334,10 @@ program pea_table10, rclass
 	}
 	
 	collect clear
-	qui collect: table (order name) (group indicatorlbl), stat(mean value) nototal nformat(%20.1f) missing
-	collect style header order name group indicatorlbl, title(hide)
-	collect style header order, level(hide)
-	collect style header group[0], level(hide)
-	*collect style cell, result halign(center)
+	qui collect: table (group indicatorlbl) (order name year), stat(mean value) nototal nformat(%20.1f) missing
+	collect style header group indicatorlbl order name year, title(hide)
+	collect style header group order, level(hide)
+
 	collect title `"`tbltxt'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed from the GMD, PIP and the World Development Indicators."'
 	collect notes 2: `"Note: `note_y' Poverty rates reported for the `vlinetxt' per person per day poverty lines are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. GDP per capita is expressed in constant 2015 PPP terms. The Gini index is a measure of inequality ranging from 0 (perfect equality) to 100 (perfect inequality). The Prosperity Gap captures how far a society is from $${prosgline_} per person per day (expressed in `pppyear' purchasing power parity dollars), which is close to the average per capita household income when countries reach high-income status. The welfare variables and survey year (in parantheses) of the benchmark countries are: `note_w'."'

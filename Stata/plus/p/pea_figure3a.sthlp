@@ -76,10 +76,10 @@ Specifies the color palette to use for the GIC plots.
 {title:Examples}
 
 {p 4 4 2}
-{bf: pea figure3a} [aw=weight_p], year(year) welfare(welfppp) spells(2015 2016; 2016 2017;2018 2022;2017 2022)
+{bf: pea figure3a} [aw=weight_p], year(year) welfare(welfppp) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
 
 {p 4 4 2}
 {bf: pea figure3a} [aw=weight_p], year(year) welfare(welfppp) spells(2015 2016; 2016 2017;2018 2022;2017 2022) comparability(comparability)
 
 {p 4 4 2}
-{bf: pea figure3a} [aw=weight_p], year(year) welfare(welfppp) spells(2018 2021) trim(5 95) palette(viridis)
+{bf: pea figure3a} [aw=weight_p], year(year) welfare(welfppp) spells(2018 2021) trim(5 95) palette(viridis) comparability(comparability)

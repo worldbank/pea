@@ -59,7 +59,7 @@ Default is 2017.
 
  {p 4 4 2}
 {opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
-Default: 18
+Default: 16
 
 {p 4 4 2} 
 {opt excel(string)}:

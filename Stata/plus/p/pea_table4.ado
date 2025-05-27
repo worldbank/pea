@@ -37,7 +37,7 @@ program pea_table4, rclass
 		}
 	}
 	
-	  {
+	qui {
 		//order the lines
 		local lbl`povlines' : variable label `povlines'		
 		local lblline: var label `povlines'		
@@ -357,7 +357,7 @@ program pea_table4, rclass
 	collect title `"`tabtitle'"'
 	collect style header order, level(hide)
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
-	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations, among household heads only. The poor are defined using `lblline'."' 
+	collect notes 2: `"Note: The table shows the share of poor, nonpoor and total households whose household head is working, not working, etc. The poor are defined using `lblline'."' 
 	
 	collect style cell group2[]#cell_type[row-header], font(, bold)
 	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)

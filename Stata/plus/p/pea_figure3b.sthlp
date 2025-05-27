@@ -17,6 +17,7 @@ help for {hi:pea figure3b}{right:January 2025}
  [{it:in}] 
  [{it:aw pw fw}],
     [{opt Welfare(varname numeric)} 
+	{opt spells(string)} 
     {opt Year(varname numeric)} 
     {opt comparability(varname numeric)} 
 	{opt trim(string)}
@@ -38,6 +39,10 @@ and visualizations.
 
 {p 4 4 2}{opt Welfare(varname numeric)}:
 Specifies the numeric variable representing welfare (e.g., income or consumption).
+
+{p 4 4 2}{opt spells(string)}:
+Defines the spells (time periods) for analysis. Enter pairs of years separated by a space, and separate 
+multiple spells with semicolons (e.g., spells(2000 2005; 2005 2010)).
 
 {p 4 4 2}{opt Year(varname numeric)}:
 Specifies the numeric variable indicating the year associated with each observation.
@@ -71,10 +76,10 @@ Specifies the color palette to use for the GIC plots.
 {title:Examples}
 
 {p 4 4 2}
-{bf: pea figure3b} [aw=weight_p], year(year) welfare(welfppp) setting(GMD)
+{bf: pea figure3b} [aw=weight_p], year(year) welfare(welfppp) spells(2017 2022) setting(GMD)
 
 {p 4 4 2}
-{bf: pea figure3b} [aw=weight_p], year(year) welfare(welfppp) trim(5 95)
+{bf: pea figure3b} [aw=weight_p], year(year) welfare(welfppp) spells(2017 2022) trim(5 95) comparability(comparability)
 
 {p 4 4 2}
-{bf: pea figure3b} [aw=weight_p], year(year) welfare(welfppp) yrange(0(5)20)
+{bf: pea figure3b} [aw=weight_p], year(year) welfare(welfppp) spells(2017 2022) yrange(0(5)20) 

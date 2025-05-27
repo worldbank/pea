@@ -20,7 +20,7 @@
 cap program drop pea_figure2
 program pea_figure2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) PPPWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -97,16 +97,16 @@ program pea_figure2, rclass
 	local povline = round(`povline',0.01)
 	//missing observation check
 	marksample touse
-	local flist `"`wvar' `onewelfare' `oneline' `year'"'
+	local flist `"`wvar' `pppwelfare' `oneline' `year'"'
 	markout `touse' `flist' 
 	
 	// Generate poverty rate of PEA country
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
-		if "`onewelfare'"~="" { //reset to the floor
-			replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
+		if "`pppwelfare'"~="" { //reset to the floor
+			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
 			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
 		}
-		if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline') 
+		if "`pppwelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`oneline') 
 	}
 
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year')
@@ -142,7 +142,7 @@ program pea_figure2, rclass
 	
 	// Merge in PEA poverty rate
 	merge 1:1 country_code year using `pea_pov'
-	replace headcount`povline_100' = _fgt0_`onewelfare'_`oneline' * 100 if country_code == "`country'"	// Get PEA poverty rate for PEA country
+	replace headcount`povline_100' = _fgt0_`pppwelfare'_`oneline' * 100 if country_code == "`country'"	// Get PEA poverty rate for PEA country
 	assert _merge != 2
 	// Get region
 	gen count = _n

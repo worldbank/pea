@@ -36,7 +36,7 @@ help for {hi:pea figure5b}{right:January 2025}
 
 {p 4 4 2}
 {opt pea figure5b} performs poverty decomposition over time using the Huppi-Ravallion method. 
-The program generates visualizations and numerical results showing the contribution of changes in income or welfare across different time periods and the agricultural and non-agricultural sectors. The results can help analysts and policymakers identify the drivers behind changes in poverty. All individuals are assigned the sector of their household head.
+The program generates visualizations and numerical results showing the contribution of changes in income or welfare across different time periods and sectors. The results can help analysts and policymakers identify the drivers behind changes in poverty. All individuals are assigned the sector of their household head.
 
 {title:Options}
 
@@ -57,7 +57,7 @@ Default is 2017.
 {opt year(varname numeric)}: Specifies the numeric variable representing the year for time association in the analysis.
 
 {p 4 4 2}
-{opt industrycat4(varname numeric)}: Specifies the industry category variable. The command assumes that the value 1 of the variable corresponds to the Agriculture sector. Ensure that this is the case.
+{opt industrycat4(varname numeric)}: Specifies the industry category variable. If it contains only missing values for a year that is requested, the code will not compile.
 
 {p 4 4 2} 
 {opt hhhead(varname numeric)}:
