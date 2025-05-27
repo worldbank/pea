@@ -30,6 +30,7 @@ help for {hi:pea core}{right:January 2025}
 {opt excel(string)} 
 {opt save(string)} 
 {opt BYInd(varlist numeric)} 
+{opt vulnerability(string)}
 {opt comparability(varname numeric)}
 {opt trim(string)}
 {opt age(varname numeric)} 
@@ -114,6 +115,10 @@ Default is inside.
 
 {p 4 4 2}
 {opt BYInd(varlist numeric)}: specifies the variables by which to break down the analysis (e.g., urban/rural, subnational).
+
+{p 4 4 2}
+{opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
+Vulnerability to poverty is defined as being between the main and the multiple of the poverty line. Default is vulnerability(1.5).
 
 {p 4 4 2}
 {opt ONELine(varname numeric)}: specifies the one-line poverty line variable.
@@ -214,8 +219,7 @@ Default under setting(GMD): empstat
 When GMD is specified:
 
 {p 4 4 2}
-{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) comparability(comparability)
-spells(2015 2016; 2016 2017;2018 2025;2017 2025) minobs(100)
+{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing setting(GMD) comparability(comparability) spells(2015 2016; 2016 2017;2018 2025;2017 2025) minobs(100)
 
 When GMD is NOT specified:
 

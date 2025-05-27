@@ -117,7 +117,9 @@ program pea_table7, rclass
 	label define laball 1 "All sample"
 	label values _All laball
 	if "`core'"=="" {
-		gen _vulpov_`welfare'_`povlines' = (`welfare' < `vulnerability'*`povlines') if `welfare'~=. & `touse'
+		gen _pov_`welfare'_`povlines' = `welfare'< `povlines'  if `touse'
+		gen _vulpov_`welfare'_`povlines' = `welfare'< `povlines'*`vulnerability'  if `touse'
+		replace _vulpov_`welfare'_`povlines' = 0 if _pov_`welfare'_`povlines' == 1 & `touse'	//	Only between poverty lines
 		gen double _pop = `wvar'
 	}
 	//trigger some sub-tables
@@ -212,7 +214,7 @@ program pea_table7, rclass
 	collect style header combined_var[1], level(hide)
 	collect title `"Table 7. Vulnerability to poverty (1.5* `lbl`povlines'')"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Vulnerability to poverty is defined as `vulnerability' times the `lbl`povlines''. All individual are used in the sample. Poverty statistics by educational attainment are only calculated for those aged 16 and above. `note_minobs'"'
+	collect notes 2: `"Note: Vulnerability to poverty is defined as being between the `lbl`povlines'' and `vulnerability' times the poverty line. All individual are used in the sample. Poverty statistics by educational attainment are only calculated for those aged 16 and above. `note_minobs'"'
 			
 	collect style cell group[]#cell_type[row-header], font(, bold)
 	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)

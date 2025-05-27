@@ -19,7 +19,7 @@
 cap program drop pea_table14
 program pea_table14, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 18) MISSING PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 16) MISSING PPPyear(integer 2017)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -27,8 +27,13 @@ program pea_table14, rclass
 	//house cleaning
 	_pea_export_path, excel("`excel'")
 	
+	//Working variable 
+	gen _work 	 = `lstatus'== 0 | `empstat'==1 | `empstat'==3 | `empstat' == 4
+	replace _work = . if `lstatus' == . & `empstat' == .
+	
+	//Missing
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `relationharm' `age' `empstat' {
+		foreach var of varlist `male' `relationharm' `age' _work {
 			qui su `var'
 			local max_`var' = r(max) + 10
 			replace `var' = `max_`var'' if `var'==.
@@ -40,8 +45,8 @@ program pea_table14, rclass
 	}	
 	
 	if "`earnage'"=="" {
-		local earnage = 18
-		di "Age cut-off for earners of 18 assumed."
+		local earnage = 16
+		di "Age cut-off for earners of 16 assumed."
 	}
 	qui {
 		//order the lines
@@ -96,11 +101,11 @@ program pea_table14, rclass
 		la def _total 1 "Total"
 		la val _total _total
 		
-		// Preparation for Demographic and Economic compositions
-
+		************************************************************************
+		// Preparation for Demographic composition
 		* Number adults
-		gen _pea_adult = `age' > 17
-		bys `year' `hhid' (`pid'): egen number_adults = sum(_pea_adult)	
+		gen _pea_adult = `age' > 17 
+		bys `year' `hhid' (`pid'): egen number_adults = sum(_pea_adult)
 		* Any children
 		gen _pea_child = `age' < 18
 		bys `year' `hhid' (`pid'): egen any_children = max(_pea_child)
@@ -113,8 +118,9 @@ program pea_table14, rclass
 		* Senior
 		gen _pea_senior = `age' > 64
 		bys `year' `hhid' (`pid'): egen number_seniors = sum(_pea_senior)
+		
 		* Only seniors as adults
-		gen only_seniors = number_seniors == number_adults & number_seniors ~= 0
+		gen only_seniors = number_seniors == number_adults & number_seniors ~= 0 & number_seniors ~= .
 		
 		* Missing demographics
 		gen dem_miss = 0
@@ -125,177 +131,111 @@ program pea_table14, rclass
 				replace dem_miss = 1 if `var' == ``var'_mis'
 			}
 		}
-		else replace dem_miss = 1 if `male' == . | `age' == . 
+		else replace dem_miss = 2 if `male' == . | `age' == . 					// These households won't be used in sample
 		bys `year' `hhid' (`pid'): egen any_dem_miss = max(dem_miss)
+		
+		// Preparation for Economic composition
 		* Earners
-		local empstat empstat
-		if "`missing'" ~= "" {
-			*local milab : value label `empstat'		
-			*sum `empstat' if `empstat' == "Missing":`milab'									// check what missing value is (because in this table empstat missing values are changed)
-			su `empstat' if `empstat' ==`max_`empstat''	
-			if "`r(mean)'" ~= "" local empstat_mis = `r(mean)'
-			if "`empstat_mis'" ~= "" {
-				gen earner = `lstatus'== 0 | `empstat'==1 | `empstat'==3 | `empstat' == 4 if `lstatus' ~= . | `empstat' ~= `empstat_mis'				// Employed, self-employed, or employer (`lstatus' is nowork)	
-			} 
-			else gen earner = `lstatus'== 0 | `empstat'==1 | `empstat'==3 | `empstat' == 4 if `lstatus' ~= . | `empstat' ~= .
-		}
-		else gen earner = `lstatus'== 0 | `empstat'==1 | `empstat'==3 | `empstat' == 4 if `lstatus' ~= . | `empstat' ~= .
-		* Female earners
-		gen fearner = `age' > `earnage' & `male' == 0 & earner == 1
-		bys `year' `hhid' (`pid'): egen number_fearners = sum(fearner)
-		gen fadultnonearner = `age' > 17 & `male' == 0 & earner == 0
-		bys `year' `hhid' (`pid'): egen number_fadultnonearners = sum(fadultnonearner)
-		* Male earners
-		gen mearner = `age' > `earnage' & `male' == 1 & earner == 1
-		bys `year' `hhid' (`pid'): egen number_mearners = sum(mearner)
-		gen madultnonearner = `age' > 17 & `male' == 1 & earner == 0
-		bys `year' `hhid' (`pid'): egen number_madultnonearners = sum(madultnonearner)
-		* Total number of earners
-		bys `year' `hhid' (`pid'): gen number_earners = number_fearners + number_mearners
-		bys `year' `hhid' (`pid'): gen number_adultnonearners = number_madultnonearners + number_fadultnonearners
-		* Adult non-earners
-		gen nonearner = `age' > `earnage'  & earner ~= 1
-		bys `year' `hhid' (`pid'): egen any_nonearners = max(nonearner)
+		gen earner = _work == 1 if `age' >= `earnage' 							// Employed, self-employed, or employer (`lstatus' is nowork)
+		bys `year' `hhid' (`pid'): gen number_earners = sum(earner) 
+				
+		* Nonearners
+		gen nonearner = _work == 0 if `age' >= `earnage'	
+		bys `year' `hhid' (`pid'): gen number_nonearners = sum(nonearner) 
+
 		* Missing earner information
-		gen earner_miss = earner == . & `age' > 17
+		gen earner_miss = 0
+		replace _work = 0 if `age' < `earnage'									// don't count missing under working age
+		if "`missing'" ~= "" {
+			foreach var in `age' _work {			
+				su `var' if `var' ==`max_`var''			
+				local `var'_mis = r(mean)
+				replace earner_miss = 1 if `var' == ``var'_mis'
+			}
+		}
+		else replace earner_miss = 2 if `age' == . | _work == . 				// These households won't be used in sample
 		bys `year' `hhid' (`pid'): egen any_earner_miss = max(earner_miss)
 		
-		// Demographic classification
-		* 1) One female adult with children
-		gen demographic_class1 = female_older17 == 1 & male_older17 == 0 ///
-					& any_children == 1 & only_seniors == 0 & any_dem_miss ~= 1	
-		* 2) One female adult without children
+		************************************************************************
+		// Demographic classification								
+		* 1) Two adults with children
+		gen demographic_class1 = number_adults == 2 & any_children == 1 ///	
+								& only_seniors == 0 & any_dem_miss ~= 1 ///
+								if any_dem_miss ~= 2
+		* 2) One female adult with children
 		gen demographic_class2 = female_older17 == 1 & male_older17 == 0 ///
-					& any_children == 0 & only_seniors == 0 & any_dem_miss ~= 1							
-		* 3) One male adult with children
-		gen demographic_class3 = male_older17 == 1 & female_older17 == 0 ///
-					& any_children == 1 & only_seniors == 0 & any_dem_miss ~= 1	
-		* 4) One male adult without children
-		gen demographic_class4 = male_older17 == 1 & female_older17 == 0 ///
-					& any_children == 0 & only_seniors == 0 & any_dem_miss ~= 1				
-		* 5) Two adults with children
-		gen demographic_class5 = number_adults == 2 & any_children == 1 ///	
-								& only_seniors == 0 & any_dem_miss ~= 1
-		* 6) Two adults without children
-		gen demographic_class6 = number_adults == 2 & any_children == 0 ///	
-								& only_seniors == 0 & any_dem_miss ~= 1							
-		* 7) Multiple adults with children
-		gen demographic_class7 = number_adults >= 3 & any_children == 1 ///	
-								& only_seniors == 0 & any_dem_miss ~= 1
-		* 8) Multiple adults without children
-		gen demographic_class8 = number_adults >= 3 & any_children == 0 ///	
-								& only_seniors == 0 & any_dem_miss ~= 1		
-		* 9) Only seniors with children
-		gen demographic_class9 = only_seniors == 1 & any_children == 1 ///	
-								& any_dem_miss ~= 1
-		* 10) Only seniors without children
-		gen demographic_class10 = only_seniors == 1 & any_children == 0 ///	
-								& any_dem_miss ~= 1
-		* 11) Children only households
-		gen demographic_class11 = number_adults == 0 & any_children == 1  ///
-								& any_dem_miss ~= 1
-		* 12) Missing
+								& any_children == 1 & only_seniors == 0  ///
+								& any_dem_miss ~= 1	if any_dem_miss ~= 2
+		* 3) Multiple adults with children		
+		gen demographic_class3 = number_adults >= 3 & any_children == 1 ///	
+								& only_seniors == 0 & any_dem_miss ~= 1	///
+								if any_dem_miss ~= 2		
+		* 4) Only seniors with children
+		gen demographic_class4 = only_seniors == 1 & any_children == 1 ///	
+								& any_dem_miss ~= 1	if any_dem_miss ~= 2		
+		* 5) Adult(s) without children
+		gen demographic_class5 = number_adults >= 1 & any_children == 0 ///	
+								& only_seniors == 0 & any_dem_miss ~= 1	///
+								if any_dem_miss ~= 2						
+		* 6) Senior adult(s) without children
+		gen demographic_class6 = only_seniors == 1 & any_children == 0 ///	
+								& any_dem_miss ~= 1 if any_dem_miss ~= 2
+
+		* 7) Other
+		cap drop anyd
+		egen anyd = rowmax(demographic_class*)
+		gen demographic_class7 = anyd == 0								///	
+								& any_dem_miss ~= 1 if any_dem_miss ~= 2	
+		drop anyd
+		
+		* 8) Missing
 		if "`missing'"~="" { //show missing
-			gen demographic_class12 = any_dem_miss == 1
-			label var demographic_class12 "Missing"
-			for var demographic_class*: replace X = 0 if X==.		
+			gen demographic_class8 = any_dem_miss == 1
+			label var demographic_class8 "Missing"
+			local m_note "Households are classified as 'missing' in the economic typology if any member has no information on sex or age."
+			for var demographic_class*: replace X = 0 if X == .		
 		}
 		for var demographic_class*: replace X = X*100
 		
 		* Label 
-		cap label var demographic_class1 "One adult female with children"	
-		cap label var demographic_class2 "One adult female no children"	
-		cap label var demographic_class3 "One adult male with children"	
-		cap label var demographic_class4 "One adult male no children"	
-		cap label var demographic_class5 "Two adults with children"	
-		cap label var demographic_class6 "Two adults no children"
-		cap label var demographic_class7 "Multiple adults with children"	
-		cap label var demographic_class8 "Multiple adults no children"	
-		cap label var demographic_class9 "Only seniors (65+) with children"							
-		cap label var demographic_class10 "Only seniors (65+) no children"										
-		cap label var demographic_class11 "Only children (‐18)"			
-		cap label var demographic_class12 "Missing"
+		cap label var demographic_class1 "Two adults with children"	
+		cap label var demographic_class2 "One adult female with children"	
+		cap label var demographic_class3 "Multiple adults with children"	
+		cap label var demographic_class4 "Only seniors (65+) with children"	
+		cap label var demographic_class5 "Adult(s) without children"	
+		cap label var demographic_class6 "Senior adult(s) without children"			
+		cap label var demographic_class7 "Other"
+		cap label var demographic_class8 "Missing"
+		
 		
 		// Economic classification
-		* 1) One male earner, at least one adult female nonearner, with children
-		gen		economic_class1 = number_mearners == 1 & number_fadultnonearners >= 1 	///
-					& number_fearners == 0 & any_children == 1 if any_earner_miss ~= 1
-		* 2) One male earner, at least one adult female nonearner, without children
-		gen economic_class2 = number_mearners == 1 & number_fadultnonearners >= 1 		///
-					& number_fearners == 0 & any_children == 0 if any_earner_miss ~= 1
-		* 3) One female earner, at least one adult male nonearner, with children
-		gen economic_class3 = number_fearners == 1 & number_madultnonearners >= 1 		///
-					& number_mearners ==  0 & any_children == 1 if any_earner_miss ~= 1
-		* 4) One female earner, at least one adult male nonearner, without children
-		gen economic_class4 = number_fearners == 1 & number_madultnonearners >= 1 		///
-					& number_mearners ==  0 & any_children == 0 if any_earner_miss ~= 1
-		/*
-		* 5) One female earner, no other adults/seniors or earners, with children
-		gen economic_class5 = number_fearners == 1  & number_mearners == 0 & any_children == 1 ///
-					& ((number_adults == 1 & number_seniors == 0) ///
-					| (number_adults == 0 & number_seniors == 1)) if any_earner_miss ~= 1
-		* 6) Two earners that are couple, no other adults/seniors or earners, with children
-		gen economic_class6 = any_adultcouple == 1 & number_earners == 2 & any_children == 1 ///
-					& (number_adults + number_seniors == 2)  if any_earner_miss ~= 1
-		* 7) Two earners that are couple, with other adult/senior nonearners, with children
-		gen economic_class7 = any_adultcouple == 1 & number_earners == 2 & any_children == 1 ///
-					& (number_adults + number_seniors > 2)  if any_earner_miss ~= 1
-		* 8) Two earners that are couple, no other adults/seniors or earners, without children
-		gen economic_class8 = any_adultcouple == 1 & number_earners == 2 & any_children == 0 ///
-					& (number_adults + number_seniors == 2)  if any_earner_miss ~= 1
-		* 9) At least two non-couple earners, no other adult/senior nonearners, with children
-		gen economic_class9 = ((any_adultcouple == 0 & number_earners >= 2 & any_children == 1) ///
-					| (any_adultcouple == 1 & number_earners >= 3 & any_children == 1)) ///
-					& number_adultnonearners == 0 if any_earner_miss ~= 1
-		* 10) At least two non-couple earners, with other adult/senior nonearners, with children
-		gen economic_class10 = ((any_adultcouple == 0 & number_earners >= 2 & any_children == 1) ///
-					| (any_adultcouple == 1 & number_earners >= 3 & any_children == 1)) ///
-					& number_adultnonearners >= 1 if any_earner_miss ~= 1
-		* 11) At least two non-couple earners, no other adult/senior nonearners, without children
-		gen economic_class11 = ((any_adultcouple == 0 & number_earners >= 2 & any_children == 0) ///
-					| (any_adultcouple == 1 & number_earners >= 3 & any_children == 0)) ///
-					& number_adultnonearners == 0 if any_earner_miss ~= 1
-		* 12) At least two non-couple earners, with other adult/senior nonearners, without children
-		gen economic_class12 = ((any_adultcouple == 0 & number_earners >= 2 & any_children == 0) ///
-					| (any_adultcouple == 1 & number_earners >= 3 & any_children == 0)) ///
-					& number_adultnonearners >= 1 if any_earner_miss ~= 1
-		* 13) Non-earning adult(s)/senior(s), no earners, without children
-		gen economic_class13 = number_earners == 0 & any_children == 0 if any_earner_miss ~= 1
-		* 14) Non-earning adult(s)/senior(s), no earners, with children
-		gen economic_class14 = number_earners == 0 & any_children == 1 if any_earner_miss ~= 1
-		* 15) One earner, no other adult/seniors, without children
-		gen economic_class15 = number_earners == 1 & `hhsize' == 1 & any_children == 0 if any_earner_miss ~= 1
-		* 16) Other
-		cap drop ecc_any
-		egen ecc_any = rowtotal(economic_class*)
-		gen economic_class16 = ecc_any == 0 if any_earner_miss ~= 1
-		cap drop ecc_any
-		* 17) Missing
+		* 1) One earner only 
+		gen economic_class1 = number_earners == 1 & number_nonearners == 0 	///
+							& any_earner_miss ~= 1 if any_earner_miss ~= 2
+		* 2) One earner, other nonearners
+		gen economic_class2 = number_earners == 1 & number_nonearners >= 1 	///
+							& any_earner_miss ~= 1 if any_earner_miss ~= 2
+		* 3) Multiple earners
+		gen economic_class3 = number_earners >= 2  							///
+							& any_earner_miss ~= 1 if any_earner_miss ~= 2
+		* 4) No earners
+		gen economic_class4 = number_earners == 0 & number_nonearners >= 1 	///
+							& any_earner_miss ~= 1 if any_earner_miss ~= 2
+		
+		* 5) Missing
 		if "`missing'"~="" { //show missing
-			gen economic_class17 = any_earner_miss == 1
-			label var economic_class17 "Missing"
-			local m_note "Households are classified as 'missing' in the economic typology if any adult has no information on labor market or employment status."
-			for var economic_class*: replace X = 0 if X==.			
+			gen economic_class5 = any_earner_miss == 1
+			label var economic_class5 "Missing"
+			local m_note "`m_note' Households are classified as 'missing' in the economic typology if any adult has no information on labor market, employment status or age."
+			for var economic_class*: replace X = 0 if X == .			
 		}
 		
 		* Label 
-		cap label var economic_class1 "One male earner, at least one adult female nonearner, with children"						
-		cap label var economic_class2 "One male earner, at least one adult female nonearner, no children"					
-		cap label var economic_class3 "One female earner, at least one adult male nonearner, with children"						
-		cap label var economic_class4 "One female earner, at least one adult male nonearner, no children"					
-		cap label var economic_class5 "One female earner, no other earners or nonearners, with children"					
-		cap label var economic_class6 "Two earners that are couple, no other earners/nonearners, with children"			
-		cap label var economic_class7 "Two earners that are couple, with other nonearners, with children"			
-		cap label var economic_class8 "Two earners that are couple, no other earners/nonearners, no children"		
-		cap label var economic_class9 "At least two non-couple earners, no nonearners, with children"		
-		cap label var economic_class10 "At least two non-couple earners, with nonearners, with children"			
-		cap label var economic_class11 "At least two non-couple earners, no nonearners, no children"	
-		cap label var economic_class12 "At least two non-couple earners, with nonearners, no children"		
-		cap label var economic_class13 "Non-earning adult(s)/senior(s), no earners, no children"								
-		cap label var economic_class14 "Non-earning adult(s)/senior(s), no earners, with children"								
-		cap label var economic_class15 "One earner, no other adult/seniors, no children"									
-		cap label var economic_class16 "Other"
-		cap label var economic_class17 "Missing"
+		cap label var economic_class1 "One earner only"						
+		cap label var economic_class2 "One earner, other nonearners"					
+		cap label var economic_class3 "Multiple earners"						
+		cap label var economic_class4 "No earners"					
+		cap label var economic_class5 "Missing"
 		*/
 		for var economic_class* : replace X = X*100
 		
@@ -353,9 +293,6 @@ program pea_table14, rclass
 		la def group1 1 "Demographic composition (%)" 2 "Economic composition (%)"
 		la val group1 group1
 		
-		// Keep only demographic composition for now
-		keep if group1 == 1
-		
 		local i = 1
 		gen order = .
 		foreach var in `demographic_comp' `economic_comp' {
@@ -371,8 +308,7 @@ program pea_table14, rclass
 	*collect style header group2[.], level(hide)
 	collect style header order, level(hide)
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
-	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Household typologies build on the classification vof Munoz Boudet et al. (2018). `m_note'"' 
-	// For the economic composition, earners are defined as those working and `earnage' years or older.
+	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Household typologies build on the classification vof Munoz Boudet et al. (2018). `m_note'. For the economic composition, earners are defined as those working and `earnage' years or older. Households are not differentiated by having children or no children."' 
 	collect style cell group1[]#cell_type[row-header], font(, bold)
 	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)
 	_pea_tbtformat

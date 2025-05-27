@@ -46,7 +46,7 @@ help for {hi:pea figure16}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea figure16} generates four figures: two treemops and two bar graphs, one displaying the demographic and one the economic composition of the poor, each. Only groups which make up more than 5% of the poor population are displayed. Data is taken from the last survey year. Bar charts can be useful when labels in the treemap overlap.
+{opt pea figure16} generates two bar graphs, one displaying the demographic and one the economic composition of the poor. Only groups which make up more than 5% of the poor population are displayed. Data is taken from the last survey year.
 
 {title:Options}
 
@@ -80,7 +80,7 @@ Defines a color palette to differentiate bars in the graph visualization.
 
 {p 4 4 2}
 {opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
-Default: 18
+Default: 16
 
 {p 4 4 2} 
 {opt excel(string)}:
