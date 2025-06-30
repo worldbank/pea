@@ -131,7 +131,9 @@ program pea_table1, rclass
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
 		
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
+		gen _pov_`onewelfare'_`oneline' = `onewelfare'< `oneline'  if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability'  if `touse'
+		replace _vulpov_`onewelfare'_`oneline' = 0 if _pov_`onewelfare'_`oneline' == 1 & `touse'	//	Only between poverty lines
 	}
 	else {
 		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
@@ -402,7 +404,7 @@ program pea_table1, rclass
 	collect style header subind[.], level(hide)
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Table shows poverty rates and the number of poor for each subgroup, such as the poverty rate among children. Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). `stdtext'"'
+	collect notes 2: `"Note: Table shows poverty rates and the number of poor for each subgroup, such as the poverty rate among children. Poverty rates reported for the poverty lines (per person per day), which are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Vulnerability to poverty is defined as being between the `lbl`povlines'' and `vulnerability' times the poverty line. `stdtext'"'
 	
 	collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 	collect style cell subind[]#cell_type[row-header], warn font(, nobold)	

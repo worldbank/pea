@@ -289,7 +289,7 @@ program pea_figure14, rclass
 		replace y = `mpmmax' in 2
 		
 		twoway `scatter_cmd' || line x y, lpattern(-) lcolor(gray) ///
-			xtitle("Monetary poverty rate (%)", size(medium)) ytitle("Multidimensional poverty measure (%)", size(medium)) ///
+			xtitle("Monetary poverty rate (%)") ytitle("Multidimensional poverty measure (%)") ///
 			legend(order(`legend')) name(gr_mpm2, replace)
 		
 		putexcel set "`excelout2'", modify sheet("Figure14b", replace)
@@ -302,7 +302,7 @@ program pea_figure14, rclass
 		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"
-		putexcel O7 = `"twoway `scatter_cmd' || line x y, lpattern(-) lcolor(gray), ytitle("Monetary poverty rate (%)", size(medium)) xtitle("Multidimensional poverty measure (%)", size(medium)) legend(order(`legend'))"'
+		putexcel O7 = `"twoway `scatter_cmd' || line x y, lpattern(-) lcolor(gray), ytitle("Monetary poverty rate (%)") xtitle("Multidimensional poverty measure (%)") legend(order(`legend'))"'
 		if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")
 		putexcel save
 		//Export data

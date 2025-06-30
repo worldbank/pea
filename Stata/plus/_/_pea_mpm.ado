@@ -198,14 +198,14 @@ program _pea_mpm, rclass
 	la var dep_infra_elec "Deprived if HH has No access to electricity"
 	
 	****************************************************		
-	//Indicator: Water 			
+	//Indicator: Sanitation 			
 	cap des imp_san_rec
 	if _rc==0 gen dep_infra_imps = imp_san_rec==0 if imp_san_rec~=.		
 	else      gen dep_infra_imps = .		
 	la var dep_infra_imps "Deprived if HH has No access to improved sanitation"
 	
 	****************************************************		
-	//Indicator: Sanitation 			
+	//Indicator: Water 			
 	cap des imp_wat_rec
 	if _rc==0 gen dep_infra_impw = imp_wat_rec==0 if imp_wat_rec~=.
 	else      gen dep_infra_impw = . 

@@ -32,7 +32,8 @@ help for {hi:pea table1}{right:January 2025}
 	{opt excel(string)} 
 	{opt save(string)} 
     {opt ONELine(varname numeric)}
-	{opt ONEWelfare(varname numeric)}]{p_end} 
+	{opt ONEWelfare(varname numeric)}
+	{opt vulnerability(string)}]{p_end} 
 
 {title:Description}
 
@@ -106,6 +107,13 @@ Default is inside.
 {p 4 4 2} 
 {opt ONEWelfare(varname numeric)}:
  is the welfare variable associated with the {opt ONELine} poverty line.
+
+If core is specified:
+ 
+{p 4 4 2}
+{opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
+Vulnerability to poverty is defined as being between the main and the multiple of the poverty line. Default is vulnerability(1.5).
+
 
 {title:Examples}
 

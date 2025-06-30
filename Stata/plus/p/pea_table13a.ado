@@ -97,14 +97,24 @@ program pea_table13a, rclass
 		}
 		
 		tempfile dataori datalbl
-		save `dataori', replace
 		
+		// Check if any years don't have urban
+		foreach y of local keepyears {
+			sum `urban' if `year' == `y'
+			if `r(N)' == 0 {
+			noi disp in red "No values for `urban' for year `y'. Please select other years, or a different sector variable."
+				exit
+			}
+		}
+		
+		// Check year list			
 		levelsof `year' if `touse', local(yrlist)
 		local same : list yrlist === keepyears
 		if `same'==0 {
 			noi dis "There are different years requested, and some not available in the data."
 			noi dis "Requested: `keepyears'. Available: `yrlist'"
 		}
+		
 		gen _keep =. if `touse'
 		foreach yr of local keepyears {
 			replace _keep=1 if `year'==`yr' & `touse'
@@ -113,6 +123,17 @@ program pea_table13a, rclass
 		drop _keep
 		save `dataori', replace
 		
+		// Number of areas
+		qui levelsof `urban', local(indlev)
+		local indnum = `: word count `indlev''
+		
+		// Prepare frames for output saving
+		local totdecomp = `indnum' + 3 														// Sectors + Total + Population + Interaction 
+		forval i = 1/`totdecomp' {
+			local values "`values' value`i'"
+		}
+		
+		// Prepare spells		
 		tokenize "`spells'", parse(";")	
 		local i = 1
 		local a = 1
@@ -128,7 +149,7 @@ program pea_table13a, rclass
 		cap frame create temp_frame
 		cap frame change temp_frame
 		cap frame drop decomp_results2	
-		frame create decomp_results2 strL(decomp spell povline) float(value1 value2 value3 value4 value5)
+		frame create decomp_results2 strL(decomp spell povline) float(`values')
 							  		
 		forv j=1(1)`=`a'-1' {
 			local spell`j' : list sort spell`j'
@@ -142,48 +163,66 @@ program pea_table13a, rclass
 					//Huppi-Ravallion decomposition
 					use `dataori' if `year'==`1', clear					
 					sedecomposition using `data_y2' [aw=`wvar'], sector(`urban') pline1(`var') pline2(`var') var1(`pppwelfare') var2(`pppwelfare') hc
+				
 					mat a = r(b_sec)
 					mat b = r(b_tot)					
 					local rnames : rowfullnames a
 					local rlbl
-					local x = 2
+					local x = 4
 					foreach rn of local rnames {
 						local rlbl `"`rlbl' `x' "`rn'""'
 						local x = `x' + 1
 					}					
 					local value1 = b[1,1]
-					local value2 = a[1,2]
-					local value3 = a[2,2]
-					local value4 = b[3,1]
-					local value5 = b[4,1]
-					
+					local value2 = b[3,1]
+					local value3 = b[4,1]
+
+					forval i = 1/`indnum' {
+						local j = `i' + 3						// Name of value has to start at 4
+						local value`j' = a[`i',2]
+					}		
+										
+					local categ					
+					// Get correct number values
+					forval i = 1/`totdecomp' {
+						local categ "`categ' (`value`i'')"
+					}
 					* Post the results to the frame
 					frame decomp_results2 {  
-						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") (`value1') (`value2') (`value3') (`value4') (`value5')
+						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") `categ'
 					}
 				}
 				foreach var of local natpovlines {
 					//Huppi-Ravallion decomposition
 					use `dataori' if `year'==`1', clear					
 					sedecomposition using `data_y2' [aw=`wvar'], sector(`urban') pline1(`var') pline2(`var') var1(`natwelfare') var2(`natwelfare') hc
+				
 					mat a = r(b_sec)
-					mat b = r(b_tot)
+					mat b = r(b_tot)					
 					local rnames : rowfullnames a
 					local rlbl
-					local x = 2
+					local x = 4
 					foreach rn of local rnames {
 						local rlbl `"`rlbl' `x' "`rn'""'
 						local x = `x' + 1
-					}
+					}					
 					local value1 = b[1,1]
-					local value2 = a[1,2]
-					local value3 = a[2,2]
-					local value4 = b[3,1]
-					local value5 = b[4,1]
-					
+					local value2 = b[3,1]
+					local value3 = b[4,1]
+
+					forval i = 1/`indnum' {
+						local j = `i' + 3						// Name of value has to start at 4
+						local value`j' = a[`i',2]
+					}		
+										
+					local categ					
+					// Get correct number values
+					forval i = 1/`totdecomp' {
+						local categ "`categ' (`value`i'')"
+					}
 					* Post the results to the frame
 					frame decomp_results2 {  
-						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") (`value1') (`value2') (`value3') (`value4') (`value5')
+						frame post decomp_results2 ("Huppi-Ravallion") ("`1'-`2'") ("`var'") `categ'
 					}
 				}	
 			} //1 2
@@ -192,7 +231,7 @@ program pea_table13a, rclass
 		* See results
 		frame change decomp_results2	
 		reshape long value, i(decomp spell povline) j(subind)
-		la def subind 1 "Total change in p.p." `rlbl' 4 "Population shift" 5 "Interaction"
+		la def subind 1 "Total change" 2 "Population shift" 3 "Interaction" `rlbl'		
 		la val subind subind
 		replace value = . if value==-9999
 		gen indicatorlbl = .

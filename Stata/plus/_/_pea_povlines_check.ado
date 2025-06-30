@@ -47,7 +47,7 @@ program _pea_povlines_check, rclass
 		local xval : display %4.2f `xval'
 		if !inlist(`=trim("`xval'")', `vlinecheck') {
 			noi disp in red "Value of poverty line (`=trim("`xval'")') is not among the standard poverty lines (`vlinecheck') for the `pppyear' PPP. Please check again the variables in Povlines() option."
-			error 198
+			error 200
 		}
 	}
 	return local vlinetxt "`vlinetxt'"

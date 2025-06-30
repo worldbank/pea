@@ -212,7 +212,7 @@ program pea_table3, rclass
 		drop if agecatind==.		
 		if ("`minobs'" ~= "") {
 			decode agecatind, gen(_agecatind_str)			
-			replace _fgt0_ = . if count < `minobs' & agecatind_str ~= "Missing"
+			replace _fgt0_ = . if count < `minobs' & _agecatind_str ~= "Missing"
 		}
 		collect clear
 		qui collect: table (indicatorlbl agecatind) (_group) if `year'==`ymax', stat(mean _fgt0_) nototal nformat(%20.1f) missing

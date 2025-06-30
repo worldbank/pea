@@ -135,7 +135,9 @@ program pea_core, rclass
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
+		gen _pov_`onewelfare'_`oneline' = `onewelfare'< `oneline'  if `touse'
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability'  if `touse'
+		replace _vulpov_`onewelfare'_`oneline' = 0 if _pov_`onewelfare'_`oneline' == 1 & `touse'	//	Only between poverty lines
 		gen double _pop = `wvar'
 		
 		tempfile data1 data2
@@ -203,7 +205,7 @@ program pea_core, rclass
 	
 	//table 5 
 	qui use `dataori', clear
-	cap pea_table5 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") age(`age') male(`male') urban(`urban') edu(`edu') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') `missing' core
+	cap pea_table5 [aw=`wvar'], welfare(`onewelfare') year(`year') povlines(`oneline') excel("`excelout'") age(`age') male(`male') urban(`urban') edu(`edu') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') `missing' core
 	qui if _rc==0 {
 		noi dis in green "Table A.5....... Done"
 		local ok = 1

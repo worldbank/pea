@@ -19,7 +19,7 @@
 cap program drop pea_table5
 program pea_table5, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) CORE setting(string) excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) urban(varname numeric) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) MISSING]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) Povlines(varname numeric) CORE setting(string) excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) urban(varname numeric) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) MISSING]
 	
 	//house cleaning
 	_pea_export_path, excel("`excel'")
@@ -41,15 +41,6 @@ program pea_table5, rclass
 	}
 	local lvarlist: list lvarlist - noobs
 
-	
-	//Weights
-	local wvar : word 2 of `exp'
-	qui if "`wvar'"=="" {
-		tempvar w
-		gen `w' = 1
-		local wvar `w'
-	}
-		
 	//Working age population
 	keep if `age' >= 15 & `age' <= 64	
 	//Keep only the latest data
@@ -57,11 +48,30 @@ program pea_table5, rclass
 	local ymax = r(max)
 	keep if `year'==`ymax'
 	
-	//missing observation check
-	marksample touse
-	local flist `"`wvar'"'
-	markout `touse' `flist' 
+	qui {
+		//order the lines
+		local lbl`povlines' : variable label `povlines'		
+		local lblline: var label `povlines'		
+
+		//Weights
+		local wvar : word 2 of `exp'
+		qui if "`wvar'"=="" {
+			tempvar w
+			gen `w' = 1
+			local wvar `w'
+		}
 	
+		//missing observation check
+		marksample touse
+		local flist `"`wvar' `welfare' `povlines'"'
+		markout `touse' `flist' 
+		
+		if "`core'"~="" { //reset to the floor PPP lines
+			replace `welfare' = ${floor_} if `welfare'< ${floor_}
+			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		}
+	}	
+			
 	//variable checks
 	// Age
 	gen agecatind 		= 1 if `age'>=15 & `age'<=24
@@ -76,9 +86,14 @@ program pea_table5, rclass
 	label define qn 1 "Q1 (poorest 20%)" 2 "Q2" 3 "Q3" 4 "Q4" 5 "Q5 (richest 20%)" 
 	label values __quintile qn
 	
+	//FGT
+	gen _fgt0 = (`welfare' < `povlines') if `welfare'~=. & `touse'
+	la def _fgt0 0 "Nonpoor" 1 "Poor" 
+	label values _fgt0 _fgt0
+	
 	// Missing
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `urban' `edu' __quintile agecatind {
+		foreach var of varlist `male' `urban' `edu' __quintile agecatind _fgt0 {
 			qui su `var'
 			if r(N)>0 {
 				local miss = r(max)
@@ -87,6 +102,7 @@ program pea_table5, rclass
 				la def `varlbl' `=`miss'+1' "Missing", add
 			}	
 		}
+		
 		foreach var of varlist `lvarlist' {
 			gen `var'mi = `var' == .
 			if ("`var'" ~= "`lstatus'") replace `var'mi = . if `lstatus' ~= 0
@@ -134,7 +150,7 @@ program pea_table5, rclass
 			use `data1', clear
 			su `var'
 			if r(N)>0 {
-				foreach row in _All `urban' __quintile `male' agecatind `edu' {
+				foreach row in _All `urban' __quintile `male' agecatind `edu' _fgt0 {
 					use `data1', clear
 					su `row'
 					if r(N)>0 {
@@ -178,8 +194,8 @@ program pea_table5, rclass
 	replace overgroup = 2 if overlbl == "`empstat'"
 	replace overgroup = 3 if overlbl == "`industrycat4'"
 	label define overgroup	1 "Labor force status as share of working-age population (age 15-64)"	///
-							2 "Employment status, as share of working"								///
-							3 "Sector of activity, as share of working"
+							2 "Employment status, as share of working-age population (age 15-64)"	///
+							3 "Sector of activity, as share of working-age population (age 15-64)"
 	label values overgroup overgroup
 	gen 	categn = 0 if categ == "_All"
 	replace	categn = 1 if categ == "`urban'"
@@ -187,7 +203,8 @@ program pea_table5, rclass
 	replace categn = 3 if categ == "`male'"
 	replace categn = 4 if categ == "agecatind"
 	replace categn = 5 if categ == "`edu'"
-	lab define categn 1 "By area" 2 "By welfare quintile" 3 "By sex" 4 "By age group" 5 "By education level"
+	replace categn = 6 if categ == "_fgt0"
+	lab define categn 1 "By area" 2 "By welfare quintile" 3 "By sex" 4 "By age group" 5 "By education level" 6 "By poverty status"
 	lab values categn categn
 	
 	drop overlbl group categ
@@ -211,7 +228,7 @@ program pea_table5, rclass
 	collect style header categn[0], level(hide)
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: The table presents labor market indicators by population subgroups. Labor market indicators are calculated for individuals in the age group of 15-64. Employment status and sector indicators (if available) are calculated for the subpopulation of those that are working. Population shares are calculated for observations with non-missing values only. `note_m' Education level refers to the highest level attended, complete or incomplete."'
+	collect notes 2: `"Note: The table presents labor market indicators by population subgroups. Labor market indicators are calculated for individuals in the age group of 15-64. Employment status and sector indicators (if available) are calculated for the subpopulation of those that are working. Population shares are calculated for observations with non-missing values only. `note_m' Education level refers to the highest level attended, complete or incomplete. The poor are defined using `lblline'."'
 	_pea_tbtformat
 	_pea_tbt_export, filename(`tbt') tbtname(`tbt') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 	
