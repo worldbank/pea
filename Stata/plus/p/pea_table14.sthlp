@@ -30,7 +30,6 @@ help for {hi:pea table14b}{right:January 2025}
 	{opt pid(string)} 
 	{opt lstatus(varname numeric)} 
 	{opt empstat(varname numeric)}
-	{opt relationharm(varname numeric)}
 	{opt earnage(integer)}
 	{opt MISSING}]{p_end}
 
@@ -104,11 +103,7 @@ Default under setting(GMD): nowork
 {opt empstat(varname numeric)}: specifies the employment status variable.
 Default under setting(GMD): empstat
 
-{p 4 4 2}
-{opt relationharm(varname numeric)}: specifies the relation to household head variable.
-Default is relationharm (harmonized variable in GMD)
-
 {title:Example}
 
 {p 4 4 2}
-{bf:pea table14} [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) hhhead(head) hhsize(hsize) hhid(hhid) pid(pid) lstatus(nowork) empstat(empstat) relationharm(relationharm) earnage(18)
+{bf:pea table14} [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) hhhead(head) hhsize(hsize) hhid(hhid) pid(pid) lstatus(nowork) empstat(empstat) earnage(18)

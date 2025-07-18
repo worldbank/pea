@@ -26,7 +26,7 @@ program pea_figures, rclass
 	//load setting
 	qui if "`setting'"=="GMD" {
 		_pea_vars_set, setting(GMD)
-		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets relationharm
+		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
 		foreach st of local vlist {
 			local `st' "${pea_`st'}"
 		}		
@@ -471,7 +471,7 @@ program pea_figures, rclass
 	else noi dis in red "Figure 15....... Not done - no data for `country'"
 
 	qui use `dataori0', clear	
-	cap pea_figure16, onew(`onewelfare') onel(`oneline') year(`year')  age(`age') male(`male') edu(`edu') hhhead(`hhhead') hhid(`hhid') pid(`pid') urban(`urban') married(`married') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') hhsize(`hhsize') relationharm(`relationharm') earnage(`earnage') missing scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
+	cap pea_figure16, onew(`onewelfare') onel(`oneline') year(`year')  age(`age') male(`male') edu(`edu') hhhead(`hhhead') hhid(`hhid') pid(`pid') urban(`urban') married(`married') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') hhsize(`hhsize') earnage(`earnage') missing scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
 		noi dis in green "Figure 16....... Done"
 		local ok = 1

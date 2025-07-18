@@ -21,7 +21,7 @@ program pea_setup, rclass
 	version 18.0
 		
 	//Install the packages used in pea
-	local packages ineqdeco svylorenz groupfunction drdecomp pip skdecomp schemepack geoplot palettes grc1leg2 colrspace treemap carryforward splitvallabels nicelabels niceloglabels
+	local packages ineqdeco svylorenz groupfunction drdecomp pip skdecomp schemepack geoplot palettes grc1leg2 colrspace treemap carryforward splitvallabels nicelabels niceloglabels wbopendata alorenz
 	//check way for moremata
 	foreach package of local packages  {
  		cap which `package'
@@ -60,11 +60,11 @@ program pea_setup, rclass
 	}
 	
 	//Update data from PIP and MPM first time
-	local dtypes MPM LIST PIP
+	local dtypes MPM LIST PIP GMI PEB WDI
 	foreach dtype of local dtypes {
 		cap pea_dataupdate, datatype(`dtype')
 		if _rc~=0 {
-			noi dis "Unable to update the data from `dtype'. Either DLW or PIP services are unavailable at the moment"
+			noi dis "Unable to update the data from `dtype'. Either DLW, PIP or WDI services are unavailable at the moment"
 			error `=_rc'
 		}
 	}

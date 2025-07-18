@@ -19,7 +19,7 @@
 cap program drop pea_table14
 program pea_table14, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 16) MISSING PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) earnage(integer 16) MISSING PPPyear(integer 2017)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -33,7 +33,7 @@ program pea_table14, rclass
 	
 	//Missing
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `relationharm' `age' _work {
+		foreach var of varlist `male' `age' _work {
 			qui su `var'
 			local max_`var' = r(max) + 10
 			replace `var' = `max_`var'' if `var'==.

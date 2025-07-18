@@ -28,7 +28,16 @@ program pea_table4, rclass
 	_pea_export_path, excel("`excel'")
 	
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `hhhead' `edu' `lstatus' `industrycat4' `empstat' {
+		foreach var of varlist `lstatus' `industrycat4' `empstat' {
+			su `var'
+			local miss = r(max)
+			if ("`var'" ~= "`lstatus'") replace `var' = `=`miss'+9' if `var'==. & `lstatus' == 0
+			else if ("`var'" == "`lstatus'") replace `var' = `=`miss'+10' if `var'==. & `lstatus' == .
+			local varlbl : value label `var'
+			la def `varlbl' `=`miss'+9' "Missing (of those working)", add
+			la def `varlbl' `=`miss'+10' "Missing", add
+		}
+		foreach var of varlist `male' `hhhead' `edu' {
 			su `var'
 			local miss = r(max)
 			replace `var' = `=`miss'+10' if `var'==.

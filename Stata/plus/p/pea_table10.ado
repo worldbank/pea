@@ -130,6 +130,9 @@ program pea_table10, rclass
 	if _rc==0 {
 		cap use "`persdir'pea/PIP_list_name.dta", clear	
 		if _rc~=0 local nametodo = 1	
+		keep if code == "`country'"
+		local regcode `=region_code[1]'
+		local ctryname `=country_name[1]'	
 	}
 	else local nametodo = 1
 	if `nametodo'==1 {
@@ -140,17 +143,6 @@ program pea_table10, rclass
 		}
 	}
 		
-	use "`persdir'pea/PIP_list_name.dta", clear
-	keep if code=="`country'"
-	if _N==0 {
-		noi dis in y "Warning: wrong country code"
-		error 1
-	}
-	else {
-		local regcode `=region_code[1]'
-		local ctryname `=country_name[1]'
-	}
-	
 	//PIP poverty and pros gap and all data from PIP	
 	local nametodo = 0
 	cap confirm file "`persdir'pea/PIP_all_country.dta"
@@ -166,6 +158,19 @@ program pea_table10, rclass
 			exit `=_rc'
 		}
 	}
+	cap confirm file "`persdir'pea/PIP_all_GDP.dta"
+	if _rc==0 {
+		cap use "`persdir'pea/PIP_all_country.dta", clear	
+		if _rc~=0 local nametodo = 1	
+	}
+	else local nametodo = 1
+	if `nametodo'==1 {
+		cap pea_dataupdate, datatype(PIP) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(PIP) update"
+			exit `=_rc'
+		}
+	}	
 	
 	//From here, all PIP data should be available.
 	//GDP https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.
@@ -185,15 +190,17 @@ program pea_table10, rclass
 	save `povben', replace emptyok
 	
 	use "`persdir'pea/PIP_all_country.dta", clear
+	keep if ppp == `pppyear'
 	foreach cc of local benchmark {
 		local cc "`=upper("`cc'")'"
 		use "`persdir'pea/PIP_all_country.dta" if code=="`cc'", clear
+		keep if ppp == `pppyear'
 		if "`latest'"~="" {
 			su year,d			
 			local ymax1 = r(max)
 			keep if year==`ymax1'
 			ren country_name name
-			keep name code year survey_acronym welfaretype headcount* gini pg gdppc
+			keep name code year survname welfaretype headcount* gini pg gdppc
 			append using `povben'
 			save `povben', replace			
 			if _N>0 local povb = 1
@@ -206,7 +213,7 @@ program pea_table10, rclass
 			}
 			else if _N==1 {
 				ren country_name name
-				keep name code year survey_acronym welfaretype headcount* gini pg gdppc
+				keep name code year survname welfaretype headcount* gini pg gdppc
 				append using `povben'
 				save `povben', replace				
 				if _N>0 local povb = 1
@@ -218,7 +225,7 @@ program pea_table10, rclass
 				keep if diff==`rmin'
 				*if _N==1 { //showing whatevery is available
 					ren country_name name
-					keep name code year survey_acronym welfaretype headcount* gini pg gdppc
+					keep name code year survname welfaretype headcount* gini pg gdppc
 					append using `povben'
 					save `povben', replace	
 					if _N>0 local povb = 1
@@ -229,10 +236,10 @@ program pea_table10, rclass
 	
 	//lineup estimates `povlineup'
 	*save `povlineup', replace
-	
 	//regional, get the closest regional number
 	tempfile regdata	
 	use "`persdir'pea/PIP_regional_estimate.dta", clear
+	keep if ppp == `pppyear'
 	keep if region_code=="`regcode'" //& year==`ymax'
 	gen diff = abs(year - `ymax')
 	su diff,d
@@ -246,6 +253,7 @@ program pea_table10, rclass
 	//income group
 	tempfile povincgr	
 	use "`persdir'pea/PIP_incgroup_estimate.dta", clear
+	keep if ppp == `pppyear'
 	keep if code=="`country'" //& year==`ymax'
 	gen diff = abs(year - `ymax')
 	su diff,d
@@ -258,7 +266,6 @@ program pea_table10, rclass
 	replace name = "Lower-middle-income" 	if name == "Lower middle income"
 	replace name = "Upper-middle-income" 	if name == "Lower middle income"
 	replace name = "High-income"			if name == "High income"
-	
 	save `povincgr', replace
 	
 	//Bring all back
@@ -271,11 +278,11 @@ program pea_table10, rclass
 	*if `povb'==1 append using `povben'
 	append using `povben'
 	append using `povincgr'
-	
+	keep if `year' > 1980
 	drop region_code
 	ren * var_*
 	ren var_code code
-	ren var_survey_acronym survey_acronym
+	ren var_survname survname
 	ren var_welfaretype welfaretype
 	*replace var_name = "Country of analysis" if code=="`country'"
 	rename var_name name 
@@ -291,7 +298,7 @@ program pea_table10, rclass
 	else if "`within3'"=="" local note_y "Table shows data from the latest available year within 3 years of `ymax' for each country."
 
 	rename var_year year
-	reshape long var_, i(code name survey_acronym) j(var) string
+	reshape long var_, i(code name survname) j(var) string
 	ren var_ value
 	
 	gen group = 0 if var=="gdppc"
@@ -313,6 +320,7 @@ program pea_table10, rclass
 	
 	la def group 1 "Poverty rate (%)" 2 "Shared Prosperity"
 	la val group group
+	keep if indicatorlbl ~= .
 	
 	//Gini to 100
 	replace value = value*100 if var=="gini" & value~=.

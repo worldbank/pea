@@ -45,6 +45,12 @@ program pea, rclass
 	else if ("`subcmd'"=="slides") { 
 		pea_slides `0'
     }
+	else if ("`subcmd'"=="tableC1") {
+		pea_tableC1 `0'		
+    }
+	else if ("`subcmd'"=="figureC1") {
+		pea_figureC1 `0'		
+    }
 	else if ("`subcmd'"=="table1") {
 		pea_table1 `0'		
     }

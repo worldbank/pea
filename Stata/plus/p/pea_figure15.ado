@@ -77,7 +77,8 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	// Get regional estimates
 	//Merge in population
 	rename code country_code
-	merge 1:1 country_code year using "`persdir'pea/PIP_all_countrylineup.dta", keepusing(pop) nogen
+	merge 1:m country_code year using "`persdir'pea/PIP_all_countrylineup.dta", keepusing(pop) nogen
+	keep if ppp == `pppyear'
 	gen count = _n
 	qui sum count if country_code == "`country'"
 	local region_name `=region[r(min)]'
