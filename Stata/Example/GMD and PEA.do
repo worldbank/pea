@@ -5,6 +5,8 @@
 //See the pdf guideline
 //https://github.com/worldbank/pea/blob/main/PEA_code_manual.pdf
 
+adopath + "c:\Users\wb327173\OneDrive - WBG\Downloads\ECA\repo\pea\Stata\plus\"
+
 //Data: 
 use "c:\Users\wb327173\OneDrive - WBG\Min core analytics\PEA ado\data\GNB_2018-2021_GMD_ALL.dta" , clear
 gen welfppp = welfare/cpi2017/icp2017/365
@@ -27,7 +29,7 @@ drop tmp1  tmp2  temp
 *within(3)  welfaretype(INC CONS)
 
 svyset psu [w= weight_p],  singleunit(certainty)
-
+s
 //STOP - Run the above code, and then select one at a time, not all together.
 
 pea core [aw=weight_p], c(GNB) natw(welfarenom) natp(natline ) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) byind(urban subnatvar) benchmark(ALB HRV XKX) onew(welfppp) onel(pline215) missing setting(GMD) spells(2018 2021) age(age) male(male) hhsize(hsize) hhid(hhid) pid(pid) lstatus(lstatus) empstat(empstat) relationharm(relationharm) earnage(18) ppp(2017) svy std(right)
