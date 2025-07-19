@@ -60,7 +60,9 @@ program pea_setup, rclass
 	}
 	
 	//Update data from PIP and MPM first time
-	local dtypes MPM LIST PIP GMI PEB WDI
+	local dtypes MPM LIST PIP GMI PEB WDI	
+  /*
+	*local dtypes MPM LIST PIP
 	foreach dtype of local dtypes {
 		cap pea_dataupdate, datatype(`dtype')
 		if _rc~=0 {
@@ -68,5 +70,6 @@ program pea_setup, rclass
 			error `=_rc'
 		}
 	}
+	*/
 	mata: pea_setup = 1	
 end
