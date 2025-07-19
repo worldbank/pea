@@ -237,7 +237,7 @@ program pea_figure3b, rclass
 		
 		//Figure
 		if "`core'" == "" local fnum "3b"
-		else if "`core'" ~= "" local fnum "A.1" 
+		else if "`core'" ~= "" local fnum "C.2" 
 		putexcel set "`excelout2'", `act'
 		
 		levelsof group_order, local(grlist)
@@ -266,7 +266,7 @@ program pea_figure3b, rclass
 			putexcel A1 = ""
 			putexcel A2 = "Figure `fnum': Growth Incidence Curves"
 			putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-			putexcel A4 = "Note: Growth incidence curves display annualized household growth in per capita consumption or income by percentile of the welfare distribution between two periods. Growth incidence curves are only shown for years with comparable surveys, and the latest specified spell. Percentiles are trimmed below `1' and above `2'."
+			putexcel A4 = "Note: Growth incidence curves display annualized household growth in per capita consumption or income by percentile of the welfare distribution between two periods. Growth incidence curves are calculated separately for urban and rural areas. Growth incidence curves are only shown for years with comparable surveys, and the latest specified spell. Percentiles are trimmed below `1' and above `2'."
 			
 			putexcel O10 = "Data:"
 			putexcel O6	= "Code:"

@@ -106,7 +106,8 @@ program pea_figure10b, rclass
 	// Load GDP and other countries from PIP
 	use "`persdir'pea/PIP_all_countrylineup.dta", clear
 	keep if year == `lasty'
-	
+	keep if ppp == `pppyear'
+
 	// Recount benchmark countries to get total number of legend entries, as some benchmark countries might not have data
 	gen b_in_list = ""
 	foreach b of local benchmark {

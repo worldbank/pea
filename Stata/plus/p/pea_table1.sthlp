@@ -22,17 +22,17 @@ help for {hi:pea table1}{right:January 2025}
 	{opt NATPovlines(varlist numeric)} 
     {opt PPPWelfare(varname numeric)} 
 	{opt PPPPovlines(varlist numeric)} 
-	{opt pppyear(integer)}
+	{opt PPPyear(integer)}
 	{opt SVY}
 	{opt std(string)}
-    {opt FGTVARS} 
 	{opt using(string)} 
     {opt Year(varname numeric)} 
-    {opt LINESORTED} 
 	{opt excel(string)} 
 	{opt save(string)} 
     {opt ONELine(varname numeric)}
 	{opt ONEWelfare(varname numeric)}
+	{opt BENCHmark(string)} 
+	{opt CORE} 
 	{opt vulnerability(string)}]{p_end} 
 
 {title:Description}
@@ -108,10 +108,10 @@ Default is inside.
 {opt ONEWelfare(varname numeric)}:
  is the welfare variable associated with the {opt ONELine} poverty line.
 
-If core is specified:
+If option core is specified:
  
 {p 4 4 2}
-{opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
+{opt vulnerability(string)}: specifies the value by which the main poverty line (as passed in option oneline()) is multiplied to define vulnerability to poverty.
 Vulnerability to poverty is defined as being between the main and the multiple of the poverty line. Default is vulnerability(1.5).
 
 

@@ -161,7 +161,7 @@ program pea_figure7b, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 7b: Poverty rates by demographic groups"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: Figure presents the share of population in each group that is poor and non-poor, as defined by the `lblline' line, for `year'. Data from all individuals is used, not only household heads. Poverty rates by educational attainment are calculated only for individuals aged 16 and above. Education level refers to the highest level attended, complete or incomplete."
+	putexcel A4 = "Note: Figure presents the poverty rate in each group, as defined by the `lblline' line, for `year'. Data from all individuals is used, not only household heads. Poverty rates by educational attainment are calculated only for individuals aged 16 and above. Education level refers to the highest level attended, complete or incomplete."
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"

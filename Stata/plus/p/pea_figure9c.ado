@@ -121,6 +121,7 @@ program pea_figure9c, rclass
 		
 	// Load other countries from PIP
 	use "`persdir'pea/PIP_all_country.dta", clear
+	keep if ppp == `pppyear'
 	gen y_d = abs(`lasty' - year)												// year closest to PEA year
 	bys country_code (year): egen min_d = min(y_d)
 	keep if (y_d == min_d) & y_d < `within' & gini ~= .
