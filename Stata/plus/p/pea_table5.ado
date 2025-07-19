@@ -14,7 +14,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//Table 5. Key labor market indicators by population group
+//Table 5. Key labor market outcomes by population group
 
 cap program drop pea_table5
 program pea_table5, rclass
@@ -41,8 +41,6 @@ program pea_table5, rclass
 	}
 	local lvarlist: list lvarlist - noobs
 
-	//Working age population
-	keep if `age' >= 15 & `age' <= 64	
 	//Keep only the latest data
 	qui su `year',d
 	local ymax = r(max)
@@ -85,6 +83,9 @@ program pea_table5, rclass
 	cap _ebin `welfare' [aw=`wvar'] if `touse', nquantiles(5) gen(__quintile)
 	label define qn 1 "Q1 (poorest 20%)" 2 "Q2" 3 "Q3" 4 "Q4" 5 "Q5 (richest 20%)" 
 	label values __quintile qn
+	
+	//Working age population
+	keep if `age' >= 15 & `age' <= 64	
 	
 	//FGT
 	gen _fgt0 = (`welfare' < `povlines') if `welfare'~=. & `touse'
@@ -214,8 +215,8 @@ program pea_table5, rclass
 		local tbt Table5
 	}
 	else {
-		local tabtitle "Table A.5. Key labor market indicators by population group"
-		local tbt TableA5
+		local tabtitle "Table C.2. Key labor market indicators by population group"
+		local tbt TableC.2
 	}
 	if "`missing'"~="" local note_m "Missing values for the labor market indicators are presented separately, therefore totals for each indicator may exceed 100%."
 	

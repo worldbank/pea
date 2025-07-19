@@ -17,47 +17,47 @@ help for {hi:pea tables}{right:January 2025}
 	[{it:in}] 
 	[{it:aw pw fw}]
 {opt ,} 
-[{opt country(string)}
-{opt natwelfare(varname numeric)}
-{opt natpovlines(varlist numeric)}
-{opt pppwelfare(varname numeric)}
-{opt ppppovlines(varlist numeric)}
-{opt pppyear(integer)}
+{opt Country(string)} 
+{opt Year(varname numeric)} 
+{opt NATWelfare(varname numeric)} 
+{opt NATPovlines(varlist numeric)} 
+{opt PPPWelfare(varname numeric)} 
+{opt PPPPovlines(varlist numeric)} 
+{opt ONELine(varname numeric)} 
+{opt ONEWelfare(varname numeric)}
+{opt SETting(string)} 
+{opt BENCHmark(string)} 
+{opt spells(string)}
+[{opt lstatus(varname numeric)} 
+{opt empstat(varname numeric)} 
+{opt industrycat4(varname numeric)} 
+{opt age(varname numeric)} 
+{opt male(varname numeric)} 
+{opt hhhead(varname numeric)} 
+{opt edu(varname numeric)} 
+{opt urban(varname numeric)} 
+{opt married(varname numeric)} 
+{opt school(varname numeric)} 
+{opt services(varlist numeric)} 
+{opt assets(varlist numeric)} 
+{opt hhsize(varname numeric)} 
+{opt hhid(string)} 
+{opt pid(string)}]
+[{opt PPPyear(integer)}
 {opt SVY}
 {opt std(string)}
-{opt year(varname numeric)}
-{opt setting(string)}
-{opt excel(string)}
-{opt save(string)}
-{opt byind(varlist numeric)}
+{opt excel(string)} 
+{opt save(string)} 
+{opt BYInd(varlist numeric)} 
 {opt vulnerability(string)}
-{opt age(varname numeric)}
-{opt male(varname numeric)}
-{opt hhhead(varname numeric)}
-{opt edu(varname numeric)}
-{opt urban(varname numeric)}
-{opt married(varname numeric)}
-{opt school(varname numeric)}
-{opt services(varlist numeric)}
-{opt assets(varlist numeric)}
-{opt hhsize(varname numeric)}
-{opt hhid(string)}
-{opt pid(string)}
-{opt industrycat4(varname numeric)}
-{opt lstatus(varname numeric)}
-{opt empstat(varname numeric)}
-{opt missing}
-{opt oneline(varname numeric)}
-{opt onewelfare(varname numeric)}
-{opt latest}
-{opt within3}
-{opt benchmark(string)}
-{opt spells(string)}
-{opt minobs(numlist)}
-{opt earnage(integer)}]{p_end}
+{opt trim(string)}
+{opt MISSING} 
+{opt LATEST} 
+{opt WITHIN3} 
+{opt minobs(numlist)}]{p_end}
 
 {p 4 4 2}
-The following are NON-mandatory options and are only used if setting(GMD) is not specified:
+The following only need to be used if setting(GMD) is not specified:
 {bf:hhhead, edu, married, school, services, assets, hhsize, hhid, pid, industrycat4, lstatus, and empstat}.
 
 {title:Description}
@@ -109,10 +109,7 @@ The following are NON-mandatory options and are only used if setting(GMD) is not
 {p 4 7}{opt Table A2}: core poverty indicators (test). {p_end}
 {p 4 7}{bf:{help pea table_A2:[PEA] pea table A2}}  
 
-
-{title:Options}
-
-Main options:
+{title:Required options}
 
 {p 4 4 2}
 {opt Country(string)}: 3-letter country code for the analysis.
@@ -130,65 +127,38 @@ Main options:
 {opt PPPPovlines(varlist numeric)}: specifies a list of PPP-adjusted poverty lines.
 
 {p 4 4 2}
-{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
-     
-{p 4 4 2} 
-{opt SVY}: triggers 'svy set' in Stata. If the data is not svy set, no standard errors will be produced. Only relevant for Table 1.
- 
-{p 4 4 2} 
-{opt std(string)}: Only works when data is svy set. Specifies where standard-errors are displayed. Available options are 'inside' or 'right', where inside means that the standard-error will be added in the same cell as the main statistic, and right means that it will be added in a separate cell to the right.
-Default is inside.
+{opt ONELine(varname numeric)}: specifies the main poverty line variable. This will be used by default if only one line is used.
 
+{p 4 4 2}
+{opt ONEWelfare(varname numeric)}: specifies the main welfare variable. This will be used by default if only one measure is used.
+    
 {p 4 4 2}
 {opt Year(varname numeric)}: specifies the year variable for the analysis.
 
 {p 4 4 2}
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options 
-(hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
-
-{p 4 4 2}
-{opt excel(string)}: specifies the file path for exporting results to Excel.
-
-{p 4 4 2}
-{opt save(string)}: specifies the file path for saving results.
-
-{p 4 4 2}
-{opt BYInd(varlist numeric)}: specifies the variables by which to break down the analysis (e.g., urban/rural, subnational).
-
-{p 4 4 2}
-{opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
-Vulnerability to poverty is defined as being between the main and the multiple of the poverty line. Default is vulnerability(1.5).
-
-{p 4 4 2}
-{opt ONELine(varname numeric)}: specifies the one-line poverty line variable.
-
-{p 4 4 2}
-{opt ONEWelfare(varname numeric)}: specifies the one-line welfare variable.
-
-{p 4 4 2}
-{opt MISSING}: Optional. Includes missing data in the analysis.
-
-{p 4 4 2}
-{opt LATEST}: includes only the most recent available data.
-
-{p 4 4 2}
-{opt WITHIN3}: limits analysis to data from countries within 3 years of the target year.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options
+ (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+ Either setting(GMD) or these options need to be specified.
 
 {p 4 4 2}
 {opt BENCHmark(string)}: specifies a list of benchmark countries (e.g., ALB HRV XKX).
 
 {p 4 4 2}
 {opt spells(string)}: specifies the periods or time spells for longitudinal analysis (e.g., 2015 2016; 2016 2017).
+ 
+{title:Options if setting(GMD) is not specified}
 
 {p 4 4 2}
-{opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value (relevant for Tables 2 and 3).
+{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed). Please note that the input variable should have 'not working' (i.e. unemployed or out of labor force) as the value = 1, and employed as a different value. 
+Default under setting(GMD): nowork
 
 {p 4 4 2}
-{opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
-Default: 16
+{opt empstat(varname numeric)}: specifies the employment status variable.
+Default under setting(GMD): empstat
 
-Additional options if setting(GMD) is not specified:
+{p 4 4 2}
+{opt industrycat4(varname numeric)}: specifies the industry category variable.
+Default under setting(GMD): industrycat4
 
 {p 4 4 2}
 {opt age(varname numeric)}: specifies the age variable for the analysis.
@@ -238,21 +208,48 @@ Default under setting(GMD): hhid
 {opt pid(string)}: specifies the individual ID variable.
 Default under setting(GMD): pid
 
-{p 4 4 2}
-{opt industrycat4(varname numeric)}: specifies the industry category variable.
-Default under setting(GMD): industrycat4
+{title:Additional options}
 
 {p 4 4 2}
-{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed).
-Default under setting(GMD): nowork
+{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
+Default is 2017.
+     
+{p 4 4 2} 
+{opt SVY}: triggers 'svy set' in Stata. If the data is not svy set, no standard errors will be produced. Only relevant for Table A.1.
+ 
+{p 4 4 2} 
+{opt std(string)}: Only works when data is svy set. Specifies where standard-errors are displayed. Available options are 'inside' or 'right', where inside means that the standard-error will be added in the same cell as the main statistic, and right means that it will be added in a separate cell to the right.
+Default is inside.
+ 
+{p 4 4 2}
+{opt excel(string)}: specifies the file path for exporting results to Excel.
 
 {p 4 4 2}
-{opt empstat(varname numeric)}: specifies the employment status variable.
-Default under setting(GMD): empstat
+{opt save(string)}: specifies the file path for saving results.
 
 {p 4 4 2}
-{opt relationharm(varname numeric)}: specifies the relation to household head variable.
-Default is relationharm (harmonized variable in GMD)
+{opt BYInd(varlist numeric)}: specifies the variables by which to break down the analysis (e.g., urban/rural, subnational).
+
+{p 4 4 2}
+{opt vulnerability(string)}: specifies the value by which the main poverty line is multipliede to define vulnerability to poverty.
+Vulnerability to poverty is defined as being between the main and the multiple of the poverty line. Default is vulnerability(1.5).
+
+{p 4 4 2}
+{opt trim(string)}: specifies percentiles below and above which growth incidence curves are trimmed (Figure A.1).
+Default is trim(3 97).
+
+{p 4 4 2}
+{opt MISSING}: Optional. Includes missing data in the analysis.
+
+{p 4 4 2}
+{opt LATEST}: includes only the most recent available data.
+
+{p 4 4 2}
+{opt WITHIN3}: limits analysis to data from countries within 3 years of the target year.
+
+{p 4 4 2}
+{opt minobs(numlist)}: specifies the minimum number of observations required to display a cell value.
+
 
 {title:Examples}
 
@@ -270,7 +267,7 @@ When setting(GMD) is NOT specified:
 
 {p 4 4 2}
 {bf:pea tables} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) 
-school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) relationharm(relationharm) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
 
 
 

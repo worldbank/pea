@@ -117,6 +117,7 @@ program pea_figure2, rclass
 	
 	// Load GDP and other countries from PIP
 	use "`persdir'pea/PIP_all_countrylineup.dta", clear
+	keep if ppp == `pppyear'
 	keep if year == `lasty'
 	local povline_100 = floor(`povline' * 100)
 	

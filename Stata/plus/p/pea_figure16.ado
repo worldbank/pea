@@ -18,7 +18,7 @@
 cap program drop pea_figure16
 program pea_figure16, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) setting(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) earnage(integer 16) MISSING scheme(string) palette(string) excel(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) setting(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) earnage(integer 16) MISSING scheme(string) palette(string) excel(string) PPPyear(integer 2017)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -31,7 +31,7 @@ program pea_figure16, rclass
 	replace _work = . if `lstatus' == . & `empstat' == .
 	
 	if "`missing'"~="" { //show missing
-		foreach var of varlist `male' `relationharm' `age' _work {
+		foreach var of varlist `male' `age' _work {
 			qui su `var'
 			local max_`var' = r(max) + 10
 			replace `var' = `max_`var'' if `var'==.

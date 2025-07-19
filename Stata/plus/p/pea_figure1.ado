@@ -204,7 +204,7 @@ program pea_figure1, rclass
 		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
 	}		
 
-	if "`comparability'"~="__comp" local note_c "Note: Non-connected dots indicate that survey-years are not comparable."	
+	if "`comparability'"~="__comp" local note_c "Non-connected dots indicate that survey-years are not comparable."	
 
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure1.xlsx"
@@ -221,7 +221,7 @@ program pea_figure1, rclass
 	putexcel set "`excelout2'", `act'
 	
 	//change all legend to bottom, and maybe 2 rows
-	if "`combine'" ~= "" local botlbl "rows(1) size(medium) position(6)"
+	if "`combine'" ~= "" local botlbl "rows(1) position(6)"
 		
 	foreach var of varlist _fgt* {
 		rename `var' var

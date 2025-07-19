@@ -35,7 +35,6 @@ help for {hi:pea figure16}{right:January 2025}
 	{opt industrycat4(varname numeric)} 
 	{opt lstatus(varname numeric)} 
 	{opt empstat(varname numeric)}
-	{opt relationharm(varname numeric)}
 	{opt earnage(integer)}
 	{opt MISSING}]{p_end}
 	{opt scheme(string)} 
@@ -133,11 +132,6 @@ Default under setting(GMD): nowork
 {p 4 4 2}
 {opt empstat(varname numeric)}: specifies the employment status variable.
 Default under setting(GMD): empstat
-
-{p 4 4 2}
-{opt relationharm(varname numeric)}: specifies the relation to household head variable.
-Default is relationharm (harmonized variable in GMD)
-
 
 {title:Examples}
 

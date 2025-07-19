@@ -17,52 +17,57 @@ help for {hi:pea figures}{right:January 2025}
 	[{it:in}] 
 	[{it:aw pw fw}]
 {opt ,} 
-[{opt natwelfare(varname numeric)}
- {opt natpovlines(varlist numeric)} 
- {opt pppwelfare(varname numeric)} 
- {opt ppppovlines(varlist numeric)}
- {opt pppyear(integer)}
- {opt year(varname numeric)} 
- {opt setting(string)} 
- {opt excel(string)} 
- {opt save(string)} 
- {opt byind(varlist numeric)}
- {opt age(varname numeric)}
- {opt male(varname numeric)} 
- {opt hhhead(varname numeric)} 
- {opt edu(varname numeric)}
- {opt urban(varname numeric)} 
- {opt married(varname numeric)} 
- {opt school(varname numeric)}
- {opt services(varlist numeric)} 
- {opt assets(varlist numeric)}
- {opt hhsize(varname numeric)}
- {opt hhid(string)}
- {opt pid(string)}
- {opt industrycat4(varname numeric)}
- {opt lstatus(varname numeric)} 
- {opt empstat(varname numeric)} 
- {opt oneline(varname numeric)} 
- {opt onewelfare(varname numeric)} 
- {opt missing} 
- {opt country(string)} 
- {opt within(integer)} 
- {opt combine}
- {opt trim(string)}
- {opt ineqind(string)}
- {opt comparability(varname numeric)}
- {opt benchmark(string)} 
- {opt spells(string)} 
- {opt noequalspacing} 
- {opt yrange(string)} 
- {opt bar} 
- {opt scheme(string)}
- {opt palette(string)} 
- {opt earnage(integer)}
- {opt welfaretype(string)}]{p_end}
+{opt Country(string)} 
+{opt Year(varname numeric)} 
+{opt NATWelfare(varname numeric)} 
+{opt NATPovlines(varlist numeric)} 
+{opt PPPWelfare(varname numeric)} 
+{opt PPPPovlines(varlist numeric)} 
+{opt ONELine(varname numeric)} 
+{opt ONEWelfare(varname numeric)}
+{opt SETting(string)} 
+{opt BENCHmark(string)} 
+{opt spells(string)}
+[{opt lstatus(varname numeric)} 
+{opt empstat(varname numeric)} 
+{opt industrycat4(varname numeric)} 
+{opt age(varname numeric)} 
+{opt male(varname numeric)} 
+{opt hhhead(varname numeric)} 
+{opt edu(varname numeric)} 
+{opt urban(varname numeric)} 
+{opt married(varname numeric)} 
+{opt school(varname numeric)} 
+{opt services(varlist numeric)} 
+{opt assets(varlist numeric)} 
+{opt hhsize(varname numeric)} 
+{opt hhid(string)} 
+{opt pid(string)}]
+[{opt within(integer)} 
+{opt combine}
+{opt noequalspacing} 
+{opt yrange(string)} 
+{opt bar} 
+{opt ineqind(string)}
+{opt idpl(string)}
+{opt relativechange}
+{opt welfaretype(string)}
+{opt earnage(integer)}
+{opt scheme(string)}
+{opt palette(string)} 
+{opt PPPyear(integer)}
+{opt excel(string)} 
+{opt save(string)} 
+{opt BYInd(varlist numeric)} 
+{opt comparability(varname numeric)}
+{opt trim(string)}
+{opt MISSING} 
+{opt LATEST} 
+{opt WITHIN3} 
+{opt minobs(numlist)}]{p_end}
 
 {p 4 4 2}
-The following are NON-mandatory options and are only used if setting(GMD) is not specified:
+The following only need to be used if setting(GMD) is not specified:
 {bf:hhhead, edu, married, school, services, assets, hhsize, hhid, pid, industrycat4, lstatus, and empstat}.
 
 {title:Description}
@@ -149,6 +154,8 @@ NOTE: only works for the international poverty lines, to be exact 2.15, 3.65, 6.
 
 Main options:
 
+{title:Required options}
+
 {p 4 4 2}
 {opt Country(string)}: 3-letter country code for the analysis.
 
@@ -165,44 +172,29 @@ Main options:
 {opt PPPPovlines(varlist numeric)}: specifies a list of PPP-adjusted poverty lines.
 
 {p 4 4 2}
-{opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011). This is for example relevant for welfare measures from benchmark countries.
-Default is 2017.
+{opt ONELine(varname numeric)}: specifies the main poverty line variable. This will be used by default if only one line is used.
 
+{p 4 4 2}
+{opt ONEWelfare(varname numeric)}: specifies the main welfare variable. This will be used by default if only one measure is used.
+    
 {p 4 4 2}
 {opt Year(varname numeric)}: specifies the year variable for the analysis.
 
 {p 4 4 2}
-{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified.
-
-{p 4 4 2}
-{opt excel(string)}: specifies the file path for exporting results to Excel.
-
-{p 4 4 2}
-{opt save(string)}: specifies the file path for saving results.
-
-{p 4 4 2}
-{opt BYInd(varlist numeric)}: specifies the variables by which to break down the analysis (e.g., urban/rural, subnational).
-
-{p 4 4 2}
-{opt ONELine(varname numeric)}: specifies the one-line poverty line variable.
-
-{p 4 4 2}
-{opt ONEWelfare(varname numeric)}: specifies the one-line welfare variable.
-
-{p 4 4 2}
-{opt MISSING}: Optional. Includes missing data in the analysis.
-
-{p 4 4 2}
-{opt LATEST}: includes only the most recent available data.
+{opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options
+ (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+ Either setting(GMD) or these options need to be specified.
 
 {p 4 4 2}
 {opt BENCHmark(string)}: specifies a list of benchmark countries (e.g., ALB HRV XKX).
 
 {p 4 4 2}
-{opt spells(string)}: specifies the periods or time spells for longitudinal analysis (e.g., spells(2000 2005; 2005 2010)).
+{opt spells(string)}: specifies the periods or time spells for longitudinal analysis (e.g., 2015 2016; 2016 2017).
+
+{title:Figure specific options}
 
 {p 4 4 2}
-{opt trim(string)}: specifies percentiles below and above which growth incidence curves are trimmed (figure 3).
+{opt trim(string)}: Optional. specifies percentiles below and above which growth incidence curves are trimmed (figure 3).
 Default is trim(3 97).
 
 {p 4 4 2}
@@ -232,10 +224,10 @@ Default is that figures start at 0 and go up to the maximum value of the display
 
 {p 4 4 2}
 {opt scheme(string)}: Optional. Sets the scheme, specifying the overall look of the figures. 
-Default is “white_tableau”.
+Default is "white_tableau".
 
 {p 4 4 2}
-{opt palette(string)}: Optional. Sets the color palette for figures. Default is “tab20”. 
+{opt palette(string)}: Optional. Sets the color palette for figures. Default is "tab20". 
 See Annex 1: Example. Either string (e.g. vividis) or list of colors.
 
 {p 4 4 2}
@@ -252,7 +244,20 @@ Figures showing scatters of inequality display different symbols for countries w
 {opt earnage(integer)}: specifies the age cut-off for working status for the economic composition. Working status depends both on labor force status (lstatus) and employment status (empstat). Individuals will only be considered working if as old or older than the cut-off.
 Default: 16
 
-Additional options if setting(GMD) is not specified:
+
+{title:Options if setting(GMD) is not specified}
+
+{p 4 4 2}
+{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed). Please note that the input variable should have 'not working' (i.e. unemployed or out of labor force) as the value = 1, and employed as a different value. 
+Default under setting(GMD): nowork
+
+{p 4 4 2}
+{opt empstat(varname numeric)}: specifies the employment status variable.
+Default under setting(GMD): empstat
+
+{p 4 4 2}
+{opt industrycat4(varname numeric)}: specifies the industry category variable.
+Default under setting(GMD): industrycat4
 
 {p 4 4 2}
 {opt age(varname numeric)}: specifies the age variable for the analysis.
@@ -302,19 +307,12 @@ Default under setting(GMD): hhid
 {opt pid(string)}: specifies the individual ID variable.
 Default under setting(GMD): pid
 
-{p 4 4 2}
-{opt industrycat4(varname numeric)}: specifies the industry category variable.
-Default under setting(GMD): industrycat4
-
-{p 4 4 2}
-{opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed).
-Default under setting(GMD): nowork
-
-{p 4 4 2}
-{opt empstat(varname numeric)}: specifies the employment status variable.
-Default under setting(GMD): empstat
-
 {title:Examples}
 
 {p 4 4 2}
 {bf:pea figures}[aw=weight_p], c(IDN) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA) missing setting(GMD) spells(2000 2007; 2007 2008; 2016 2022) comparability(comparability) welfaretype(CONS) yrange(0(10)100)
+
+pea figures [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) comparability(comparability) welfaretype(CONS) 
+
+pea figures [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(VNM IDN THA) missing setting(GMD) spells(2015 2018; 2018 2021) comparability(comparability) welfaretype(CONS) bar 
+

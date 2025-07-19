@@ -232,7 +232,7 @@ program pea_figure4, rclass
 		
 		//Datt-Ravallion
 		if "`core'" == "" local fnum "4a"
-		else if "`core'" ~= "" local fnum "A.2" 
+		else if "`core'" ~= "" local fnum "C.3" 
 		tempfile graph1
 		twoway bar value_add3 value_add2 spell_n if decomp=="Datt-Ravallion", color("${col3}" "${col2}") barwidth(0.5 0.5)  ||	///
 				scatter value1 spell_n if decomp=="Datt-Ravallion", 										///

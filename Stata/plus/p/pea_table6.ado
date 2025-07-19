@@ -46,9 +46,9 @@ program pea_table6, rclass
 	 
 	qui {
 		//Keep only the latest data
-		su `year',d
-		local ymax = r(max)
-		keep if `year'==`ymax'
+		*su `year',d
+		*local ymax = r(max)
+		*keep if `year'==`ymax'
 		
 		//Weights
 		local wvar : word 2 of `exp'
@@ -121,7 +121,7 @@ program pea_table6, rclass
 	
 	foreach cc of local benchmark {
 		local cc "`=upper("`cc'")'"
-		use "`persdir'pea/WLD_GMI_MPM.dta" if code=="`cc' & ppp==`pppyear'", clear
+		use "`persdir'pea/WLD_GMI_MPM.dta" if code=="`cc'" & ppp==`pppyear', clear
 		if "`all'"~="" {
 			if _N>0 {				
 				ren dep_infra_impw2 dep_infra_impw
@@ -185,5 +185,5 @@ program pea_table6, rclass
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Indicator database"'
 		collect notes 2: `"Note: The table shows deprivation rates of the six components of the World Bank Multidimensional Poverty Measure (MPM) with `pppyear' PPP. See Table 6a for weights of each component. Limited-standard drinking water refers to water from an improved source within collection time of 30 minutes for a roundtrip including queuing. Limited-standard sanitation refers to the use of improved facilities which are not shared with other households (WHO/UNICEF Joint Monitoring Programme)."'
 		_pea_tbtformat		
-		_pea_tbt_export, filename(Table6) tbtname(Table6b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	shell
+		_pea_tbt_export, filename(Table6) tbtname(Table6b) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'")	shell modify
 end
