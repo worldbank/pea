@@ -315,68 +315,22 @@ program pea_tableC1, rclass
 	
 	local pea_pline : word `inc' of `ppppovlines'
 	use `data1', clear
-	qui levelsof `pea_pline', local(pline_use)
-	local pline_use = floor(`pline_use' * 100)
+	qui levelsof `pea_pline', local(pline_use)	
+	local pline_use = round(`pline_use' * 100)
+	
 	* What is the correct poverty line for vulnerability?
 	if "`onewelfare'" == "welfppp" {
 		levelsof `oneline', local(pline_vul_low)
 		local pline_vul_lo = round(`pline_vul_low' * 100)
-	* Manually create multiples, because of rounding errors
-		if `pline_vul_lo' == 215 {
-			if `vulnerability' == 1.5 {
-				local pline_vul_up = 322
-			}
-			else if `vulnerability' == 2 {
-				local pline_vul_up = 430
-			}
-		}
-		else if `pline_vul_lo' == 365 {
-			if `vulnerability' == 1.5 {
-				local pline_vul_up = 547
-			}
-			else if `vulnerability' == 2 {
-				local pline_vul_up = 730
-			}
-		}
-		else if `pline_vul_lo' == 685 {
-			if `vulnerability' == 1.5 {
-				local pline_vul_up = 1027
-			}
-			else if `vulnerability' == 2 {
-				local pline_vul_up = 1370
-			}
-		}
-		else if `pline_vul_lo' == 300 {
-			if `vulnerability' == 1.5 {
-				local pline_vul_up = 450
-			}
-			else if `vulnerability' == 2 {
-				local pline_vul_up = 600
-			}
-		}
-		else if `pline_vul_lo' == 420 {
-			if `vulnerability' == 1.5 {
-				local pline_vul_up = 630
-			}
-			else if `vulnerability' == 2 {
-				local pline_vul_up = 840
-			}
-		}
-		else if `pline_vul_lo' == 830 {
-			if `vulnerability' == 1.5 {
-				local pline_vul_up = 1245
-			}
-			else if `vulnerability' == 2 {
-				local pline_vul_up = 1660
-			}
-		}		
+		local pline_vul_up = floor(`pline_vul_lo'*`vulnerability')		
 	} 
 	else {
 		noi di in red "Vulnerability to poverty for peers can only be calculated with welfppp in onewelfare()."
 	}
 
 	clear 
-	save `data_gmi', emptyok
+	save `data_gmi', emptyok replace
+	
 	// GMI for peers
 	// Option 1, benchmark countries
 	if "`aggregate'" == "" {
@@ -387,7 +341,7 @@ program pea_tableC1, rclass
 		}
 		keep if keep == 1
 		keep if year>=`=`maxy'-3' & year<=`=`maxy'+3'
-		qui sum
+		count
 		if r(N) > 0 {
 			gen diff = abs(year - `maxy')
 			bys code: egen mindiff = min(diff)
@@ -397,7 +351,7 @@ program pea_tableC1, rclass
 		}
 		keep country_name code year fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk
 		rename country_name group
-		save `data_gmi', replace
+		save `data_gmi', replace emptyok
 		
 		// Scorecard for peers
 		use `data_gmi1', clear
@@ -411,7 +365,7 @@ program pea_tableC1, rclass
 		keep code country_name atrisk 
 		rename country_name group
 		merge 1:1 code using `data_gmi', nogen
-		save `data_gmi', replace
+		save `data_gmi', replace emptyok
 				
 		// Vulnerability for peers
 		if "`onewelfare'" == "welfppp" {										// only possible if ppp welfare
@@ -437,6 +391,11 @@ program pea_tableC1, rclass
 			drop code
 			save `data_gmi', replace
 		}
+		count
+		if r(N)==0 {
+			noi dis "No data available for benchmark countries"
+			error 2000
+		}
 	}
 	// Option 2, aggregates of region and income groups
 	else if "`aggregate'" == "groups" {
@@ -445,29 +404,35 @@ program pea_tableC1, rclass
 			keep if `gp' == "``gp'_c'"											// Keep only PEA country specific region or income group
 			keep if year>=`=`maxy'-3' & year<=`=`maxy'+3'
 			gen diff = abs(year - `maxy')
-			bys code: egen mindiff = min(diff)
-			keep if diff == mindiff
-			bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
-			keep if year == maxyear
-			qui levelsof country_name, local(`gp'_names) clean separate(", ")
-			collapse (mean) fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk [aw=pop], by(`gp')
-			gen group = `gp'
-			drop `gp'
-			gen year = `maxy'
+			count
+			if r(N)>0 {
+				bys code: egen mindiff = min(diff)
+				keep if diff == mindiff
+				bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
+				keep if year == maxyear
+				qui levelsof country_name, local(`gp'_names) clean separate(", ")
+				collapse (mean) fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk [aw=pop], by(`gp')
+				gen group = `gp'
+				drop `gp'
+			}
+			gen year = `maxy'			
 			append using `data_gmi'
-			save `data_gmi', replace
+			save `data_gmi', replace emptyok
 			
 			// Scorecard for peers
 			use `data_gmi1', clear
 			bys code (year): keep if _n == _N	// Only have climate risk for one year, keep only one obs
 			keep if atrisk ~= .
 			keep if `gp' == "``gp'_c'"											// Keep only PEA country specific region or income group
-			collapse (mean) atrisk [aw=pop_pip_vul], by(`gp')
+			count
+			if r(N)>0 {
+				collapse (mean) atrisk [aw=pop_pip_vul], by(`gp')
+			}
 			gen group = `gp'
 			drop `gp'
 			keep group atrisk 
 			merge 1:1 group using `data_gmi', nogen
-			save `data_gmi', replace
+			save `data_gmi', replace emptyok
 			
 			// Vulnerability for groups aggregate
 			if "`onewelfare'" == "welfppp" {										// only possible if ppp welfare
@@ -477,16 +442,24 @@ program pea_tableC1, rclass
 				keep if `gp' == "``gp'_c'"											// Keep only PEA country specific region or income group
 				keep if year>=`=`maxy'-3' & year<=`=`maxy'+3'
 				gen diff = abs(year - `maxy')
-				bys code: egen mindiff = min(diff)
-				keep if diff == mindiff
-				bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
-				keep if year == maxyear
-				gen vulpov = headcount`pline_vul_up' - headcount`pline_vul_lo'
-				collapse (mean) vulpov [aw=pop], by(`gp')
-				gen group = `gp'
+				count
+				if r(N)>0 {
+					bys code: egen mindiff = min(diff)
+					keep if diff == mindiff
+					bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
+					keep if year == maxyear
+					gen vulpov = headcount`pline_vul_up' - headcount`pline_vul_lo'
+					collapse (mean) vulpov [aw=pop], by(`gp')
+				}
+				gen group = `gp'				
 				merge 1:1 group using `data_gmi', nogen
-				save `data_gmi', replace
+				save `data_gmi', replace emptyok
 			}	
+		}
+		count
+		if r(N)==0 {
+			noi dis "No data available for benchmark countries"
+			error 2000
 		}
 	}
 	// Option 3, aggregates of benchmark
@@ -498,16 +471,20 @@ program pea_tableC1, rclass
 		}
 		keep if keep == 1
 		keep if year>=`=`maxy'-3' & year<=`=`maxy'+3'
-		gen diff = abs(year - `maxy')
-		bys code: egen mindiff = min(diff)
-		keep if diff == mindiff
-		bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
-		keep if year == maxyear
-		qui levelsof country_name, local(bench_names) clean separate(", ")
-		collapse (mean) fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk [aw=pop]
+		count
+		if r(N)>0 {
+			gen diff = abs(year - `maxy')
+			bys code: egen mindiff = min(diff)
+			keep if diff == mindiff
+			bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
+			keep if year == maxyear
+			qui levelsof country_name, local(bench_names) clean separate(", ")
+			collapse (mean) fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk [aw=pop]
+		}
 		gen group = "Peers"
+		cap drop year
 		gen year = `maxy'
-		save `data_gmi', replace	
+		save `data_gmi', replace emptyok
 		
 		// Scorecard for peers aggregate
 		use `data_gmi1', clear
@@ -518,7 +495,10 @@ program pea_tableC1, rclass
 		keep if keep == 1
 		bys code (year): keep if _n == _N	// Only have climate risk for one year, keep only one obs
 		keep if atrisk ~= .
-		collapse (mean) atrisk [aw=pop_pip_vul]
+		count
+		if r(N)>0 {
+			collapse (mean) atrisk [aw=pop_pip_vul]
+		}
 		gen group = "Peers"
 		merge 1:1 group using `data_gmi', nogen
 		save `data_gmi', replace
@@ -534,17 +514,25 @@ program pea_tableC1, rclass
 			keep if keep == 1
 			keep if year>=`=`maxy'-3' & year<=`=`maxy'+3'
 			gen diff = abs(year - `maxy')
-			bys code: egen mindiff = min(diff)
-			keep if diff == mindiff
-			bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
-			keep if year == maxyear
-			gen vulpov = headcount`pline_vul_up' - headcount`pline_vul_lo'
-			collapse (mean) vulpov [aw=pop]
+			count
+			if r(N)>0 {
+				bys code: egen mindiff = min(diff)
+				keep if diff == mindiff
+				bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
+				keep if year == maxyear
+				gen vulpov = headcount`pline_vul_up' - headcount`pline_vul_lo'
+				collapse (mean) vulpov [aw=pop]
+			}
 			gen group = "Peers"
 			merge 1:1 group using `data_gmi', nogen
 			save `data_gmi', replace
-		}	
-	}
+		}
+		count
+		if r(N)==0 {
+			noi dis "No data available for benchmark countries"
+			error 2000
+		}
+	} //benchmark
 
 	erase `data_gmi1'
 	cap mi unset, asis

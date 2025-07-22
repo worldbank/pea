@@ -20,7 +20,7 @@
 cap program drop pea_figure12
 program pea_figure12, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT spells(string) excel(string) save(string) comparability(string) RELATIVECHANGE scheme(string) palette(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [Country(string) ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT spells(string) excel(string) save(string) comparability(string) RELATIVECHANGE scheme(string) palette(string) PPPyear(integer 2021)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')

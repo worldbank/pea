@@ -112,7 +112,7 @@ program pea_table10, rclass
 		qui sum `pl'		
 		local xval = r(mean)
 		local xval : display %4.2f `xval'		
-		local xval = `=trim("`xval'")'*100			
+		local xval = round(`xval'*100)
 		ren _fgt0_`welfare'_`pl' headcount`xval'
 	}
 	

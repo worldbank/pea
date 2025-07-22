@@ -19,7 +19,7 @@
 cap program drop pea_figure5b
 program pea_figure5b, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) industrycat4(varname numeric) hhhead(varname numeric) hhid(string) CORE LINESORTED comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) spells(string) Year(varname numeric) industrycat4(varname numeric) hhhead(varname numeric) hhid(string) CORE LINESORTED comparability(string) setting(string) excel(string) save(string) scheme(string) palette(string) PPPyear(integer 2021)]
 
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -97,7 +97,6 @@ program pea_figure5b, rclass
 			noi dis "There are different years requested, and some not available in the data."
 			noi dis "Requested: `keepyears'. Available: `yrlist'"
 		}
-		
 		
 		gen _keep =. if `touse'
 		foreach yr of local keepyears {

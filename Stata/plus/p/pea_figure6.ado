@@ -19,7 +19,7 @@
 cap program drop pea_figure6
 program pea_figure6, rclass
 	version 18.0
-syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string) PPPyear(integer 2017)]
+syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) FGTVARS spells(string) comparability(string) scheme(string) palette(string) excel(string) save(string) PPPyear(integer 2021)]
 
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -72,7 +72,6 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	}
 	keep if _keep==1 & `touse'
 	drop _keep
-	
 	save `dataori', replace
 
 	// Prepare spells

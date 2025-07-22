@@ -19,7 +19,7 @@
 cap program drop pea_figure10a
 program pea_figure10a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOEQUALSPACING YRange(string) BAR scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) urban(varname numeric) setting(string) comparability(string) NOEQUALSPACING YRange(string) BAR scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2021)]
 
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -27,9 +27,6 @@ program pea_figure10a, rclass
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all		
 	
-	global floor_ 0.25
-	global prosgline_ 25
-
 	//house cleaning	
 	if "`urban'"=="" {
 		noi di in red "Sector/urban variable must be defined in urban()"

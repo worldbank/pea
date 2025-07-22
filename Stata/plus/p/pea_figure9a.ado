@@ -19,7 +19,7 @@
 cap program drop pea_figure9a
 program pea_figure9a, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) comparability(string) NOOUTPUT NOEQUALSPACING YRange(string) ineqind(string) excel(string) save(string) BAR MISSING scheme(string) palette(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) comparability(string) NOOUTPUT NOEQUALSPACING YRange(string) ineqind(string) excel(string) save(string) BAR MISSING scheme(string) palette(string) PPPyear(integer 2021)]
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
 	

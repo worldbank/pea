@@ -19,7 +19,7 @@
 cap program drop pea_tableA2
 program pea_tableA2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) CORE setting(string) LINESORTED excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) minobs(numlist) MISSING SVY std(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) CORE setting(string) LINESORTED excel(string) save(string) age(varname numeric) male(varname numeric) edu(varname numeric) minobs(numlist) MISSING SVY std(string) PPPyear(integer 2021)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -116,8 +116,6 @@ program pea_tableA2, rclass
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year' `byind' `age'"'
 		markout `touse' `flist' 
-		
-		
 		
 		tempfile dataori datalbl
 		save `dataori', replace

@@ -20,7 +20,7 @@
 cap program drop pea_figure2
 program pea_figure2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) PPPWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) PPPWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2021)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -119,7 +119,8 @@ program pea_figure2, rclass
 	use "`persdir'pea/PIP_all_countrylineup.dta", clear
 	keep if ppp == `pppyear'
 	keep if year == `lasty'
-	local povline_100 = floor(`povline' * 100)
+	*local povline_100 = floor(`povline' * 100)
+	local povline_100 = round(`povline' * 100)
 	
 	// Recount benchmark countries to get total number of legend entries, as some benchmark countries might not have data
 	gen b_in_list = ""
@@ -187,7 +188,7 @@ program pea_figure2, rclass
 		local b_count = `b_count' + 1
 		local grcolor`groupcount': word `groupcount' of ${colorpalette}
 		local msym`groupcount' "t"
-		}
+	}
 
 	* Rest
 	local groupcount = `groupcount' + 1

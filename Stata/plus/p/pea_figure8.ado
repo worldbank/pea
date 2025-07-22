@@ -19,7 +19,7 @@
 cap program drop pea_figure8
 program pea_figure8, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) NOOUTPUT FGTVARS YRange(string) age(varname numeric) male(varname numeric) excel(string) save(string) MISSING scheme(string) palette(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) NOOUTPUT FGTVARS YRange(string) age(varname numeric) male(varname numeric) excel(string) save(string) MISSING scheme(string) palette(string) PPPyear(integer 2021)]
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
 	

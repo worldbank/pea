@@ -19,7 +19,8 @@
 cap program drop pea_figure13
 program pea_figure13, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NOEQUALSPACING excel(string) save(string) scheme(string) palette(string) COMParability(varname numeric) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) Year(varname numeric) NOOUTPUT NOEQUALSPACING excel(string) save(string) scheme(string) palette(string) COMParability(varname numeric) PPPyear(integer 2021)]	
+	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
 	
@@ -94,6 +95,7 @@ program pea_figure13, rclass
 	collapse (sum) __welfweight, by(`year' __decile)
 	merge m:1 `year' using `data2b'
 	gen double decile = (__welfweight/__total)*100
+	drop if decile==.
 	drop __welfweight __total _merge
 	reshape wide decile, i(`year' `comparability') j(__decile)
 	cap ren `year' year

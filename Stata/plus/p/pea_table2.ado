@@ -19,7 +19,7 @@
 cap program drop pea_table2
 program pea_table2, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) minobs(numlist) CORE setting(string) LINESORTED excel(string) save(string) MISSING PPPyear(integer 2017) SVY std(string)]
+	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS using(string) Year(varname numeric) byind(varlist numeric) minobs(numlist) CORE setting(string) LINESORTED excel(string) save(string) MISSING PPPyear(integer 2021) SVY std(string)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')

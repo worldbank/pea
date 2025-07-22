@@ -23,7 +23,7 @@ program pea, rclass
 	local l = strlen("`subcmd'")
 	
 	qui	tempfile __datax
-	qui save `__datax', replace
+	qui save `__datax', replace emptyok
 	
 	noi _pea_logo
 	//run pea setup first

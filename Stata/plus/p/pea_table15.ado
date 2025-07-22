@@ -19,7 +19,7 @@
 cap program drop pea_table15
 program pea_table15, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) excel(string) save(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) excel(string) save(string) PPPyear(integer 2021)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -77,6 +77,7 @@ program pea_table15, rclass
 	collapse (sum) __welfweight, by(`year' __decile)
 	merge m:1 `year' using `data2b'
 	gen double decile = (__welfweight/__total)*100
+	drop if decile==.
 	drop __welfweight __total _merge
 	cap ren `year' year
 	la var year ""

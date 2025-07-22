@@ -19,7 +19,7 @@
 cap program drop pea_table9
 program pea_table9, rclass
 	version 18.0
-	syntax [if] [in], [Country(string) Year(varname numeric) CORE excel(string) save(string) PPPyear(integer 2017)]	
+	syntax [if] [in], [Country(string) Year(varname numeric) CORE excel(string) save(string) PPPyear(integer 2021)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')

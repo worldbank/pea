@@ -20,7 +20,7 @@ cap program drop pea_dataupdate
 program pea_dataupdate, rclass
 	version 18.0
 	syntax [if] [in] [aw pw fw], [datatype(string) pppyear(string) UPDATE]
-		
+	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
@@ -29,8 +29,9 @@ program pea_dataupdate, rclass
 	if _rc==0 clear
 	else local datayear = `datayear'-1
 	
-	if "`pppyear'"=="" local pppyear 2017
+	if "`pppyear'"=="" local pppyear 2021
 	else local pppyear `=trim("`pppyear'")'
+	if "`datatype'"~="" local datatype `=upper("`datatype'")'
 	
 	local dl 0
 	if "`update'"=="update" local dl 1
@@ -107,19 +108,12 @@ program pea_dataupdate, rclass
 				replace `i' = subinstr(`i', "income", "income countries", .)
 			}
 			save	`inc_group'
-			* Add 2024 as year 
-			keep if year == 2023
-			replace year = 2024
-			append using `inc_group'			
-			save	`inc_group', replace
+			* Add 2025 as year 
 			keep if year == 2024
 			replace year = 2025
 			append using `inc_group'	
 			char _dta[version] $S_DATE
 			save "`persdir'pea/CLASS_incg_region.dta", replace
-			
-			*char _dta[version] $S_DATE
-			*use "`persdir'pea/UNESCO.dta", clear	
 		}
 		
 		//LIST country name and regions
@@ -186,8 +180,7 @@ program pea_dataupdate, rclass
 		}
 		
 		//Population data
-		if "`datatype'"=="POP" {
-			
+		if "`datatype'"=="POP" {	
 			tempfile pop
 			cap pip tables, clear table(pop)
 			if _rc==0 {
@@ -226,8 +219,8 @@ program pea_dataupdate, rclass
 		
 		//PIP
 		if "`datatype'"=="PIP" {
-	local persdir : sysdir PERSONAL	
-	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
+			*local persdir : sysdir PERSONAL	
+			*if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 			clear
 			tempfile gdppc codereglist povdata povben povdata2017 povdata2021 pfr
 			save `povben', replace emptyok
@@ -240,6 +233,7 @@ program pea_dataupdate, rclass
 			char _dta[version] $S_DATE			
 			save "`persdir'pea/PIP_all_GDP.dta", replace
 			save `gdppc', replace
+			
 			/* Loop tends to break because of API, use local files for now.
 			* UPDATE LATER
 			//Country Pov data
@@ -287,7 +281,7 @@ program pea_dataupdate, rclass
 			
 			*Call local files, update later!
 			* Get correct survey
-			use "`persdir'pea/Survey_price_framework 1.dta", clear
+			use "`persdir'pea/Survey_price_framework.dta", clear
 			keep code rep_year datatype display_cp survname
 			rename (rep_year) (year)
 			gen		welfare_type = 1 if datatype == "CONS" | datatype == "C" | datatype == "c"
@@ -303,11 +297,12 @@ program pea_dataupdate, rclass
 			merge m:1 code year welfare_type survname using `pfr', nogen
 			drop if display_cp == 0 | display_cp == .
 			rename (fgt0_*) (headcount*)
-			*/
-			
+					
 			for var headcount*: replace X = X*100		
 			merge m:1 code year using `gdppc', keepus(gdppc)
-			rename welfare_type welfaretype
+			gen welfaretype= "CONS" if welfare_type==1
+			replace welfaretype= "INC" if welfare_type==2
+			*rename welfare_type welfaretype
 			drop if _merge==2
 			drop _merge
 			char _dta[version] $S_DATE			
@@ -339,6 +334,7 @@ program pea_dataupdate, rclass
 					}
 				}
 			}
+			
 			* Put together
 			foreach p in 2017 2021 {
 				local j = 1
@@ -394,6 +390,7 @@ program pea_dataupdate, rclass
 						
 						* Merge in gdp pc
 						merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keepus(gdppc)
+						
 						* Produce income group level poverty rates for each country					
 						groupfunction [aw=pop], mean(headcount pg gdppc) by(incgroup_historical year) merge
 						drop if inlist(code,"ARG") & reporting_level=="rural"					 // Keep only one observation for Argentina
@@ -492,7 +489,6 @@ program pea_dataupdate, rclass
 		
 		//GMI
 		if "`datatype'"=="GMI" {
-
 			foreach dat in CLASS POP MPM {
 				cap pea_dataupdate, datatype(`dat')												// If any file not prepared
 				if _rc~=0 {
@@ -500,8 +496,8 @@ program pea_dataupdate, rclass
 					error `=_rc'
 				}
 			}	
-	local persdir : sysdir PERSONAL	
-	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
+			*local persdir : sysdir PERSONAL	
+			*if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
 			tempfile pop2 pfr ine lab risk
 			* Get population national level
@@ -514,7 +510,7 @@ program pea_dataupdate, rclass
 			keep code year atrisk pop_pip_vul
 			save `risk'
 			* Get correct survey
-			use "`persdir'pea/Survey_price_framework 1.dta", clear
+			use "`persdir'pea/Survey_price_framework.dta", clear
 			keep code rep_year datatype display_cp survname
 			rename (datatype rep_year) (welftype year)
 			replace welftype = "CONS" if welftype == "C" | welftype == "c"
@@ -538,9 +534,8 @@ program pea_dataupdate, rclass
 			keep if level == "Total"
 			drop if count < 30 													// Drop when too few observations
 			keep code year survname _working_ind _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor215_wrk nonpoor215_wrk poor365_wrk nonpoor365_wrk poor685_wrk nonpoor685_wrk poor300_wrk nonpoor300_wrk poor420_wrk nonpoor420_wrk poor830_wrk nonpoor830_wrk _misslfs_ind _empstat_ind_m _industry_ind_m women_wrk youth_wrk
-			foreach v of varlist _working_ind _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor215_wrk nonpoor215_wrk poor365_wrk nonpoor365_wrk poor685_wrk nonpoor685_wrk poor300_wrk nonpoor300_wrk poor420_wrk nonpoor420_wrk poor830_wrk nonpoor830_wrk _misslfs_ind  _empstat_ind_m _industry_ind_m women_wrk youth_wrk {
-				replace `v' = `v' * 100
-			}
+			for var *_wrk *_ind* : replace X = X*100
+			
 			merge m:1 code year survname using `pfr', keep(1 3) nogen
 			drop survname
 			drop if display_cp == 0												// Only keep main survey for each country
@@ -560,6 +555,7 @@ program pea_dataupdate, rclass
 				noi dis "Unable to access GMI data from DLW"
 				exit `=_rc'
 			}
+			
 			cap dlw, country(WLD) type(GMI) year(`datayear') mod(POV) files
 			if _rc==0 {
 				drop if strpos(filename, "BIN") > 0 & survname == "EU-SILC"			// Drop EU-SILC binned data
@@ -589,6 +585,5 @@ program pea_dataupdate, rclass
 			char _dta[version] $S_DATE
 			save "`persdir'pea/GMI_extend_all_country.dta", replace
 		}
-
 	} //dl
 end
