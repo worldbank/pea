@@ -19,7 +19,7 @@
 cap program drop pea_table4
 program pea_table4, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) MISSING PPPyear(integer 2021)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) MISSING PPPyear(integer 2021)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -205,6 +205,26 @@ program pea_table4, rclass
 			*local headvars "`headvars' industry_head"
 		}
 		
+		if "`industrycat10'"~="" {
+			local industry10_head
+			clonevar industry10_head = `industrycat10'
+			replace industry10_head = . if `hhhead'~=1 			
+			*gen industry_head = `industrycat4' if `hhhead'==1 
+			la var industry10_head "Household head's sector of employment (10)"
+			local lblindustry10_head "Household head's sector of employment (10)"
+			
+			levelsof industry10_head, local(industry10lvl)
+			local label1 : value label industry10_head	
+			foreach lvl of local industry10lvl {
+				gen industry10_head`lvl' = 100*(industry10_head==`lvl') if industry10_head~=.
+				local labelname1 : label `label1' `lvl'				
+				la var industry10_head`lvl' "`labelname1'"
+				local headvars "`headvars' industry10_head`lvl'"
+				local industry10_head "`industry10_head' industry10_head`lvl'"
+			}
+			*local headvars "`headvars' industry_head"
+		}
+		
 		if "`lstatus'"~="" {
 			local work_head
 			clonevar work_head = `lstatus'
@@ -306,10 +326,13 @@ program pea_table4, rclass
 	foreach var of local industry_head {
 		replace group2 = 3 if name=="`var'"		
 	}
+	foreach var of local industry10_head {
+		replace group2 = 4 if name=="`var'"		
+	}
 
 	la def group1 1 "Demographics" 2 "Access to services (%)" 3 "Asset ownership (%)" 
 	la val group1 group1
-	la def group2 1 "Labor force status of household head (%)" 2 "Employment status of household head (%)" 3 "Economic sector of household head (%)"
+	la def group2 1 "Labor force status of household head (%)" 2 "Employment status of household head (%)" 3 "Economic sector of household head (%)" 4 "Economic 10-sector of household head (%)"
 	la val group2 group2
 
 	foreach var of local edu_head {
@@ -318,7 +341,7 @@ program pea_table4, rclass
 	
 	local i = 1
 	gen order = .
-	foreach var in `demographics' `services' `assets' `work_head' `empstat_head' `industry_head' {
+	foreach var in `demographics' `services' `assets' `work_head' `empstat_head' `industry_head' `industry10_head' {
 		replace order = `i' if name=="`var'"
 		local i = `i' + 1
 	}

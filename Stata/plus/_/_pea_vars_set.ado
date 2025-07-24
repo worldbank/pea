@@ -113,6 +113,25 @@ program _pea_vars_set, rclass
 			*error 1
 		}
 		
+		//lstatus
+		cap des industrycat10
+		if _rc==0 {
+			qui tab industrycat10
+			if r(r)>0 {
+				global pea_industrycat10 "industrycat10"	
+			}
+			else {				
+				noi dis as error "Variable industrycat10 is missing in the GMD data."				
+				global pea_industrycat10 ""								
+				*error 1
+			}
+		}
+		else {
+			noi dis as error "Variable industrycat10 is missing in the GMD data."
+			global pea_industrycat10 ""										
+			*error 1
+		}
+		
 		//empstat
 		cap des empstat
 		if _rc==0 {

@@ -17,7 +17,7 @@
 cap program drop _pea_mpm
 program _pea_mpm, rclass
 	version 16.0
-	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) SETting(string) PPPyear(integer 2017)]	
+	syntax [if] [in] [aw pw fw], [Country(string) Welfare(varname numeric) Year(varname numeric) SETting(string) PPPyear(integer 2021)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')

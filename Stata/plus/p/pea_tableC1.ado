@@ -16,7 +16,6 @@
 
 //Table C.1. Key Poverty, Shared Prosperity and Labor Market Indicators
 
-
 cap program drop pea_tableC1
 program pea_tableC1, rclass
 	version 18.0
@@ -35,8 +34,7 @@ program pea_tableC1, rclass
 			noi di in red "Unable to open the data"
 			exit `=_rc'
 		}
-	}
-	
+	}	
 	if "`save'"=="" tempfile saveout
 	
 	//house cleaning
@@ -46,19 +44,26 @@ program pea_tableC1, rclass
 		local vulnerability = 1.5
 		noi di in yellow "Default multiple of poverty line to define vulnerability is 1.5"
 	}
-	
-	if `vulnerability' ~= 1.5 & `vulnerability' ~= 2 {
-        display as error "Vulnerability multiple can only be 1.5 or 2"
-        exit 198
+	else {
+		if `vulnerability' ~= 1.5 & `vulnerability' ~= 2 {
+			display as error "Vulnerability multiple can only be 1.5 or 2"
+			exit 198
+		}
 	}
 	
 	if "`aggregate'"~="" {
-    if !inlist("`aggregate'", "groups", "benchmark") {
-        display as error "aggregate() must be either 'groups' or 'benchmark'"
-        exit 198
+		local aggregate =lower("`aggregate'")
+		if !inlist("`aggregate'", "groups", "benchmark") {
+			display as error "aggregate() must be either 'groups' or 'benchmark'"
+			exit 198
 		}
 	}
-
+	else {
+		//option when missing
+	}
+	
+	if "`benchmark'"=="" local benchmark = upper("`benchmark'")
+	
 	if "`lstatus'"=="" {
 		noi di in red "Not working variable must be defined in lstatus()"
 		exit 1
@@ -72,7 +77,7 @@ program pea_tableC1, rclass
 	//check plines are not overlapped.
 	//trigger some sub-tables
 	qui {
-		su `year',d
+		su `year', meanonly
 		local ymax = r(max)
 		levelsof `year', local(ylist)
 		local atrisk0 2021		
@@ -105,7 +110,7 @@ program pea_tableC1, rclass
 		}
 
 		if "`oneline'"~="" {
-			su `oneline',d
+			su `oneline'
 			if `=r(sd)'==0 local lbloneline: display %9.2f `=r(mean)'				
 			else local lbloneline `oneline'
 			local lbloneline `=trim("`lbloneline'")'
@@ -119,11 +124,10 @@ program pea_tableC1, rclass
 			local wvar `w'
 		}
 		
-
 		// Check if empstat and/or industrycat4 are missing
 		local lvarlist "`lstatus' `empstat' `industrycat4'"
 		foreach var of local lvarlist {
-			qui su `var'
+			su `var', meanonly
 			if (r(N) == 0) local noobs "`noobs' `var'"
 		}
 		local lvarlist: list lvarlist - noobs
@@ -177,7 +181,7 @@ program pea_tableC1, rclass
 	
 	//MPM WB
 	use `data1', clear
-	_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`pppwelfare') 
+	_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`pppwelfare') ppp(`pppyear')
 	keep `year' mdpoor_i1
 	replace mdpoor_i1 = mdpoor_i1*100
 	ren mdpoor_i1 _mpmwb_`pppwelfare'
@@ -247,7 +251,7 @@ program pea_tableC1, rclass
 		ren `var' d`tmp'
 	}
 	drop in 1
-	reshape long d, i(_varname) j(year)
+	reshape long d, i(_varname) j(`year')
 	ren d value
 	split _varname, parse("_")
 	drop _varname1
@@ -274,13 +278,11 @@ program pea_tableC1, rclass
 	drop _varname*
 	
 	* Years for GMI benchmarking
-	qui sum year
+	sum `year', meanonly
 	local maxy `r(max)'
-	
 	save `data3', replace
-			
-	// Benchmark countries and regions
 	
+	// Benchmark countries and regions	
 	*Check if GMI data is already prepared, else download
 	local nametodo = 0
 	cap confirm file "`persdir'pea/GMI_extend_all_country.dta"
@@ -298,8 +300,8 @@ program pea_tableC1, rclass
 	}
 	* Keep only relevant PPP
 	keep if ppp == `pppyear'
-	save `data_gmi1', emptyok
-
+	save `data_gmi1', replace
+	
 	* Save PEA country region and income group
 	gen count = _n
 	qui sum count if code == "`country'"
@@ -311,23 +313,25 @@ program pea_tableC1, rclass
 	if "`incgroup_current_c'" == "Low-income countries" local inc = 1
 	else if "`incgroup_current_c'" == "Lower-middle-income countries" local inc = 2
 	else if "`incgroup_current_c'" == "Upper-middle-income countries" local inc = 3
-	else if "`incgroup_current_c'" == "High-income countries" local inc = 3			// Use UMIC if HIC
-	
+	else "`incgroup_current_c'" == "High-income countries" local inc = 3			// Use UMIC if HIC
 	local pea_pline : word `inc' of `ppppovlines'
+	
 	use `data1', clear
 	qui levelsof `pea_pline', local(pline_use)	
 	local pline_use = round(`pline_use' * 100)
 	
 	* What is the correct poverty line for vulnerability?
-	if "`onewelfare'" == "welfppp" {
+	*if "`onewelfare'" == "welfppp" {
+	if "`onewelfare'" == "`pppwelfare'" {
 		levelsof `oneline', local(pline_vul_low)
 		local pline_vul_lo = round(`pline_vul_low' * 100)
 		local pline_vul_up = floor(`pline_vul_lo'*`vulnerability')		
 	} 
 	else {
-		noi di in red "Vulnerability to poverty for peers can only be calculated with welfppp in onewelfare()."
+		noi di in red "Vulnerability to poverty for peers can only be calculated with pppwelfare() in onewelfare()."
 	}
-
+	
+	//start merge/append GMI data for related countries
 	clear 
 	save `data_gmi', emptyok replace
 	
@@ -368,7 +372,7 @@ program pea_tableC1, rclass
 		save `data_gmi', replace emptyok
 				
 		// Vulnerability for peers
-		if "`onewelfare'" == "welfppp" {										// only possible if ppp welfare
+		if "`onewelfare'" == "`pppwelfare'" { // only possible if ppp welfare		
 			use "`persdir'pea/PIP_all_country.dta", clear
 			keep if ppp == `pppyear'
 			gen keep = .
@@ -435,7 +439,7 @@ program pea_tableC1, rclass
 			save `data_gmi', replace emptyok
 			
 			// Vulnerability for groups aggregate
-			if "`onewelfare'" == "welfppp" {										// only possible if ppp welfare
+			if "`onewelfare'" == "`pppwelfare'" {			
 				use "`persdir'pea/PIP_all_country.dta", clear
 				keep if ppp == `pppyear'
 				merge 1:1 code year using `data_gmi1', keepusing(`gp')
@@ -466,6 +470,7 @@ program pea_tableC1, rclass
 	else if "`aggregate'" == "benchmark" {
 		use `data_gmi1', clear
 		gen keep = .
+		noi dis "`benchmark'"
 		foreach b of local benchmark  {
 			replace keep = 1 if code == "`b'"
 		}
@@ -503,8 +508,8 @@ program pea_tableC1, rclass
 		merge 1:1 group using `data_gmi', nogen
 		save `data_gmi', replace
 
-		// Vulnerability for peers aggregate
-		if "`onewelfare'" == "welfppp" {										// only possible if ppp welfare
+		// Vulnerability for peers aggregate		
+		if "`onewelfare'" == "`pppwelfare'" {	// only possible if ppp welfare
 			use "`persdir'pea/PIP_all_country.dta", clear
 			keep if ppp == `pppyear'
 			gen keep = .
@@ -533,7 +538,10 @@ program pea_tableC1, rclass
 			error 2000
 		}
 	} //benchmark
-
+	else {
+		//other aggregate options should not reach
+	}
+	
 	erase `data_gmi1'
 	cap mi unset, asis
 	
@@ -690,6 +698,7 @@ program pea_tableC1, rclass
 	else if "`aggregate'" == "" local agg_note "Peer countries are included if a survey within 3 years of `maxy' is available."
 	
 	local mi_note "The row 'Share of obs. with missing LFS values' shows the share of observations (15-64) for which the labor force status (working, not working) is missing."
+	
 	// Table
 	local tabtitle "Table C.1. Core poverty indicators"
 	local tabname TableC.1
@@ -701,7 +710,7 @@ program pea_tableC1, rclass
 	*collect style header subind[.], level(hide)
 	collect title `"`tabtitle'"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates reported for the international poverty lines (per person per day) are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $25. Poverty vulnerability refers to the share of the population living just above the poverty line (`lbl`oneline'') —below 1.5 times its value—who remain at high risk of falling into poverty due to even small shocks or setbacks. For the share of poor/nonpoor working, the `lbl`pea_pline'' poverty line, typical for `incgroup_current_c', is used. Work includes paid and unpaid work. `agg_note' `mi_note' Values for climate-related hazard risks are for ca. 2021."'
+	collect notes 2: `"Note: Poverty rates reported for the international poverty lines (per person per day) are expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). The prosperity gap is defined as the average factor by which incomes need to be multiplied to bring everyone to the prosperity standard of $${prosgline_}. Poverty vulnerability refers to the share of the population living just above the poverty line (`lbl`oneline'') —below 1.5 times its value—who remain at high risk of falling into poverty due to even small shocks or setbacks. For the share of poor/nonpoor working, the `lbl`pea_pline'' poverty line, typical for `incgroup_current_c', is used. Work includes paid and unpaid work. `agg_note' `mi_note' Values for climate-related hazard risks are for ca. 2021."'
 	collect style cell headers[]#cell_type[row-header], font(, bold)
 	collect style cell indicatorlbl[]#cell_type[row-header], warn font(, nobold)	
 	_pea_tbtformat
@@ -727,5 +736,4 @@ program pea_tableC1, rclass
 	collect style cell indicatorlbl2[]#cell_type[row-header], warn font(, nobold)	
 	_pea_tbtformat
 	_pea_tbt_export, filename(TableC1) tbtname(`tabname') excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") modify shell
-	
 end
