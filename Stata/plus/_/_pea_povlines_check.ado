@@ -18,7 +18,7 @@ cap program drop _pea_povlines_check
 program _pea_povlines_check, rclass
 	version 16.0
 	
-	syntax [if] [in], [povlines(varlist numeric) PPPyear(integer 2017)]	
+	syntax [if] [in], [povlines(varlist numeric) PPPyear(integer 2021)]	
 	
 	if `pppyear'==2017 {
 		local vlinecheck "2.15, 3.65, 6.85"

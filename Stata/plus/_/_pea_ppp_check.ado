@@ -18,7 +18,7 @@ cap program drop _pea_ppp_check
 program _pea_ppp_check, rclass
 	version 16.0
 	
-	syntax [if] [in], [PPPyear(integer 2017)]
+	syntax [if] [in], [PPPyear(integer 2021)]
 	if !inlist(`pppyear', 2005, 2011, 2017, 2021) {
 		noi disp in red "PPP must be either 2005 or 2011 or 2017 or 2021. Default 2021."
 		error 198

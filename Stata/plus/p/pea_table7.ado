@@ -19,7 +19,7 @@
 cap program drop pea_table7
 program pea_table7, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE age(varname numeric) edu(varname numeric) male(varname numeric) VULnerability(real 1.5) setting(string) excel(string) save(string) MISSING PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE age(varname numeric) edu(varname numeric) male(varname numeric) VULnerability(real 1.5) setting(string) excel(string) save(string) MISSING PPPyear(integer 2021)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')

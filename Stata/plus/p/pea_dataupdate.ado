@@ -19,7 +19,7 @@
 cap program drop pea_dataupdate
 program pea_dataupdate, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [datatype(string) pppyear(string) UPDATE]
+	syntax [if] [in] [aw pw fw], [datatype(string) PPPyear(integer 2021) pppyear(string) UPDATE]
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -72,7 +72,7 @@ program pea_dataupdate, rclass
 		if "`datatype'"=="MPM" {
 			cap dlw, country(WLD) type(GMI) year(`datayear') mod(MPM) files
 			if _rc==0 {
-				keep if ppp==`pppyear'
+				*keep if ppp==`pppyear'
 				if _N>0 {
 					char _dta[version] $S_DATE		
 					save "`persdir'pea/WLD_GMI_MPM.dta", replace
@@ -577,7 +577,7 @@ program pea_dataupdate, rclass
 			* Labor
 			merge m:1 code year using `lab', keep(1 3) nogen
 			* MPM
-			merge m:1 code year using "`persdir'pea/WLD_GMI_MPM.dta", keepusing(mdpoor_i1) nogen
+			merge 1:1 code year welftype survname ppp using "`persdir'pea/WLD_GMI_MPM.dta", keepusing(mdpoor_i1) nogen
 			replace mdpoor_i1 = mdpoor_i1 * 100
 			* Scorecard
 			merge m:1 code using `risk', nogen

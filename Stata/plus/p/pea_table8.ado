@@ -19,7 +19,7 @@
 cap program drop pea_table8
 program pea_table8, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) MISSING excel(string) save(string) PPPyear(integer 2017)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Year(varname numeric) MISSING excel(string) save(string) PPPyear(integer 2021)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
