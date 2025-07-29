@@ -259,7 +259,7 @@ program pea_tableA2, rclass
 	collect style header indicatorlbl group combined_var ind `year', title(hide)
 	collect title `"Table A.2. Poverty indicators by subgroup"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. `note_minobs'"'
+	collect notes 2: `"Note: Table shows poverty rates and numbers of poor for each subgroup, such as the poverty rate among children. Poverty rates reported for the poverty line ($`lbloneline', per person per day), which are expressed in `pppyear' purchasing power parity dollars. `note_minobs'"'
 	
 	collect style cell group[]#cell_type[row-header], font(, bold)
 	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)

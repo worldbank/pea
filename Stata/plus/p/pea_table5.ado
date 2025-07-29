@@ -211,11 +211,11 @@ program pea_table5, rclass
 	drop overlbl group categ
 	//Table
 	if "`core'"=="" {
-		local tabtitle "Table 5. Key labor market indicators by population group"
+		local tabtitle "Table 5. Key labor market indicators by population group (`ymax')"
 		local tbt Table5
 	}
 	else {
-		local tabtitle "Table C.2. Key labor market indicators by population group"
+		local tabtitle "Table C.2. Key labor market indicators by population group (`ymax')"
 		local tbt TableC.2
 	}
 	if "`missing'"~="" local note_m "Missing values for the labor market indicators are presented separately, therefore totals for each indicator may exceed 100%."
