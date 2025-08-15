@@ -168,7 +168,7 @@ program pea_figureC1, rclass
 	use `data2', clear
 	cap gen code = "`country'"
 	cap gen year = `year'
-	if "`peb'" ~= "" {
+	if `peb' ~= "" {
 		merge 1:1 code year using "`persdir'pea/PEB_natpovrates.dta"
 		drop if _merge == 2 & code ~= "`country'"
 		replace _fgt0_`natwelfare'_natline1 = natpovrate if _fgt0_`natwelfare'_natline1 == .	// Only 1 historical national poverty

@@ -220,7 +220,7 @@ The variable is taken from PEBs and follows its notation. Comparable spells are 
 Non-comparable survey rounds are not connected in figures. 
 
 {p 4 4 2}  
-{opt PEB}: Only relevant for core Figure 1: If specified, historical national poverty rates will be imported from the PEB database. This can be useful to access historical poverty rates.
+{opt PEB}: Only relevant for core Figure 1: . If specified, historical national poverty rates will be imported from the PEB database. This can be useful to access historical poverty rates.
 Note that if multiple national poverty lines are entered, it is assumed that historical PEB national poverty rates are associated with the first poverty line entered.
    
 {p 4 4 2}

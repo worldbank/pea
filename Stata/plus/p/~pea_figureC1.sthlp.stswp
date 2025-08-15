@@ -25,7 +25,6 @@ help for {hi:pea figureC1}{right:July 2025}
 	{opt natpov_fcast}
 	{opt gdp_fcast}
 	{opt comparability_peb(varname string)}
-	{opt PEB}
 	{opt yrange(string)} 
 	{opt yrange2(string)} 
 	{opt NOEQUALSPACING} 
@@ -86,7 +85,7 @@ Non-comparable survey rounds are not connected in figures.
 
 {p 4 4 2}  
 {opt PEB}: Optional. If specified, historical national poverty rates will be imported from the PEB database. This can be useful to access historical poverty rates.
-Note that if multiple national poverty lines are entered, it is assumed that historical PEB national poverty rates are associated with the first poverty line entered.
+Note that if multiple national poverty lines are entered, it is assumed that historical PEB national poverty rates are associated with the first poverty
     
 {p 4 4 2}  
 {opt NOEQUALSPACING}: Optional. Adjusts year spacing on x-axis to be proportional to the distance between years. Default is that years are evenly spaced in the visualization.
@@ -117,7 +116,7 @@ Default is that figures start at 0 and go up to the maximum value of the display
 {bf:pea figureC1} [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) year(year) comparability_peb(comparability_peb) yrange(20(20)80) yrange2(300000(50000)500000)
 
 With forecasts:
-pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) comparability_peb(comparability_peb) peb yrange(20(20)80) yrange2(300000(50000)500000)
+pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) comparability_peb(comparability_peb) yrange(20(20)80) yrange2(300000(50000)500000)
 
 pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast natpov_fcast2) gdp_fcast(gdp_fcast) comparability_peb(comparability_peb)
 

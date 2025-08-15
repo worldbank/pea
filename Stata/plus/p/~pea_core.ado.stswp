@@ -149,7 +149,7 @@ program pea_core, rclass
 	
 	//figure C1
 	qui use `data1', clear
-	cap pea_figureC1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') year(`year') year_fcast(`year_fcast') natpov_fcast(`natpov_fcast') gdp_fcast(`gdp_fcast')  comparability_peb(`comparability_peb') peb yrange(`yrange') yrange2(`yrange2') fgtvars linesorted scheme(`scheme') palette(`palette') excel("`excelout'") core 
+	cap pea_figureC1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') year(`year') year_fcast(`year_fcast') natpov_fcast(`natpov_fcast') gdp_fcast(`gdp_fcast')  comparability_peb(`comparability_peb') pebyrange(`yrange') yrange2(`yrange2') fgtvars linesorted scheme(`scheme') palette(`palette') excel("`excelout'") core 
 	qui if _rc==0 {
 		noi dis in green "Figure C.1....... Done"
 		local ok = 1
