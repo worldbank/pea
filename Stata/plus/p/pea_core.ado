@@ -87,7 +87,7 @@ program pea_core, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
+ /*
 		if "`natpovlines'"~="" {
 			_pea_pline_order, povlines(`natpovlines')
 			local natpovlines `=r(sorted_line)'
@@ -95,7 +95,7 @@ program pea_core, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
+*/	
 		//Weights
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
@@ -148,8 +148,8 @@ program pea_core, rclass
 	global tablecount = 11
 	
 	//figure C1
-	qui use `data1', clear
-	cap pea_figureC1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') year(`year') year_fcast(`year_fcast') natpov_fcast(`natpov_fcast') gdp_fcast(`gdp_fcast')  comparability_peb(`comparability_peb') peb yrange(`yrange') yrange2(`yrange2') fgtvars linesorted scheme(`scheme') palette(`palette') excel("`excelout'") core 
+	qui use `dataori', clear
+	cap pea_figureC1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') year(`year') year_fcast(`year_fcast') natpov_fcast(`natpov_fcast') gdp_fcast(`gdp_fcast')  comparability_peb(`comparability_peb') `peb' yrange(`yrange') yrange2(`yrange2') linesorted scheme(`scheme') palette(`palette') excel("`excelout'") core 
 	qui if _rc==0 {
 		noi dis in green "Figure C.1....... Done"
 		local ok = 1

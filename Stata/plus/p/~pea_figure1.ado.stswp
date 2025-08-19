@@ -201,7 +201,8 @@ program pea_figure1, rclass
 			local line_cmd "`line_cmd' `line_cmd`i'`co''"
 		}
 		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
-		local j = `j' + 1			
+		local j = `i' + 1			
+
 	}		
 
 	if "`comparability'"~="__comp" local note_c "Non-connected dots indicate that survey-years are not comparable."	

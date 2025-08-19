@@ -313,7 +313,7 @@ program pea_figureC1, rclass
 	
 	twoway  `scatter_cmd_pov' `line_cmd_pov' `scatter_cmd_povfc' `line_cmd_povfc'	///
 		 `scatter_cmd_gdp' `scatter_cmd_gdpfc'  `line_cmd_gdp' `line_cmd_gdpfc'		///
-		, legend(order("`legend'") rows(`=ceil(`groups'/2)') position(6))			///
+		, legend(order("`legend'") cols(1) position(6))								///	// cols(`=ceil(`groups'/2)')
 		ytitle("Poverty rate (percent)") 											///
 		ytitle("GDP per-capita (constant LCU)", axis(2))							///
 		`yrange1' `yrange2'															///

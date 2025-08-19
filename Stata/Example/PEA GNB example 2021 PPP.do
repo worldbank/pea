@@ -269,9 +269,6 @@ use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 gen head = relationharm==1 if relationharm~=.
 la def head 1 "HH head" 
 la val head head 
-gen nowork = lstatus==2|lstatus==3 if lstatus~=.
-label define nowork 0 "Working" 1 "Not working (unemployed or out of labor force)"
-label values nowork nowork
 gen married = marital==1 if marital~=.
 pea table3 [aw=weight_p], natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline300 pline420 pline830) ppp(2021) year(year) age(age) male(male) hhhead(head) edu(educat4) missing
 
@@ -284,7 +281,7 @@ gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 label define nowork 0 "Working" 1 "Not working (unemployed or out of labor force)"
 label values nowork nowork
 gen married = marital==1 if marital~=.
-pea table4 [aw=weight_p], welfare(natwelfare) povlines(natline) 						///
+pea table4 [aw=weight_p], welfare(natwelfare) povlines(natline) 					///
 						  year(year) urban(urban)									///	
 						  missing age(age) male(male) hhhead(head) 					///
 						  edu(educat4) married(married) 							///	

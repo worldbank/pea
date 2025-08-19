@@ -138,7 +138,7 @@ Vulnerability to poverty is defined as being between the main and the multiple o
 {bf:pea tableC1} [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) benchmark(VNM IDN THA) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male)
 
 {p 4 4 2} 
-{bf:pea tableC1} [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) benchmark(VNM IDN THA) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male) aggregate(groups)
+{bf:pea tableC1} [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male) aggregate(groups)
 
 {p 4 4 2} 
 {bf:pea tableC1} [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215  pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) benchmark(VNM IDN THA) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male) aggregate(benchmark)

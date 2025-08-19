@@ -90,7 +90,7 @@ save "$pea_path/data/GNB_GMD_ALL_clean.dta", replace
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) aggregate(groups) missing setting(GMD) spells(2018 2021) svy std(right) comparability_peb(comparability_peb) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(20(20)80) yrange2(300000(50000)500000)
+pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) aggregate(groups) missing setting(GMD) spells(2018 2021) svy std(right)  year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(20(20)80) yrange2(300000(50000)500000) pppy(2017)
 
 ******************** Appendix Figures
 clear all
@@ -123,7 +123,8 @@ clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
 gen natline2 = 200000															// for testing purposes
-pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast natpov_fcast2) gdp_fcast(gdp_fcast) comparability_peb(comparability_peb)
+pea_figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast natpov_fcast2) gdp_fcast(gdp_fcast) 
+comparability_peb(comparability_peb)
 
 ********************************************************************************
 * Individual Figures
@@ -131,7 +132,7 @@ pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea figure1 [aw=weight_p], natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) urban(urban) comparability(comparability) yrange(0(10)100)
+pea_figure1 [aw=weight_p], natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) urban(urban) comparability(comparability) yrange(0(10)100)
 
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
