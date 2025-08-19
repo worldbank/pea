@@ -73,6 +73,11 @@ replace natpov_fcast = 51.2 if year == 2023
 replace natpov_fcast = 48.8 if year == 2025 
 replace natpov_fcast = 47.1 if year == 2027  
 replace natpov_fcast = 45.5 if year == 2029  
+gen natpov_fcast2 = .
+replace natpov_fcast2 = 27 if year == 2023
+replace natpov_fcast2 = 24 if year == 2025 
+replace natpov_fcast2 = 23 if year == 2027  
+replace natpov_fcast2 = 22 if year == 2029  
 append using "$pea_path/data/GNB_GMD_ALL_clean.dta"
 save "$pea_path/data/GNB_GMD_ALL_clean.dta", replace
 
@@ -85,7 +90,7 @@ save "$pea_path/data/GNB_GMD_ALL_clean.dta", replace
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) aggregate(groups) missing setting(GMD) spells(2018 2021) svy std(right) comparability_peb(comparability_peb) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(20(20)80) yrange2(300000(50000)500000)
+pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) aggregate(groups) missing setting(GMD) spells(2018 2021) svy std(right)  year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(20(20)80) yrange2(300000(50000)500000) pppy(2017)
 
 ******************** Appendix Figures
 clear all
@@ -108,7 +113,7 @@ adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
 gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 label define nowork 0 "Working" 1 "Not working (unemployed or out of labor force)"
 label values nowork nowork
-pea_tableC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) benchmark(SEN CIV GHA SLE GNB) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male) aggregate(groups)
+pea tableC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) benchmark(SEN CIV GHA SLE GNB) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male) aggregate(groups)
 
 
 ********************************************************************************
@@ -117,7 +122,9 @@ pea_tableC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) p
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) comparability_peb(comparability_peb) yrange(20(20)80) yrange2(300000(50000)500000)
+gen natline2 = 200000															// for testing purposes
+pea_figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast natpov_fcast2) gdp_fcast(gdp_fcast) 
+comparability_peb(comparability_peb)
 
 ********************************************************************************
 * Individual Figures
@@ -125,7 +132,7 @@ pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) year(year) yea
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea figure1 [aw=weight_p], natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) urban(urban) comparability(comparability) yrange(0(10)100)
+pea_figure1 [aw=weight_p], natw(welfarenom) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) urban(urban) comparability(comparability) yrange(0(10)100)
 
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
@@ -322,7 +329,7 @@ pea table5 [aw=weight_p], 	welfare(natwelfare) povlines(natline) year(year) age(
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea_table6 [aw=weight_p], c(ARG) welfare(welfppp) year(year)  benchmark(CIV)				  
+pea table6 [aw=weight_p], c(ARG) welfare(welfppp) year(year)  benchmark(CIV)				  
 						  
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear

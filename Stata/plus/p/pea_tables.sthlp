@@ -31,6 +31,7 @@ help for {hi:pea tables}{right:January 2025}
 [{opt lstatus(varname numeric)} 
 {opt empstat(varname numeric)} 
 {opt industrycat4(varname numeric)} 
+{opt industrycat10(varname numeric)} 
 {opt age(varname numeric)} 
 {opt male(varname numeric)} 
 {opt hhhead(varname numeric)} 
@@ -58,7 +59,7 @@ help for {hi:pea tables}{right:January 2025}
 
 {p 4 4 2}
 The following only need to be used if setting(GMD) is not specified:
-{bf:hhhead, edu, married, school, services, assets, hhsize, hhid, pid, industrycat4, lstatus, and empstat}.
+{bf:hhhead, edu, married, school, services, assets, hhsize, hhid, pid, industrycat4, industrycat10, lstatus, and empstat}.
 
 {title:Description}
 
@@ -137,7 +138,7 @@ The following only need to be used if setting(GMD) is not specified:
 
 {p 4 4 2}
 {opt setting(string)}: Optional. If GMD option is specified, harmonized variables are created, and additional options
- (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+ (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), industrycat10(), lstatus(), and empstat()) do not need to be specified. 
  Either setting(GMD) or these options need to be specified.
 
 {p 4 4 2}
@@ -159,6 +160,10 @@ Default under setting(GMD): empstat
 {p 4 4 2}
 {opt industrycat4(varname numeric)}: specifies the industry category variable.
 Default under setting(GMD): industrycat4
+
+{p 4 4 2}
+{opt industrycat10(varname numeric)}: specifies the 1-digit industry category variable.
+Default under setting(GMD): industrycat10
 
 {p 4 4 2}
 {opt age(varname numeric)}: specifies the age variable for the analysis.
@@ -266,8 +271,7 @@ spells(2015 2016; 2016 2017;2018 2025;2017 2025)
 When setting(GMD) is NOT specified:
 
 {p 4 4 2}
-{bf:pea tables} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) 
-school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
+{bf:pea tables} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) industrycat10(industrycat10) lstatus(nowork) empstat(empstat) onew(welfppp) oneline(pline685) benchmark(ALB HRV XKX) missing onew(welfppp) onel(pline365) spells(2015 2016; 2016 2017;2018 2025;2017 2025)
 
 
 

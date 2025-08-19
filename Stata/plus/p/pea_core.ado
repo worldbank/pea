@@ -17,7 +17,7 @@
 cap program drop pea_core
 program pea_core, rclass
 	version 18.0	
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) comparability(varname numeric) comparability_peb(varname string) YRange(string) YRange2(string) year_fcast(varname numeric) natpov_fcast(varname numeric) gdp_fcast(varname numeric)  MISSING Country(string) trim(string) aggregate(string) LATEST WITHIN3 BENCHmark(string) spells(string) minobs(numlist) earnage(integer 18) SVY std(string) PPPyear(integer 2021) VULnerability(real 1.5) NOEQUALSPACING scheme(string) palette(string) CORE]	
+	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) comparability(varname numeric) comparability_peb(varname string) PEB YRange(string) YRange2(string) year_fcast(varname numeric) natpov_fcast(varlist numeric) gdp_fcast(varname numeric)  MISSING Country(string) trim(string) aggregate(string) LATEST WITHIN3 BENCHmark(string) spells(string) minobs(numlist) earnage(integer 18) SVY std(string) PPPyear(integer 2021) VULnerability(real 1.5) NOEQUALSPACING scheme(string) palette(string) CORE]	
 	
 	//Check PPPyear
 	qui _pea_ppp_check, ppp(`pppyear')
@@ -87,7 +87,7 @@ program pea_core, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
+ /*
 		if "`natpovlines'"~="" {
 			_pea_pline_order, povlines(`natpovlines')
 			local natpovlines `=r(sorted_line)'
@@ -95,7 +95,7 @@ program pea_core, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
+*/	
 		//Weights
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
@@ -148,8 +148,8 @@ program pea_core, rclass
 	global tablecount = 11
 	
 	//figure C1
-	qui use `data1', clear
-	cap pea_figureC1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') year(`year') year_fcast(`year_fcast') natpov_fcast(`natpov_fcast') gdp_fcast(`gdp_fcast')  comparability_peb(`comparability_peb') yrange(`yrange') yrange2(`yrange2') fgtvars linesorted scheme(`scheme') palette(`palette') excel("`excelout'") core 
+	qui use `dataori', clear
+	cap pea_figureC1 [aw=`wvar'],  c(`country') natw(`natwelfare') natp(`natpovlines') year(`year') year_fcast(`year_fcast') natpov_fcast(`natpov_fcast') gdp_fcast(`gdp_fcast')  comparability_peb(`comparability_peb') `peb' yrange(`yrange') yrange2(`yrange2') linesorted scheme(`scheme') palette(`palette') excel("`excelout'") core 
 	qui if _rc==0 {
 		noi dis in green "Figure C.1....... Done"
 		local ok = 1

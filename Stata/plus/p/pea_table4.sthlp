@@ -35,6 +35,7 @@ help for {hi:pea table4}{right:January 2025}
 	{opt hhid(string)} 
 	{opt pid(string)} 
 	{opt industrycat4(varname numeric)} 
+	{opt industrycat10(varname numeric)} 
 	{opt lstatus(varname numeric)} 
 	{opt empstat(varname numeric)}
 	{opt MISSING}]{p_end}
@@ -130,6 +131,10 @@ Default under setting(GMD): pid
 Default under setting(GMD): industrycat4
 
 {p 4 4 2}
+{opt industrycat10(varname numeric)}: specifies the 1-digit industry category variable.
+Default under setting(GMD): industrycat10
+
+{p 4 4 2}
 {opt lstatus(varname numeric)}: specifies the labor status variable (e.g., employed, unemployed). Please not that the input variable should have 'not working' (i.e. unemployed or out of labor force) as the value = 1, and employed as a different value. 
 Default under setting(GMD): nowork
 
@@ -141,5 +146,5 @@ Default under setting(GMD): empstat
 
 {p 4 4 2}
 {bf:pea table4} [aw=weight_p], welfare(welfppp) povlines(pline685) year(year) missing age(age) male(male) edu(educat4) hhhead(head) urban(urban) married(married)
-school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat)
+school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) industrycat10(industrycat10) lstatus(nowork) empstat(empstat)
 

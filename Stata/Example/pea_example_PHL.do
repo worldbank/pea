@@ -80,7 +80,7 @@ save "$pea_path/data/PHL_GMD_clean.dta", replace
 clear all
 use "$pea_path/data/PHL_GMD_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea core [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(VNM IDN THA) missing setting(GMD) spells(2015 2018; 2018 2021) svy std(inside) comparability_peb(comparability_peb) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(0(5)30) yrange2(80000(40000)280000)
+pea core [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(VNM IDN THA) missing setting(GMD) spells(2015 2018; 2018 2021) svy std(inside) comparability_peb(comparability_peb) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(0(5)30) yrange2(80000(40000)280000) pppy(2017)
 
 ******************** Appendix Figures
 clear all

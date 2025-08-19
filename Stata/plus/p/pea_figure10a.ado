@@ -141,9 +141,9 @@ program pea_figure10a, rclass
 	if ("`comparability'"~="") qui levelsof `comparability', local(compval)
 	label define `varlblurb' `max_val' "Total", add 									// Add Total as last entry
 	label values `urban' `varlblurb'
-	
+
+	local j = 1
 	foreach i of local group_num {
-		local j = `i' + 1			
 		local scatter_cmd`i' = `"scatter _prosgap_`onewelfare' `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'								// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
@@ -162,6 +162,7 @@ program pea_figure10a, rclass
 			local line_cmd "`line_cmd' `line_cmd`i''"
 		}
 		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
+		local j = `j' + 1
 	}		
 
 	//Axis range

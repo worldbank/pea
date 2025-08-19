@@ -31,6 +31,7 @@ help for {hi:pea core}{right:January 2025}
 [{opt lstatus(varname numeric)} 
 {opt empstat(varname numeric)} 
 {opt industrycat4(varname numeric)} 
+{opt industrycat10(varname numeric)} 
 {opt age(varname numeric)} 
 {opt male(varname numeric)} 
 {opt hhhead(varname numeric)} 
@@ -60,6 +61,7 @@ help for {hi:pea core}{right:January 2025}
 {opt natpov_fcast}
 {opt gdp_fcast}
 {opt comparability_peb(varname strings)}
+{opt PEB}
 {opt yrange(string)} 
 {opt yrange2(string)} 
 {opt NOEQUALSPACING} 
@@ -70,7 +72,7 @@ help for {hi:pea core}{right:January 2025}
 
 {p 4 4 2}
 The following only need to be used if setting(GMD) is not specified:
-{bf:hhhead, edu, married, school, services, assets, hhsize, hhid, pid, industrycat4, lstatus, and empstat}.
+{bf:hhhead, edu, married, school, services, assets, hhsize, hhid, pid, industrycat4, industrycat10, lstatus, and empstat}.
 
 {title:Description}
 
@@ -109,7 +111,7 @@ Growth incidence curves and the Datt-Ravallion decomposition complement the core
 
 {p 4 4 2}
 {opt setting(string)}: If GMD option is specified, harmonized variables are created, and additional options
- (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), lstatus(), and empstat()) do not need to be specified. 
+ (hhhead(), edu(), married(), school(), services(), assets(), hhsize(), hhid(), pid(), industrycat4(), industrycat10() lstatus(), and empstat()) do not need to be specified. 
  Either setting(GMD) or these options need to be specified.
 
 {p 4 4 2}
@@ -129,8 +131,12 @@ Default under setting(GMD): nowork
 Default under setting(GMD): empstat
 
 {p 4 4 2}
-{opt industrycat4(varname numeric)}: specifies the industry category variable.
+{opt industrycat4(varname numeric)}: specifies the 4 category industry category variable.
 Default under setting(GMD): industrycat4
+
+{p 4 4 2}
+{opt industrycat10(varname numeric)}: specifies the 1-digit industry category variable.
+Default under setting(GMD): industrycat10
 
 {p 4 4 2}
 {opt age(varname numeric)}: specifies the age variable for the analysis.
@@ -218,6 +224,10 @@ Default is that figures start at 0 and go up to the maximum value of the display
 The variable is taken from PEBs and follows its notation. Comparable spells are denoted by "Yes" and non-comparable by "No". Note that this is different from the comparability variable elsewhere specified.
 Non-comparable survey rounds are not connected in figures. 
 
+{p 4 4 2}  
+{opt PEB}: Only relevant for core Figure 1: If specified, historical national poverty rates will be imported from the PEB database. This can be useful to access historical poverty rates.
+Note that if multiple national poverty lines are entered, it is assumed that historical PEB national poverty rates are associated with the first poverty line entered.
+   
 {p 4 4 2}
 {opt year_fcast}: Only relevant for core Figure 1: To show now- and forecasts in the figure, insert the variable with forecast years here. See {help pea_figureC1} for more information.
 
@@ -291,6 +301,6 @@ pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp
 When GMD is NOT specified:
 
 {p 4 4 2} 
-{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) oneline(pline685) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing
+{bf:pea core} [aw=weight_p], c(ARM) natw(welfare) natp(natline natline2) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) industrycat10(industrycat10) lstatus(nowork) empstat(empstat) oneline(pline685) benchmark(ALB HRV XKX) onew(welfppp) onel(pline365) missing
 
 

@@ -187,21 +187,21 @@ program pea_figure1, rclass
 		local year year_nogap
 	}
 	qui levelsof `year'		 , local(yearval)	
-
+	local j = 1
 	foreach i of local group_num {
-		local j = `i' + 1			
 		local scatter_cmd`i' = `"scatter var `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'					// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
 		local legend "`legend' `legend`i''"	
-		
+	
 		// If comparability specified, only comparable years are connected
 		foreach co of local compval {
 			local line_cmd`i'`co' = `"line var `year' if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 			local line_cmd "`line_cmd' `line_cmd`i'`co''"
 		}
 		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
+		local j = `j' + 1			
 	}		
 
 	if "`comparability'"~="__comp" local note_c "Non-connected dots indicate that survey-years are not comparable."	

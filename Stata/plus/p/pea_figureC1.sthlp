@@ -25,6 +25,7 @@ help for {hi:pea figureC1}{right:July 2025}
 	{opt natpov_fcast}
 	{opt gdp_fcast}
 	{opt comparability_peb(varname string)}
+	{opt PEB}
 	{opt yrange(string)} 
 	{opt yrange2(string)} 
 	{opt NOEQUALSPACING} 
@@ -56,7 +57,8 @@ Note that there are two options that are specific to this figure: yrange2(), whi
 
 {p 4 4 2} 
 {opt NATPovlines(varlist numeric)}:
-lists the national poverty lines used in the analysis.
+lists the national poverty lines used in the analysis. Multiple lines are allowed. 
+When using multiple lines, make sure they are in the same order as the variables in option natpov_fcast().
  
 {p 4 4 2} 
 {opt Year(varname numeric)}:
@@ -71,6 +73,7 @@ The variable will specify for which year nowcast and forecast data is available.
 {p 4 4 2}
 {opt natpov_fcast}: Only relevant for core Figure 1: To show now- and forecasts in the figure, insert the variable with forecast national poverty here. 
 The national poverty now- and forecast needs to be appended to the survey data.
+When using multiple national poverty lines, make sure they are in the same order as the lines in option NATPovlines().
 
 {p 4 4 2}
 {opt gdp_fcast}: Only relevant for core Figure 1: To show now- and forecasts in the figure, insert the variable with forecast GDP here.    
@@ -81,6 +84,10 @@ The GDP per-capita now- and forecast needs to be appended to the survey data.
 The variable is taken from PEBs and follows its notation. Comparable spells are denoted by "Yes" and non-comparable by "No". Note that this is different from the comparability variable elsewhere specified.
 Non-comparable survey rounds are not connected in figures. 
 
+{p 4 4 2}  
+{opt PEB}: Optional. If specified, historical national poverty rates will be imported from the PEB database. This can be useful to access historical poverty rates.
+Note that if multiple national poverty lines are entered, it is assumed that historical PEB national poverty rates are associated with the first poverty line entered.
+    
 {p 4 4 2}  
 {opt NOEQUALSPACING}: Optional. Adjusts year spacing on x-axis to be proportional to the distance between years. Default is that years are evenly spaced in the visualization.
      
@@ -110,4 +117,9 @@ Default is that figures start at 0 and go up to the maximum value of the display
 {bf:pea figureC1} [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) year(year) comparability_peb(comparability_peb) yrange(20(20)80) yrange2(300000(50000)500000)
 
 With forecasts:
-pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) aggregate(groups) missing setting(GMD) spells(2018 2021) svy std(right) comparability_peb(comparability_peb) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(20(20)80) yrange2(300000(50000)500000)
+pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) comparability_peb(comparability_peb) peb yrange(20(20)80) yrange2(300000(50000)500000)
+
+pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast natpov_fcast2) gdp_fcast(gdp_fcast) comparability_peb(comparability_peb)
+
+
+

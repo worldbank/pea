@@ -20,7 +20,7 @@
 cap program drop pea_figureC1
 program pea_figureC1, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) Year(varname numeric) year_fcast(varname numeric) natpov_fcast(varname numeric) gdp_fcast(varname numeric) comparability_peb(varname string) NOEQUALSPACING CORE LINESORTED FGTVARS YRange(string) YRange2(string) scheme(string) palette(string) using(string) excel(string) save(string)]	
+	syntax [if] [in] [aw pw fw], [Country(string) NATWelfare(varname numeric) NATPovlines(varlist numeric) Year(varname numeric) year_fcast(varname numeric) natpov_fcast(varlist numeric) gdp_fcast(varname numeric) comparability_peb(varname string) PEB NOEQUALSPACING CORE LINESORTED FGTVARS YRange(string) YRange2(string) scheme(string) palette(string) using(string) excel(string) save(string)]	
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all	
@@ -74,11 +74,25 @@ program pea_figureC1, rclass
 	_pea_export_path, excel("`excel'")
 	
 	//Number of groups (for colors)
-	qui levelsof `natpovlines', local(group_num)
-	local groups = `:word count `group_num'' + 1
+	local group_num : word count `natpovlines'
+	local groups = `group_num' + 1
 	
 	// Figure colors
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+
+	//Rename national poverty lines to separate lines
+	forval num = 1 / `group_num' {
+		local natline`num' = word("`natpovlines'", `num')
+		rename `natline`num'' natline`num'
+		local natpovlines_n "`natpovlines_n' natline`num'"
+	}
+	//Rename forecasts too
+	local fcast_num : word count `natpov_fcast'
+	forval num = 1 / `fcast_num' {
+		local natpov_fcast`num' = word("`natpov_fcast'", `num')
+		rename `natpov_fcast`num'' natpov_fcast`num'
+		local fcast_n "`fcast_n' natpov_fcast`num'"
+	}	
 	
 	//variable checks
 	//check plines are not overlapped.
@@ -87,7 +101,7 @@ program pea_figureC1, rclass
 		//order the lines
 		if "`linesorted'"=="" {
 			if "`natpovlines'"~="" {
-				_pea_pline_order, povlines(`natpovlines')
+				_pea_pline_order, povlines(`natpovlines_n')
 				local natpovlines `=r(sorted_line)'
 				foreach var of local natpovlines {
 					local lbl`var' `=r(lbl`var')'
@@ -95,7 +109,7 @@ program pea_figureC1, rclass
 			}
 		}
 		else {
-			foreach var of varlist `natpovlines' {
+			foreach var of varlist `natpovlines_n' {
 				local lbl`var' : variable label `var'
 			}
 		}
@@ -111,7 +125,7 @@ program pea_figureC1, rclass
 	
 	//missing observation check
 	marksample touse
-	local flist `"`wvar' `natwelfare' `natpovlines' `year'"'
+	local flist `"`wvar' `natwelfare' `natpovlines_n' `year'"'
 	markout `touse' `flist' 
 	
 	tempfile dataori datacomp data1 data2 datafc
@@ -121,8 +135,9 @@ program pea_figureC1, rclass
 	use `dataori'
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		//FGT
-		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
+		if "`natwelfare'"~="" & "`natpovlines_n'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines_n')
 	}	
+	
 	//variable checks
 	save `data1', replace
 	
@@ -130,26 +145,35 @@ program pea_figureC1, rclass
 	use `data1', clear
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability_peb')
 	drop _fgt1* _fgt2*
-	local natline = word("`natpovlines'", wordcount("`natpovlines'"))				// use only last national poverty line
-	replace _fgt0_`natwelfare'_`natline' = _fgt0_`natwelfare'_`natline' * 100
+	forval num = 1/`group_num' {
+		replace _fgt0_`natwelfare'_natline`num' = _fgt0_`natwelfare'_natline`num' * 100
+		if "`lbl`var''" == "" {
+			label var _fgt0_`natwelfare'_natline`num' "Poverty rate (national poverty line `num', %)"
+		}
+		else label var fgt0_`natwelfare'_natline`num' "`lbl`var''"
+		local fgt`num' 	"_fgt0_`natwelfare'_natline`num'"
+		local fgts		"`fgts' `fgt`num''"
+	}
 	save `data2', replace
 
 	//Now and forecasts
 	if "`year_fcast'"~="" {
 		use `data1', clear
 		keep if `year_fcast' ~= .	
-		keep `year_fcast' `natpov_fcast' `gdp_fcast'
+		keep `year_fcast' `fcast_n' `gdp_fcast'
 		save `datafc', replace
 	}
+	
 	//Get PEB historical national poverty rates
 	use `data2', clear
 	cap gen code = "`country'"
 	cap gen year = `year'
-	merge 1:1 code year using "`persdir'pea/PEB_natpovrates.dta"
-	drop if _merge == 2 & code ~= "`country'"
-	replace _fgt0_`natwelfare'_`natline' = natpovrate if _fgt0_`natwelfare'_`natline' == .
-	drop _merge natpovrate
-	
+	if "`peb'" ~= "" {
+		merge 1:1 code year using "`persdir'pea/PEB_natpovrates.dta"
+		drop if _merge == 2 & code ~= "`country'"
+		replace _fgt0_`natwelfare'_natline1 = natpovrate if _fgt0_`natwelfare'_natline1 == .	// Only 1 historical national poverty
+		drop _merge natpovrate
+	}
 	//Get GDP LCU
 	merge 1:1 code year using "`persdir'pea/WDI_gdppc_lcuconst.dta", keep(1 3) nogen
 
@@ -157,18 +181,22 @@ program pea_figureC1, rclass
 	if "`year_fcast'" ~= "" {
 		append using `datafc'
 		replace `year' = `year_fcast' if `year_fcast' ~= .
+		qui sum `year' if _fgt0_`natwelfare'_natline1 ~= ., d   								// Get last year of survey data
+		local lasty `r(max)'
+		forval num = 1/`fcast_num' {
+			replace natpov_fcast`num' = _fgt0_`natwelfare'_natline`num' if `year' == `lasty'	// connect lines. Match first national line with first forecast, etc.
+		}		
+		replace `gdp_fcast' = gdp_pc_lcu_const if `year' == `lasty'
 	}
 	
 	// Figure	
 	//Labels
 	label var gdp_pc_lcu_const "GDP per capita (constant LCU)"
-	label var _fgt0_`natwelfare'_`natline' "Poverty rate (%)"
 
 	//Axis range
-		//Axis range
 	if "`yrange'" == "" {
 		local m = 1
-		foreach var of varlist _fgt0_`natwelfare'_`natline' `natpov_fcast' {
+		foreach var of varlist `fgts' `fcast_n' {
 			sum `var'													// min/max can come from different variables
 			if (`m' == 1) local max = `r(max)'
 			if (`r(max)' > `max') local max = `r(max)'
@@ -217,27 +245,55 @@ program pea_figureC1, rclass
 	}
 	qui levelsof `year'		 , local(yearval)	
 	
+	local track = 0
 	// Scatter for poverty rates
-	local scatter_cmd_pov = `"(scatter _fgt0_`natwelfare'_`natline' `year', mcolor("${col1}") lcolor("${col1}")) "'					// Colors defined in pea_figure_setup
-	// Scatter for GDP
-	local scatter_cmd_gdp = `"(scatter gdp_pc_lcu_const `year', mcolor("${col2}") lcolor("${col2}") yaxis(2)) "'					// Colors defined in pea_figure_setup
+	forval num = 1/`group_num' {
+		local scatter_cmd_pov`num' = `"(scatter _fgt0_`natwelfare'_natline`num' `year', mcolor("${col`num'}") lcolor("${col`num'}")) "'					// Colors defined in pea_figure_setup
+		local scatter_cmd_pov "`scatter_cmd_pov' `scatter_cmd_pov`num''"
+		local track = `track' + 1
+	}		
+	// If comparability specified, only comparable years are connected
+	// Poverty
+	forval num = 1/`group_num' {
+		foreach co of local compval {
+			local line_cmd_pov`num'`co' = `"(line _fgt0_`natwelfare'_natline`num' `year' if spell_order==`co', mcolor("${col`num'}") lcolor("${col`num'}")) "'		
+			local line_cmd_pov "`line_cmd_pov' `line_cmd_pov`num'`co''"
+			local track = `track' + 1
+			local label_`num': variable label _fgt0_`natwelfare'_natline`num'
+			local legend`num' `"`track' "`label_`num''""'
+			local legend "`legend' `legend`num''"	
+		}		
+	}	
+
 	// Scatter for poverty and GDP forecasts
 	if "`year_fcast'" ~= "" {
-		local scatter_cmd_povfc = `"(scatter `natpov_fcast' `year', mcolor("${col1}") lcolor("${col1}")) "'					// Colors defined in pea_figure_setup
-		local scatter_cmd_gdpfc = `"(scatter `gdp_fcast' `year', mcolor("${col2}") lcolor("${col2}") yaxis(2)) "'					// Colors defined in pea_figure_setup	
+		forval num = 1/`fcast_num' {
+			local scatter_cmd_povfc`num' = `"(scatter natpov_fcast`num' `year', mcolor("${col`num'}") lcolor("${col`num'}")) "'					
+			local scatter_cmd_povfc "`scatter_cmd_povfc' `scatter_cmd_povfc`num''"
+			local track = `track' + 1
+		}		
+		local scatter_cmd_gdpfc = `"(scatter `gdp_fcast' `year', mcolor("${col`groups'}") lcolor("${col`groups'}") yaxis(2)) "'	
+		local track = `track' + 1
 	}
-	// If comparability specified, only comparable years are connected
-	foreach co of local compval {
-		// Poverty
-			local line_cmd_pov`co' = `"(line _fgt0_`natwelfare'_`natline' `year' if spell_order==`co', mcolor("${col1}") lcolor("${col1}"))"'
-			local line_cmd_pov "`line_cmd_pov' `line_cmd_pov`co''"
-	}	
-		// ALl can be connected for GDP
-			local line_cmd_gdp = `"(line gdp_pc_lcu_const `year', mcolor("${col2}") lcolor("${col2}") yaxis(2)) "'
-		// Line for poverty and GDP forecasts (always connected)
+	// Line for poverty forecasts (always connected)
 	if "`year_fcast'" ~= "" {
-		local line_cmd_povfc = `"(line `natpov_fcast' `year', mcolor("${col1}") lcolor("${col1}") lp(-)) "'					// Colors defined in pea_figure_setup
-		local line_cmd_gdpfc = `"(line `gdp_fcast' `year', mcolor("${col2}") lcolor("${col2}")  lp(-) yaxis(2)) "'					// Colors defined in pea_figure_setup	
+		forval num = 1/`fcast_num' {
+			local line_cmd_povfc`num' = `"(line natpov_fcast`num' `year', mcolor("${col`num'}") lcolor("${col`num'}") lp(-))"'					
+			local line_cmd_povfc "`line_cmd_povfc' `line_cmd_povfc`num''"
+			local track = `track' + 1
+		}		
+	}
+	// Scatter for GDP
+	local scatter_cmd_gdp = `"(scatter gdp_pc_lcu_const `year', mcolor("${col`groups'}") lcolor("${col`groups'}") yaxis(2)) "'	
+	local track = `track' + 1
+	// All can be connected for GDP
+	local line_cmd_gdp = `"(line gdp_pc_lcu_const `year', mcolor("${col`groups'}") lcolor("${col`groups'}") yaxis(2)) "'
+	local track = `track' + 1
+	local legend`track' `"`track' "GDP per capita""'
+	local legend "`legend' `legend`track''"
+	// Line for poverty forecasts (always connected)
+	if "`year_fcast'" ~= "" {
+		local line_cmd_gdpfc = `"(line `gdp_fcast' `year', mcolor("${col`groups'}") lcolor("${col`groups'}") yaxis(2) lp(-))"'				
 	}
 	
 	if "`excel'"=="" {
@@ -249,18 +305,17 @@ program pea_figureC1, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}	
-		
-	if "`year_fcast'" ~= "" local legend `"2 "National poverty rate" 6 "GDP per capita""'
-	else					local legend `"2 "National poverty rate" 4 "GDP per capita""'
+
 	local u  = 5
 
 	putexcel set "`excelout2'", `act'
 	tempfile graph
 	
-	twoway  `scatter_cmd_pov' `scatter_cmd_gdp' `line_cmd_pov' `line_cmd_gdp'		///
-		`scatter_cmd_povfc' `scatter_cmd_gdpfc' `line_cmd_povfc' `line_cmd_gdpfc'	///
-		, legend(order("`legend'") rows(1) position(6)) 							///
-		ytitle("Poverty rate (percent, `lbltitle')") 								///
+	twoway  `scatter_cmd_pov' `line_cmd_pov' `scatter_cmd_povfc' `line_cmd_povfc'	///
+		 `scatter_cmd_gdp' `scatter_cmd_gdpfc'  `line_cmd_gdp' `line_cmd_gdpfc'		///
+		, legend(order("`legend'") cols(1) position(6))								///	// cols(`=ceil(`groups'/2)')
+		ytitle("Poverty rate (percent)") 											///
+		ytitle("GDP per-capita (constant LCU)", axis(2))							///
 		`yrange1' `yrange2'															///
 		xtitle("")																	///
 		xlabel("`yearval'", valuelabel)												///
@@ -277,7 +332,7 @@ program pea_figureC1, rclass
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
-	putexcel O7 = `"twoway `scatter_cmd_pov' `scatter_cmd_gdp' `line_cmd_pov' `line_cmd_gdp' `scatter_cmd_povfc' `scatter_cmd_gdpfc' `line_cmd_povfc' `line_cmd_gdpfc', legend(order("`legend'") "rows(1) position(6)") ytitle("Poverty rate (percent, `lbltitle')") xtitle("") `yrange1' `yrange2'	 xlabel("`yearval'", valuelabel)"'
+	putexcel O7 = `"twoway `scatter_cmd_pov' `scatter_cmd_gdp' `line_cmd_pov' `line_cmd_gdp' `scatter_cmd_povfc' `scatter_cmd_gdpfc' `line_cmd_povfc' `line_cmd_gdpfc', legend(order("`legend'") "rows(1) position(6)") ytitle("Poverty rate (percent)") xtitle("") `yrange1' `yrange2'	 xlabel("`yearval'", valuelabel)"'
 	if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
 	putexcel save							
 	cap graph close	
