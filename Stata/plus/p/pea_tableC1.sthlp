@@ -41,9 +41,9 @@ help for {hi:pea tableC1}{right:July 2025}
 {opt pea tableC1} generates core poverty, shared prosperity, labor market and vulnerability indicators based on specified national and international poverty lines and welfare indicators.
 
 {p 4 4 2}
-All indicators are produced for the PEA country and one of the following three: A set of peer countries, averages of the PEA country's region and income groupo, or averages of the peer countries (see option aggregat() below). 
+All indicators are produced for the PEA country and one of the following three: A set of peer countries, averages of the PEA country's region and income group, or averages of the peer countries (see option aggregat() below). 
 Peers, regional and income group countries are included if a survey exists within three years of the last survey year of the PEA country. 
-Indicators based on national poverty lines are not shown for comparators.
+Indicators based on national poverty lines are not shown for comparators. Only the first entered national poverty line is used for the PEA country.
  
 {title:Required options}
 
@@ -57,7 +57,7 @@ Indicators based on national poverty lines are not shown for comparators.
 
 {p 4 4 2} 
 {opt NATPovlines(varlist numeric)}:
-lists the national poverty lines used in the analysis.
+lists the national poverty lines. Only the first entered national poverty line is used.
     
 {p 4 4 2} 
 {opt PPPWelfare(varname numeric)}:

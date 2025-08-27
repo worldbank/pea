@@ -73,6 +73,10 @@ program pea_tableC1, rclass
 		exit 1
 	}	
 	
+	//Use only one national poverty line-up
+	if "`natpovlines'" ~= "" local natline = word("`natpovlines'", 1)
+
+		
 	//variable checks
 	//check plines are not overlapped.
 	//trigger some sub-tables
@@ -95,16 +99,9 @@ program pea_tableC1, rclass
 				}
 			}
 			
-			if "`natpovlines'"~="" {
-				_pea_pline_order, povlines(`natpovlines')
-				local natpovlines `=r(sorted_line)'
-				foreach var of local natpovlines {
-					local lbl`var' `=r(lbl`var')'
-				}
-			}
 		}
 		else {
-			foreach var of varlist `natpovlines' `ppppovlines' {
+			foreach var of varlist `natline' `ppppovlines' {
 				local lbl`var' : variable label `var'
 			}
 		}
@@ -134,7 +131,7 @@ program pea_tableC1, rclass
 	
 		//missing observation check
 		marksample touse
-		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
+		local flist `"`wvar' `natwelfare' `natline' `pppwelfare' `ppppovlines' `year'"'
 		markout `touse' `flist' 
 		
 		tempfile dataori datalbl data_fin
@@ -151,7 +148,7 @@ program pea_tableC1, rclass
 		}
 		
 		//FGT
-		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
+		if "`natwelfare'"~="" & "`natline'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natline')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
 		
 		gen double _pop = `wvar'
@@ -223,7 +220,6 @@ program pea_tableC1, rclass
 	//Poverty 
 	use `data2', clear
 	erase `data2'
-	local natline = word("`natpovlines'", wordcount("`natpovlines'"))
 	gen double _npoor = _fgt0_`natwelfare'_`natline' *_pop
 	su _npoor
 	local xmin = r(min)
@@ -555,10 +551,14 @@ program pea_tableC1, rclass
 	local i = 1
 	foreach var of local vars {
 		bys row_id: replace varname = "`var'" if _n == `i'
-		bys row_id: replace value = `var' if _n == `i' 
+		capture confirm variable `var'
+		if !_rc {
+			bys row_id: replace value = `var' if _n == `i' 
+			drop `var'
+		}
 		local i = `i' + 1
-		drop `var'
 	}
+	
 	drop row_id
 	gen 	indicatorlbl = .
 	replace indicatorlbl = 3 if varname=="fgt0_ipl"
