@@ -163,10 +163,21 @@ program pea_tableC1, rclass
 		gen _vulpov_`onewelfare'_`oneline' = `onewelfare'< `oneline'*`vulnerability' & `onewelfare' >= `oneline'  if `touse'	//	Only between poverty lines
 	}
 	else {
+		
 		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
 		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
+		
+		//Keep only first national poverty
+		local count = 1
+		foreach p of local natpovlines {
+			if `count' ~= 1 {
+				local _nnatline = word("`natpovlines'", `count')
+				  drop _fgt0_`natwelfare'_`_nnatline'
+				  di "_fgt0_`natwelfare'_`_nnatline'"
+			}	
+		local count = `count' + 1
+		}		
 	}
-	
 	tempfile data1 data1b data2 data3 data_lab atriskdata data_gmi1 data_gmi
 	save `data1', replace
 	
@@ -348,6 +359,9 @@ program pea_tableC1, rclass
 			keep if diff == mindiff
 			bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
 			keep if year == maxyear
+			* Generate country-survey information
+			gen country_survey_year = country_name + " (" + welftype + " ," + survname + ")"
+			qui levelsof country_survey_year, local(bench_types) clean separate(", ")
 		}
 		keep country_name code year fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk
 		rename country_name group
@@ -410,7 +424,9 @@ program pea_tableC1, rclass
 				keep if diff == mindiff
 				bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
 				keep if year == maxyear
-				qui levelsof country_name, local(`gp'_names) clean separate(", ")
+				* Generate country-survey information
+				gen country_survey_year = country_name + " (" + welftype + " ," + survname + ")"
+				qui levelsof country_survey_year, local(`gp'_names) clean separate(", ")
 				collapse (mean) fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk [aw=pop], by(`gp')
 				gen group = `gp'
 				drop `gp'
@@ -479,7 +495,8 @@ program pea_tableC1, rclass
 			keep if diff == mindiff
 			bys code: egen maxyear = max(year)								// If multiple years with same distance to circle year, use latest
 			keep if year == maxyear
-			qui levelsof country_name, local(bench_names) clean separate(", ")
+			gen country_survey_year = country_name + " (" + welftype + " ," + survname + ")"
+			qui levelsof country_survey_year, local(bench_names) clean separate(", ")
 			collapse (mean) fgt0_ipl fgt0_lmicpl fgt0_umicpl gini pg mdpoor_i1 _working_ind _misslfs_ind _empstat_ind_m _industry_ind_m _empstat_ind1 _industry_ind1 _industry_nonagr_ind poor`pline_use'_wrk nonpoor`pline_use'_wrk youth_wrk women_wrk [aw=pop]
 		}
 		gen group = "Peers"
@@ -693,9 +710,9 @@ program pea_tableC1, rclass
 		tostring `year', replace
 		replace `year' = `year' + "*" if group_order ~= 1
 	}
-	if "`aggregate'" == "benchmark" local agg_note "Values for peer countries are aggregated using population weights. *Peer countries are included if a survey within 3 years of `maxy' is available, which are: `bench_names'."
-	else if "`aggregate'" == "groups" local agg_note "Values for countries within the same region or income group as `country_name_c' are aggregated using population weights. *Region and income group countries are included if a survey within 3 years of `maxy' is available. For the region, these are: `region_names'. For the income group, these are: `incgroup_current_names'. Regional and income group poverty rates deviate from official World Bank published rates, as no line-up values are used."
-	else if "`aggregate'" == "" local agg_note "Peer countries are included if a survey within 3 years of `maxy' is available."
+	if "`aggregate'" == "benchmark" local agg_note "Values for peer countries are aggregated using population weights. *Peer countries are included if a survey within 3 years of `maxy' is available, which are (in parantheses welfare type and survey acronym): `bench_names'."
+	else if "`aggregate'" == "groups" local agg_note "Values for countries within the same region or income group as `country_name_c' are aggregated using population weights. *Region and income group countries are included if a survey within 3 years of `maxy' is available. For the region, these are (in parantheses welfare type and survey acronym): `region_names'. For the income group, these are: `incgroup_current_names'. Regional and income group poverty rates deviate from official World Bank published rates, as no line-up values are used."
+	else if "`aggregate'" == "" local agg_note "Peer countries are included if a survey within 3 years of `maxy' is available. Welfare type and survey acronym are: `bench_types'"
 	
 	local mi_note "The row 'Share of obs. with missing LFS values' shows the share of observations (15-64) for which the labor force status (working, not working) is missing."
 	
