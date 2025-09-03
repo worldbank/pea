@@ -118,11 +118,11 @@ program pea_figure16, rclass
 		// Preparation for Economic composition
 		* Earners
 		gen earner = _work == 1 if `age' >= `earnage' 							// Employed, self-employed, or employer (`lstatus' is nowork)
-		bys `year' `hhid' (`pid'): gen number_earners = sum(earner) 
+		bys `year' `hhid' (`pid'): egen number_earners = sum(earner) 
 				
 		* Nonearners
 		gen nonearner = _work == 0 if `age' >= `earnage'	
-		bys `year' `hhid' (`pid'): gen number_nonearners = sum(nonearner) 
+		bys `year' `hhid' (`pid'): egen number_nonearners = sum(nonearner) 
 
 		* Missing earner information
 		gen earner_miss = 0
