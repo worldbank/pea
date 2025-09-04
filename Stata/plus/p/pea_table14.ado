@@ -19,7 +19,7 @@
 cap program drop pea_table14
 program pea_table14, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) earnage(integer 16) MISSING PPPyear(integer 2021)]
+	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) Povlines(varname numeric) Year(varname numeric) CORE setting(string)  excel(string) save(string) age(varname numeric) male(varname numeric) hhsize(varname numeric) hhid(string) pid(string) lstatus(varname numeric) empstat(varname numeric) earnage(integer 15) MISSING PPPyear(integer 2021)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -45,8 +45,8 @@ program pea_table14, rclass
 	}	
 	
 	if "`earnage'"=="" {
-		local earnage = 16
-		di "Age cut-off for earners of 16 assumed."
+		local earnage = 15
+		di "Age cut-off for earners of 15 assumed."
 	}
 	qui {
 		//order the lines
@@ -104,17 +104,17 @@ program pea_table14, rclass
 		************************************************************************
 		// Preparation for Demographic composition
 		* Number adults
-		gen _pea_adult = `age' > 17 
+		gen _pea_adult = `age' > 14 
 		bys `year' `hhid' (`pid'): egen number_adults = sum(_pea_adult)
 		* Any children
-		gen _pea_child = `age' < 18
+		gen _pea_child = `age' < 15
 		bys `year' `hhid' (`pid'): egen any_children = max(_pea_child)
 		* Female adult or senior
-		gen femaleolder17 = `age' > 17 &  `male' == 0
-		bys `year' `hhid' (`pid'): egen female_older17 = sum(femaleolder17)
+		gen femaleolder14 = `age' > 14 &  `male' == 0
+		bys `year' `hhid' (`pid'): egen female_older14 = sum(femaleolder14)
 		* Male adult or senior
-		gen maleolder17 = `age' > 17 & `male' == 1
-		bys `year' `hhid' (`pid'): egen male_older17 = sum(maleolder17)
+		gen maleolder14 = `age' > 14 & `male' == 1
+		bys `year' `hhid' (`pid'): egen male_older14 = sum(maleolder14)
 		* Senior
 		gen _pea_senior = `age' > 64
 		bys `year' `hhid' (`pid'): egen number_seniors = sum(_pea_senior)
@@ -163,7 +163,7 @@ program pea_table14, rclass
 								& only_seniors == 0 & any_dem_miss ~= 1 ///
 								if any_dem_miss ~= 2
 		* 2) One female adult with children
-		gen demographic_class2 = female_older17 == 1 & male_older17 == 0 ///
+		gen demographic_class2 = female_older14 == 1 & male_older14 == 0 ///
 								& any_children == 1 & only_seniors == 0  ///
 								& any_dem_miss ~= 1	if any_dem_miss ~= 2
 		* 3) Multiple adults with children		
@@ -192,7 +192,7 @@ program pea_table14, rclass
 		if "`missing'"~="" { //show missing
 			gen demographic_class8 = any_dem_miss == 1
 			label var demographic_class8 "Missing"
-			local m_note "Households are classified as 'missing' in the economic typology if any member has no information on sex or age."
+			local m_note "Households are classified as 'missing' in the demographic typology if any member has no information on sex or age."
 			for var demographic_class*: replace X = 0 if X == .		
 		}
 		for var demographic_class*: replace X = X*100
@@ -308,7 +308,7 @@ program pea_table14, rclass
 	*collect style header group2[.], level(hide)
 	collect style header order, level(hide)
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."' 
-	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Household typologies build on the classification vof Munoz Boudet et al. (2018). `m_note'. For the economic composition, earners are defined as those working and `earnage' years or older. Households are not differentiated by having children or no children."' 
+	collect notes 2: `"Note: Poverty profiles are presented as shares of poor, nonpoor and total populations. The poor are defined using `lblline'. Household typologies build on the classification vof Munoz Boudet et al. (2018). Adults are defined as 15 years of age or older. For the economic composition, earners are defined as those working and `earnage' years or older. Households are not differentiated by having children or no children. `m_note'"' 
 	collect style cell group1[]#cell_type[row-header], font(, bold)
 	collect style cell varlab[]#cell_type[row-header], warn font(, nobold)
 	_pea_tbtformat

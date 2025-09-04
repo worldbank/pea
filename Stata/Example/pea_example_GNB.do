@@ -391,3 +391,8 @@ clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"							
 pea table15 [aw=weight_p], welfare(welfppp)  year(year)
+
+clear all
+use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"							
+pea table16, country(GNB) year(year) benchmark(SEN CIV GHA SLE) 

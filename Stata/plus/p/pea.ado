@@ -104,6 +104,9 @@ program pea, rclass
 	else if ("`subcmd'"=="table15") {
 		pea_table15 `0'		
     }
+	else if ("`subcmd'"=="table16") {
+		pea_table16 `0'		
+    }
 	else if ("`subcmd'"=="figures") {
 		pea_figures `0'		
     }

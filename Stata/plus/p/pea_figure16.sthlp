@@ -45,7 +45,7 @@ help for {hi:pea figure16}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea figure16} generates two bar graphs, one displaying the demographic and one the economic composition of the poor. Only groups which make up more than 5% of the poor population are displayed. Data is taken from the last survey year.
+{opt pea figure16} generates two bar graphs, one displaying the demographic and one the economic composition of the poor. Only groups which make up more than 5% of the poor population are displayed. Data is taken from the last survey year. In this figure, adults are defined as 15 or older, to ensure consistency with the age cut-off for earners.
 
 {title:Options}
 
