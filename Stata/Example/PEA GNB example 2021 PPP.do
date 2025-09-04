@@ -356,3 +356,8 @@ pea table14 [aw=weight_p], welfare(natwelfare) povlines(natline) 						///
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear					
 pea table15 [aw=weight_p], welfare(welfppp)  year(year)
+
+clear all
+use "$pea_path/data/PHL_GMD_clean.dta", clear
+adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"							
+pea table16, country(GNB) year(year) benchmark(CIV GHA GMB SEN AGA) 

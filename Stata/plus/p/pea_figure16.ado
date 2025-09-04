@@ -18,7 +18,7 @@
 cap program drop pea_figure16
 program pea_figure16, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) setting(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) earnage(integer 16) MISSING scheme(string) palette(string) excel(string) PPPyear(integer 2021)]
+	syntax [if] [in] [aw pw fw], [ONEWelfare(varname numeric) ONELine(varname numeric) Year(varname numeric) setting(string) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) earnage(integer 15) MISSING scheme(string) palette(string) excel(string) PPPyear(integer 2021)]
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -43,8 +43,8 @@ program pea_figure16, rclass
 	}	
 	
 	if "`earnage'"=="" {
-		local earnage = 16
-		di "Age cut-off for earners of 18 assumed."
+		local earnage = 15
+		di "Age cut-off for earners of 15 assumed."
 	}
 	// Figure Setup
 	pea_figure_setup, scheme("`scheme'") palette("`palette'")		//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)	
@@ -85,17 +85,17 @@ program pea_figure16, rclass
 		************************************************************************
 		// Preparation for Demographic composition
 		* Number adults
-		gen _pea_adult = `age' > 17 
+		gen _pea_adult = `age' > 14 
 		bys `year' `hhid' (`pid'): egen number_adults = sum(_pea_adult)
 		* Any children
-		gen _pea_child = `age' < 18
+		gen _pea_child = `age' < 15
 		bys `year' `hhid' (`pid'): egen any_children = max(_pea_child)
 		* Female adult or senior
-		gen femaleolder17 = `age' > 17 &  `male' == 0
-		bys `year' `hhid' (`pid'): egen female_older17 = sum(femaleolder17)
+		gen femaleolder14 = `age' > 14 &  `male' == 0
+		bys `year' `hhid' (`pid'): egen female_older14 = sum(femaleolder14)
 		* Male adult or senior
-		gen maleolder17 = `age' > 17 & `male' == 1
-		bys `year' `hhid' (`pid'): egen male_older17 = sum(maleolder17)
+		gen maleolder14 = `age' > 14 & `male' == 1
+		bys `year' `hhid' (`pid'): egen male_older14 = sum(maleolder14)
 		* Senior
 		gen _pea_senior = `age' > 64
 		bys `year' `hhid' (`pid'): egen number_seniors = sum(_pea_senior)
@@ -144,7 +144,7 @@ program pea_figure16, rclass
 								& only_seniors == 0 & any_dem_miss ~= 1 ///
 								if any_dem_miss ~= 2
 		* 2) One female adult with children
-		gen demographic_class2 = female_older17 == 1 & male_older17 == 0 ///
+		gen demographic_class2 = female_older14 == 1 & male_older14 == 0 ///
 								& any_children == 1 & only_seniors == 0  ///
 								& any_dem_miss ~= 1	if any_dem_miss ~= 2
 		* 3) Multiple adults with children		
@@ -173,7 +173,7 @@ program pea_figure16, rclass
 		if "`missing'"~="" { //show missing
 			gen demographic_class8 = any_dem_miss == 1
 			label var demographic_class8 "Missing"
-			local m_note "Households are classified as 'missing' in the economic typology if any member has no information on sex or age."
+			local m_note "Households are classified as 'missing' in the demographic typology if any member has no information on sex or age."
 			for var demographic_class*: replace X = 0 if X == .		
 		}
 		for var demographic_class*: replace X = X*100
@@ -316,7 +316,7 @@ program pea_figure16, rclass
 		putexcel A1 = ""
 		putexcel A2 = "Figure 16b: Profiles of the poor by economic composition"
 		putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-		putexcel A4 = "Note: The figure shows the composition of poor households. The poor are defined against the `lblline'. Economic compositions follow Table 14. Households are not differentiated by having children or no children. For the economic composition, earners are defined as those working and `earnage' years or older. Data is from `year'. Household typologies are an extended version of Munoz Boudet et al. (2018). `m_note'"
+		putexcel A4 = "Note: The figure shows the composition of poor households. The poor are defined against the `lblline'. Economic compositions follow Table 14. Households are not differentiated by having children or no children. Adults are defined as 16 years of age or older. For the economic composition, earners are defined as those working and `earnage' years or older. Data is from `year'. Household typologies are an extended version of Munoz Boudet et al. (2018). `m_note'"
 		
 		putexcel O10 = "Data:"
 		putexcel O6	= "Code:"

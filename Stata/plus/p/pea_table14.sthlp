@@ -36,8 +36,8 @@ help for {hi:pea table14b}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea table14b} calculates the share of poor and nonpoor by demographic and economic typologies:
-
+{opt pea table14b} calculates the share of poor and nonpoor by demographic and economic typologies. 
+In this figure, adults are defined as 15 or older, to ensure consistency with the age cut-off for earners.
 {title:Options}
 
 {p 4 4 2} 
