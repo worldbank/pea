@@ -609,32 +609,32 @@ program pea_tableC1, rclass
 		//Define groups
 		gen w_age 			= `age' >= 15 & `age' <= 64 if `age' ~= .
 		gen _All 			=  1 if w_age == 1
-		gen women			= `male' == 0 if `male' ~= . & w_age == 1
-		gen youth 			= `age' >= 15 & `age' <= 24 if `age' ~= . & w_age == 1
-		gen work			= `lstatus' ~= 1 if `lstatus' ~= . & w_age == 1
-		gen agriculture 	= `industrycat4' == 1 if `industrycat4' ~= . & w_age == 1
-		gen nonagriculture	= `industrycat4' ~= 1 if `industrycat4' ~= . & w_age == 1
-		gen paid			= `empstat' == 1 if `empstat' ~= . & w_age == 1
-		gen poor 			= _fgt0_`pppwelfare'_`pea_pline' == 1 if _fgt0_`pppwelfare'_`pea_pline' ~= . & w_age == 1 
-		gen nonpoor	 		= _fgt0_`pppwelfare'_`pea_pline' == 0 if _fgt0_`pppwelfare'_`pea_pline' ~= . & w_age == 1 
+		gen _women			= `male' == 0 if `male' ~= . & w_age == 1
+		gen _youth 			= `age' >= 15 & `age' <= 24 if `age' ~= . & w_age == 1
+		gen _work			= `lstatus' ~= 1 if `lstatus' ~= . & w_age == 1
+		gen _agriculture 	= `industrycat4' == 1 if `industrycat4' ~= . & w_age == 1
+		gen _nonagriculture	= `industrycat4' ~= 1 if `industrycat4' ~= . & w_age == 1
+		gen _paid			= `empstat' == 1 if `empstat' ~= . & w_age == 1
+		gen _poor 			= _fgt0_`pppwelfare'_`pea_pline' == 1 if _fgt0_`pppwelfare'_`pea_pline' ~= . & w_age == 1 
+		gen _nonpoor	 		= _fgt0_`pppwelfare'_`pea_pline' == 0 if _fgt0_`pppwelfare'_`pea_pline' ~= . & w_age == 1 
 		gen _misslfs_ind	= `lstatus' == . if w_age == 1
-		gen _empstat_ind_m	= `empstat' == . if w_age == 1 & work == 1
-		gen _industry_ind_m	= `industrycat4' == . if w_age == 1 & work == 1
+		gen _empstat_ind_m	= `empstat' == . if w_age == 1 & _work == 1
+		gen _industry_ind_m	= `industrycat4' == . if w_age == 1 & _work == 1
 		
 		save `data1b'
 		clear 
 		save `data_lab', emptyok
 		//Generate averages
-		foreach var in _All women youth poor nonpoor {
+		foreach var in _All _women _youth _poor _nonpoor {
 			use `data1b', clear
-			collapse (mean) value = work [aw=`wvar'] if `touse', by(`year' `var')
+			collapse (mean) value = _work [aw=`wvar'] if `touse', by(`year' `var')
 			gen varname = "`var'"
 			keep if `var' == 1
 			drop `var'
 			append using `data_lab'
 			save `data_lab', replace
 		}
-		foreach var2 in paid agriculture nonagriculture {
+		foreach var2 in _paid _agriculture _nonagriculture {
 			use `data1b', clear
 			collapse (mean) value = `var2' [aw=`wvar'] if `touse', by(`year' _All)
 			gen varname = "`var2'"
@@ -653,13 +653,13 @@ program pea_tableC1, rclass
 		//Label
 		gen		indicatorlbl = .
 		replace indicatorlbl = 30 if varname=="_All"
-		replace indicatorlbl = 31 if varname=="paid"
-		replace indicatorlbl = 32 if varname=="agriculture"
-		replace indicatorlbl = 33 if varname=="nonagriculture"
-		replace indicatorlbl = 40 if varname=="poor"
-		replace indicatorlbl = 41 if varname=="nonpoor"
-		replace indicatorlbl = 42 if varname=="youth"
-		replace indicatorlbl = 43 if varname=="women"
+		replace indicatorlbl = 31 if varname=="_paid"
+		replace indicatorlbl = 32 if varname=="_agriculture"
+		replace indicatorlbl = 33 if varname=="_nonagriculture"
+		replace indicatorlbl = 40 if varname=="_poor"
+		replace indicatorlbl = 41 if varname=="_nonpoor"
+		replace indicatorlbl = 42 if varname=="_youth"
+		replace indicatorlbl = 43 if varname=="_women"
 		gen		indicatorlbl2 = .
 		replace indicatorlbl2 = 91 if varname=="_misslfs_ind"
 		replace indicatorlbl2 = 92 if varname=="_empstat_ind_m"

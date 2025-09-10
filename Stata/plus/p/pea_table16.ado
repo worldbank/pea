@@ -83,27 +83,36 @@ program pea_table16, rclass
 	//Keep relevant indicators
 	drop keep
 	gen keep = .
-	*Coverage
+	*All SP Coverage
 	replace keep = 1 if inlist(Indicator_Code,"per_allsp.cov_pop_tot", "per_allsp.cov_pop_urb", "per_allsp.cov_pop_rur", "per_allsp.cov_q1_tot", "per_allsp.cov_q2_tot", "per_allsp.cov_q3_tot", "per_allsp.cov_q4_tot", "per_allsp.cov_q5_tot")
-	*Adequacy
+	*All SP Adequacy
 	replace keep = 1 if inlist(Indicator_Code,"per_allsp.adq_pop_tot", "per_allsp.adq_pop_urb", "per_allsp.adq_pop_rur", "per_allsp.adq_q1_tot", "per_allsp.adq_q2_tot", "per_allsp.adq_q3_tot", "per_allsp.adq_q4_tot", "per_allsp.adq_q5_tot")
+	*SA Coverage
+	replace keep = 1 if inlist(Indicator_Code,"per_sa_allsa.cov_pop_tot", "per_sa_allsa.cov_pop_urb", "per_sa_allsa.cov_pop_rur", "per_sa_allsa.cov_q1_tot", "per_sa_allsa.cov_q2_tot", "per_sa_allsa.cov_q3_tot", "per_sa_allsa.cov_q4_tot", "per_sa_allsa.cov_q5_tot")
+	*SA Adequacy
+	replace keep = 1 if inlist(Indicator_Code,"per_sa_allsa.adq_pop_tot", "per_sa_allsa.adq_pop_urb", "per_sa_allsa.adq_pop_rur", "per_sa_allsa.adq_q1_tot", "per_sa_allsa.adq_q2_tot", "per_sa_allsa.adq_q3_tot", "per_sa_allsa.adq_q4_tot", "per_sa_allsa.adq_q5_tot")
 	keep if keep == 1
 	gen indicator = .
-	replace indicator = 1 if inlist(Indicator_Code, "per_allsp.cov_pop_tot", "per_allsp.adq_pop_tot")
-	replace indicator = 2 if inlist(Indicator_Code, "per_allsp.cov_pop_urb", "per_allsp.adq_pop_urb")
-	replace indicator = 3 if inlist(Indicator_Code, "per_allsp.cov_pop_rur", "per_allsp.adq_pop_rur")
-	replace indicator = 4 if inlist(Indicator_Code, "per_allsp.cov_q1_tot", "per_allsp.adq_q1_tot")
-	replace indicator = 5 if inlist(Indicator_Code, "per_allsp.cov_q2_tot", "per_allsp.adq_q2_tot")
-	replace indicator = 6 if inlist(Indicator_Code, "per_allsp.cov_q3_tot", "per_allsp.adq_q3_tot")
-	replace indicator = 7 if inlist(Indicator_Code, "per_allsp.cov_q4_tot", "per_allsp.adq_q4_tot")
-	replace indicator = 8 if inlist(Indicator_Code, "per_allsp.cov_q5_tot", "per_allsp.adq_q5_tot")
+	replace indicator = 1 if inlist(Indicator_Code, "per_allsp.cov_pop_tot", "per_allsp.adq_pop_tot", "per_sa_allsa.cov_pop_tot", "per_sa_allsa.adq_pop_tot")
+	replace indicator = 2 if inlist(Indicator_Code, "per_allsp.cov_pop_urb", "per_allsp.adq_pop_urb", "per_sa_allsa.cov_pop_urb", "per_sa_allsa.adq_pop_urb")
+	replace indicator = 3 if inlist(Indicator_Code, "per_allsp.cov_pop_rur", "per_allsp.adq_pop_rur", "per_sa_allsa.cov_pop_rur", "per_sa_allsa.adq_pop_rur")
+	replace indicator = 4 if inlist(Indicator_Code, "per_allsp.cov_q1_tot", "per_allsp.adq_q1_tot", "per_sa_allsa.cov_q1_tot", "per_sa_allsa.adq_q1_tot")
+	replace indicator = 5 if inlist(Indicator_Code, "per_allsp.cov_q2_tot", "per_allsp.adq_q2_tot", "per_sa_allsa.cov_q2_tot", "per_sa_allsa.adq_q2_tot")
+	replace indicator = 6 if inlist(Indicator_Code, "per_allsp.cov_q3_tot", "per_allsp.adq_q3_tot", "per_sa_allsa.cov_q3_tot", "per_sa_allsa.adq_q3_tot")
+	replace indicator = 7 if inlist(Indicator_Code, "per_allsp.cov_q4_tot", "per_allsp.adq_q4_tot", "per_sa_allsa.cov_q4_tot", "per_sa_allsa.adq_q4_tot")
+	replace indicator = 8 if inlist(Indicator_Code, "per_allsp.cov_q5_tot", "per_allsp.adq_q5_tot", "per_sa_allsa.cov_q5_tot", "per_sa_allsa.adq_q5_tot")
 	label define indicator_lbl 1 "Total" 2 "Urban" 3 "Rural" 4 "Q1" 5 "Q2" 6 "Q3" 7 "Q4" 8 "Q5"
 	label values indicator indicator_lbl
 	gen header = .
 	replace header = 1 if Sub_Topic3 == "Coverage"
 	replace header = 2 if Sub_Topic3 == "Adequacy of benefits"
-	label define header_lbl 1 "Coverage of Social Protection" 2 "Adequacy of benefits of Social Protection"
+	label define header_lbl 1 "Coverage" 2 "Adequacy of benefits"
 	label values header header_lbl	
+	gen over_header = .
+	replace over_header = 1 if Sub_Topic5 == "All Social Protection and Labor"
+	replace over_header = 2 if Sub_Topic5 == "Social Assistance"
+	label define overheader_lbl 1 "All Social Protection" 2 "Social Assistance"
+	label values over_header overheader_lbl	
 	//Country order
 	qui levelsof Countries, local(gval) 
 	gen group_order = 1
@@ -118,17 +127,20 @@ program pea_table16, rclass
 	}
 	label define group_lbl 1 "`country_name_c'", add
 	label values group_order group_lbl
-	keep Countries year header val indicator group_order
+	keep Countries year over_header header val indicator group_order
 	
 	// Sheet name
 	local tabname Table16
 	// Export
 	collect clear
-	collect: table (header indicator) (group_order year), statistic(mean val) nototal nformat(%20.1f) missing
-	collect style header header indicator group_order year, title(hide)
+	collect: table (over_header header indicator) (group_order year), statistic(mean val) nototal nformat(%20.1f) missing
+	collect style header over_header header indicator group_order year, title(hide)
+	collect style cell over_header[]#cell_type[row-header], font(, bold)
+	collect style cell header[]#cell_type[row-header], warn font(, nobold)
+	collect style cell indicator[]#cell_type[row-header], warn font(, nobold)
 	collect title `"Table 16. Social Protection Coverage and Adequacy"'
 	collect notes 1: `"Source: World Bank calculations using data from the ASPIRE database, retrieved from https://www.worldbank.org/en/data/datatopics/aspire."'
-	collect notes 2: `"Notes: Table shows coverage and benefit adequacy of all Social Protection and Labor programs. For more information, please refer to the ASPIRE methodology. Quintiles represent five equal groups of households ranked by welfare level, from lowest (Q1) to highest (Q5)."' 
+	collect notes 2: `"Notes: Table shows coverage and benefit adequacy of all Social Protection and Labor programs, and of Social Assistance only programs. For more information, please refer to the ASPIRE methodology. Quintiles represent five equal groups of households ranked by welfare level, from lowest (Q1) to highest (Q5)."' 
 	_pea_tbtformat
 	_pea_tbt_export, filename(Table16) tbtname(Table16) excel("`excel'") dirpath("`dirpath'") excelout("`excelout'") shell
 	

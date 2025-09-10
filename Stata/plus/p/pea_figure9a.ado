@@ -213,7 +213,7 @@ program pea_figure9a, rclass
 		local label_`i': label(indicatorlbl) `i'
 		local legend`i' `"`j' "`label_`i''""'						
 		local legend "`legend' `legend`i''"	
-		local allindicators "`allindicators' `label_`i''"
+		local allindicators "`allindicators' `label_`i'',"
 	
 		local scatter_cmd`i' = `"scatter ind_ `year' if indicatorlbl==`i', mcolor("${col`j'}") lcolor("${col`j'}") || "'	// Colors defined in pea_figure_setup
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"

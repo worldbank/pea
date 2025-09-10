@@ -191,7 +191,7 @@ program pea_figure8, rclass
 	putexcel A1 = ""
 	putexcel A2 = "Figure 8: Poverty rates by sex and age-groups"
 	putexcel A3 = "Source: World Bank calculations using survey data accessed through the GMD."
-	putexcel A4 = "Note: Figure presents poverty rates in each age-group by sex in `year'. Poverty is defined by the `lblline' line. "
+	putexcel A4 = "Note: Figure presents poverty rates in each age-group by sex in `lasty'. Poverty is defined by the `lblline' line. "
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"
 	putexcel N11 = "Labels:"
