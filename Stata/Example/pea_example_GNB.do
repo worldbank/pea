@@ -96,13 +96,13 @@ pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea figures [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) comparability(comparability) welfaretype(CONS) 
+pea figures [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) comparability(comparability) welfaretype(CONS) pppy(2017)
 
 ******************** Appendix Tables
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea tables [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) svy std(inside)
+pea tables [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) svy std(inside) pppy(2017)
 
 ********************************************************************************
 * Core Table 1
@@ -113,8 +113,7 @@ adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
 gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 label define nowork 0 "Working" 1 "Not working (unemployed or out of labor force)"
 label values nowork nowork
-pea tableC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) benchmark(SEN CIV GHA SLE GNB) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male) aggregate(groups)
-
+pea_tableC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) onew(welfppp) onel(pline215) ppp(2017) benchmark(SEN CIV GHA SLE GNB) lstatus(nowork) empstat(empstat) industrycat4(industrycat4) age(age) male(male) aggregate(groups)
 
 ********************************************************************************
 * Core Figure 1
@@ -123,7 +122,7 @@ clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
 gen natline2 = 200000															// for testing purposes
-pea_figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast natpov_fcast2) gdp_fcast(gdp_fcast) 
+pea figureC1 [aw=weight_p], c(GNB) natw(natwelfare) natp(natline natline2) year(year) year_fcast(year_fcast) natpov_fcast(natpov_fcast natpov_fcast2) gdp_fcast(gdp_fcast) 
 comparability_peb(comparability_peb)
 
 ********************************************************************************
