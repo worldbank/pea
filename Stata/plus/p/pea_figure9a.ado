@@ -120,7 +120,7 @@ program pea_figure9a, rclass
 						su `onewelfare' [w=`wvar'] if (`year'==`y' & qwlf <= 4) 
 						local b40welf =  r(sum)
 				
-						su `onewelfare' [w=`wvar']  if (`year'==`y' & qwlf >= 8)
+						su `onewelfare' [w=`wvar']  if (`year'==`y' & qwlf > 8)
 						local t20welf =  r(sum)
 							
 						su `onewelfare' [w=`wvar']  if (`year'==`y' & qwlf == 10)
