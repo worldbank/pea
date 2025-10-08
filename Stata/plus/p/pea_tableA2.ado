@@ -146,8 +146,8 @@ program pea_tableA2, rclass
 			la def agecatind 1 "Children (less than age 15)" 2 "Adults (age 15 to 64)" 3 "Elderly (age 65 and older)" 
 			la val agecatind agecatind
 			la var agecatind "By age group"
-			clonevar _eduXind = `edu' if `age'>=16 & !missing(`age')
-			la var _eduXind "By education (age 16+)"				
+			clonevar _eduXind = `edu' if `age'>=15 & !missing(`age')
+			la var _eduXind "By education (age 15+)"				
 		} //rn
 	} //age
 	

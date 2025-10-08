@@ -109,7 +109,7 @@ program pea_table3, rclass
 			replace agecatind = 3 if `age'>=65 & `age'<=.
 			qui sum agecatind
 			local agemax = `r(max)'
-			clonevar _eduXind = `edu' if `age'>=16 & `age'~=.
+			clonevar _eduXind = `edu' if `age'>=15 & `age'~=.
 			
 			if "`hhhead'"~="" {
 				gen agecathead = 1 if `age'>=18 & `age'<=34 & `hhhead'==1
@@ -232,7 +232,7 @@ program pea_table3, rclass
 		clear
 		save `data2', replace emptyok
 		use `data1', clear
-		drop if `age'<16
+		drop if `age'<15
 		gen count = 1
 		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) count(count) rawsum(_pop) by(`year' _eduXind)
 		reshape long _fgt0_ _fgt1_ _fgt2_, i(`year' _eduXind _pop) j(_varname) string
@@ -265,9 +265,9 @@ program pea_table3, rclass
 		qui collect: table (indicatorlbl _eduXind) (`year'), stat(mean _fgt0_) nototal nformat(%20.1f) missing
 		collect style header indicatorlbl _eduXind `year', title(hide)
 		
-		collect title `"Table 3b. Subgroup poverty rates by education (age 16+, %)"'
+		collect title `"Table 3b. Subgroup poverty rates by education (age 15+, %)"'
 		collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-		collect notes 2: `"Note: Poverty rates reported for individuals, age 16 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_miss' `note_minobs'"'
+		collect notes 2: `"Note: Poverty rates reported for individuals, age 15 or older. Poverty rates are reported for the per person per day poverty lines, expressed in `pppyear' purchasing power parity dollars. These three poverty lines reflect the typical national poverty lines of low-income countries, lower-middle-income countries, and upper-middle-income countries, respectively. National poverty lines are expressed in local currency units (LCU). Education level refers to the highest level attended, complete or incomplete. `note_miss' `note_minobs'"'
 		
 		collect style cell indicatorlbl[1 2 3 4]#cell_type[row-header], font(, bold)
 		collect style cell _eduXind[]#cell_type[row-header], warn font(, nobold)

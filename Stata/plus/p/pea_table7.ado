@@ -52,7 +52,7 @@ program pea_table7, rclass
 			la var agecatind "Age categories"
 			local agevar agecatind
 			if "`edu'"~="" {
-				clonevar _eduXind = `edu' if `age'>=16 & `age'~=.
+				clonevar _eduXind = `edu' if `age'>=15 & `age'~=.
 				local eduvar _eduXind
 			}
 		}
@@ -195,7 +195,7 @@ program pea_table7, rclass
 	replace group = 2 if _variable == "`male'"
 	replace group = 3 if _variable == "_eduXind"
 	replace group = 4 if _variable == "agecatind"
-	la def group 1 "All sample" 2 "By sex" 3 "By educational attainment (16+)" 4 "By age"
+	la def group 1 "All sample" 2 "By sex" 3 "By educational attainment (15+)" 4 "By age"
 	la val group group	
 	sort group `year'
 	
@@ -214,7 +214,7 @@ program pea_table7, rclass
 	collect style header combined_var[1], level(hide)
 	collect title `"Table 7. Vulnerability to poverty (1.5* `lbl`povlines'')"'
 	collect notes 1: `"Source: World Bank calculations using survey data accessed through the Global Monitoring Database."'
-	collect notes 2: `"Note: Vulnerability to poverty is defined as being between the `lbl`povlines'' and `vulnerability' times the poverty line. All individual are used in the sample. Poverty statistics by educational attainment are only calculated for those aged 16 and above. `note_minobs'"'
+	collect notes 2: `"Note: Vulnerability to poverty is defined as being between the `lbl`povlines'' and `vulnerability' times the poverty line. All individual are used in the sample. Poverty statistics by educational attainment are only calculated for those aged 15 and above. `note_minobs'"'
 			
 	collect style cell group[]#cell_type[row-header], font(, bold)
 	collect style cell combined_var[]#cell_type[row-header], warn font(, nobold)
