@@ -170,7 +170,7 @@ program pea_figure7b, rclass
 	putexcel save								
 	cap graph close	
 	//Export data
-	export excel `year' poor _group using "`excelout2'" , sheet("Figure7b", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
+	export excel `year' poor _group using "`excelout2'" , sheet("Figure7b", modify) cell(O11) keepcellfmt firstrow(variables)
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure7b.xlsx"	
 		
 end	

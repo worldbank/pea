@@ -136,7 +136,7 @@ pea_figure1 [aw=weight_p], natw(welfarenom) natp(natline) pppw(welfppp) pppp(pli
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-pea figure2 [aw=weight_p], c(GNB) year(year) pppw(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN)
+pea figure2 [aw=weight_p], c(GNB) year(year) pppw(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) pppy(2017)
 
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear

@@ -323,7 +323,7 @@ program pea_dataupdate, rclass
 						drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
 						drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
 						drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-						keep country_code year  headcount`line' pg   welfare_type pop 
+						keep country_code year headcount`line' pg welfare_type pop ppp
 						gen ppp = `p'
 						save `povdata`p'`j'', replace
 						local j = `j' + 1

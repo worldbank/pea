@@ -202,7 +202,7 @@ program pea_table7, rclass
 	keep `year' combined_var value* indicatorlbl count group _variable
 
 	reshape long value, i( `year' group combined_var indicatorlbl _variable) j(ind)
-	la def ind 1 "Poverty rate (%)" 2 "Share of poor (%)" 3 "Number of poor `xtxt'"
+	la def ind 1 "Vulnerability rate (%)" 2 "Share of vulnerable (%)" 3 "Number of vulnerable `xtxt'"
 	la val ind ind
 	
 	local milab : value label combined_var
