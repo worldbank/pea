@@ -75,7 +75,7 @@ program pea_figure7b, rclass
 		label define educat4_m 1 "No education" 2 "Primary" 3 "Secondary" 4 "Tertiary"
 		label values `edu' educat4_m
 	}	
-	replace `edu' = . if `age'<16 & `age'==.
+	replace `edu' = . if `age'<16 | `age'==.
 	
 	// Variable definitions
 	if "`age'"!="" {
