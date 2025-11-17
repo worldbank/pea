@@ -66,7 +66,7 @@ program pea_table5, rclass
 		
 		if "`core'"~="" { //reset to the floor PPP lines
 			replace `welfare' = ${floor_} if `welfare'< ${floor_}
-			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 		}
 	}	
 			

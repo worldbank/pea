@@ -90,7 +90,7 @@ program pea_table12, rclass
 		
 		if "`pppwelfare'"~="" { //reset to the floor
 			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
-			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 		}
 		
 		tempfile dataori datalbl
