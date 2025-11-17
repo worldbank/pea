@@ -134,7 +134,7 @@ syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) ONELine(varn
 	if "`fgtvars'"=="" { //only create when the fgt are not defined	
 		if "`onewelfare'"~="" { //reset to the floor
 			replace `onewelfare' = ${floor_} if `onewelfare'< ${floor_}
-			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 		}
 		if "`onewelfare'"~="" & "`oneline'"~="" _pea_gen_fgtvars if `touse', welf(`onewelfare') povlines(`oneline') 
 	}

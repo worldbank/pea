@@ -48,7 +48,7 @@ program pea_table15, rclass
 	
 	if "`welfare'"~="" { //reset to the floor
 		replace `welfare' = ${floor_} if `welfare'< ${floor_}
-		noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+		noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 	}
 		
 	levelsof `year', local(yearlist)

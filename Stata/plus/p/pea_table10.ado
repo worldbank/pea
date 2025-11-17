@@ -96,7 +96,7 @@ program pea_table10, rclass
 	if "`fgtvars'"=="" { //only create when the fgt are not defined	
 		if "`welfare'"~="" { //reset to the floor
 			replace `welfare' = ${floor_} if `welfare'< ${floor_}
-			noi dis "Replace the bottom/floor ${floor_} for `pppyear' PPP"
+			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 		}
 		
 		if "`welfare'"~="" & "`povlines'"~="" _pea_gen_fgtvars if `touse', welf(`welfare') povlines(`povlines')		
