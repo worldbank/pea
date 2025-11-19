@@ -260,7 +260,7 @@ program pea_figure3a, rclass
 			twoway (connected `vargic' percentile, yline(0, lp(-) lc(black*0.6)) lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr', ///
 				legend(on order(`"`varlbl'"') rows(1) position(6)) `yrange' ///
 				xtitle(Percentile) ytitle("Annualized growth, %") name(ngraph`gr', replace)
-			x
+			
 			putexcel set "`excelout2'", modify sheet(Figure3a, replace)
 			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)
 			putexcel A`u' = image("`graph`gr''")
