@@ -84,9 +84,11 @@ save "$pea_path/data/GNB_GMD_ALL_clean.dta", replace
 
 ******************** Core Tables
 clear all
-use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
+use "$pea_path/data/GNB_GMD_ALL_clean_ppp2021.dta", clear
 adopath + "c:\Users\wb327173\OneDrive - WBG\Downloads\ECA\repo\pea\Stata\plus\"
 pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline300 pline420 pline830) ppp(2021) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline420) benchmark(SEN CIV GHA SLE) aggregate(groups) missing setting(GMD) spells(2018 2021) svy std(right) comparability_peb(comparability_peb) year_fcast(year_fcast) natpov_fcast(natpov_fcast) gdp_fcast(gdp_fcast) yrange(20(20)80) yrange2(300000(50000)500000) aggregate(groups)
+
+pea core [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline300 pline420 pline830) ppp(2021) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline420) benchmark(SEN CIV GHA SLE) setting(GMD) spells(2018 2021) svy std(right)
 
 ******************** Appendix Figures
 clear all

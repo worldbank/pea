@@ -312,7 +312,7 @@ Default under setting(GMD): pid
 {p 4 4 2}
 {bf:pea figures}[aw=weight_p], c(IDN) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(MYS VNM THA) missing setting(GMD) spells(2000 2007; 2007 2008; 2016 2022) comparability(comparability) welfaretype(CONS) yrange(0(10)100)
 
-pea figures [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) comparability(comparability) welfaretype(CONS) 
+pea figures [aw=weight_p], c(GNB) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(SEN CIV GHA SLE) missing setting(GMD) spells(2018 2021) comparability(comparability) welfaretype(CONS) pppy(2017)
 
 pea figures [aw=weight_p], c(PHL) natw(natwelfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline215) benchmark(VNM IDN THA) missing setting(GMD) spells(2015 2018; 2018 2021) comparability(comparability) welfaretype(CONS) bar 
 

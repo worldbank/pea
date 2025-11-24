@@ -126,9 +126,6 @@ program pea_figure9c, rclass
 	bys country_code (year): egen min_d = min(y_d)
 	keep if (y_d == min_d) & y_d < `within' & gini ~= .
 	bys country_code (year): keep if _n == _N 									// use latest year if there are two with equal distance
-	rename welfaretype welfaretype_n
-	gen 	welfaretype = "CONS" if welfaretype_n == 1
-	replace welfaretype = "INC"  if welfaretype_n == 2
 	keep country_code year gini code welfaretype country_name
 	// Insert PEA country manually, because survey could be newer than data in PIP
 	qui levelsof country_name if country_code == "`country'", local(peacountry) clean
