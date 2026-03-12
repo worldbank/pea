@@ -75,6 +75,8 @@ program pea_dataupdate, rclass
 				*keep if ppp==`pppyear'
 				if _N>0 {
 					char _dta[version] $S_DATE		
+					replace welftype = "CONS" if welftype == "C" | welftype == "c"
+					replace welftype = "INC" if welftype == "I" | welftype == "i"
 					save "`persdir'pea/WLD_GMI_MPM.dta", replace
 				}
 				else {

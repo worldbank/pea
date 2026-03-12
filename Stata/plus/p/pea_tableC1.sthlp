@@ -109,7 +109,7 @@ Default is 2017.
 {opt aggregate(string)}: specifies the way comparator countries or aggregates are displayed.
 	Available options are: 
 	
-	- Default: If aggregate() is not specified, peer countries will be shown individually.
+	- Default: If aggregate() is not specified, peer countries will be shown individually. eer countries are included if a survey within 3 years of last survey year of the PEA country is available.
 	- aggregate({bf: groups}): Will display aggregate values for countries within the same region or income group as PEA countries (using population weights). 
 		Region and income group countries are included if a survey within 3 years of last survey year of the PEA country is available. 
 		Note: Regional and income group poverty rates deviate from official World Bank published rates, as no line-up values are used.
