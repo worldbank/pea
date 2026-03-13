@@ -142,7 +142,7 @@ The following only need to be used if setting(GMD) is not specified:
  Either setting(GMD) or these options need to be specified.
 
 {p 4 4 2}
-{opt BENCHmark(string)}: specifies a list of benchmark countries (e.g., ALB HRV XKX).
+{opt BENCHmark(string)}: specifies a list of benchmark countries (e.g., ALB HRV XKX). Peer countries are included if a survey within 3 years of last survey year of the PEA country is available.
 
 {p 4 4 2}
 {opt spells(string)}: specifies the periods or time spells for longitudinal analysis (e.g., 2015 2016; 2016 2017).
