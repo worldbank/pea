@@ -140,7 +140,7 @@ pea figure3b [aw=weight_p], welfare(welfppp) year(year) spells(2015 2018; 2018 2
 
 clear all
 use "$pea_path/data/PHL_GMD_clean.dta", clear
-pea figure4 [aw=weight_p], onewelfare(welfppp) oneline(pline300) ppp(2021) year(year) spells(2015 2018; 2018 2021) idpl(urban)
+pea figure4 [aw=weight_p], onewelfare(welfppp) oneline(pline830) ppp(2021) year(year) spells(2015 2018; 2018 2021; 2021 2023) idpl(urban)
 
 clear all
 use "$pea_path/data/PHL_GMD_clean.dta", clear
@@ -341,8 +341,4 @@ pea table14 [aw=weight_p], welfare(natwelfare) povlines(natline) 						///
 clear all
 use "$pea_path/data/PHL_GMD_clean.dta", clear
 pea table15 [aw=weight_p], welfare(welfppp)  year(year)
-				
-clear all
-use "$pea_path/data/PHL_GMD_clean.dta", clear
-adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"							
-pea table16, country(PHL) year(year) benchmark(VNM IDN THA) 
+						
