@@ -52,7 +52,6 @@ program pea_figure3b, rclass
 	di "`spellsnew'"
 	// Prepare spells
 	tokenize "`spells'", parse(";")	
-	local comparability comparability
 	// Comparability
 	local one = 1
 	if "`comparability'" ~= "" {
