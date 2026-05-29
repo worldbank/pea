@@ -29,65 +29,48 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	//house cleaning
 	_pea_export_path, excel("`excel'")
 	
-	//Check if data exists
-	cap confirm file "`persdir'pea/exposure_vulnerability_2021.dta"
-	if _rc~=0 {
-		noi dis as error "Unable to find exposure_vulnerability_2021.dta file."
-		error `=_rc'	
-	}
-	
-	// Check if PIP already prepared, else download all PIP related files
-	local nametodo = 0
-	cap confirm file "`persdir'pea/PIP_all_countrylineup.dta"
-	if _rc==0 {
-		cap use "`persdir'pea/PIP_all_countrylineup.dta", clear	
-		if _rc~=0 local nametodo = 1	
-	}
-	else local nametodo = 1
-	if `nametodo'==1 {
-		cap pea_dataupdate, datatype(PIP) update
-		if _rc~=0 {
-			noi dis "Unable to run pea_dataupdate, datatype(PIP) update"
-			exit `=_rc'
-		}
-	}
-
 	// Figure Setup
 	local groups = 2																	//  Total number of entries and colors
 	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")		//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)	
 	
 	//Prepare data
-	local varlist 	exp_any risk_any poor215_any dep_educ_com_expany ///
-					dep_infra_elec_expany dep_infra_impw_expany ///
-					dep_fin_expany dep_sp_expany exprai_any
+	local varlist exp_sh risk_any risk_poor300 risk_educ risk_sp risk_fin risk_elec risk_water risk_rai
 					
 	//Call data
-	use "`persdir'pea/exposure_vulnerability_2021.dta", 
+	local nametodo = 0
+	cap confirm file "`persdir'pea/exposure.dta"
+	if _rc==0 {
+		cap use "`persdir'pea/exposure.dta", clear	
+		if _rc~=0 local nametodo = 1	
+	}
+	else local nametodo = 1
+	if `nametodo'==1 {
+		cap pea_dataupdate, datatype(EXPOSURE) update
+		if _rc~=0 {
+			noi dis "Unable to run pea_dataupdate, datatype(EXPOSURE) update"
+			exit `=_rc'
+		}
+	}
+
 	qui count if code == "`country'"
 	if r(N) == 0 {
 		noi dis as error "Country `country' does not have climate-risk data, Figure 15 not produced."
 		error 1	
 	}
-
-	gen year = 2021																		// adjust if year of data gets adapted
-	keep year `varlist' totalpop code region economy
+	sum year 
+	local year = r(max)
+	keep year `varlist' pop_pip code
 	tempfile dataori
 	save	`dataori'
 	
 	// Get regional estimates
-	//Merge in population
-	rename code country_code
-	merge 1:m country_code year using "`persdir'pea/PIP_all_countrylineup.dta", keepusing(pop ppp) nogen
-	keep if ppp == `pppyear'
+	merge 1:1 code year using "`persdir'pea/CLASS_incg_region.dta", keepusing(region country_name) nogen
 	gen count = _n
-	qui sum count if country_code == "`country'"
+	qui sum count if code == "`country'"
 	local region_name `=region[r(min)]'
-	local cname		`=economy[r(min)]'
+	local cname		`=country_name[r(min)]'
 	keep if region == "`region_name'"
-	rename country_code code
-	keep if year == 2021
-	rename year year_data
- 	collapse (sum) `varlist'  totalpop , by(region)
+ 	collapse (mean) `varlist' [aw=pop_pip] , by(region)
 	drop if region == ""
 	rename region code
 	
@@ -96,27 +79,27 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	keep if code == "`country'" | code == "`region_name'"
 	gen group = 1 if code == "`country'"
 	replace group = 2 if code == "`region_name'"
-	foreach var of varlist `varlist' { 
-		gen share_`var' = `var' / totalpop
-	}
-	keep share* group
-	
+
+
 	//Reshape and labels
 	gen over_group = " "
-	
+	foreach var of local varlist { 
+		rename `var' share_`var'
+	}
+	keep over_group group share_*
 	reshape long share_, i(over_group group) j(ind, string)
 	replace share_ = share_ * 100
 	reshape wide share_, i(over_group ind) j(group)
 	replace over_group = "Exposed to any hazard and ..." if ind != "exp_any"  &  ind != "risk_any"
-	replace ind = "Exposed to any hazard" 		if ind == "exp_any"
+	replace ind = "Exposed to any hazard" 		if ind == "exp_sh"
 	replace ind = "At risk from any hazard" 	if ind == "risk_any"
-	replace ind = "Less than $2.15 per day" 	if ind == "poor215_any"
-	replace ind = "Low education level" 		if ind == "dep_educ_com_expany"
-	replace ind = "No access to electricity" 	if ind == "dep_infra_elec_expany"
-	replace ind = "No access to improved water" if ind == "dep_infra_impw_expany"
-	replace ind = "No financial access" 		if ind == "dep_fin_expany"
-	replace ind = "No social protection" 		if ind == "dep_sp_expany"
-	replace ind = "Low access to markets" 		if ind == "exprai_any"
+	replace ind = "Less than $3.00 per day" 	if ind == "risk_poor300"
+	replace ind = "Low education level" 		if ind == "risk_educ"
+	replace ind = "No access to electricity" 	if ind == "risk_elec"
+	replace ind = "No access to improved water" if ind == "risk_water"
+	replace ind = "No financial access" 		if ind == "risk_fin"
+	replace ind = "No social protection" 		if ind == "risk_sp"
+	replace ind = "Low access to markets" 		if ind == "risk_rai"
 	
 	//Figure
 	if "`excel'"=="" {
@@ -146,8 +129,8 @@ syntax [if] [in] [aw pw fw], [Country(string) scheme(string) palette(string) exc
 	putexcel A`u' = image("`graph'")
 	putexcel A1 = ""
 	putexcel A2 = "Figure 15: Climate risk and vulnerability dimensions"
-	putexcel A3 = "Source: World Bank calculations using data from the World Bank Scorecard Vision Indicators."
-	putexcel A4 = "Note: Population at risk is defined as the share of population exposed to any hazard, and vulnerable in any of the dimensions. Data is from circa 2021."
+	putexcel A3 = "Source: World Bank calculations using data from the World Bank Scorecard Vision Indicators: https://datacatalog.worldbank.org/int/search/dataset/0066435/Counting-people-at-high-risk-from-climate-related-hazards"
+	putexcel A4 = "Note: Population at risk is defined as the share of population exposed to any hazard, and vulnerable in any of the dimensions. Data is from circa `year'."
 	
 	putexcel O10 = "Data:"
 	putexcel O6	= "Code:"

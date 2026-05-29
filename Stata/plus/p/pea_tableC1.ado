@@ -84,10 +84,6 @@ program pea_tableC1, rclass
 		su `year', meanonly
 		local ymax = r(max)
 		levelsof `year', local(ylist)
-		local atrisk0 2021		
-		local atcheck : list ylist & atrisk0
-		if "`atcheck'"=="" local yatrisk `ymax'
-		else local yatrisk `atcheck'
 		
 		//order the lines
 		if "`linesorted'"=="" {
@@ -198,36 +194,27 @@ program pea_tableC1, rclass
 	save `data2', replace
 	
 	// Climate-hazard risk
-	local cwd `"`c(pwd)'"'														// store current wd
-	quietly capture cd "`persdir'pea/Scorecard_Summary_Vision/"
-	if _rc~=0 {
-		noi di in red "Scorecard_Summary_Vision folder does not exist."
-	}
-	quietly cd `"`cwd'"'
-
-	cap import excel "`persdir'pea/Scorecard_Summary_Vision/EN_CLM_VULN.xlsx", firstrow clear
-	if _rc==0 {
-		qui destring Time_Period, gen(year)
-		ren Geography_Code code
-		keep if code=="`country'"
-		if _N==0 {
-			noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
-			local atriskdo = 0
-		}
-		else {
-			ren Value value
-			gen indicatorlbl = 51
-			replace year = `yatrisk'
-			keep year value indicatorlbl
-			save `atriskdata', replace
-			local atriskdo = 1		
-		}
-	} //rc excel
-	else {
-		noi dis as error "Unable to load the Scorecard EN_CLM_VULN.xlsx"
-		error `=_rc'
-	}	
 	
+	use "`persdir'pea/climrisk.dta", clear
+	sum year
+	local atrisk0 = r(max)		
+	local atcheck : list ylist & atrisk0
+	if "`atcheck'"=="" local yatrisk `ymax'
+	else local yatrisk `atcheck'
+	keep if code=="`country'"
+	if _N==0 {
+		noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
+		local atriskdo = 0
+	}
+	else {
+		gen indicatorlbl = 51
+		replace year = `yatrisk'
+		rename atrisk value
+		keep year value indicatorlbl
+		save `atriskdata', replace
+		local atriskdo = 1		
+	}
+
 	//Poverty 
 	use `data2', clear
 	erase `data2'
@@ -442,7 +429,7 @@ program pea_tableC1, rclass
 			keep if `gp' == "``gp'_c'"											// Keep only PEA country specific region or income group
 			count
 			if r(N)>0 {
-				collapse (mean) atrisk [aw=pop_pip_vul], by(`gp')
+				collapse (mean) atrisk [aw=pop_pip], by(`gp')
 			}
 			gen group = `gp'
 			drop `gp'
@@ -515,7 +502,7 @@ program pea_tableC1, rclass
 		keep if atrisk ~= .
 		count
 		if r(N)>0 {
-			collapse (mean) atrisk [aw=pop_pip_vul]
+			collapse (mean) atrisk [aw=pop_pip]
 		}
 		gen group = "Peers"
 		merge 1:1 group using `data_gmi', nogen
