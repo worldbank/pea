@@ -244,7 +244,7 @@ pea figure14 [aw=weight_p], country(GNB) welfare(welfppp)  year(year) benchmark(
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear
 adopath + "C:/Users/wb567239/OneDrive - WBG/Documents/GitHub/pea/Stata/plus"
-*pea figure15, c(GMB)
+pea figure15, c(GMB)
 
 clear all
 use "$pea_path/data/GNB_GMD_ALL_clean.dta", clear

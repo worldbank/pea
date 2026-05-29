@@ -24,7 +24,7 @@ help for {hi:pea dataupdate}{right:January 2025}
 {title:Description}
 
 {p 4 4 2}
-{opt pea dataupdate} is a program that updates various datasets related to global poverty and economic indicators.The program checks if the data files for specified types (e.g., {it:MPM}, {it:PIP}, {it:SCORECARD}) exist and are up-to-date. If the data is outdated or missing, the program retrieves and processes new data from various sources such as the {it:PIP} tables, {it:MPM} datasets, and other relevant files. 
+{opt pea dataupdate} is a program that updates various datasets related to global poverty and economic indicators.The program checks if the data files for specified types (e.g., {it:MPM}, {it:PIP}, {it:CLIMRISK}, {it:EXPOSURE}) exist and are up-to-date. If the data is outdated or missing, the program retrieves and processes new data from various sources such as the {it:PIP} tables, {it:MPM} datasets, and other relevant files. 
 The updated data is saved in the user s personal directory under the "pea" folder for further analysis.
 
 {title:Options}
@@ -34,7 +34,8 @@ The updated data is saved in the user s personal directory under the "pea" folde
    
     - MPM: Multidimensional Poverty Measure (MPM) data
     - PIP: Poverty and Inequality data
-    - SCORECARD: Scorecard data
+    - CLIMRISK: Climate risk data
+    - EXPOSURE: Exposure from hazards data
     - LIST: Country names and regions list
     - UNESCO: Placeholder for updating UNESCO data
     - CLASS: Placeholder for updating CLASS data
@@ -57,7 +58,10 @@ The program performs the following tasks depending on the specified `datatype`:
 - PIP: Retrieves and updates the Poverty and Inequality data (including GDP, population, income groups, and poverty rates) for the specified year, including the selected PPP year, and merges various datasets to create a comprehensive file.
 
 {p 4 4 2}	
-- SCORECARD: Placeholder for updating scorecard data (currently not implemented).
+- CLIMRISK: Updates the risk from climate hazards data for the last available year and saves the data in the personal directory.
+
+{p 4 4 2}	
+- EXPOSURE: Updates the exposure to climate hazards data for the last available year and saves the data in the personal directory.
 
 {p 4 4 2}	
 - LIST: Updates the list of country names and regions from the PIP database.

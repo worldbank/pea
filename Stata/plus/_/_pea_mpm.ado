@@ -68,7 +68,7 @@ program _pea_mpm, rclass
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 		
 	use "`persdir'pea/UNESCO.dta", clear
-	keep if countrycode=="`country'"	
+	keep if code=="`country'"	
 	su year,d
 	keep if year==`=r(max)'
 	*qui dlw, country(Support) year(2005) type(GMDRAW) filename(UNESCO.dta) surveyid($surid) files clear nometa	

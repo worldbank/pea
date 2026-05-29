@@ -42,7 +42,8 @@ program pea_dataupdate, rclass
 		else if "`datatype'"=="PEB" local returnfile "`persdir'pea/PEB_natpovrates.dta"
 		else if "`datatype'"=="WDI" local returnfile "`persdir'pea/WDI_gdppc_lcuconst.dta"
 		else if "`datatype'"=="POP" local returnfile "`persdir'pea/POP.dta"
-		else if "`datatype'"=="SCORECARD" local returnfile "`persdir'pea/Scorecard_country.dta"
+		else if "`datatype'"=="CLIMRISK" local returnfile "`persdir'pea/climrisk.dta"
+		else if "`datatype'"=="EXPOSURE" local returnfile "`persdir'pea/exposure.dta"
 		else if "`datatype'"=="LIST" local returnfile "`persdir'pea/PIP_list_name.dta"
 		else if "`datatype'"=="UNESCO" local returnfile "`persdir'pea/UNESCO.dta"
 		else if "`datatype'"=="CLASS" local returnfile "`persdir'pea/CLASS.dta"
@@ -92,10 +93,9 @@ program pea_dataupdate, rclass
 		
 		//UNESCO
 		if "`datatype'"=="UNESCO" {
-			noi dis "Place holder only"
-			*char _dta[version] $S_DATE
-			*use "`persdir'pea/UNESCO.dta", clear
-			*qui dlw, country(Support) year(2005) type(GMDRAW) filename(UNESCO.dta) surveyid($surid) files clear nometa	
+			dlw, country(Support) year(2005) type(GMDRAW) filename(UNESCO.dta) surveyid($surid) files clear nometa
+			char _dta[version] $S_DATE
+			save "`persdir'pea/UNESCO.dta", replace
 		}
 		
 		//CLASS
@@ -167,20 +167,33 @@ program pea_dataupdate, rclass
 			}	
 		}
 		
-		//Scorecard
-		if "`datatype'"=="SCORECARD" {
-			noi dis "Place holder only"
-			*char _dta[version] $S_DATE
-			*save "`persdir'pea/CSC_atrisk2021.dta", replace
-		}
-		
-		//Climate exposure and vulnerability
+		//Climate risk
 		if "`datatype'"=="CLIMRISK" {
-			noi dis "Place holder only"
-			*char _dta[version] $S_DATE
-			*save "`persdir'pea/CSC_atrisk2021.dta", replace
+			import excel "`persdir'pea/counting_people_climate_risk_DDH.xlsx", clear sheet("national") firstrow // this file needs to be updated to DDH file
+			sum lineupyear
+			keep if lineupyear == r(max)
+			rename (risk_any lineupyear) (atrisk year)
+			replace atrisk = atrisk * 100
+			keep if scenario == "RP100*"
+			keep if hazard == "any"
+			keep code year atrisk pop_pip
+			char _dta[version] $S_DATE
+			save "`persdir'pea/climrisk.dta", replace
 		}
-		
+
+		//EXPOSURE
+		if "`datatype'"=="EXPOSURE" {
+			import excel "`persdir'pea/counting_people_climate_risk_DDH.xlsx", clear sheet("national") firstrow // this file needs to be updated to DDH file
+			sum lineupyear
+			keep if lineupyear == r(max)
+			keep if scenario == "RP100*"
+			keep if hazard == "any"
+			rename lineupyear year
+			keep code year exp_sh risk_any risk_poor300 risk_educ risk_sp risk_fin risk_elec risk_water risk_rai pop_pip
+			char _dta[version] $S_DATE
+			save "`persdir'pea/exposure.dta", replace
+		}
+
 		//Population data
 		if "`datatype'"=="POP" {	
 			tempfile pop
@@ -236,27 +249,26 @@ program pea_dataupdate, rclass
 			save "`persdir'pea/PIP_all_GDP.dta", replace
 			save `gdppc', replace
 			
-			/* Loop tends to break because of API, use local files for now.
-			* UPDATE LATER
-			//Country Pov data
-			local nlines2017_ext 215 365 685 322 547 1027 430 730 1370 
-			local nlines2021_ext 300 420 830 450 630 1245 600 840 1660	
-			
-			local j = 1
-			foreach p in 2017 2021 {		
+			// Country Pov data
+			local nlines2017_ext 215 365 685 322 547 1027 430 730 1370
+			local nlines2021_ext 300 420 830 450 630 1245 600 840 1660
+			 
+			foreach p in 2017 2021 {
+				local j = 1
 				foreach line of local nlines`p'_ext {
 					tempfile povdata`p'`j'
-					cap pip, country(all) year(all) ppp(`p') povline(`=`line'/100') clear
-					if _rc==0 {
+					cap pip cl , ppp_year(`p') povline(`=`line'/100') clear
+					if _rc == 0 {
 						ren headcount headcount`line'
-						drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
-						drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
-						drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
+						*drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
+						*drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
+						*drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
+						keep if reporting_level == "national" | country_code == "ARG"
 						keep country_code country_name year headcount`line' pg gini survey_acronym welfare_type
 						gen ppp = `p'
 						save `povdata`p'`j'', replace
 						local j = `j' + 1
-						sleep 10000
+						sleep 500
 					}
 					else {
 						noi dis "Unable to update data from PIP"
@@ -264,7 +276,7 @@ program pea_dataupdate, rclass
 					}
 				}
 			}
-			* Put together
+			* Save
 			foreach p in 2017 2021 {
 				local j = 1
 				use `povdata`p'1', clear
@@ -275,27 +287,27 @@ program pea_dataupdate, rclass
 					}
 					local j = `j' + 1
 				}
+				tempfile povdata`p'
 				save `povdata`p'', replace
 			}
-			use `povdata2017', clear
-			append using `povdata2021'		
-			*/
 			
 			*Call local files, update later!
 			* Get correct survey
-			use "`persdir'pea/Survey_price_framework.dta", clear
-			keep code rep_year datatype display_cp survname
-			rename (rep_year) (year)
-			gen		welfare_type = 1 if datatype == "CONS" | datatype == "C" | datatype == "c"
-			replace welfare_type = 2 if datatype == "INC" | datatype == "I" | datatype == "i"
+			pip tables, table(framework) clear
+			rename (country_code survey_acronym welfare_type) (code survname welf_type)
+			keep code year welf_type display_cp survname
+			encode welf_type, gen(welfare_type)
+			*gen		welfare_type = 1 if datatype == "CONS" | datatype == "C" | datatype == "c"
+			*replace welfare_type = 2 if datatype == "INC" | datatype == "I" | datatype == "i"
 			drop datatype
 			save `pfr'
 			
-			use "`persdir'pea/pip2021.dta"
-			append using "`persdir'pea/pip2017.dta"
+			foreach p in 2017 2021 {
+				clear 
+				append using "`persdir'pea/`povdata`p''.dta"
+			}
 			gen code = country_code
 			rename survey_acronym survname
-			keep if reporting_level=="national" | code == "ARG"
 			merge m:1 code year welfare_type survname using `pfr', nogen
 			drop if display_cp == 0 | display_cp == .
 			rename (fgt0_*) (headcount*)
@@ -325,7 +337,7 @@ program pea_dataupdate, rclass
 						drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
 						drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
 						drop if country_code=="IDN" & (reporting_level=="urban"|reporting_level=="rural")
-						keep country_code year headcount`line' pg welfare_type pop ppp
+						keep country_code year headcount`line' pg welfare_type pop
 						gen ppp = `p'
 						save `povdata`p'`j'', replace
 						local j = `j' + 1
@@ -491,7 +503,7 @@ program pea_dataupdate, rclass
 		
 		//GMI
 		if "`datatype'"=="GMI" {
-			foreach dat in CLASS POP MPM {
+			foreach dat in CLASS POP MPM CLIMRISK {
 				cap pea_dataupdate, datatype(`dat')												// If any file not prepared
 				if _rc~=0 {
 					noi dis "Unable to update the data for `dat'. Either DLW or PIP services are unavailable at the moment"
@@ -501,16 +513,12 @@ program pea_dataupdate, rclass
 			*local persdir : sysdir PERSONAL	
 			*if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 	
-			tempfile pop2 pfr ine lab risk
+			tempfile pop2 pfr ine lab 
 			* Get population national level
 			use "`persdir'pea/POP.dta", clear			
 			keep if reporting_level == "national"
 			drop reporting_level
 			save `pop2'
-			* First prepare scorecard data
-			use "`persdir'pea/CSC_atrisk2021.dta", clear
-			keep code year atrisk pop_pip_vul
-			save `risk'
 			* Get correct survey
 			use "`persdir'pea/Survey_price_framework.dta", clear
 			keep code rep_year datatype display_cp survname
@@ -581,8 +589,8 @@ program pea_dataupdate, rclass
 			* MPM
 			merge 1:1 code year welftype survname ppp using "`persdir'pea/WLD_GMI_MPM.dta", keepusing(mdpoor_i1) nogen
 			replace mdpoor_i1 = mdpoor_i1 * 100
-			* Scorecard
-			merge m:1 code using `risk', nogen
+			* Climate risk
+			merge m:1 code using "`persdir'pea/climrisk.dta", nogen
 			
 			char _dta[version] $S_DATE
 			save "`persdir'pea/GMI_extend_all_country.dta", replace

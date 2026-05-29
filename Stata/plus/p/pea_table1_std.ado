@@ -62,10 +62,6 @@ program pea_table1_std, rclass
 		su `year',d
 		local ymax = r(max)
 		levelsof `year', local(ylist)
-		local atrisk0 2021		
-		local atcheck : list ylist & atrisk0
-		if "`atcheck'"=="" local yatrisk `ymax'
-		else local yatrisk `atcheck'
 		
 		//order the lines
 		if "`linesorted'"=="" {
@@ -245,35 +241,24 @@ program pea_table1_std, rclass
 	}
 	//do quintiles and subgroup later mean /gini
 	
-	// Check if folder exists
-	local cwd `"`c(pwd)'"'														// store current wd
-	quietly capture cd "`persdir'pea/Scorecard_Summary_Vision/"
-	if _rc~=0 {
-		noi di in red "Scorecard_Summary_Vision folder does not exist."
+	use "`persdir'pea/climrisk.dta", clear
+	sum year
+	local atrisk0 = r(max)		
+	local atcheck : list ylist & atrisk0
+	if "`atcheck'"=="" local yatrisk `ymax'
+	else local yatrisk `atcheck'
+	keep if code=="`country'"
+	if _N==0 {
+		noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
+		local atriskdo = 0
 	}
-	quietly cd `"`cwd'"'
-	
-	cap import excel "`persdir'pea/Scorecard_Summary_Vision/EN_CLM_VULN.xlsx", firstrow clear
-	if _rc==0 {
-		qui destring Time_Period, gen(year)
-		ren Geography_Code code
-		keep if code=="`country'"
-		if _N==0 {
-			noi dis in y "Warning: no data for high risk of climate-related hazards or wrong country code"		
-			local atriskdo = 0
-		}
-		else {
-			ren Value value
-			gen indicatorlbl = 55
-			replace year = `yatrisk'
-			keep year value indicatorlbl
-			save `atriskdata', replace
-			local atriskdo = 1		
-		}
-	} //rc excel
 	else {
-		noi dis as error "Unable to load the Scorecard EN_CLM_VULN.xlsx"
-		error `=_rc'
+		gen indicatorlbl = 55
+		replace year = `yatrisk'
+		rename atrisk value
+		keep year value indicatorlbl
+		save `atriskdata', replace
+		local atriskdo = 1		
 	}
 	
 	//Quintile

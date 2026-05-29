@@ -41,7 +41,7 @@ program pea_setup, rclass
 	cap mkdir "`persdir'pea"
 
 	//Check and download the necessary data
-	local mustfiles CLASS.dta UNESCO.dta CSC_atrisk2021.dta 
+	local mustfiles CLASS.dta UNESCO.dta counting_people_climate_risk_DDH.xlsx 
 	foreach file of local mustfiles {
 		cap confirm file "`persdir'pea/`file'"
 		if _rc~=0 {
