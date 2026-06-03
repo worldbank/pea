@@ -103,8 +103,17 @@ program pea_dataupdate, rclass
 		* Get income groups and regions
 			tempfile inc_group
 			use "`persdir'pea/CLASS.dta", clear
-			rename (year_data economy) (year country_name)
-			keep code year incgroup_historical incgroup_current region_pip region region_SSA country_name
+				
+				rename (year_data economy) (year country_name)
+	**Changes based on modification to the CLASS file 
+	            rename regionssa_code region_SSA
+				rename region_code region_pip
+				rename  incgroup incgroup_historical 
+	
+				keep code year incgroup_historical region_pip region region_SSA country_name
+	* Get the latest year per code
+				bysort code (year): gen incgroup_current = incgroup_historical[_N]
+	 
 			foreach i in incgroup_current incgroup_historical {
 				replace `i' = subinstr(`i', " ", "-", .)
 				replace `i' = subinstr(`i', "income", "income countries", .)
@@ -136,7 +145,7 @@ program pea_dataupdate, rclass
 		//PEB - national poverty
 		* UPDATE TO GMI ONCE READY
 		if "`datatype'"=="PEB" {
-			cap import delimited "`persdir'pea/PEB_NatPovLine_SM25.csv",   clear
+			cap import delimited "`persdir'pea/PEB_NatPovLine_SM26.csv",   clear
 			if _rc==0 {
 				ren (title rate comparability) (code natpovrate comparability_peb)
 				keep code year natpovrate comparability
@@ -145,7 +154,7 @@ program pea_dataupdate, rclass
 				save "`persdir'pea/PEB_natpovrates.dta", replace
 			}
 			else {
-				noi dis "Unable to access PEB_NatPovLine_SM25 file, please check that it is stored in personal sysdir folder."
+				noi dis "Unable to access PEB_NatPovLine_SM26 file, please check that it is stored in personal sysdir folder."
 				exit `=_rc'
 			}			
 		}
@@ -529,7 +538,7 @@ program pea_dataupdate, rclass
 
 			* Get labor data 
 			* UPDATE ONCE GMI DATA IS READY
-			use "`persdir'pea/GMI_extended_SM25_ind_labor.dta", clear	
+			use "`persdir'pea/GMI_extended_SM26_ind_labor.dta", clear	
 			*cleaning
 			replace level = "Urban" if byvar=="_urban_" & level=="1"| level=="1.Urban"
 			replace level = "Rural" if byvar=="_urban_" & level=="0"| level=="0.Rural"

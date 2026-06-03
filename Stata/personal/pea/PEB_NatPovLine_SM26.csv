@@ -1,29 +1,4 @@
-﻿Title,year,pop_under_npl,rate,gini,comparability,source,link,upi,last_submit
-AFG,2000,,,,,,,,
-AFG,2001,,,,,,,,
-AFG,2002,,,,,,,,
-AFG,2003,,,,,,,,
-AFG,2004,,,,,,,,
-AFG,2005,,,,,,,,
-AFG,2006,,,,,,,,
-AFG,2007,,33.7,25,,National Risk and Vulnerability Assessment (NRVA) 2007-08,,Eduardo Alonso Malasquez Carbonel,3/25/2025 11:56
-AFG,2008,,,,,,,,
-AFG,2009,,,,,,,,
-AFG,2010,,,,,,,,
-AFG,2011,,38.3,29.2,Yes,National Risk and Vulnerability Assessment (NRVA) 2011-12,,Eduardo Alonso Malasquez Carbonel,3/25/2025 11:56
-AFG,2012,,,,,,,,
-AFG,2013,,,,,,,,
-AFG,2014,,,,,,,,
-AFG,2015,,,,,,,,
-AFG,2016,,54.5,26.6,Yes,Afghanistan Living Conditions Surveys (ALCS) 2016-17 ,,Eduardo Alonso Malasquez Carbonel,3/25/2025 11:56
-AFG,2017,,,,,,,,
-AFG,2018,,,,,,,Anais Dahmani Scuitti,3/24/2025 16:56
-AFG,2019,1791642880,47.1,27.3,Yes,"Income, Expenditure, and Labor Force Survey (IELFS) 2019-20 ",,Aissatou Ouedraogo,3/25/2025 8:07
-AFG,2020,,,,,,,,
-AFG,2021,,,,,,,,
-AFG,2022,,,,,,,,
-AFG,2023,,,,,,,,
-AFG,2024,,,,,,,,
+﻿title,year,pop_under_npl,rate,gini,comparability,source,link,upi,last_submit
 AGO,2000,,,,,,,,
 AGO,2001,,,,,,,,
 AGO,2002,,,,,,,,
@@ -32,7 +7,7 @@ AGO,2004,,,,,,,,
 AGO,2005,,,,,,,,
 AGO,2006,,,,,,,,
 AGO,2007,,,,,,,,
-AGO,2008,7963948,36.6,,No,WDI,,,
+AGO,2008,7963948,36.6,,No,World Bank Poverty Assessment ,,Leonardo Ramiro Lucchetti,3/5/2026 13:58
 AGO,2009,,,,,,,,
 AGO,2010,,,,,,,,
 AGO,2011,,,,,,,,
@@ -42,7 +17,7 @@ AGO,2014,,,,,,,,
 AGO,2015,,,,,,,,
 AGO,2016,,,,,,,,
 AGO,2017,,,,,,,,
-AGO,2018,,32.3,,No,World Bank Poverty Assessment (2020),,,
+AGO,2018,,32.3,,No,World Bank Poverty Assessment (2020),,Leonardo Ramiro Lucchetti,3/5/2026 13:58
 AGO,2019,,,,,,,,
 AGO,2020,,,,,,,,
 AGO,2021,,,,,,,,
@@ -97,8 +72,8 @@ ARG,2019,9948071,35.5,,Yes,"EPH (second semester), INDEC",,,
 ARG,2020,11986764,42,,Yes,"EPH (second semester), INDEC",,,
 ARG,2021,10764597,37.3,42,Yes,,,,
 ARG,2022,11371200,39.2,,Yes,"EPH (second semester), INDEC",,,
-ARG,2023,12300481,41.7,,Yes,"EPH (second semester), INDEC",,Lourdes Rodriguez Chamussy,8/28/2024 21:59
-ARG,2024,,,,,,,,
+ARG,2023,12300481,41.7,,Yes,"EPH (second semester), INDEC",,Lourdes Rodriguez Chamussy,9/5/2025 17:49
+ARG,2024,11411540,38.1,,Yes,"EPH (second semester), INDEC",,Lourdes Rodriguez Chamussy,9/5/2025 17:49
 ARM,2000,,,,,,,,
 ARM,2001,,,,,,,,
 ARM,2002,,,,,,,,
@@ -122,58 +97,58 @@ ARM,2019,782839,26.4,27.9,No,National Statistical Service of the Republic of Arm
 ARM,2020,799119,27,22.1,Yes,National Statistical Service of the Republic of Armenia,,,
 ARM,2021,784762,26.5,23.2,Yes,National Statistical Service of the Republic of Armenia,,,
 ARM,2022,738321,24.8,23.9,Yes,National Statistical Service of the Republic of Armenia,,Natsuko Kiso Nozaki,3/17/2025 17:55
-ARM,2023,658379,23.7,23,Yes,National Statistical Service of the Republic of Armenia,,Natsuko Kiso Nozaki,3/17/2025 17:56
-ARM,2024,,,,,,,,
+ARM,2023,658379,23.7,23,Yes,National Statistical Service of the Republic of Armenia,,Aissatou Ouedraogo,3/10/2026 8:53
+ARM,2024,670000,21.7,23.2,No,Statistical Committee of the Republic of Armenia,,Aissatou Ouedraogo,3/10/2026 9:04
 BDI,2000,,,,,,,,
 BDI,2001,,,,,,,,
 BDI,2002,,,,,,,,
 BDI,2003,,,,,,,,
 BDI,2004,,,,,,,,
 BDI,2005,,,,,,,,
-BDI,2006,5150152,67.1,33.35986,Yes,QUIBB 2006,,,
+BDI,2006,5150152,67.1,33.35986,No,QUIBB 2006,,Roy Shuji Katayama,9/16/2025 14:46
 BDI,2007,,,,,,,,
 BDI,2008,,,,,,,,
 BDI,2009,,,,,,,,
 BDI,2010,,,,,,,,
 BDI,2011,,,,,,,,
 BDI,2012,,,,,,,,
-BDI,2013,6230521,64.9,38.62482,Yes,ECVMB 2013,,Roy Shuji Katayama,3/21/2025 12:24
+BDI,2013,6230521,64.9,38.62482,No,ECVMB 2013,,Roy Shuji Katayama,9/16/2025 14:46
 BDI,2014,,,,,,,,
 BDI,2015,,,,,,,,
 BDI,2016,,,,,,,,
 BDI,2017,,,,,,,,
 BDI,2018,,,,,,,,
 BDI,2019,,,,,,,,
-BDI,2020,,51,37,No,EICVMB 2020/21,,Roy Shuji Katayama,3/21/2025 12:23
+BDI,2020,,51,37.5,No,EICVMB 2020/21,,Roy Shuji Katayama,9/16/2025 14:47
 BDI,2021,,,,,,,,
 BDI,2022,,,,,,,,
 BDI,2023,,,,,,,,
 BDI,2024,,,,,,,,
-BEN,2000,,,,,,,,
-BEN,2001,,,,,,,,
-BEN,2002,,,,,,,,
-BEN,2003,,,,,,,,
-BEN,2004,,,,,,,,
-BEN,2005,,,,,,,,
-BEN,2006,3081336,37.5,,Yes,INSAE,,,
-BEN,2007,2790081,33,,Yes,INSAE,,,
-BEN,2008,,,,,,,,
-BEN,2009,,,,,,,,
-BEN,2010,3238139,35.2,,Yes,INSAE,,,
-BEN,2011,3424810,36.2,,Yes,INSAE,,,
-BEN,2012,,,,,,,,
-BEN,2013,,,,,,,,
-BEN,2014,,,,,,,,
+BEN,2000,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2001,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2002,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2003,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2004,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2005,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2006,3081336,37.5,,Yes,INSAE,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2007,2790081,33,,Yes,INSAE,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2008,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2009,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2010,3238139,35.2,,Yes,INSAE,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2011,3424810,36.2,,Yes,INSAE,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2012,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2013,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
+BEN,2014,,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:35
 BEN,2015,4240957,40.1,47.8,Yes,INSAE,,,
 BEN,2016,,,,,,,,
 BEN,2017,,,,,,,,
 BEN,2018,,,,,,,,
 BEN,2019,4900000,38.5,34.7,Yes,INSAE,,,
 BEN,2020,,,,,,,,
-BEN,2021,,36.2,32.6,No,INSAE,,Elizabeth Mary Foster,9/27/2024 12:06
-BEN,2022,,,,,,,,
-BEN,2023,,,,,,,,
-BEN,2024,,,,,,,,
+BEN,2021,4859975,36.2,32.6,No,INSAE,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:57
+BEN,2022,4740379,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 16:02
+BEN,2023,4698972,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:57
+BEN,2024,4521307,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:58
 BFA,2000,,,,,,,,
 BFA,2001,,,,,,,,
 BFA,2002,,,,,,,,
@@ -267,38 +242,13 @@ BLR,2014,454777,4.8,27.17667,Yes,Social conditions and living standards of the p
 BLR,2015,483970,5.1,25.63323,Yes,Social conditions and living standards of the population in the Republic of Belarus. National Statistical Committee of the Republic of Belarus. The welfare measure used is consumption per adult equivalent. Poverty line is absolute. Government estimate.,,,
 BLR,2016,541587,5.7,25.30662,Yes,Social conditions and living standards of the population in the Republic of Belarus. National Statistical Committee of the Republic of Belarus. The welfare measure used is consumption per adult equivalent. Poverty line is absolute. Government estimate.,,,
 BLR,2017,560965,5.9,25.44457,Yes,Social conditions and living standards of the population in the Republic of Belarus. National Statistical Committee of the Republic of Belarus. The welfare measure used is consumption per adult equivalent. Poverty line is absolute. Government estimate.,,,
-BLR,2018,,5.6,25.2,Yes,Social conditions and living standards of the population in the Republic of Belarus. National Statistical Committee of the Republic of Belarus. The welfare measure used is consumption per adult equivalent. Poverty line is absolute. Government estimate.,,,
-BLR,2019,464247,5,,Yes,Social conditions and living standards of the population in the Republic of Belarus. National Statistical Committee of the Republic of Belarus. The welfare measure used is consumption per adult equivalent. Poverty line is absolute. Government estimate.,,,
-BLR,2020,,4.8,,Yes,,,,
-BLR,2021,,4.1,,Yes,,,,
-BLR,2022,,3.9,,Yes,,,,
-BLR,2023,,,,,,,,
-BLR,2024,,,,,,,,
-BLZ,2000,,,,,,,,
-BLZ,2001,,,,,,,,
-BLZ,2002,,34.1,0.4,,Statistical Institute of Belize,https://sib.org.bz/wp-content/uploads/2017/05/Poverty_Assessment_Report_2009.pdf,Jacobus Joost De Hoop,3/25/2025 15:10
-BLZ,2003,,,,,,,,
-BLZ,2004,,,,,,,Jacobus Joost De Hoop,3/25/2025 15:10
-BLZ,2005,,,,,,,,
-BLZ,2006,,,,,,,,
-BLZ,2007,,,,,,,,
-BLZ,2008,,,,,,,,
-BLZ,2009,"136,640",41.3,0.42,Yes,Statistical Institute of Belize,https://sib.org.bz/wp-content/uploads/2017/05/Poverty_Assessment_Report_2009.pdf,Jacobus Joost De Hoop,3/25/2025 15:10
-BLZ,2010,,,,,,,,
-BLZ,2011,,,,,,,,
-BLZ,2012,,,,,,,,
-BLZ,2013,,,,,,,,
-BLZ,2014,,,,,,,,
-BLZ,2015,,,,,,,,
-BLZ,2016,,,,,,,,
-BLZ,2017,,,,,,,Jacobus Joost De Hoop,3/25/2025 15:00
-BLZ,2018,,52,,Yes,Statistical Institute of Belize,https://sib.org.bz/wp-content/uploads/PovertyInfographic.pdf,Jacobus Joost De Hoop,3/25/2025 15:01
-BLZ,2019,,,,,,,,
-BLZ,2020,,,,,,,,
-BLZ,2021,,,,,,,,
-BLZ,2022,,,,,,,,
-BLZ,2023,,,,,,,,
-BLZ,2024,,,,,,,,
+BLR,2018,,5.6,25.2,Yes,Social conditions and living standards of the population in the Republic of Belarus. National Statistical Committee of the Republic of Belarus. The welfare measure used is consumption per adult equivalent. Poverty line is absolute. Government estimate.,,Zurab Sajaia,9/25/2025 10:12
+BLR,2019,464247,5,,Yes,Social conditions and living standards of the population in the Republic of Belarus. National Statistical Committee of the Republic of Belarus. The welfare measure used is consumption per adult equivalent. Poverty line is absolute. Government estimate.,,Zurab Sajaia,9/25/2025 10:18
+BLR,2020,,4.8,,Yes,,,Zurab Sajaia,9/25/2025 10:18
+BLR,2021,,4.1,,Yes,,,Zurab Sajaia,9/25/2025 10:20
+BLR,2022,359895,3.9,,Yes,,,Zurab Sajaia,9/25/2025 10:20
+BLR,2023,330419,3.6,,Yes,,,Zurab Sajaia,9/25/2025 10:19
+BLR,2024,319507,3.5,,Yes,,,Zurab Sajaia,9/25/2025 10:19
 BOL,2000,5537436,66.4,,,Encuesta de Mejoramiento de Condiciones de Vida; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/24/2025 13:08
 BOL,2001,5361213,63.1,,Yes,Encuesta de Mejoramiento de Condiciones de Vida; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/24/2025 13:08
 BOL,2002,5477567,63.3,,Yes,Encuesta de Mejoramiento de Condiciones de Vida; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/24/2025 13:07
@@ -322,9 +272,9 @@ BOL,2019,4282674,37.17,42.45,Yes,"Encuesta de Hogares; Moderate Poverty Line (in
 BOL,2020,4581969,39.05,45.23,Yes,Encuesta de Hogares; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/24/2025 13:04
 BOL,2021,4331273,36.41,42,Yes,Encuesta de Hogares; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,9/13/2024 17:06
 BOL,2022,4552655,37.74,42.6,Yes,Encuesta de Hogares; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/24/2025 13:06
-BOL,2023,4460416,36.48,43.4,Yes,Encuesta de Hogares; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/24/2025 13:06
-BOL,2024,,,,,,,Ruth Llovet Montanes,9/13/2024 16:51
-BRA,2000,,,,,,,,
+BOL,2023,4460416,36.48,43.4,Yes,Encuesta de Hogares; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/3/2026 13:15
+BOL,2024,4664499,37.65,41.55,Yes,Encuesta de Hogares; Moderate Poverty Line (individuals) (www.ine.gov.bo and www.udape.gov.bo) . Poverty line is absolute. Government estimate.,,Ruth Llovet Montanes,3/3/2026 13:16
+BRA,2000,,,,,,,Giovana Cavaggioni Bigliazzi,3/4/2026 13:39
 BRA,2001,,,58.4,,,,Otavio Canozzi Conceicao,3/24/2025 16:21
 BRA,2002,,,58.11,,,,Otavio Canozzi Conceicao,3/24/2025 16:21
 BRA,2003,,,57.55,,,,Otavio Canozzi Conceicao,3/24/2025 16:21
@@ -347,33 +297,8 @@ BRA,2019,,,53.51,,,,Otavio Canozzi Conceicao,3/24/2025 16:24
 BRA,2020,,,48.9,,,,Otavio Canozzi Conceicao,3/24/2025 16:24
 BRA,2021,,,52.94,,,,Otavio Canozzi Conceicao,3/24/2025 16:24
 BRA,2022,,,52.02,,,,Otavio Canozzi Conceicao,3/24/2025 16:24
-BRA,2023,,,51.6,,,,Otavio Canozzi Conceicao,3/25/2025 17:54
-BRA,2024,,,,,,,Otavio Canozzi Conceicao,3/24/2025 16:24
-BRB,2000,,,,,,,Cameron Nadim Haddad,3/10/2025 11:42
-BRB,2001,,,,,,,Cameron Nadim Haddad,3/10/2025 11:42
-BRB,2002,,,,,,,,
-BRB,2003,,,,,,,,
-BRB,2004,,,,,,,,
-BRB,2005,,,,,,,,
-BRB,2006,,,,,,,,
-BRB,2007,,,,,,,,
-BRB,2008,,,,,,,,
-BRB,2009,,,,,,,,
-BRB,2010,,,,,,,,
-BRB,2011,,,,,,,,
-BRB,2012,,,,,,,,
-BRB,2013,,,,,,,,
-BRB,2014,,,,,,,,
-BRB,2015,,,,,,,,
-BRB,2016,,17.2,0.32,,BSLC Executive Summary,https://publications.iadb.org/en/barbados-survey-living-conditions-2016,Jonathan William Lain,25/03/2025 12:37
-BRB,2017,,,,,,,,
-BRB,2018,,,,,,,,
-BRB,2019,,,,,,,,
-BRB,2020,,,,,,,Cameron Nadim Haddad,3/10/2025 11:42
-BRB,2021,,,,,,,,
-BRB,2022,,,,,,,,
-BRB,2023,,,,,,,,
-BRB,2024,,,,,,,,
+BRA,2023,,,51.6,,,,Otavio Canozzi Conceicao,9/4/2025 10:55
+BRA,2024,,,50.3,,,,Otavio Canozzi Conceicao,9/4/2025 10:55
 BTN,2000,,,,,,,,
 BTN,2001,,,,,,,,
 BTN,2002,,,,,,,,
@@ -445,7 +370,7 @@ CAF,2017,,,,,,,,
 CAF,2018,,,,,,,,
 CAF,2019,,,,,,,,
 CAF,2020,,,,,,,Gervais Chamberlin Yama,10/9/2024 11:52
-CAF,2021,4193536,68.83,43,No,2021 EHCVM,,Gervais Chamberlin Yama,10/9/2024 11:54
+CAF,2021,4193536,68.83,43,No,2021 EHCVM,,Gervais Chamberlin Yama,12/9/2025 19:39
 CAF,2022,,,,,,,,
 CAF,2023,,,,,,,,
 CAF,2024,,,,,,,,
@@ -495,9 +420,9 @@ CHN,2017,30460000,3.1,46.7,Yes,Poverty: 2019 China Yearbook; Gini: 2018 Yearbook
 CHN,2018,16600000,1.7,46.8,Yes,Poverty: 2020 China Yearbook; Gini: 2019 Yearbook of Household Survey,,,
 CHN,2019,5510000,0.6,46.5,Yes,Poverty: 2021 China Yearbook; Gini: NBS webse,,,
 CHN,2020,,0,46.8,Yes,Poverty: 2021 China Yearbook; Gini: NBS webse,,Veronica Sonia Montalva Talledo,3/26/2025 10:56
-CHN,2021,,,46.6,,,,,
-CHN,2022,,,46.7,,,,Veronica Sonia Montalva Talledo,3/26/2025 10:56
-CHN,2023,,,,,,,,
+CHN,2021,,,46.6,Yes,People's Living Condition: NBS,https://www.stats.gov.cn/english/Statisticaldata/yearbook/,Sailesh Tiwari,12/9/2025 17:58
+CHN,2022,,,46.7,Yes,People's Living Condition: NBS,https://www.stats.gov.cn/english/Statisticaldata/yearbook/,Sailesh Tiwari,12/9/2025 17:58
+CHN,2023,,,46.5,Yes,People's Living Condition: NBS,https://www.stats.gov.cn/english/Statisticaldata/yearbook/,Sailesh Tiwari,12/9/2025 17:58
 CHN,2024,,,,,,,,
 CIV,2000,,,,,,,,
 CIV,2001,,,,,,,,
@@ -569,7 +494,7 @@ COD,2016,,,,,,,,
 COD,2017,,,,,,,,
 COD,2018,,,,,,,,
 COD,2019,,,,,,,,
-COD,2020,52183478,56.2,,No,National Report,,Aly Sanoh,9/13/2024 11:49
+COD,2020,52183478,56.2,0.51,No,National Report,,Francis Muamba Mulangu,9/12/2025 15:54
 COD,2021,,,,,,,,
 COD,2022,,,,,,,,
 COD,2023,,,,,,,,
@@ -611,19 +536,19 @@ COL,2008,18050516,42,55.53569,Yes,DANE. Gran Encuesta Continua de Hogares; Moder
 COL,2009,17524616,40.3,54.39229,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
 COL,2010,16367106,37.2,54.72669,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
 COL,2011,15179147,34.1,53.51879,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2012,14724614,32.7,52.74639,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2013,13944707,30.6,52.82127,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2014,13138023,28.5,52.73429,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2015,13015596,27.8,51.09941,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2016,13256178,28,50.83554,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2017,12870297,26.9,49.71548,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2018,13065448,27,,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2019,17470000,35.7,,No,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,,
-COL,2020,21000000,42.5,,Yes,,,,
-COL,2021,19799492,39.7,53.3,No,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government,,,
-COL,2022,18331941,36.6,55.6,Yes,DANE. Gran Encuesta Continua ,,Maria Eugenia Davalos,9/13/2024 15:35
-COL,2023,16708153,33,54.6,Yes,DANE. Gran Encuesta Continua ,,Maria Eugenia Davalos,9/13/2024 15:35
-COL,2024,,,,,,,Maria Eugenia Davalos,3/25/2025 9:16
+COL,2012,18770791,41,54.6,No,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:44
+COL,2013,17894079,38.7,54.6,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:44
+COL,2014,17270840,37,54.7,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:45
+COL,2015,17340060,36.8,53.1,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:45
+COL,2016,17526351,36.8,52.7,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:45
+COL,2017,17358250,35.9,51.9,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:46
+COL,2018,17493321,35.5,52.7,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:46
+COL,2019,18318403,36.5,53.5,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government estimate.,,Maria Eugenia Davalos,9/12/2025 9:46
+COL,2020,21951115,43.1,55.3,Yes,DANE. Gran Encuesta Continua ,,Maria Eugenia Davalos,9/12/2025 9:47
+COL,2021,20452075,39.7,56.3,Yes,DANE. Gran Encuesta Continua de Hogares; Moderate Poverty Line (individuals). (www.dane.gov.co) . Poverty line is absolute. Government,,Maria Eugenia Davalos,9/12/2025 9:47
+COL,2022,18985893,36.6,55.6,Yes,DANE. Gran Encuesta Continua ,,Maria Eugenia Davalos,9/12/2025 9:47
+COL,2023,18021468,34.6,55.3,Yes,DANE. Gran Encuesta Continua ,,Maria Eugenia Davalos,9/12/2025 9:47
+COL,2024,166644367,31.8,55.1,Yes,DANE. Gran Encuesta Continua ,,Maria Eugenia Davalos,9/12/2025 9:48
 COM,2000,,,,,,,,
 COM,2001,,,,,,,,
 COM,2002,,,,,,,,
@@ -637,14 +562,14 @@ COM,2009,,,,,,,,
 COM,2010,,,,,,,,
 COM,2011,,,,,,,,
 COM,2012,,,,,,,,
-COM,2013,314396,42.4,45.33459,No,EESIC 2014 survey,,,
-COM,2014,,,,,,,,
+COM,2013,,,,,,,Hillary C. Johnson,9/12/2025 15:46
+COM,2014,314396,42.4,45.33459,No,EESIC 2014 survey,,Hillary C. Johnson,9/12/2025 15:46
 COM,2015,,,,,,,,
 COM,2016,,,,,,,,
 COM,2017,,,,,,,,
 COM,2018,,,,,,,,
 COM,2019,,,,,,,,
-COM,2020,358400,44.8,33,No,EHCVM 2020,,Francis Muamba Mulangu,9/13/2024 13:22
+COM,2020,,,,,,,,
 COM,2021,,,,,,,,
 COM,2022,,,,,,,,
 COM,2023,,,,,,,,
@@ -698,7 +623,7 @@ CRI,2020,1529255,29.96,51.89,Yes,INEC/Encuesta Nacional de Hogares (Enaho) 2020,
 CRI,2021,1351668,26.22,52.43,Yes,INEC/Encuesta Nacional de Hogares (Enaho) 2021,,Vincenzo Di Maro,9/13/2024 22:14
 CRI,2022,1329757,25.54,50.39,Yes,INEC/Encuesta Nacional de Hogares (Enaho) 2022,,Vincenzo Di Maro,9/13/2024 22:14
 CRI,2023,1281052,24.37,50.17,Yes,INEC/Encuesta Nacional de ,,Vincenzo Di Maro,3/18/2025 12:01
-CRI,2024,1078076,20.3,49.2,Yes,INEC/Encuesta Nacional de ,,Vincenzo Di Maro,3/18/2025 12:01
+CRI,2024,1078076,20.3,49.2,Yes,INEC/Encuesta Nacional de ,,Vincenzo Di Maro,2/9/2026 9:31
 DJI,2000,,,,,,,,
 DJI,2001,,,,,,,,
 DJI,2002,,,,,,,,
@@ -748,7 +673,7 @@ DOM,2020,3177948,30.42,,Yes,,,Erika Schutt Pardo,3/19/2025 13:04
 DOM,2021,3231927,30.68,,Yes,,,Erika Schutt Pardo,3/19/2025 13:04
 DOM,2022,2939136,27.67,37.6,Yes,Encuesta Nacional Continua de Fuerza de Trabajo (ENCFT),,Erika Schutt Pardo,3/19/2025 13:04
 DOM,2023,2463185,23,37.8,Yes,Encuesta Nacional Continua de Fuerza de Trabajo (ENCFT),,Erika Schutt Pardo,4/16/2025 11:31
-DOM,2024,2049228,16,38.6,Yes,Encuesta Nacional Continua de Fuerza de Trabajo (ENCFT),,Erika Schutt Pardo,4/16/2025 11:34
+DOM,2024,2079220,19,38.6,Yes,Encuesta Nacional Continua de Fuerza de Trabajo (ENCFT),,Erika Schutt Pardo,3/4/2026 10:15
 ECU,2000,,,,,,,,
 ECU,2001,,,,,,,,
 ECU,2002,,,,,,,,
@@ -768,12 +693,12 @@ ECU,2015,3822256,23.3,47.57,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderat
 ECU,2016,3831062,22.92,46.6,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,,
 ECU,2017,3640029,21.46,45.93,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,,
 ECU,2018,3999306,23.22,46.9,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,,
-ECU,2019,4316997,25,46.7,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,,
+ECU,2019,4316997,25,46.7,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Ana Mercedes Rivadeneira Alava,3/3/2026 15:09
 ECU,2020,5785516,33.04,49.77,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,,
 ECU,2021,4964728,27.7,47.4,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,,
-ECU,2022,4578582,25.2,46.6,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Gustavo Javier Canavire Bacarreza,3/24/2025 21:36
-ECU,2023,4728526,26,45.7,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Gustavo Javier Canavire Bacarreza,3/24/2025 21:36
-ECU,2024,5145663,28,46.3,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Gustavo Javier Canavire Bacarreza,3/24/2025 21:36
+ECU,2022,4578582,25.2,46.6,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Ana Mercedes Rivadeneira Alava,3/3/2026 15:10
+ECU,2023,4728526,26,45.7,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Ana Mercedes Rivadeneira Alava,3/3/2026 15:17
+ECU,2024,5145663,28,46.3,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Ana Mercedes Rivadeneira Alava,3/3/2026 15:16
 EGY,2000,,,,,,,,
 EGY,2001,,,,,,,,
 EGY,2002,,,,,,,,
@@ -923,7 +848,7 @@ GEO,2020,791691,21.3,35.6,Yes,Geostat. https://www.geostat.ge/en/modules/categor
 GEO,2021,,17.5,34,Yes,https://www.geostat.ge/en/modules/categories/192/living-conditions,,Saida Ismailakhunova,9/3/2024 11:02
 GEO,2022,,15.6,34,Yes,https://www.geostat.ge/en/modules/categories/192/living-conditions,,Saida Ismailakhunova,9/3/2024 11:02
 GEO,2023,,11.8,36,Yes,https://www.geostat.ge/en/modules/categories/192/living-conditions,,Saida Ismailakhunova,9/3/2024 11:02
-GEO,2024,,,,,,,,
+GEO,2024,,9.4,36,Yes,https://www.geostat.ge/en/modules/categories/192/living-conditions,,Saida Ismailakhunova,9/12/2025 16:22
 GHA,2000,,,,,,,,
 GHA,2001,,,,,,,,
 GHA,2002,,,,,,,,
@@ -1017,38 +942,13 @@ GNB,2014,,,,,,,,
 GNB,2015,,,,,,,,
 GNB,2016,,,,,,,,
 GNB,2017,,,,,,,,
-GNB,2018,,47.7,31.6,Yes,EHCVM 2018/19,https://stat-guinebissau.com/index.html#,Eduardo Alonso Malasquez Carbonel,3/25/2025 11:58
+GNB,2018,,47.7,31.6,Yes,EHCVM 2018/19,https://stat-guinebissau.com/index.html#,Eduardo Alonso Malasquez Carbonel,3/3/2026 16:05
 GNB,2019,,,,,,,,
 GNB,2020,,,,,,,Eduardo Alonso Malasquez Carbonel,9/12/2024 17:31
 GNB,2021,866353,50.54,29.9,Yes,EHCVM 2021/22,https://stat-guinebissau.com/index.html#,Eduardo Alonso Malasquez Carbonel,4/3/2025 17:05
 GNB,2022,,,,,,,,
 GNB,2023,,,,,,,,
 GNB,2024,,,,,,,,
-GNQ,2000,,,,,,,,
-GNQ,2001,,,,,,,,
-GNQ,2002,,,,,,,,
-GNQ,2003,,,,,,,,
-GNQ,2004,,,,,,,,
-GNQ,2005,,,,,,,,
-GNQ,2006,,,,,,,,
-GNQ,2007,,,,,,,,
-GNQ,2008,,,,,,,,
-GNQ,2009,,,,,,,,
-GNQ,2010,,,,,,,,
-GNQ,2011,,,,,,,,
-GNQ,2012,,,,,,,,
-GNQ,2013,,,,,,,,
-GNQ,2014,,,,,,,,
-GNQ,2015,,,,,,,,
-GNQ,2016,,,,,,,,
-GNQ,2017,,,,,,,,
-GNQ,2018,,,,,,,,
-GNQ,2019,,,,,,,,
-GNQ,2020,,,,,,,,
-GNQ,2021,,,,,,,,
-GNQ,2022,915299,50.7,38.5,No,"Instituto Nacional de Estadistica INEGE, Guinea Ecuatorial",https://inege.org/wp-content/uploads/2024/12/Informe-Definitivo-de-la-ENH2.pdf,Daniel Valderrama Gonzalez,3/26/2025 17:02
-GNQ,2023,,,,,,,Daniel Valderrama Gonzalez,3/26/2025 17:00
-GNQ,2024,,,,,,,,
 GRD,2000,,,,,,,,
 GRD,2001,,,,,,,,
 GRD,2002,,,,,,,,
@@ -1067,7 +967,7 @@ GRD,2014,,,,,,,,
 GRD,2015,,,,,,,,
 GRD,2016,,,,,,,,
 GRD,2017,,,,,,,,
-GRD,2018,7615,25,40,Yes,World Bank and Grenada's Central Statistics Office,https://documents1.worldbank.org/curated/en/367321631770928387/pdf/Living-Conditions-in-Grenada-Poverty-and-Equity-Update.pdf,Anna Luisa Paffhausen,3/26/2025 9:34
+GRD,2018,7615,25,40,Yes,World Bank and Grenada's Central Statistics Office,https://documents1.worldbank.org/curated/en/367321631770928387/pdf/Living-Conditions-in-Grenada-Poverty-and-Equity-Update.pdf,Anna Luisa Paffhausen,1/29/2026 10:10
 GRD,2019,,,,,,,,
 GRD,2020,,,,,,,,
 GRD,2021,,,,,,,,
@@ -1097,7 +997,7 @@ GTM,2019,,,,,,,,
 GTM,2020,,,,,,,,
 GTM,2021,,,,,,,Erika Schutt Pardo,9/13/2024 18:24
 GTM,2022,,,,,,,,
-GTM,2023,"9,864,402",56,42.1,No,"National Statistical Institute, Encuesta nacional de condiciones de vida",,Erika Schutt Pardo,3/19/2025 11:35
+GTM,2023,"9,864,402",56,42.1,No,"National Statistical Institute, Encuesta nacional de condiciones de vida",,Erika Schutt Pardo,9/12/2025 14:09
 GTM,2024,,,,,,,,
 HND,2000,,,,,,,,
 HND,2001,,63.68,56.35467949,No,,,,
@@ -1122,8 +1022,8 @@ HND,2019,5430899,59.3,52.47,Yes,INE. Encuesta Permanente de Hogares de Propósit
 HND,2020,,,,,,,Sandra Paola Buitrago Hernandez,4/1/2025 11:53
 HND,2021,6956668,73.61,55,No,,,Sandra Paola Buitrago Hernandez,3/21/2025 11:34
 HND,2022,,,,,,,,
-HND,2023,6244599,64.1,51,Yes,INE. Encuesta Permanente de Hogares de Propósitos Multiples (EPHPM). Individual Poverty. Poverty line is absolute. Government estimate. Population estimate is projection from official 2013 Census. ,,Sandra Paola Buitrago Hernandez,4/1/2025 11:59
-HND,2024,,,,,,,Sandra Paola Buitrago Hernandez,4/1/2025 11:56
+HND,2023,6244599,64.1,51,Yes,INE. Encuesta Permanente de Hogares de Propósitos Multiples (EPHPM). Individual Poverty. Poverty line is absolute. Government estimate. Population estimate is projection from official 2013 Census. ,,Sandra Paola Buitrago Hernandez,9/12/2025 9:46
+HND,2024,,62.9,49,Yes,INE. Encuesta Permanente de Hogares de Propósitos Multiples (EPHPM). Poverty line is absolute. Government estimate. Population estimate is projection from official 2013 Census. ,,Paola Buitrago Buitrago Hernandez,3/3/2026 13:18
 HRV,2000,,,,,,,,
 HRV,2001,,,,,,,,
 HRV,2002,,,,,,,,
@@ -1145,10 +1045,10 @@ HRV,2017,,19.3,29.7,Yes,EUROSTAT,,,
 HRV,2018,,18.3,29.2,Yes,EUROSTAT,,,
 HRV,2019,,18.3,28.9,Yes,EUROSTAT,,Nadia Belhaj Hassine Belghith,9/4/2024 11:05
 HRV,2020,,19.2,29.1,Yes,EUROSTAT,,Nadia Belhaj Hassine Belghith,3/25/2025 15:53
-HRV,2021,,18,28.5,Yes,EUROSTAT,,Nadia Belhaj Hassine Belghith,3/25/2025 15:52
-HRV,2022,,19.3,29.7,Yes,EUROSTAT,,Nadia Belhaj Hassine Belghith,3/25/2025 20:48
-HRV,2023,,,,,,,,
-HRV,2024,,,,,,,,
+HRV,2021,683000,18,28.5,Yes,EUROSTAT,,Nadia Belhaj Hassine Belghith,9/17/2025 10:19
+HRV,2022,718000,19.3,29.7,Yes,EUROSTAT,,Nadia Belhaj Hassine Belghith,9/17/2025 11:57
+HRV,2023,759000,20.3,29.8,No,EUROSTAT,,Nadia Belhaj Hassine Belghith,3/3/2026 13:33
+HRV,2024,759000,20.3,29.8,No,EUROSTAT,,Nadia Belhaj Hassine Belghith,3/3/2026 13:33
 HTI,2000,,,,,Enquête sur les conditions de vie des ménages après le séisme 2012,,,
 HTI,2001,,,,,Enquête sur les conditions de vie des ménages après le séisme 2012,,,
 HTI,2002,,,,,Enquête sur les conditions de vie des ménages après le séisme 2012,,,
@@ -1191,14 +1091,14 @@ IDN,2013,28656068,11.37,39.72076,Yes,Statistics Indonesia (Badan Pusat Statistik
 IDN,2014,28702252,11.25,39.12996,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
 IDN,2015,28965788,11.22,39.44449,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
 IDN,2016,28357140,10.86,38,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
-IDN,2017,28088684,10.64,37.94245,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
+IDN,2017,28088684,10.64,37.94245,Yes,Statistics Indonesia (Badan Pusat Statistik),,Samuel Nursamsu,9/22/2025 19:46
 IDN,2018,25947480,9.82,38.9,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
 IDN,2019,25153548,9.41,38,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
 IDN,2020,26375376,9.78,38.1,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
 IDN,2021,27473710,10.14,38.4,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
 IDN,2022,26100244,9.54,38.4,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
 IDN,2023,25900000,9.36,38.8,Yes,Statistics Indonesia (Badan Pusat Statistik),,,
-IDN,2024,25220000,9.03,37.9,Yes,Statistics Indonesia (Badan Pusat Statistik),,Samuel Nursamsu,9/13/2024 21:21
+IDN,2024,25220000,9.03,37.9,Yes,Statistics Indonesia (Badan Pusat Statistik),,Samuel Nursamsu,9/22/2025 19:46
 IND,2000,,,,,,,,
 IND,2001,,,,,,,,
 IND,2002,,,,,,,,
@@ -1286,7 +1186,7 @@ JAM,2008,333499,12.3,,Yes,WDI (population); PIOJ (national poverty),,,
 JAM,2009,449196,16.5,,Yes,WDI (population); PIOJ (national poverty),,,
 JAM,2010,481166,17.6,,Yes,WDI (population); PIOJ (national poverty),,,
 JAM,2011,,,,,,,,
-JAM,2012,549204,19.9,,Yes,WDI (population); PIOJ (national poverty),,,
+JAM,2012,549204,19.9,,No,WDI (population); PIOJ (national poverty),,Jonathan William Lain,12/9/2025 21:00
 JAM,2013,682190,24.6,,Yes,WDI (population); PIOJ (national poverty),,,
 JAM,2014,556909,20,,Yes,WDI (population); PIOJ (national poverty),,,
 JAM,2015,592422,21.2,,Yes,WDI (population); PIOJ (national poverty),,,
@@ -1297,7 +1197,7 @@ JAM,2019,309515,11,,Yes,WDI (population); PIOJ (national poverty),,,
 JAM,2020,,,,,,,,
 JAM,2021,472225,16.7,,Yes,WDI (population); PIOJ (national poverty),,,
 JAM,2022,,,,,,,,
-JAM,2023,,,,,,,,
+JAM,2023,,8.2,,Yes,PIOJ press release,https://www.pioj.gov.jm/wp-content/uploads/2025/05/DGs-QPB-29_4-Speaking-Notes-21-05-25.pdf,Jonathan William Lain,12/9/2025 21:01
 JAM,2024,,,,,,,,
 JOR,2000,,,,,,,,
 JOR,2001,,,,,,,,
@@ -1347,8 +1247,8 @@ KAZ,2019,791009,4.3,29,Yes,Statistics of Kazakhstan for poverty and population n
 KAZ,2020,987484,5.3,29.1,Yes,Statistics of Kazakhstan for poverty and population numbers. WDI for Gini Index.,https://stat.gov.kz/en/industries/labor-and-income/stat-life/dynamic-tables/,Metin Nebiler,9/10/2024 15:04
 KAZ,2021,981737,5.2,29.4,Yes,Statistics of Kazakhstan for poverty and population numbers. WDI for Gini Index.,https://stat.gov.kz/en/industries/labor-and-income/stat-life/dynamic-tables/,Metin Nebiler,9/10/2024 15:04
 KAZ,2022,1014164,5.2,28.5,Yes,Statistics of Kazakhstan for poverty and population numbers. WDI for Gini Index.,https://stat.gov.kz/en/industries/labor-and-income/stat-life/dynamic-tables/,Metin Nebiler,9/10/2024 15:04
-KAZ,2023,1034809,5.2,29,Yes,Statistics of Kazakhstan for poverty and population numbers. WDI for Gini Index.,https://stat.gov.kz/en/industries/labor-and-income/stat-life/dynamic-tables/,Metin Nebiler,9/11/2024 14:56
-KAZ,2024,,,,,,,Metin Nebiler,3/17/2025 12:47
+KAZ,2023,1034809,5.2,29,Yes,Statistics of Kazakhstan for poverty and population numbers. WDI for Gini Index.,https://stat.gov.kz/en/industries/labor-and-income/stat-life/dynamic-tables/,Metin Nebiler,9/22/2025 10:31
+KAZ,2024,1003971,5,29.6,Yes,Statistics of Kazakhstan for poverty and population numbers. WDI for Gini Index.,https://stat.gov.kz/en/industries/labor-and-income/stat-life/dynamic-tables/,Metin Nebiler,9/22/2025 10:31
 KEN,2000,,,,,,,,
 KEN,2001,,,,,,,,
 KEN,2002,,,,,,,,
@@ -1364,41 +1264,41 @@ KEN,2011,,,,,,,,
 KEN,2012,,,,,,,,
 KEN,2013,,,,,,,,
 KEN,2014,,,,,,,,
-KEN,2015,17052288,36.1,40.77577,Yes,"Basic Report on well-being in Kenya, https://www.knbs.or.ke/publications/",,,
+KEN,2015,17052288,36.1,40.77577,Yes,"Basic Report on well-being in Kenya, https://www.knbs.or.ke/publications/",https://www.knbs.or.ke/reports/kenya-integrated-household-budget-survey-2015-2016/,Nduati Maina Kariuki,1/29/2026 9:59
 KEN,2016,,,,,,,,
 KEN,2017,,,,,,,,
 KEN,2018,,,,,,,Nduati Maina Kariuki,3/12/2025 14:40
 KEN,2019,,,,,,,,
-KEN,2020,,,,,,,,
-KEN,2021,19108777,38.6,,,,,Nduati Maina Kariuki,3/12/2025 14:42
-KEN,2022,,39.8,,,The Kenya Poverty Report (2022),,Nduati Maina Kariuki,3/12/2025 14:42
+KEN,2020,20892490,42.9,35.9,,The Kenya Poverty Report (2020),https://www.knbs.or.ke/reports/kenya-poverty-report-2020/,Nduati Maina Kariuki,1/29/2026 10:00
+KEN,2021,19108777,38.6,38.9,Yes,The Kenya Poverty Report (2021),https://www.knbs.or.ke/reports/the-kenya-poverty-report-2021/,Nduati Maina Kariuki,1/29/2026 10:00
+KEN,2022,20156741,39.8,38.4,Yes,The Kenya Poverty Report (2022),https://www.knbs.or.ke/reports/kenya-poverty-report-2022/,Nduati Maina Kariuki,1/29/2026 10:00
 KEN,2023,,,,,,,,
 KEN,2024,,,,,,,,
-KGZ,2000,,,31.03501,,,,,
-KGZ,2001,,,30.16398,,,,,
-KGZ,2002,,,30.30239,,,,,
-KGZ,2003,,,28.70865,,,,,
-KGZ,2004,,,34.77343,,,,,
-KGZ,2005,,,32.56143,,,,,
-KGZ,2006,2082142,39.9,37.38124,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2007,1843940,35,33.91182,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2008,1686028,31.7,31.45068,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2009,1706506,31.7,29.87492,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2010,1835942,33.7,30.13392,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2011,2029373,36.8,27.83986,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2012,2130736,38,27.35727,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2013,2116252,37,28.81548,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2014,1785663,30.6,26.819,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2015,1912165,32.1,28.99792,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2016,1545006,25.4,26.78077,Yes,National Statistica Committee of the Kyrgyz Republic,,,
-KGZ,2017,1587584,25.6,27.33501,Yes,National Statistical Committee of the Kyrgyz Republic. Poverty line is absolute. Government estimate.,,,
-KGZ,2018,1416307,22.4,,Yes,National Statistical Committee of the Kyrgyz Republic. Poverty line is absolute. Government estimate.,,Aibek Ashirov,24.09.2024 16:31
-KGZ,2019,1297696,20.1,,Yes,National Statistical Committee ,,Aibek Ashirov,24.09.2024 16:31
-KGZ,2020,1664714,25.3,,Yes,National Statistical Committee ,https://www.stat.gov.kg/ru/opendata/category/120/,Aibek Ashirov,24.09.2024 16:31
-KGZ,2021,2255542,33.3,,No,National Statistical Committee ,https://www.stat.gov.kg/ru/opendata/category/120/,Aibek Ashirov,24.09.2024 16:31
-KGZ,2022,2315666,33.2,,No,National Statistical Committee ,https://www.stat.gov.kg/ru/opendata/category/120/,Aibek Ashirov,24.09.2024 16:31
-KGZ,2023,2116038,29.8,,No,National Statistical Committee ,https://www.stat.gov.kg/ru/publications/uroven-bednosti-v-kyrgyzskoj-respublike/,Aibek Ashirov,24.09.2024 16:31
-KGZ,2024,,,,,,,,
+KGZ,2000,,,,,,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2001,,,,,,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2002,,,,,,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2003,,,,,,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2004,,,,,,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2005,,,,,,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2006,2082142,39.9,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2007,1843940,35,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2008,1686028,31.7,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2009,1706506,31.7,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2010,1835942,33.7,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2011,2029373,36.8,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2012,2130736,38,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2013,2116252,37,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2014,1785663,30.6,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2015,1912165,32.1,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:26
+KGZ,2016,1545006,25.4,,Yes,National Statistica Committee of the Kyrgyz Republic,,Aibek Ashirov,08.09.2025 13:44
+KGZ,2017,1587584,25.6,,Yes,National Statistical Committee of the Kyrgyz Republic. Poverty line is absolute. Government estimate.,,Aibek Ashirov,08.09.2025 13:42
+KGZ,2018,1416307,22.4,,Yes,National Statistical Committee of the Kyrgyz Republic. Poverty line is absolute. Government estimate.,,Aibek Ashirov,04.09.2025 15:17
+KGZ,2019,1297696,20.1,23.8,Yes,National Statistical Committee ,,Aibek Ashirov,02.02.2026 18:41
+KGZ,2020,1664714,25.3,24.1,Yes,National Statistical Committee ,https://www.stat.gov.kg/ru/opendata/category/120/,Aibek Ashirov,02.02.2026 18:41
+KGZ,2021,2255542,33.3,23.8,No,National Statistical Committee ,https://www.stat.gov.kg/ru/opendata/category/120/,Aibek Ashirov,02.02.2026 18:41
+KGZ,2022,2315666,33.2,24.3,No,National Statistical Committee ,https://www.stat.gov.kg/ru/opendata/category/120/,Aibek Ashirov,02.02.2026 18:42
+KGZ,2023,2116038,29.8,24.1,No,National Statistical Committee ,https://www.stat.gov.kg/ru/publications/uroven-bednosti-v-kyrgyzskoj-respublike/,Aibek Ashirov,02.02.2026 18:42
+KGZ,2024,1871000,25.7,25.4,Yes,National Statistical Committee ,,Aibek Ashirov,02.02.2026 18:42
 KIR,2000,,,,,,,,
 KIR,2001,,,,,,,,
 KIR,2002,,,,,,,,
@@ -1418,11 +1318,11 @@ KIR,2015,,,,,,,,
 KIR,2016,,,,,,,,
 KIR,2017,,,,,,,,
 KIR,2018,,,,,,,,
-KIR,2019,25977,21.92,,No,2019/20 HIES,,,
+KIR,2019,25977,21.92,27.8,No,2019/20 HIES,,Taufik Ramadhan Indrakesuma,9/16/2025 9:54
 KIR,2020,,,,,,,,
 KIR,2021,,,,,,,,
 KIR,2022,,,,,,,,
-KIR,2023,,,,,,,,
+KIR,2023,7383,5.53,24.7,Yes,2023/24 HIES,,Taufik Ramadhan Indrakesuma,9/16/2025 9:54
 KIR,2024,,,,,,,,
 LAO,2000,,,,,,,,
 LAO,2001,,,,,,,,
@@ -1436,44 +1336,19 @@ LAO,2008,,,,,,,,
 LAO,2009,,,,,,,,
 LAO,2010,,,,,,,,
 LAO,2011,,,,,,,,
-LAO,2012,1501150,23.4,,Yes,WDI,,,
+LAO,2012,1501150,23.2,36,Yes,Government of Lao PDR; World Bank staff estimation based on LECS 2024/25,,Dung Doan,1/29/2026 15:24
 LAO,2013,,,,,,,,
-LAO,2014,,,,,,,,
+LAO,2014,,,,,,,Dung Doan,9/13/2025 0:18
 LAO,2015,,,,,,,,
 LAO,2016,,,,,,,,
 LAO,2017,,,,,,,,
-LAO,2018,1273863,18.3,,No,Government of Lao PDR,,,
-LAO,2019,,,,,,,,
+LAO,2018,1273863,18.3,39,No,Government of Lao PDR; World Bank staff estimation based on LECS 2024/25,,Dung Doan,1/29/2026 15:24
+LAO,2019,,,,,,,Dung Doan,1/29/2026 15:20
 LAO,2020,,,,,,,,
 LAO,2021,,,,,,,,
-LAO,2022,,,,,,,,
+LAO,2022,,,,,,,Dung Doan,1/29/2026 15:17
 LAO,2023,,,,,,,,
-LAO,2024,,,,,,,,
-LBN,2000,,,,,,,,
-LBN,2001,,,,,,,,
-LBN,2002,,,,,,,,
-LBN,2003,,,,,,,,
-LBN,2004,,,,,,,,
-LBN,2005,,,,,,,,
-LBN,2006,,,,,,,,
-LBN,2007,,,,,,,,
-LBN,2008,,,,,,,,
-LBN,2009,,,,,,,,
-LBN,2010,,,,,,,,
-LBN,2011,,27.4,31.8,,Central Administration for Statistics,http://www.cas.gov.lb/images/PDFs/Poverty/Snapshot%20of%20Poverty%20and%20Labor%20Market%20in%20Lebanon.pdf,Ganesh Kumar Seshan,3/17/2025 22:01
-LBN,2012,,,,,,,,
-LBN,2013,,,,,,,,
-LBN,2014,,,,,,,,
-LBN,2015,,,,,,,,
-LBN,2016,,,,,,,,
-LBN,2017,,,,,,,,
-LBN,2018,,,,,,,,
-LBN,2019,,,,,,,,
-LBN,2020,,,,,,,,
-LBN,2021,,,,,,,,
-LBN,2022,,,,,,,,
-LBN,2023,,,,,,,,
-LBN,2024,,,,,,,,
+LAO,2024,,15,35,Yes,"Government of Lao PDR, World Bank staff estimation based on LECS 2024/25",,Dung Doan,1/29/2026 15:36
 LBR,2000,,,,,,,,
 LBR,2001,,,,,,,,
 LBR,2002,,,,,,,,
@@ -1490,7 +1365,7 @@ LBR,2012,,,,,,,,
 LBR,2013,,,,,,,,
 LBR,2014,2375389,54.1,33.23788,No,HIES 2014,,,
 LBR,2015,,,,,,,,
-LBR,2016,2348436,50.9,33,Yes,HIES 2016,,,
+LBR,2016,2348436,50.9,33,Yes,HIES 2016,,Rose Mungai,3/3/2026 13:58
 LBR,2017,,,,,,,,
 LBR,2018,,,,,,,,
 LBR,2019,,,,,,,,
@@ -1514,7 +1389,7 @@ LCA,2011,,,,,,,,
 LCA,2012,,,,,,,,
 LCA,2013,,,,,,,,
 LCA,2014,,,,,,,,
-LCA,2015,44302,25,43.2,No,"Saint Lucia National Report of Living Conditions 2016 - Final Report, December 2018",https://stats.gov.lc/wp-content/uploads/2019/01/Saint-Lucia-National-Report-of-Living-Conditions-2016-Final_December-2018.pdf,Anna Luisa Paffhausen,3/25/2025 12:32
+LCA,2015,44302,25,43.2,No,"Saint Lucia National Report of Living Conditions 2016 - Final Report, December 2018",https://stats.gov.lc/wp-content/uploads/2019/01/Saint-Lucia-National-Report-of-Living-Conditions-2016-Final_December-2018.pdf,Anna Luisa Paffhausen,1/29/2026 10:13
 LCA,2016,,,,,,,,
 LCA,2017,,,,,,,,
 LCA,2018,,,,,,,,
@@ -1596,7 +1471,7 @@ MAR,2018,,,,,,,,
 MAR,2019,,,,,,,,
 MAR,2020,,,,,,,,
 MAR,2021,,,,,,,,
-MAR,2022,,3.9,40.5,,"Evolution du niveau de vie de la population à la lumière des résultats de l’Enquête Nationale sur le Niveau de Vie des Ménages de 2022, Juin 2024, HCP",https://www.hcp.ma/Evolution-du-niveau-de-vie-de-la-population-a-la-lumiere-des-resultats-de-l-Enquete-Nationale-sur-le-Niveau-de-Vie-des_a3900.html,Federica Marzo,9/6/2024 12:59
+MAR,2022,,3.9,40.5,Yes,"Evolution du niveau de vie de la population à la lumière des résultats de l’Enquête Nationale sur le Niveau de Vie des Ménages de 2022, Juin 2024, HCP",https://www.hcp.ma/Evolution-du-niveau-de-vie-de-la-population-a-la-lumiere-des-resultats-de-l-Enquete-Nationale-sur-le-Niveau-de-Vie-des_a3900.html,Aly Sanoh,10/1/2025 9:10
 MAR,2023,,,,,,,Federica Marzo,9/6/2024 12:59
 MAR,2024,,,,,,,,
 MDA,2000,,,,,,,Judy Yang,3/19/2025 12:15
@@ -1613,17 +1488,17 @@ MDA,2010,,,,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12
 MDA,2011,,,,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
 MDA,2012,,,,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
 MDA,2013,,,,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2014,,29.5,25.94,No,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2015,,25.4,25.79,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2016,,26.4,25.8,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2017,,27.7,25.02,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2018,,23,24.93,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2019,,25.2,27.62,No,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2020,,26.8,26.99,Yes,National Bureau of Statistics of Moldova,,Judy Yang,3/19/2025 12:18
-MDA,2021,,24.5,27.8,Yes,National Bureau of Statistics of Moldova,,,
-MDA,2022,,31.1,28.17,Yes,National Bureau of Statistics of Moldova,https://statbank.statistica.md/PxWeb/pxweb/en/30%20Statistica%20sociala/30%20Statistica%20sociala__04%20NIV__NIV070/NIV070100.px/?rxid=b2ff27d7-0b96-43c9-934b-42e1a2a9a774,Judy Yang,3/19/2025 12:14
-MDA,2023,,31.6,29.48,Yes,National Bureau of Statistics of Moldova,https://statistica.gov.md/en/statistic_indicator_details/3,Judy Yang,3/19/2025 12:14
-MDA,2024,,,,,,,,
+MDA,2014,,29.5,25.94,No,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:02
+MDA,2015,,25.4,25.79,Yes,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:02
+MDA,2016,,26.4,25.8,Yes,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:03
+MDA,2017,,27.7,25.02,Yes,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:03
+MDA,2018,,23,24.93,Yes,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:03
+MDA,2019,,25.2,27.62,No,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:03
+MDA,2020,,26.8,26.99,Yes,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:03
+MDA,2021,,24.5,27.8,Yes,National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:04
+MDA,2022,,31.1,28.17,Yes,National Bureau of Statistics of Moldova,https://statbank.statistica.md/PxWeb/pxweb/en/30%20Statistica%20sociala/30%20Statistica%20sociala__04%20NIV__NIV070/NIV070100.px/?rxid=b2ff27d7-0b96-43c9-934b-42e1a2a9a774,Federica Marzo,3/11/2026 16:04
+MDA,2023,,31.6,29.48,Yes,National Bureau of Statistics of Moldova,https://statistica.gov.md/en/statistic_indicator_details/3,Federica Marzo,3/11/2026 16:04
+MDA,2024,,33.6,29.63,Yes,National Bureau of Statistics of National Bureau of Statistics of Moldova,,Federica Marzo,3/11/2026 16:04
 MDG,2000,,,,,,,,
 MDG,2001,11512740,70.8,47.43543,Yes,WDI,,,
 MDG,2002,,,,Yes,,,,
@@ -1634,9 +1509,9 @@ MDG,2006,,,,Yes,,,,
 MDG,2007,,,,Yes,,,,
 MDG,2008,,,,Yes,,,,
 MDG,2009,,,,Yes,,,,
-MDG,2010,15165726,71.7,42.41749,,WDI,,,
+MDG,2010,15165726,71.7,42.41749,,WDI,,Haoyu Wu,9/3/2025 11:17
 MDG,2011,,,,Yes,,,,
-MDG,2012,15799027,70.7,42.64818,Yes,WDI,,,
+MDG,2012,15799027,72.9,42.64818,Yes,WDI,,Haoyu Wu,9/3/2025 11:17
 MDG,2013,,,,Yes,,,,
 MDG,2014,,,,Yes,,,,
 MDG,2015,,,,Yes,,,,
@@ -1645,7 +1520,7 @@ MDG,2017,,,,,,,,
 MDG,2018,,,,,,,,
 MDG,2019,,,,,,,,
 MDG,2020,,,,,,,,
-MDG,2021,,77,,No,https://instat.mg/documents/upload/main/INSTAT_Epm21-22_06-2024.pdf,,Francis Muamba Mulangu,4/15/2025 16:27
+MDG,2021,,75.2,,No,https://instat.mg/documents/upload/main/INSTAT_Epm21-22_06-2024.pdf,,Haoyu Wu,9/3/2025 11:18
 MDG,2022,,,,,,,Francis Muamba Mulangu,3/28/2025 10:22
 MDG,2023,,,,,,,,
 MDG,2024,,,,,,,,
@@ -1696,9 +1571,9 @@ MEX,2018,51890880,41.91,45.7461,Yes,Coneval using  ENIGH,,Samuel Freije-Rodrigue
 MEX,2019,,,,,,,,
 MEX,2020,55654225,43.91,44.9647,Yes,Coneval using  ENIGH,,Samuel Freije-Rodriguez,3/31/2025 17:18
 MEX,2021,,,,,,,,
-MEX,2022,46804512,36.3,43.1,Yes,Coneval using  ENIGH,,Samuel Freije-Rodriguez,3/31/2025 17:16
+MEX,2022,46804512,36.3,43.1,Yes,Coneval using  ENIGH,,Mariel Cecilia Siravegna,9/5/2025 10:03
 MEX,2023,,,,,,,,
-MEX,2024,,,,,,,,
+MEX,2024,38489971,29.6,42,Yes,INEGI using ENIGH,,Mariel Cecilia Siravegna,10/2/2025 16:48
 MHL,2000,,,,,,,,
 MHL,2001,,,,,,,,
 MHL,2002,,,,,,,,
@@ -1718,7 +1593,7 @@ MHL,2015,,,,,,,,
 MHL,2016,,,,,,,,
 MHL,2017,,,,,,,,
 MHL,2018,,,,,,,,
-MHL,2019,3054,7.2,,No,,,Darian Naidoo,4/17/2025 19:52
+MHL,2019,3054,7.2,,No,,,Darian Naidoo,10/1/2025 15:42
 MHL,2020,,,,,,,Darian Naidoo,4/17/2025 19:52
 MHL,2021,,,,,,,,
 MHL,2022,,,,,,,,
@@ -1745,8 +1620,8 @@ MKD,2018,,21.6,30.7,Yes,EUROSTAT,,Alexandru Cojocaru,9/5/2024 14:53
 MKD,2019,,21.8,31.4,Yes,EUROSTAT,https://ec.europa.eu/eurostat/databrowser/view/tessi010/default/table?lang=en,Alexandru Cojocaru,9/5/2024 15:07
 MKD,2020,,23,30.3,Yes,MKD NSO,https://www.stat.gov.mk/Default_en.aspx,Alexandru Cojocaru,3/26/2025 9:37
 MKD,2021,,22.9,29.8,Yes,MKD NSO,https://www.stat.gov.mk/Default_en.aspx,Alexandru Cojocaru,3/26/2025 9:37
-MKD,2022,,,,,,,,
-MKD,2023,,,,,,,,
+MKD,2022,,22.2,30.3,Yes,MKD NSO,https://www.stat.mk/en/stat/population-and-living-conditions/standard-of-living/laeken-poverty-indicators/laeken-poverty-indicators/,Alexandru Cojocaru,3/3/2026 13:41
+MKD,2023,,21.9,29.1,Yes,MKD NSO,https://www.stat.mk/en/stat/population-and-living-conditions/standard-of-living/laeken-poverty-indicators/laeken-poverty-indicators-2024-preliminary-data/,Alexandru Cojocaru,3/3/2026 13:41
 MKD,2024,,,,,,,,
 MLI,2000,,,,,,,,
 MLI,2001,5748268,50.9,,No,"Geography of Poverty in Mali, World Bank 2015.  http://documents.worldbank.org/curated/en/877031468299934506/Mali-Geography-of-poverty-in-Mali",,,
@@ -1761,18 +1636,18 @@ MLI,2009,6003311,41.1,33.03796,Yes,"Geography of Poverty in Mali, World Bank 201
 MLI,2010,,,,,,,,
 MLI,2011,7041540,45.4,42,Yes,EMOP,,,
 MLI,2012,,,,,,,,
-MLI,2013,7747950,47.1,38,Yes,EMOP,,,
-MLI,2014,7940170,46.9,37,Yes,EMOP,,,
-MLI,2015,8231680,47.2,34,Yes,EMOP,,,
-MLI,2016,8409960,46.8,34,Yes,EMOP,,,
-MLI,2017,8310990,44.9,36,Yes,EMOP,,,
+MLI,2013,7747950,47.1,38,Yes,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2014,7940170,46.9,37,Yes,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2015,8231680,47.2,34,Yes,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2016,8409960,46.8,34,Yes,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2017,8310990,44.9,36,Yes,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
 MLI,2018,8295014,42.1,33,Yes,EHCVM,,Yele Maweki Batana,9/20/2024 13:37
-MLI,2019,8333100,42.3,36,Yes,EMOP,,,
-MLI,2020,8484750,41.9,38,Yes,EMOP,,,
-MLI,2021,9735059,45.5,31,No,EHCVM (comparable with the previous EHCVM),,Yele Maweki Batana,9/20/2024 13:37
-MLI,2022,,,,,,,Yele Maweki Batana,9/19/2024 12:30
-MLI,2023,,,,,,,,
-MLI,2024,,,,,,,,
+MLI,2019,8333100,42.3,36,Yes,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2020,8484750,41.9,38,Yes,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2021,9735059,45.5,31,No,EHCVM (comparable with the previous EHCVM),,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2022,10280083,45.5,33,,EMOP (comparable to EMOP),https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2023,10225933,43.9,32,,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
+MLI,2024,10398836,43.3,32,,EMOP,https://www.instat-mali.org/fr/publications/enquete-modulaire-et-permanente-aupres-des-menages-emop,Johannes G. Hoogeveen,9/12/2025 11:49
 MMR,2000,,,,,,,,
 MMR,2001,,,,,,,,
 MMR,2002,,,,,,,,
@@ -1820,8 +1695,8 @@ MNE,2018,152446,24.5,34.1,Yes,"NSO, Eurostat",,Zurab Sajaia,3/25/2025 13:35
 MNE,2019,140578,22.6,32.9,Yes,"NSO, projection",,Zurab Sajaia,3/25/2025 13:35
 MNE,2020,131717,21.2,32.5,Yes,EUROSTAT,,Zurab Sajaia,3/25/2025 13:35
 MNE,2021,125700,20.3,31.5,Yes,"EUROSTAT, NSO",,Zurab Sajaia,3/25/2025 13:35
-MNE,2022,124060,20.1,29.4,Yes,NSO,,Zurab Sajaia,3/25/2025 13:37
-MNE,2023,,,,,,,Zurab Sajaia,3/25/2025 13:37
+MNE,2022,124060,20.1,29.4,Yes,NSO,,Zurab Sajaia,9/18/2025 12:54
+MNE,2023,123235,20,31.6,Yes,NSO,,Zurab Sajaia,9/18/2025 12:57
 MNE,2024,,,,,,,,
 MNG,2000,,,,,,,,
 MNG,2001,,,,,,,,
@@ -1867,10 +1742,10 @@ MOZ,2015,,,,,,,,
 MOZ,2016,,,,,,,,
 MOZ,2017,,,,,,,,
 MOZ,2018,,,,,,,,
-MOZ,2019,,68.2,,,https://www.mef.gov.mz/index.php/publicacoes/estrategias/2184-estrategia-nacional-de-desenvolvimento-2025-2024/file,,Cameron Nadim Haddad,3/6/2025 10:52
+MOZ,2019,,68.2,,,https://www.mef.gov.mz/index.php/publicacoes/estrategias/2184-estrategia-nacional-de-desenvolvimento-2025-2024/file,,Carlos Da Da Maia,1/29/2026 14:23
 MOZ,2020,,,,,,,,
 MOZ,2021,,,,,,,,
-MOZ,2022,,65,,,https://www.mef.gov.mz/index.php/publicacoes/estrategias/2184-estrategia-nacional-de-desenvolvimento-2025-2024/file,,Cameron Nadim Haddad,3/6/2025 10:52
+MOZ,2022,,65,,,https://www.mef.gov.mz/index.php/publicacoes/estrategias/2184-estrategia-nacional-de-desenvolvimento-2025-2024/file,,Carlos Chadreque Penicela Da Maia,9/17/2025 10:46
 MOZ,2023,,,,,,,,
 MOZ,2024,,,,,,,,
 MRT,2000,1381773,51,39.02847,,ONS,,,
@@ -1894,7 +1769,7 @@ MRT,2017,,,,,,,,
 MRT,2018,,,,,,,,
 MRT,2019,1439172,31.8,31.638,Yes,ANSADE/WB,,,
 MRT,2020,,,,,,,,
-MRT,2021,,,,,,,,
+MRT,2021,,,,,,,Djibril Ndoye,3/8/2026 22:52
 MRT,2022,,,,,,,,
 MRT,2023,,,,,,,,
 MRT,2024,,,,,,,,
@@ -1915,14 +1790,14 @@ MUS,2013,,,,Yes,,,,
 MUS,2014,,,,Yes,,,,
 MUS,2015,,,,Yes,,,,
 MUS,2016,,,,,,,,
-MUS,2017,130255,10.3,,Yes,"HBS, income based relative (50% of median income) poverty line in per adult equivalent terms",,,
+MUS,2017,130255,10.4,,Yes,"HBS, income based relative (50% of median income) poverty line in per adult equivalent terms",,Carlos Chadreque Penicela Da Maia,9/17/2025 11:01
 MUS,2018,,,,,,,,
 MUS,2019,,,,,,,,
 MUS,2020,,,,,,,,
 MUS,2021,,,,,,,,
-MUS,2022,,,,,,,,
-MUS,2023,,,,,,,,
-MUS,2024,,,,,,,,
+MUS,2022,,,,,,,Carlos Chadreque Penicela Da Maia,9/17/2025 11:06
+MUS,2023,,8.4,,,https://statsmauritius.govmu.org/Documents/Statistics/By_Subject/Poverty/Poverty_Analysis_Report%20_Yr23_100225.pdf,,Carlos Chadreque Penicela Da Maia,9/17/2025 11:06
+MUS,2024,,,,,,,Carlos Chadreque Penicela Da Maia,9/17/2025 11:06
 MWI,2000,,,,,,,,
 MWI,2001,,,,,,,,
 MWI,2002,,,,,,,,
@@ -1970,9 +1845,9 @@ MYS,2018,,,,,,,,
 MYS,2019,1821288,5.6,40.7,Yes,Department of Statistics Malaysia,,,
 MYS,2020,2725582,8.4,41.1,No,Department of Statistics Malaysia,,,
 MYS,2021,,,,,,,,
-MYS,2022,2027282,6.2,40.4,Yes,Department of Statistics Malaysia,,,
+MYS,2022,2027282,6.2,40.4,Yes,Department of Statistics Malaysia,,Ririn Salwa Purnamasari,9/15/2025 10:41
 MYS,2023,,,,,,,,
-MYS,2024,,,,,,,,
+MYS,2024,,5.1,39,,Department of Statistics Malaysia,,Ririn Salwa Purnamasari,3/4/2026 9:00
 NAM,2000,,,,,,,,
 NAM,2001,,,,,,,,
 NAM,2002,,,,,,,,
@@ -2025,9 +1900,9 @@ NER,2023,,,,,,,,
 NER,2024,,,,,,,,
 NGA,2000,,,,,,,,
 NGA,2001,,,,,,,,
-NGA,2002,,,,,,,,
-NGA,2003,63874704,48.4,40.06358,Yes,WDI,,,
-NGA,2004,,,,,,,,
+NGA,2002,,,,,,,Godstime Osekhebhen Eigbiremolen,9/12/2025 19:30
+NGA,2003,63874704,48.4,40.06358,Yes,WDI,,Godstime Osekhebhen Eigbiremolen,9/12/2025 19:32
+NGA,2004,,,,,,,Godstime Osekhebhen Eigbiremolen,9/12/2025 19:30
 NGA,2005,,,,,,,,
 NGA,2006,,,,,,,,
 NGA,2007,,,,,,,,
@@ -2044,9 +1919,9 @@ NGA,2017,,,,,,,,
 NGA,2018,82912448,40.09,35.1,No,NBS,,Sering Touray,3/25/2025 21:31
 NGA,2019,,,,,,,,
 NGA,2020,,,,,,,,
-NGA,2021,,,,,,,,
-NGA,2022,,,,,,,,
-NGA,2023,,,,,,,,
+NGA,2021,,,,,,,Godstime Osekhebhen Eigbiremolen,9/12/2025 19:36
+NGA,2022,,,,,,,Godstime Osekhebhen Eigbiremolen,9/12/2025 19:34
+NGA,2023,125778203,56.2,33.9,Yes,World Bank,,Sering Touray,3/4/2026 15:17
 NGA,2024,,,,,,,,
 NIC,2000,,,,,,,,
 NIC,2001,2336144,45.8,52.87751,Yes,"INIDE / EMNV 2001, 2005, 2009, 2014, and 2016",,,
@@ -2171,8 +2046,8 @@ PER,2019,6600659,20.2,41.55377,Yes,INEI. Encuesta Nacional de Hogares; Moderate 
 PER,2020,10000001,30.1,44.9,Yes,INEI. Encuesta Nacional de Hogares; Moderate Poverty Line (individuals); Estimates based on new methodology since 2004; Not comparable with prior series (www.inei.gob.pe). Poverty line is absolute. Government estimate.,cdn.www.gob.pe/uploads/document/file/6469130/5558432-peru-evolucion-de-la-pobreza-monetaria-2014-2023.pdf?v=1718204242,Renato Juan Trujillo Galindo,25 marzo 2025 11:48
 PER,2021,8556144,25.9,40.4,Yes,INEI. Encuesta Nacional de Hogares; Moderate Poverty Line (individuals); Estimates based on new methodology since 2004; Not comparable with prior series (www.inei.gob.pe). Poverty line is absolute. Government estimate.,cdn.www.gob.pe/uploads/document/file/6469130/5558432-peru-evolucion-de-la-pobreza-monetaria-2014-2023.pdf?v=1718204242,Renato Juan Trujillo Galindo,25 marzo 2025 11:48
 PER,2022,9184000,27.5,40.7,Yes,INEI. Encuesta Nacional de Hogares; Moderate Poverty Line (individuals); Estimates based on new methodology since 2004; Not comparable with prior series (www.inei.gob.pe). Poverty line is absolute. Government estimate.,cdn.www.gob.pe/uploads/document/file/6469130/5558432-peru-evolucion-de-la-pobreza-monetaria-2014-2023.pdf?v=1718204242,Renato Juan Trujillo Galindo,25 marzo 2025 11:48
-PER,2023,9780000,29,40.7,Yes,INEI. Encuesta Nacional de Hogares; Moderate Poverty Line (individuals); Estimates based on new methodology since 2004; Not comparable with prior series (www.inei.gob.pe). Poverty line is absolute. Government estimate.,cdn.www.gob.pe/uploads/document/file/6469130/5558432-peru-evolucion-de-la-pobreza-monetaria-2014-2023.pdf?v=1718204242,Renato Juan Trujillo Galindo,25 marzo 2025 11:50
-PER,2024,,,,,,,,
+PER,2023,9780000,29,40.7,Yes,INEI. Encuesta Nacional de Hogares; Moderate Poverty Line (individuals); Estimates based on new methodology since 2004; Not comparable with prior series (www.inei.gob.pe). Poverty line is absolute. Government estimate.,cdn.www.gob.pe/uploads/document/file/6469130/5558432-peru-evolucion-de-la-pobreza-monetaria-2014-2023.pdf?v=1718204242,Eliana Carolina Rubiano Matulevich,9/3/2025 19:19
+PER,2024,9395000,27.6,42,Yes,INEI. Encuesta Nacional de Hogares; Moderate Poverty Line (individuals); Estimates based on new methodology since 2004; Not comparable with prior series (www.inei.gob.pe). Poverty line is absolute. Government estimate.,cdn.www.gob.pe/uploads/document/file/8058556/6763186-peru-evolucion-de-la-pobreza-monetaria-2015-2024.pdf?v=1747173826,Eliana Carolina Rubiano Matulevich,9/3/2025 19:20
 PHL,2000,,,,,,,,
 PHL,2001,,,,,,,,
 PHL,2002,,,,,,,,
@@ -2188,13 +2063,13 @@ PHL,2011,,,,,,,,
 PHL,2012,24410394,25.2,46.4929,Yes,WDI,,,
 PHL,2013,,,,,,,,
 PHL,2014,,,,,,,,
-PHL,2015,23695842,23.5,44.351,Yes,WDI,,,
+PHL,2015,23695842,23.5,44.351,No,WDI,,Liliana Do Couto Sousa,9/16/2025 8:43
 PHL,2016,,,,,,,,
 PHL,2017,,,,,,,,
-PHL,2018,,16.7,42.3,Yes,WDI,,,
+PHL,2018,,16.7,42.3,Yes,Philippine Statistics Authority,,Liliana Do Couto Sousa,9/16/2025 8:44
 PHL,2019,,,,,,,,
 PHL,2020,,,,,,,,
-PHL,2021,19900000,18.1,40.7,Yes,Philippine Statistics Authority,,,
+PHL,2021,19900000,18.1,40.7,Yes,Philippine Statistics Authority,,Liliana Do Couto Sousa,9/11/2025 9:31
 PHL,2022,,,,,,,,
 PHL,2023,17538900,15.5,39.09,Yes,Philippine Statistics Authority,,Liliana Do Couto Sousa,9/9/2024 15:57
 PHL,2024,,,,,,,,
@@ -2227,27 +2102,41 @@ POL,2000,,,,,,,,
 POL,2001,,,,,,,,
 POL,2002,,,,,,,,
 POL,2003,,,,,,,,
-POL,2004,,,34.446,,,,,
-POL,2005,,,34.507,,,,,
-POL,2006,,,34.035,,,,,
-POL,2007,,,33.966,,,,,
-POL,2008,6708353,17.6,33.85,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2009,6597507,17.3,33.55049207,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2010,6615979,17.4,34.23678769,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2011,6432599,16.9,33.76,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2012,6204398,16.3,33.8,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2013,6166131,16.2,33.76,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2014,6158893,16.2,32.6,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2015,5890870,15.5,32.21,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2016,5277442,13.9,30.44253485,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2017,3748377,13.4,29.78,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2018,5392690,14.2,29.9,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2019,4936466,13,30.1,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2020,4479060,11.8,31.3,No,Population data: Eurostat; Poverty and Gini: Statistics Poland,,,
-POL,2021,4616480,12.1,31.9,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,Reena C Badiani-Magnusson,9/14/2024 9:58
-POL,2022,4443201,11.7,31.4,Yes,Population data: Eurostat; Poverty and Gini: Statistics Poland,,Reena C Badiani-Magnusson,9/14/2024 9:58
-POL,2023,4475857,12.2,31.4,Yes,Population data: Eurostat,,Reena C Badiani-Magnusson,3/26/2025 20:48
-POL,2024,,,,,Population data: Eurostat,,Reena C Badiani-Magnusson,3/26/2025 20:48
+POL,2004,,,34.446,Yes,,,Reena C Badiani-Magnusson,9/12/2025 17:01
+POL,2005,,,34.507,Yes,,,Reena C Badiani-Magnusson,9/12/2025 17:01
+POL,2006,,,34.035,Yes,,,Reena C Badiani-Magnusson,9/12/2025 17:01
+POL,2007,,,33.966,Yes,,,Reena C Badiani-Magnusson,9/12/2025 17:01
+POL,2008,6708353,17.6,33.85,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:01
+POL,2009,6597507,17.3,33.55049207,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:01
+POL,2010,6615979,17.4,34.23678769,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:01
+POL,2011,6432599,16.9,33.76,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2012,6204398,16.3,33.8,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2013,6166131,16.2,33.76,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2014,6158893,16.2,32.6,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2015,5890870,15.5,32.21,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2016,5277442,13.9,30.44253485,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2017,3748377,13.4,29.78,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2018,5392690,14.2,29.9,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:00
+POL,2019,4936466,13,30.1,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:09
+POL,2020,4479060,11.8,31.3,No,Population data: Eurostat; Poverty and Gini: Statistics Poland,,Reena C Badiani-Magnusson,9/12/2025 17:09
+POL,2021,4616480,12.1,31.9,Yes,"Population data: WDI
+; Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:09
+POL,2022,4443201,11.7,31.4,Yes,"Population data: WDI; 
+Poverty and Gini: Statistics Poland",,Reena C Badiani-Magnusson,9/12/2025 17:09
+POL,2023,4475857,12.2,31.5,Yes,Population data: WDI,,Reena C Badiani-Magnusson,9/12/2025 17:09
+POL,2024,4861776,13.3,30,Yes,Population data: WDI,,Reena C Badiani-Magnusson,9/22/2025 12:57
 PRY,2000,,,,,,,,
 PRY,2001,,,54.75742817,,,,,
 PRY,2002,3179570,57.72,57.33153224,Yes,https://www.ine.gov.py/publication-single.php?codec=MTEx,,,
@@ -2272,7 +2161,7 @@ PRY,2020,1924412,26.9,43.7,Yes,https://www.ine.gov.py/publication-single.php?cod
 PRY,2021,1977967,26.9,43.1084,Yes,,,,
 PRY,2022,1488236,25.5,44.8,No,INE. Encuesta Permanente de Hogares Continua; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.,www.ine.gov.py/Publicaciones/Biblioteca/documento/246/Pobreza%20Monetaria_%20EPHC%202023_INE..pdf,Renato Juan Trujillo Galindo,25 marzo 2025 12:23
 PRY,2023,1330892,22.7,44.4,Yes,INE. Encuesta Permanente de Hogares Continua; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.,www.ine.gov.py/Publicaciones/Biblioteca/documento/246/Pobreza%20Monetaria_%20EPHC%202023_INE..pdf,Eliana Carolina Rubiano Matulevich,4/10/2025 9:02
-PRY,2024,1189945,20.1,,Yes,INE. Encuesta Permanente de ,www.ine.gov.py/Publicaciones/Biblioteca/documento/271/Pobreza%20Monetaria_%20EPHC%202024_INE.pdf,Eliana Carolina Rubiano Matulevich,4/10/2025 9:05
+PRY,2024,1189945,20.1,44.4,Yes,INE. Encuesta Permanente de ,www.ine.gov.py/Publicaciones/Biblioteca/documento/271/Pobreza%20Monetaria_%20EPHC%202024_INE.pdf,Eliana Carolina Rubiano Matulevich,3/3/2026 14:34
 PSE,2000,,,,,,,,
 PSE,2001,,,,,,,,
 PSE,2002,,,,,,,,
@@ -2289,15 +2178,15 @@ PSE,2012,,,,,,,,
 PSE,2013,,,,,,,,
 PSE,2014,,,,,,,,
 PSE,2015,,,,,,,,
-PSE,2016,1329057,29.2,33.69004,Yes,Palestinian Central Bureau of Statistics,,,
+PSE,2016,1329057,29.2,33.69004,Yes,Palestinian Central Bureau of Statistics,,Eiman Osman,9/29/2025 19:40
 PSE,2017,,,,,,,,
 PSE,2018,,,,,,,,
 PSE,2019,,,,,,,,
 PSE,2020,,,,,,,,
 PSE,2021,,,,,,,,
-PSE,2022,,,,,,,,
-PSE,2023,,,,,,,,
-PSE,2024,,,,,,,,
+PSE,2022,,,,,,,Eiman Osman,9/29/2025 20:36
+PSE,2023,1799909,32.8,33.27518297,Yes,Palestinian Central Bureau of Statistics,,Eiman Osman,3/3/2026 20:30
+PSE,2024,,,,,,,Eiman Osman,9/29/2025 19:41
 ROU,2000,,17,,,EUROSTAT,,,
 ROU,2001,,18,,Yes,EUROSTAT,,,
 ROU,2002,,,,,,,,
@@ -2321,7 +2210,7 @@ ROU,2019,4542983,23.4,33.8,Yes,EUROSTAT,,,
 ROU,2020,4347864,22.5,34.3,Yes,EUROSTAT,,,
 ROU,2021,4039409,21.2,32,Yes,EUROSTAT,,,
 ROU,2022,3970000,21.1,31,Yes,EUROSTAT,,Monica Robayo,3/18/2025 15:00
-ROU,2023,,,,,,,,
+ROU,2023,3595000,19,28,Yes,EUROSTAT,,Monica Robayo,9/12/2025 8:33
 ROU,2024,,,,,,,,
 RWA,2000,4727139,58.9,50.7,,EICV 1 survey (National Institute of Statistics Rwanda),,,
 RWA,2001,,,,,,,,
@@ -2346,7 +2235,7 @@ RWA,2019,,,,,,,,
 RWA,2020,,,,,,,,
 RWA,2021,,,,,,,,
 RWA,2022,,,,,,,,
-RWA,2023,,,,,,,,
+RWA,2023,3797534,27.4,37,No,EICV 7 Survey (National Institute of Statistics of Rwanda,,Mario Negre Rossignoli,9/15/2025 17:20
 RWA,2024,,,,,,,,
 SDN,2000,,,,,,,,
 SDN,2001,,,,,,,,
@@ -2394,7 +2283,7 @@ SEN,2017,,,,,,,,
 SEN,2018,6032000,37.8,35.1,No,,,Moritz Meyer,3/25/2025 12:45
 SEN,2019,,,,,,,,
 SEN,2020,,,,,,,,
-SEN,2021,6553000,37.5,33.4,Yes,,,Moritz Meyer,3/25/2025 12:45
+SEN,2021,6553000,37.5,33.4,Yes,,,Moritz Meyer,1/28/2026 20:17
 SEN,2022,,,,,,,,
 SEN,2023,,,,,,,,
 SEN,2024,,,,,,,,
@@ -2403,7 +2292,7 @@ SLB,2001,,,,,,,,
 SLB,2002,,,,,,,,
 SLB,2003,,,,,,,,
 SLB,2004,,,,,,,,
-SLB,2005,106664,22.7,,,WDI,,Danielle Victoria Aron,3/26/2025 14:28
+SLB,2005,106664,22.7,,No,WDI,,Shohei Nakamura,9/16/2025 10:08
 SLB,2006,,,,,,,,
 SLB,2007,,,,,,,,
 SLB,2008,,,,,,,,
@@ -2411,7 +2300,7 @@ SLB,2009,,,,,,,,
 SLB,2010,,,,,,,,
 SLB,2011,,,,,,,,
 SLB,2012,,,,,,,,
-SLB,2013,71566,12.7,,,WDI,,,
+SLB,2013,71566,12.7,,No,WDI,,Shohei Nakamura,9/16/2025 10:08
 SLB,2014,,,,,,,,
 SLB,2015,,,,,,,,
 SLB,2016,,,,,,,,
@@ -2473,31 +2362,6 @@ SLV,2021,1556153,24.6,,,ONEC - Encuesta de Hogares de Propositos Multiples 2021,
 SLV,2022,1868448,26.6,,Yes,ONEC - Encuesta de Hogares de Propositos Multiples 2022,,Sofia Hidalgo Berrios,3/25/2025 10:49
 SLV,2023,1923201,27.2,,Yes,ONEC - Encuesta de Hogares de Propósitos Múltiples 2023,,Sofia Hidalgo Berrios,3/25/2025 10:49
 SLV,2024,,,,,,,Sofia Hidalgo Berrios,3/25/2025 10:49
-SOM,2000,,,,,,,,
-SOM,2001,,,,,,,,
-SOM,2002,,,,,,,,
-SOM,2003,,,,,,,,
-SOM,2004,,,,,,,,
-SOM,2005,,,,,,,,
-SOM,2006,,,,,,,,
-SOM,2007,,,,,,,,
-SOM,2008,,,,,,,,
-SOM,2009,,,,,,,,
-SOM,2010,,,,,,,,
-SOM,2011,,,,,,,,
-SOM,2012,,,,,,,,
-SOM,2013,,,,,,,,
-SOM,2014,,,,,,,,
-SOM,2015,,,,,,,,
-SOM,2016,,,,,,,,
-SOM,2017,,,,,,,,
-SOM,2018,,,,,,,,
-SOM,2019,,,,,,,,
-SOM,2020,,,,,,,,
-SOM,2021,,,,,,,,
-SOM,2022,,,,,,,,
-SOM,2023,,,,,,,,
-SOM,2024,,,,,,,,
 SRB,2000,,,,,,,,
 SRB,2001,,,,,,,,
 SRB,2002,,,,,,,,
@@ -2521,7 +2385,7 @@ SRB,2019,1555733,22.4,33.8,Yes,"NSO, Eurostat",,Zurab Sajaia,3/25/2025 12:48
 SRB,2020,1476413,21.4,33.3,Yes,NSO,,Zurab Sajaia,3/25/2025 12:48
 SRB,2021,1380534,20.2,32.6,Yes,NSO,,Zurab Sajaia,3/25/2025 12:49
 SRB,2022,1326225,19.9,31.7,Yes,NSO,,Zurab Sajaia,3/25/2025 12:49
-SRB,2023,,,,,,,Zurab Sajaia,3/25/2025 12:42
+SRB,2023,1303751,19.7,31.9,Yes,NSO,,Zurab Sajaia,9/18/2025 14:57
 SRB,2024,,,,,,,,
 SSD,2000,,,,,,,,
 SSD,2001,,,,,,,,
@@ -2595,7 +2459,7 @@ SUR,2018,,,,,,,,
 SUR,2019,,,,,,,,
 SUR,2020,,,,,,,,
 SUR,2021,,,,,,,,
-SUR,2022,,,,,,,,
+SUR,2022,108775,17.6,,,IDB-World Bank Poverty and Equity Assessment,https://documents.worldbank.org/en/publication/documents-reports/documentdetail/099071624155540100,Jacobus Joost De Hoop,1/30/2026 17:18
 SUR,2023,,,,,,,,
 SUR,2024,,,,,,,,
 SWZ,2000,,,53.11352,,,,,
@@ -2615,7 +2479,7 @@ SWZ,2013,,,,,,,,
 SWZ,2014,,,,,,,,
 SWZ,2015,,,,,,,,
 SWZ,2016,,,,,,,,
-SWZ,2017,805313,58.9,,Yes,Swaziland Centrral Statistics Office,,,
+SWZ,2017,805313,58.9,54.6,Yes,Swaziland Centrral Statistics Office,,Nozipho Sithokozile Shabalala,9/16/2025 11:37
 SWZ,2018,,,,,,,,
 SWZ,2019,,,,,,,,
 SWZ,2020,,,,,,,,
@@ -2725,7 +2589,7 @@ TGO,2023,,,,,,,,
 TGO,2024,,,,,,,,
 THA,2000,,42.33,42.83367,,NESDC,,,
 THA,2001,,,,,,,,
-THA,2002,,32.44,41.9445,Yes,NESDC,,,
+THA,2002,,32.44,41.9445,Yes,NESDC,,Sutirtha Sinha Roy,9/11/2025 12:35
 THA,2003,,,,,,,,
 THA,2004,,26.76,42.54031,Yes,NESDC,,,
 THA,2005,,,,,,,Danielle Victoria Aron,3/26/2025 14:29
@@ -2772,7 +2636,7 @@ TJK,2020,,,,,,,Alisher Rajabov,4/6/2025 11:33
 TJK,2021,,25.6,32,No,TajStat,,Alisher Rajabov,4/6/2025 11:33
 TJK,2022,,21.7,39,Yes,TajStat,,Alisher Rajabov,4/6/2025 11:33
 TJK,2023,,20.4,38,Yes,TajStat,,Alisher Rajabov,4/6/2025 11:33
-TJK,2024,,,,,,,Alisher Rajabov,4/6/2025 11:33
+TJK,2024,,19.8,38,Yes,TajStat,,Alisher Rajabov,9/22/2025 22:01
 TLS,2000,,,,,,,,
 TLS,2001,323989,36.3,35.93529,No,WDI,,,
 TLS,2002,,,,,,,,
@@ -2872,7 +2736,7 @@ TUR,2020,11936000,14.4,40.1,Yes,TurkStat. Poverty line is relative. Government e
 TUR,2021,12000000,14.4,41.5,Yes,TurkStat. Poverty line is relative.,,Elizaveta Perova,9/10/2024 15:06
 TUR,2022,11303000,13.5,42,Yes,TurkStat. Poverty line is relative.,,Elizaveta Perova,3/25/2025 11:22
 TUR,2023,11457000,13.6,41.3,Yes,TurkStat. Poverty line is relative.,https://www.tuik.gov.tr/Home/Index,Elizaveta Perova,3/25/2025 11:23
-TUR,2024,,,,,,,,
+TUR,2024,10930000,13,41,Yes,TurkSTat. Poverty line is relative.,https://veriportali.tuik.gov.tr/en/press/53994,Elizaveta Perova,3/4/2026 16:57
 TUV,2000,,,,,,,,
 TUV,2001,,,,,,,,
 TUV,2002,,,,,,,,
@@ -2904,18 +2768,18 @@ TZA,2003,,,,,,,,
 TZA,2004,,,,,,,,
 TZA,2005,,,,,,,,
 TZA,2006,,,,,,,,
-TZA,2007,13171622,34.4,40.2791,Yes,Tanzania Mainland Household Budget Survey,,,
+TZA,2007,13171622,34.4,40.2791,Yes,Tanzania Mainland Household Budget Survey,,Niklas Buehren,9/15/2025 18:17
 TZA,2008,,,,,,,,
 TZA,2009,,,,,,,,
-TZA,2010,,,,,,,,
-TZA,2011,11920179,28.2,37.78315,Yes,Tanzania Mainland Household Budget Survey,,,
+TZA,2010,,,,,,,Niklas Buehren,9/15/2025 18:17
+TZA,2011,11920179,28.2,37.78315,Yes,Tanzania Mainland Household Budget Survey,,Niklas Buehren,9/15/2025 18:14
 TZA,2012,,,,,,,,
 TZA,2013,,,,,,,,
 TZA,2014,,,,,,,,
 TZA,2015,,,,,,,,
 TZA,2016,,,,,,,,
 TZA,2017,,,,,,,,
-TZA,2018,,26.4,39.5,Yes,Tanzania Mainland Household Budget Survey,,,
+TZA,2018,,26.4,39.5,Yes,Tanzania Mainland Household Budget Survey,,Niklas Buehren,9/15/2025 18:13
 TZA,2019,,,,,,,,
 TZA,2020,,,,,,,,
 TZA,2021,,,,,,,,
@@ -2938,14 +2802,14 @@ UGA,2012,7152439,19.7,41.00997,Yes,UBOS,,,
 UGA,2013,,,,,,,,
 UGA,2014,,,,,,,,
 UGA,2015,,,,,,,,
-UGA,2016,8878425,21.4,42.75369,Yes,UBOS,,,
+UGA,2016,8878425,21.4,42.75369,Yes,UBOS,,Kristina Noelle Vaughan,10/2/2025 9:50
 UGA,2017,,,,,,,,
 UGA,2018,,,,,,,,
 UGA,2019,,20.3,42.7071,Yes,UBOS,,Kristina Noelle Vaughan,9/13/2024 14:37
 UGA,2020,,,,,,,,
 UGA,2021,,,,,,,,
 UGA,2022,,,,,,,,
-UGA,2023,,,,,,,,
+UGA,2023,,16.1,,,,,Kristina Noelle Vaughan,10/2/2025 9:50
 UGA,2024,,,,,,,,
 UKR,2000,,,,,,,,
 UKR,2001,,,,,,,,
@@ -2986,17 +2850,17 @@ URY,2010,624267,18.5,42.5,Yes,INE Uruguay,,Diego Tuzman Fernandez,12/3/2025 12:0
 URY,2011,463830,13.7,40.3,Yes,INE Uruguay,,,
 URY,2012,421200,12.4,37.9,Yes,INE Uruguay,,,
 URY,2013,391921,11.5,38.4,Yes,INE Uruguay,,,
-URY,2014,331696,9.7,38.1,Yes,INE Uruguay,,,
-URY,2015,332861,9.7,38.6,Yes,INE Uruguay,,,
-URY,2016,323737,9.4,38.3,Yes,INE Uruguay,,,
-URY,2017,273083,7.9,38,Yes,INE Uruguay,,,
-URY,2018,283985,8.1,38,Yes,INE Uruguay,,,
-URY,2019,309633,8.8,38.3,Yes,INE Uruguay,,,
-URY,2020,409582,11.6,38.7,No,INE Uruguay,,,
-URY,2021,375561,10.6,38.4,No,INE Uruguay,,Diego Tuzman Fernandez,8/29/2024 14:24
-URY,2022,345030,9.9,38.9,No,INE Uruguay,,Diego Tuzman Fernandez,8/29/2024 14:26
-URY,2023,345734,10.1,39.4,Yes,INE Uruguay,https://www.gub.uy/instituto-nacional-estadistica/comunicacion/publicaciones/estimacion-pobreza-metodo-del-ingreso-ano-2023,Diego Tuzman Fernandez,8/29/2024 14:27
-URY,2024,,,,,,,Diego Tuzman Fernandez,8/29/2024 14:24
+URY,2014,328991,9.7,38.1,Yes,INE Uruguay,,Diego Tuzman Fernandez,8/9/2025 11:05
+URY,2015,330073,9.7,38.6,Yes,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:00
+URY,2016,320894,9.4,38.3,Yes,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:01
+URY,2017,270354,7.9,38,Yes,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:01
+URY,2018,277590,8.1,38,Yes,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:01
+URY,2019,301700,8.8,38.3,Yes,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:01
+URY,2020,397774,11.6,38.7,No,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:01
+URY,2021,363184,10.6,38.4,No,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:01
+URY,2022,338857,9.9,38.9,No,INE Uruguay,,Diego Tuzman Fernandez,9/9/2025 12:01
+URY,2023,674352,19.7,41.7,Yes,INE Uruguay,https://www.gub.uy/instituto-nacional-estadistica/comunicacion/publicaciones/estimacion-pobreza-metodo-del-ingreso-ano-2023,Diego Tuzman Fernandez,9/9/2025 12:00
+URY,2024,618821,17.3,40.5,Yes,INE Uruguay,https://www.gub.uy/instituto-nacional-estadistica/pobreza,Diego Tuzman Fernandez,29/01/2026 11:04
 UZB,2000,,,,,,,,
 UZB,2001,,,,,,,,
 UZB,2002,,,,,,,,
@@ -3038,7 +2902,7 @@ VNM,2012,,,,,,,,
 VNM,2013,,,,,,,,
 VNM,2014,,,,,,,Paul Andres Corral Rodas,3/24/2025 15:01
 VNM,2015,,,,,,,,
-VNM,2016,8700355,9.2,,Yes,General Statistics Office of Vietnam,,Paul Andres Corral Rodas,3/24/2025 14:59
+VNM,2016,8700355,9.2,,Yes,General Statistics Office of Vietnam,,Paul Andres Corral Rodas,10/1/2025 9:44
 VNM,2017,7547723,7.9,,Yes,General Statistics Office of Vietnam,,Paul Andres Corral Rodas,3/24/2025 14:59
 VNM,2018,6496747,6.8,,Yes,General Statistics Office of Vietnam,,Paul Andres Corral Rodas,3/24/2025 14:59
 VNM,2019,,5.7,,Yes,General Statistics Office of Vietnam,,Paul Andres Corral Rodas,3/24/2025 14:59
@@ -3156,16 +3020,16 @@ ZAF,2001,,,,,,,,
 ZAF,2002,,,,,,,,
 ZAF,2003,,,,,,,,
 ZAF,2004,,,,,,,,
-ZAF,2005,32514510,66.6,,Yes,WDI,,,
+ZAF,2005,27265004,57.5,,No,WDI,,Nozipho Sithokozile Shabalala,3/10/2026 9:23
 ZAF,2006,,,,,,,,
 ZAF,2007,,,,,,,,
-ZAF,2008,31305932,62.1,,Yes,WDI,,,
+ZAF,2008,27905617,55.7,,Yes,WDI,,Nozipho Sithokozile Shabalala,3/10/2026 9:23
 ZAF,2009,,,,,,,,
-ZAF,2010,27443040,53.2,,Yes,WDI,,,
+ZAF,2010,23654482,45.8,,Yes,WDI,,Nozipho Sithokozile Shabalala,3/10/2026 9:24
 ZAF,2011,,,,,,,,
 ZAF,2012,,,,,,,,
 ZAF,2013,,,,,,,,
-ZAF,2014,30269462,55.5,,Yes,WDI,,,
+ZAF,2014,25713092,46.7,,Yes,WDI,,Nozipho Sithokozile Shabalala,3/10/2026 9:24
 ZAF,2015,,,,,,,,
 ZAF,2016,,,,,,,,
 ZAF,2017,,,,,,,,
@@ -3173,7 +3037,7 @@ ZAF,2018,,,,,,,,
 ZAF,2019,,,,,,,,
 ZAF,2020,,,,,,,,
 ZAF,2021,,,,,,,,
-ZAF,2022,,,,,,,,
+ZAF,2022,23206316,37.9,,Yes,Statistics South Africa,,Nozipho Sithokozile Shabalala,3/10/2026 9:29
 ZAF,2023,,,,,,,,
 ZAF,2024,,,,,,,,
 ZMB,2000,,,,,,,,
@@ -3226,3 +3090,403 @@ ZWE,2021,,,,,,,,
 ZWE,2022,,,,,,,,
 ZWE,2023,,,,,,,,
 ZWE,2024,,,,,,,,
+BLZ,2000,,,,,,,,
+BLZ,2001,,,,,,,,
+BLZ,2002,,34.1,0.4,,Statistical Institute of Belize,https://sib.org.bz/wp-content/uploads/2017/05/Poverty_Assessment_Report_2009.pdf,Jacobus Joost De Hoop,3/25/2025 15:10
+BLZ,2003,,,,,,,,
+BLZ,2004,,,,,,,Jacobus Joost De Hoop,3/25/2025 15:10
+BLZ,2005,,,,,,,,
+BLZ,2006,,,,,,,,
+BLZ,2007,,,,,,,,
+BLZ,2008,,,,,,,,
+BLZ,2009,"136,640",41.3,0.42,Yes,Statistical Institute of Belize,https://sib.org.bz/wp-content/uploads/2017/05/Poverty_Assessment_Report_2009.pdf,Jacobus Joost De Hoop,1/30/2026 17:16
+BLZ,2010,,,,,,,,
+BLZ,2011,,,,,,,,
+BLZ,2012,,,,,,,,
+BLZ,2013,,,,,,,,
+BLZ,2014,,,,,,,,
+BLZ,2015,,,,,,,,
+BLZ,2016,,,,,,,,
+BLZ,2017,,,,,,,Jacobus Joost De Hoop,3/25/2025 15:00
+BLZ,2018,,52,,Yes,Statistical Institute of Belize,https://sib.org.bz/wp-content/uploads/PovertyInfographic.pdf,Jacobus Joost De Hoop,1/30/2026 17:15
+BLZ,2019,,,,,,,,
+BLZ,2020,,,,,,,,
+BLZ,2021,,,,,,,,
+BLZ,2022,,,,,,,,
+BLZ,2023,,,,,,,,
+BLZ,2024,,,,,,,,
+BRB,2000,,,,,,,Cameron Nadim Haddad,3/10/2025 11:42
+BRB,2001,,,,,,,Cameron Nadim Haddad,3/10/2025 11:42
+BRB,2002,,,,,,,,
+BRB,2003,,,,,,,,
+BRB,2004,,,,,,,,
+BRB,2005,,,,,,,,
+BRB,2006,,,,,,,,
+BRB,2007,,,,,,,,
+BRB,2008,,,,,,,,
+BRB,2009,,,,,,,,
+BRB,2010,,,,,,,,
+BRB,2011,,,,,,,,
+BRB,2012,,,,,,,,
+BRB,2013,,,,,,,,
+BRB,2014,,,,,,,,
+BRB,2015,,,,,,,,
+BRB,2016,,25.7,0.32,,BSLC Methodological Note,https://publications.iadb.org/en/barbados-survey-living-conditions-2016,Jonathan William Lain,12/9/2025 20:50
+BRB,2017,,,,,,,,
+BRB,2018,,,,,,,,
+BRB,2019,,,,,,,,
+BRB,2020,,,,,,,Cameron Nadim Haddad,3/10/2025 11:42
+BRB,2021,,,,,,,,
+BRB,2022,,,,,,,,
+BRB,2023,,,,,,,,
+BRB,2024,,,,,,,,
+LBN,2000,,,,,,,,
+LBN,2001,,,,,,,,
+LBN,2002,,,,,,,,
+LBN,2003,,,,,,,,
+LBN,2004,,,,,,,,
+LBN,2005,,,,,,,,
+LBN,2006,,,,,,,,
+LBN,2007,,,,,,,,
+LBN,2008,,,,,,,,
+LBN,2009,,,,,,,,
+LBN,2010,,,,,,,,
+LBN,2011,,27.4,31.8,,Central Administration for Statistics,http://www.cas.gov.lb/images/PDFs/Poverty/Snapshot%20of%20Poverty%20and%20Labor%20Market%20in%20Lebanon.pdf,Ganesh Kumar Seshan,3/17/2025 22:01
+LBN,2012,,,,,,,,
+LBN,2013,,,,,,,,
+LBN,2014,,,,,,,,
+LBN,2015,,,,,,,,
+LBN,2016,,,,,,,,
+LBN,2017,,,,,,,,
+LBN,2018,,,,,,,,
+LBN,2019,,,,,,,,
+LBN,2020,,,,,,,,
+LBN,2021,,,,,,,,
+LBN,2022,,,,,,,Tala Ismail,1/29/2026 11:00
+LBN,2023,,,,,,,Tala Ismail,1/29/2026 11:00
+LBN,2024,,,,,,,,
+GNQ,2000,,,,,,,,
+GNQ,2001,,,,,,,,
+GNQ,2002,,,,,,,,
+GNQ,2003,,,,,,,,
+GNQ,2004,,,,,,,,
+GNQ,2005,,,,,,,,
+GNQ,2006,,,,,,,,
+GNQ,2007,,,,,,,,
+GNQ,2008,,,,,,,,
+GNQ,2009,,,,,,,,
+GNQ,2010,,,,,,,,
+GNQ,2011,,,,,,,,
+GNQ,2012,,,,,,,,
+GNQ,2013,,,,,,,,
+GNQ,2014,,,,,,,,
+GNQ,2015,,,,,,,,
+GNQ,2016,,,,,,,,
+GNQ,2017,,,,,,,,
+GNQ,2018,,,,,,,,
+GNQ,2019,,,,,,,,
+GNQ,2020,,,,,,,,
+GNQ,2021,,,,,,,Daniel Valderrama Gonzalez,1/28/2026 16:33
+GNQ,2022,915299,50.7,38.5,No,"Instituto Nacional de Estadistica INEGE, Guinea Ecuatorial",https://inege.org/wp-content/uploads/2024/12/Informe-Definitivo-de-la-ENH2.pdf,Daniel Valderrama Gonzalez,1/28/2026 16:33
+GNQ,2023,,,,,,,Daniel Valderrama Gonzalez,3/26/2025 17:00
+GNQ,2024,,,,,,,,
+AFG,2000,,,,,,,,
+AFG,2001,,,,,,,,
+AFG,2002,,,,,,,,
+AFG,2003,,,,,,,,
+AFG,2004,,,,,,,,
+AFG,2005,,,,,,,,
+AFG,2006,,,,,,,,
+AFG,2007,,33.7,25,,National Risk and Vulnerability Assessment (NRVA) 2007-08,,Eduardo Alonso Malasquez Carbonel,3/25/2025 11:56
+AFG,2008,,,,,,,,
+AFG,2009,,,,,,,,
+AFG,2010,,,,,,,,
+AFG,2011,,38.3,29.2,Yes,National Risk and Vulnerability Assessment (NRVA) 2011-12,,Eduardo Alonso Malasquez Carbonel,3/25/2025 11:56
+AFG,2012,,,,,,,,
+AFG,2013,,,,,,,,
+AFG,2014,,,,,,,,
+AFG,2015,,,,,,,,
+AFG,2016,,54.5,26.6,Yes,Afghanistan Living Conditions Surveys (ALCS) 2016-17 ,,Eduardo Alonso Malasquez Carbonel,3/25/2025 11:56
+AFG,2017,,,,,,,,
+AFG,2018,,,,,,,Anais Dahmani Scuitti,3/24/2025 16:56
+AFG,2019,17829000.16,47.1,27.3,Yes,"Income, Expenditure, and Labor Force Survey (IELFS) 2019-20 ",,Anais Dahmani Scuitti,9/4/2025 17:13
+AFG,2020,,,,,,,,
+AFG,2021,,,,,,,,
+AFG,2022,,,,,,,,
+AFG,2023,,,,,,,,
+AFG,2024,,,,,,,,
+SOM,2000,,,,,,,,
+SOM,2001,,,,,,,,
+SOM,2002,,,,,,,,
+SOM,2003,,,,,,,,
+SOM,2004,,,,,,,,
+SOM,2005,,,,,,,,
+SOM,2006,,,,,,,,
+SOM,2007,,,,,,,,
+SOM,2008,,,,,,,,
+SOM,2009,,,,,,,,
+SOM,2010,,,,,,,,
+SOM,2011,,,,,,,,
+SOM,2012,,,,,,,,
+SOM,2013,,,,,,,,
+SOM,2014,,,,,,,,
+SOM,2015,,,,,,,,
+SOM,2016,,,,,,,,
+SOM,2017,,,,,,,,
+SOM,2018,,,,,,,,
+SOM,2019,,,,,,,,
+SOM,2020,,,,,,,,
+SOM,2021,,,,,,,,
+SOM,2022,,55.4,35.2,,SIHBS 2022,https://nbs.gov.so/wp-content/uploads/2024/08/Somalia-Poverty-Report-2023.pdf,Alastair Peter Francis Haynes,9/11/2025 8:09
+SOM,2023,,,,,,,,
+SOM,2024,,,,,,,,
+AFG,2025,,,,,,,,
+AFG,2026,,,,,,,,
+AGO,2025,,,,,,,,
+AGO,2026,,,,,,,,
+ALB,2025,,,,,,,,
+ALB,2026,,,,,,,,
+ARG,2025,,,,,,,,
+ARG,2026,,,,,,,,
+ARM,2025,,,,,,,Aissatou Ouedraogo,3/10/2026 9:01
+ARM,2026,,,,,,,,
+BDI,2025,,,,,,,,
+BDI,2026,,,,,,,,
+BEN,2025,4266037,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:58
+BEN,2026,4019050,,,,,,Felicien Donat Edgar Towenan Accrombessy,3/3/2026 15:58
+BFA,2025,,,,,,,,
+BFA,2026,,,,,,,,
+BGD,2025,,,,,,,,
+BGD,2026,,,,,,,,
+BGR,2025,,,,,,,,
+BGR,2026,,,,,,,,
+BLR,2025,,,,,,,,
+BLR,2026,,,,,,,,
+BLZ,2025,,,,,,,,
+BLZ,2026,,,,,,,,
+BOL,2025,,,,,,,,
+BOL,2026,,,,,,,,
+BRA,2025,,,,,,,,
+BRA,2026,,,,,,,,
+BRB,2025,,,,,,,,
+BRB,2026,,,,,,,,
+BTN,2025,,,,,,,,
+BTN,2026,,,,,,,,
+BWA,2025,,,,,,,,
+BWA,2026,,,,,,,,
+CAF,2025,,,,,,,,
+CAF,2026,,,,,,,,
+CHL,2025,,,,,,,,
+CHL,2026,,,,,,,,
+CHN,2025,,,,,,,,
+CHN,2026,,,,,,,,
+CIV,2025,,,,,,,,
+CIV,2026,,,,,,,,
+CMR,2025,,,,,,,,
+CMR,2026,,,,,,,,
+COD,2025,,,,,,,,
+COD,2026,,,,,,,,
+COG,2025,,,,,,,,
+COG,2026,,,,,,,,
+COL,2025,,,,,,,,
+COL,2026,,,,,,,,
+COM,2025,,,,,,,,
+COM,2026,,,,,,,,
+CPV,2025,,,,,,,,
+CPV,2026,,,,,,,,
+CRI,2025,915248,17.1,48.8,Yes,INEC/Encuesta Nacional de ,,Vincenzo Di Maro,2/9/2026 9:36
+CRI,2026,,,,,,,,
+DJI,2025,,,,,,,,
+DJI,2026,,,,,,,,
+DOM,2025,1906874,17.3,38.9,Yes,Encuesta Nacional Continua de Fuerza de Trabajo (ENCFT),,Erika Schutt Pardo,3/4/2026 10:19
+DOM,2026,,,,,,,,
+ECU,2025,3914038,21.4,47,Yes,"INEC. ENEMDU, Income Poverty; Dec data; Moderate Poverty Line (individuals). Poverty line is absolute. Government estimate.",,Ana Mercedes Rivadeneira Alava,3/3/2026 15:17
+ECU,2026,,,,,,,Ana Mercedes Rivadeneira Alava,3/3/2026 15:17
+EGY,2025,,,,,,,,
+EGY,2026,,,,,,,,
+ETH,2025,,,,,,,,
+ETH,2026,,,,,,,,
+FJI,2025,,,,,,,,
+FJI,2026,,,,,,,,
+GAB,2025,,,,,,,,
+GAB,2026,,,,,,,,
+GEO,2025,,,,,,,,
+GEO,2026,,,,,,,,
+GHA,2025,,,,,,,,
+GHA,2026,,,,,,,,
+GIN,2025,,,,,,,,
+GIN,2026,,,,,,,,
+GMB,2025,,,,,,,,
+GMB,2026,,,,,,,,
+GNB,2025,,,,,,,,
+GNB,2026,,,,,,,,
+GNQ,2025,,,,,,,,
+GNQ,2026,,,,,,,,
+GRD,2025,,,,,,,,
+GRD,2026,,,,,,,,
+GTM,2025,,,,,,,,
+GTM,2026,,,,,,,,
+HND,2025,,60.1,50,Yes,INE. Encuesta Permanente de Hogares de Propósitos Multiples (EPHPM). Poverty line is absolute. Government estimate. Population estimate is projection from official 2013 Census. ,,Paola Buitrago Buitrago Hernandez,3/3/2026 13:19
+HND,2026,,,,,,,,
+HRV,2025,,,,,,,,
+HRV,2026,,,,,,,,
+HTI,2025,,,,,,,,
+HTI,2026,,,,,,,,
+IDN,2025,,,,,,,,
+IDN,2026,,,,,,,,
+IND,2025,,,,,,,,
+IND,2026,,,,,,,,
+IRN,2025,,,,,,,,
+IRN,2026,,,,,,,,
+IRQ,2025,,,,,,,,
+IRQ,2026,,,,,,,,
+JAM,2025,,,,,,,,
+JAM,2026,,,,,,,,
+JOR,2025,,,,,,,,
+JOR,2026,,,,,,,,
+KAZ,2025,,,,,,,,
+KAZ,2026,,,,,,,,
+KEN,2025,,,,,,,,
+KEN,2026,,,,,,,,
+KGZ,2025,,,,,,,,
+KGZ,2026,,,,,,,,
+LAO,2025,,,,,,,,
+LAO,2026,,,,,,,,
+LBN,2025,,,,,,,,
+LBN,2026,,,,,,,,
+LBR,2025,,,,,,,,
+LBR,2026,,,,,,,,
+LCA,2025,,,,,,,,
+LCA,2026,,,,,,,,
+LKA,2025,,,,,,,,
+LKA,2026,,,,,,,,
+LSO,2025,,,,,,,,
+LSO,2026,,,,,,,,
+MAR,2025,,,,,,,,
+MAR,2026,,,,,,,,
+MDA,2025,,,,,,,Federica Marzo,3/11/2026 9:30
+MDA,2026,,,,,,,Federica Marzo,3/11/2026 11:07
+MDG,2025,,,,,,,,
+MDG,2026,,,,,,,,
+MDV,2025,,,,,,,,
+MDV,2026,,,,,,,,
+MEX,2025,,,,,,,,
+MEX,2026,,,,,,,,
+MKD,2025,,,,,,,,
+MKD,2026,,,,,,,,
+MLI,2025,,,,,,,,
+MLI,2026,,,,,,,,
+MMR,2025,,,,,,,,
+MMR,2026,,,,,,,,
+MNE,2025,,,,,,,,
+MNE,2026,,,,,,,,
+MNG,2025,,,,,,,,
+MNG,2026,,,,,,,,
+MOZ,2025,,,,,,,,
+MOZ,2026,,,,,,,,
+MRT,2025,,,,,,,,
+MRT,2026,,,,,,,,
+MUS,2025,,,,,,,,
+MUS,2026,,,,,,,,
+MWI,2025,,,,,,,,
+MWI,2026,,,,,,,,
+MYS,2025,,,,,,,,
+MYS,2026,,,,,,,,
+NAM,2025,,,,,,,,
+NAM,2026,,,,,,,,
+NER,2025,,,,,,,,
+NER,2026,,,,,,,,
+NGA,2025,,,,,,,,
+NGA,2026,,,,,,,,
+NIC,2025,,,,,,,,
+NIC,2026,,,,,,,,
+NPL,2025,,,,,,,,
+NPL,2026,,,,,,,,
+PAK,2025,,,,,,,,
+PAK,2026,,,,,,,,
+PAN,2025,,,,,,,,
+PAN,2026,,,,,,,,
+PER,2025,,,,,,,,
+PER,2026,,,,,,,,
+PHL,2025,,,,,,,,
+PHL,2026,,,,,,,,
+PNG,2025,,,,,,,,
+PNG,2026,,,,,,,,
+POL,2025,,,,,,,,
+POL,2026,,,,,,,,
+PRY,2025,,,,,,,Eliana Carolina Rubiano Matulevich,3/3/2026 14:34
+PRY,2026,,,,,,,,
+PSE,2025,,,,,,,,
+PSE,2026,,,,,,,,
+ROU,2025,,,,,,,,
+ROU,2026,,,,,,,,
+RWA,2025,,,,,,,,
+RWA,2026,,,,,,,,
+SDN,2025,,,,,,,,
+SDN,2026,,,,,,,,
+SEN,2025,,,,,,,,
+SEN,2026,,,,,,,,
+SLB,2025,,,,,,,,
+SLB,2026,,,,,,,,
+SLE,2025,,,,,,,,
+SLE,2026,,,,,,,,
+SLV,2025,,,,,,,,
+SLV,2026,,,,,,,,
+SOM,2025,,,,,,,,
+SOM,2026,,,,,,,,
+SRB,2025,,,,,,,,
+SRB,2026,,,,,,,,
+SSD,2025,,,,,,,,
+SSD,2026,,,,,,,,
+STP,2025,,,,,,,,
+STP,2026,,,,,,,,
+SUR,2025,,,,,,,,
+SUR,2026,,,,,,,,
+SWZ,2025,,,,,,,,
+SWZ,2026,,,,,,,,
+SYC,2025,,,,,,,,
+SYC,2026,,,,,,,,
+SYR,2025,,,,,,,,
+SYR,2026,,,,,,,,
+TCD,2025,,,,,,,,
+TCD,2026,,,,,,,,
+TGO,2025,,,,,,,,
+TGO,2026,,,,,,,,
+THA,2025,,,,,,,,
+THA,2026,,,,,,,,
+TJK,2025,,,,,,,,
+TJK,2026,,,,,,,,
+TLS,2025,,,,,,,,
+TLS,2026,,,,,,,,
+TON,2025,,,,,,,,
+TON,2026,,,,,,,,
+TUN,2025,,,,,,,,
+TUN,2026,,,,,,,,
+TUR,2025,,,,,,,Elizaveta Perova,3/4/2026 16:57
+TUR,2026,,,,,,,,
+TZA,2025,,,,,,,,
+TZA,2026,,,,,,,,
+UGA,2025,,,,,,,,
+UGA,2026,,,,,,,,
+UKR,2025,,,,,,,,
+UKR,2026,,,,,,,,
+URY,2025,,,,,,,,
+URY,2026,,,,,,,,
+UZB,2025,,5.76,32.656,Yes,,,Ikuko Uochi,3/3/2026 23:45
+UZB,2026,,,,,,,,
+VNM,2025,,,,,,,,
+VNM,2026,,,,,,,,
+VUT,2025,,,,,,,,
+VUT,2026,,,,,,,,
+WSM,2025,,,,,,,,
+WSM,2026,,,,,,,,
+XKX,2025,,,,,,,,
+XKX,2026,,,,,,,,
+YEM,2025,,,,,,,,
+YEM,2026,,,,,,,,
+ZAF,2025,,,,,,,,
+ZAF,2026,,,,,,,,
+ZMB,2025,,,,,,,,
+ZMB,2026,,,,,,,,
+ZWE,2025,,,,,,,,
+ZWE,2026,,,,,,,,
