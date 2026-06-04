@@ -65,6 +65,7 @@ program pea_figure3b, rclass
 		if (`test_pos' == 0) local spell = ""									// If years not comparable, drop local
 		if (`test_pos' == 1) local spell = "`spells'"							// If years comparable, keep spell			
 	}	// if
+	else local spell = "`spells'"
 	if "`spell'" == "" {
 		noi dis as error "Last spell is not comparable"
 		error 1

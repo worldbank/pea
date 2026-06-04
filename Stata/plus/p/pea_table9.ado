@@ -72,13 +72,7 @@ program pea_table9, rclass
 	
 	// Get region name
 	use "`persdir'pea/CLASS.dta", clear
-	gen region_code = "SSF" if region == "Sub-Saharan Africa"
-	replace region_code = "SAS" if region == "South Asia"
-	replace region_code = "MEA" if region == "Middle East & North Africa"
-	replace region_code = "ECS" if region == "Europe & Central Asia"
-	replace region_code = "LCN" if region == "Latin America & Caribbean"
-	replace region_code = "EAS" if region == "East Asia & Pacific"
-	replace region_code = "NAC" if region == "North America"
+
 	keep if code == "`country'"
 	if _N==0 {
 		noi dis in y "Warning: wrong country code"

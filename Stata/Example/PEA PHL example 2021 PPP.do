@@ -5,8 +5,8 @@
 clear all
 
 /* --- Enter your path here --- */
-global pea_path "C:/Temp/"
-
+global pea_path "C:\pea"
+cap mkdir "$pea_path/data"
 * Pull data from DLW
 datalibweb, country(PHL) year(2015 2018 2021 2023) type(gmd) mod(all) clear
 
