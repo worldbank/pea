@@ -596,11 +596,10 @@ program pea_dataupdate, rclass
 			* Labor
 			merge m:1 code year using `lab', keep(1 3) nogen
 			* MPM
-			merge 1:1 code year welftype survname ppp using "`persdir'pea/WLD_GMI_MPM.dta", keepusing(mdpoor_i1) nogen
+			merge 1:1 code year welftype survname ppp using "`persdir'pea/WLD_GMI_MPM.dta", keepusing(mdpoor_i1) keep(1 3) nogen
 			replace mdpoor_i1 = mdpoor_i1 * 100
 			* Climate risk
 			merge m:1 code using "`persdir'pea/climrisk.dta", nogen
-			
 			char _dta[version] $S_DATE
 			save "`persdir'pea/GMI_extend_all_country.dta", replace
 		}
