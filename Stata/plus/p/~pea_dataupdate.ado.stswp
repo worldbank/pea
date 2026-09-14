@@ -260,6 +260,7 @@ program pea_dataupdate, rclass
 			save `gdppc', replace
 			
 			// Country Pov data
+						// Country Pov data
 			local nlines2017_ext 215 365 685 322 547 1027 430 730 1370
 			local nlines2021_ext 300 420 830 450 630 1245 600 840 1660
 			 
@@ -267,8 +268,20 @@ program pea_dataupdate, rclass
 				local j = 1
 				foreach line of local nlines`p'_ext {
 					tempfile povdata`p'`j'
-					cap pip cl , ppp_year(`p') povline(`=`line'/100') clear
-					if _rc == 0 {
+
+					local try = 1
+					local ok  = 0
+					while `try' <= 4 & `ok' == 0 {
+						cap pip cl , ppp_year(`p') povline(`=`line'/100') clear
+						if _rc == 0 local ok = 1
+						else {
+							local lastrc = _rc
+							if `try' < 4 sleep `=3000*`try''
+							local try = `try' + 1
+						}
+					}
+
+					if `ok' == 1 {
 						ren headcount headcount`line'
 						*drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
 						*drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
@@ -278,11 +291,11 @@ program pea_dataupdate, rclass
 						gen ppp = `p'
 						save `povdata`p'`j'', replace
 						local j = `j' + 1
-						sleep 500
+						sleep 2000
 					}
 					else {
 						noi dis "Unable to update data from PIP"
-						exit `=_rc'
+						exit `=`lastrc''
 					}
 				}
 			}
@@ -309,18 +322,16 @@ program pea_dataupdate, rclass
 			encode welf_type, gen(welfare_type)
 			*gen		welfare_type = 1 if datatype == "CONS" | datatype == "C" | datatype == "c"
 			*replace welfare_type = 2 if datatype == "INC" | datatype == "I" | datatype == "i"
-			drop datatype
+			drop welf_type
 			save `pfr'
 			
-			foreach p in 2017 2021 {
-				clear 
-				append using "`persdir'pea/`povdata`p''.dta"
-			}
+			use `povdata2017', clear
+			append using `povdata2021'
 			gen code = country_code
 			rename survey_acronym survname
 			merge m:1 code year welfare_type survname using `pfr', nogen
 			drop if display_cp == 0 | display_cp == .
-			rename (fgt0_*) (headcount*)
+			//rename (fgt0_*) (headcount*)
 					
 			for var headcount*: replace X = X*100		
 			merge m:1 code year using `gdppc', keepus(gdppc)
@@ -341,8 +352,20 @@ program pea_dataupdate, rclass
 				local j = 1
 				foreach line of local nlines`p' {
 					tempfile povdata`p'`j'
-					cap pip, country(all) year(all) ppp(`p') povline(`=`line'/100') clear fillgap
-					if _rc==0 {
+
+					local try = 1
+					local ok  = 0
+					while `try' <= 4 & `ok' == 0 {
+						cap pip, country(all) year(all) ppp(`p') povline(`=`line'/100') clear fillgap
+						if _rc == 0 local ok = 1
+						else {
+							local lastrc = _rc
+							if `try' < 4 sleep `=3000*`try''
+							local try = `try' + 1
+						}
+					}
+
+					if `ok' == 1 {
 						ren headcount headcount`line'
 						drop if country_code=="CHN" & (reporting_level=="urban"|reporting_level=="rural")
 						drop if country_code=="IND" & (reporting_level=="urban"|reporting_level=="rural")
@@ -351,14 +374,14 @@ program pea_dataupdate, rclass
 						gen ppp = `p'
 						save `povdata`p'`j'', replace
 						local j = `j' + 1
+						sleep 2000
 					}
 					else {
 						noi dis "Unable to update data from PIP"
-						exit `=_rc'
+						exit `=`lastrc''
 					}
 				}
 			}
-			
 			* Put together
 			foreach p in 2017 2021 {
 				local j = 1
