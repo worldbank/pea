@@ -130,17 +130,34 @@ program pea_figure2, rclass
 	qui levelsof b_in_list, local(benchmark_data)
 	local b_data_count = `:word count `benchmark_data''
 	
-	// Merge regions
+		
+		// Merge regions
 	merge m:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
-	levelsof _merge, local(mcode)
-	assert _merge != 1			// Check if region codes merge
+	qui count if _merge==1
+	if r(N) > 0 {                                                        // v0.1.2
+		qui levelsof code if _merge==1, local(noregion) clean
+		noi di in yellow "Note: `r(N)' economies are in the PIP line-up but not in " ///
+			"PIP_list_name (no survey). Grouped as 'Other countries': `noregion'"
+	}
+	replace country_name = code if missing(country_name)                 // v0.1.2
 	drop _merge 
 	
 	// Merge GDP
 	merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
-	levelsof _merge, local(mcode)
-	assert _merge != 1			// Check if GDP merges
-	drop _merge 
+	drop _merge
+	qui count if missing(gdppc)
+	if r(N) > 0 {                                                        // v0.1.2
+		qui levelsof code if missing(gdppc), local(nogdp) clean
+		noi di in yellow "Note: no GDP per capita for `r(N)' economies; " ///
+			"excluded from the figure: `nogdp'"
+		drop if missing(gdppc)
+	}
+	qui count if country_code == "`country'"                             // v0.1.2
+	if r(N) == 0 {
+		noi di in red "No GDP per capita for `country' -- cannot draw this figure."
+		exit 2000
+	}
+
 	
 	// Merge in PEA poverty rate
 	merge 1:1 country_code year using `pea_pov'
