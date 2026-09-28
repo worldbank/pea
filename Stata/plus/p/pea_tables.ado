@@ -145,10 +145,10 @@ program pea_tables, rclass
 	} //qui
 
 	global tablecount = 11
-	
+	local ok = 0
 	//table 1
 	qui use `data1', clear
-	cap pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") oneline(`oneline') onewelfare(`onewelfare') svy std(`std') pppyear(`pppyear') vulnerability(`vulnerability')
+	cap pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") oneline(`oneline') onewelfare(`onewelfare') `svy' std(`std') pppyear(`pppyear') vulnerability(`vulnerability')
 	qui if _rc==0 {
 		noi dis in green "Table 1....... Done"
 		local ok = 1
@@ -254,7 +254,7 @@ program pea_tables, rclass
 	
 	//table 8
 	qui use `data1', clear
-	cap pea_table8 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") missing pppyear(`pppyear')
+	cap pea_table8 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") `missing' pppyear(`pppyear')
 	qui if _rc==0 {
 		noi dis in green "Table 8....... Done"
 		local ok = 1
@@ -375,9 +375,28 @@ program pea_tables, rclass
 		global tablecount = ${tablecount} + 1
 		putexcel save	
 	}
-	else noi dis in red "Table 16...... Not done"
+		else {
+		noi dis in red "Table 16...... Not done"
+		* Explain the usual cause instead of leaving the user guessing.       // v0.1.3
+		local persdir : sysdir PERSONAL
+		if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
+		cap confirm file "`persdir'pea/ASPIRE performance indicators.dta"
+		if _rc~=0 noi di in yellow "Note Table 16: file 'ASPIRE performance indicators.dta' was not found in the personal sysdir folder."
+		else {
+			preserve
+			qui use "`persdir'pea/ASPIRE performance indicators.dta", clear
+			qui count if Country_Code == "`country'"
+			local naspire = r(N)
+			restore
+			if `naspire'==0 noi di in yellow "Note Table 16: `country' does not have ASPIRE indicators, so Table 16 cannot be produced."
+		}
+	}
 	
 	//Final open	
+	//Final open	
+	if "`missing'"=="" {                                                     // v0.1.3
+		noi di in yellow "Note: option missing not specified. Observations with missing values are excluded from the denominators in Tables 2, 3, 4, 5, 7, 8 and 14. Specify missing to count them toward the total."
+	}
 	if `ok'==1 {
 		shell start excel "`excelout'"
 		noi dis in green "Tables and Graphs are done....... Loading the Excel file!"

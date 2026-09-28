@@ -159,7 +159,7 @@ program pea_table1, rclass
 	//MPM WB
 	if "`core'"~="" {		
 		use `data1', clear
-		_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`pppwelfare') 
+		_pea_mpm [aw=`wvar'], c(`country') year(`year') welfare(`pppwelfare') ppp(`pppyear')
 		keep `year' mdpoor_i1
 		replace mdpoor_i1 = mdpoor_i1*100
 		ren mdpoor_i1 _mpmwb_`pppwelfare'
