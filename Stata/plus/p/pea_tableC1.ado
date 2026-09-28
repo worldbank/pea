@@ -23,6 +23,7 @@ program pea_tableC1, rclass
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
+	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -60,9 +61,13 @@ program pea_tableC1, rclass
 	}
 	else {
 		//option when missing
+
+	}
+		if "`aggregate'"=="groups" & "`benchmark'"~="" {
+		noi di in yellow "Note: aggregate(groups) specified, benchmark() is ignored."
 	}
 	
-	if "`benchmark'"=="" local benchmark = upper("`benchmark'")
+	if "`benchmark'"~="" local benchmark = upper("`benchmark'")
 	
 	if "`lstatus'"=="" {
 		noi di in red "Not working variable must be defined in lstatus()"
@@ -295,7 +300,20 @@ program pea_tableC1, rclass
 	* Keep only relevant PPP
 	keep if ppp == `pppyear'
 	save `data_gmi1', replace
-	
+	tempfile data_gmi1_u
+	use `data_gmi1', clear
+	* Prefer a row with a populated classification. Early survey years        // v0.1.3
+	* pre-date CLASS coverage and carry blank incgroup_current/region/
+	* country_name. incgroup_current is constant within country (it is the
+	* latest classification), so any non-blank row gives the same value.
+	* NOTE: this would NOT hold for incgroup_historical, which varies by year.
+	gen byte _noclass = (incgroup_current == "" | region == "")
+	bys code (_noclass year): keep if _n == 1
+	drop _noclass	
+	save `data_gmi1_u', replace
+
+
+
 	* Save PEA country region and income group
 	gen count = _n
 	qui sum count if code == "`country'"
@@ -304,10 +322,16 @@ program pea_tableC1, rclass
 	local country_name_c `=country_name[r(min)]'	
 	
 	* What is the correct poverty line? - For labor share in poor/nonpoor
-	if "`incgroup_current_c'" == "Low-income countries" local inc = 1
-	else if "`incgroup_current_c'" == "Lower-middle-income countries" local inc = 2
-	else if "`incgroup_current_c'" == "Upper-middle-income countries" local inc = 3
-	else "`incgroup_current_c'" == "High-income countries" local inc = 3			// Use UMIC if HIC
+     if "`incgroup_current_c'" == "Low-income countries" local inc = 1
+	 else if "`incgroup_current_c'" == "Lower-middle-income countries" local inc = 2
+	 else if "`incgroup_current_c'" == "Upper-middle-income countries" local inc = 3
+	 else if "`incgroup_current_c'" == "High-income countries" local inc = 3		// Use UMIC if HIC
+	 else {
+	 	noi di in red "Unrecognized or missing income group for `country': '`incgroup_current_c''"
+		exit 198
+		}
+	
+	// Use UMIC if HIC
 	local pea_pline : word `inc' of `ppppovlines'
 	
 	use `data1', clear
@@ -441,7 +465,7 @@ program pea_tableC1, rclass
 			if "`onewelfare'" == "`pppwelfare'" {			
 				use "`persdir'pea/PIP_all_country.dta", clear
 				keep if ppp == `pppyear'
-				merge 1:1 code year using `data_gmi1', keepusing(`gp')
+				merge m:1 code using `data_gmi1_u', keepusing(`gp')
 				keep if `gp' == "``gp'_c'"											// Keep only PEA country specific region or income group
 				keep if year>=`=`maxy'-3' & year<=`=`maxy'+3'
 				gen diff = abs(year - `maxy')
