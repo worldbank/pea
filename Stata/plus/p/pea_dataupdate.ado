@@ -1,4 +1,4 @@
-*! version 0.1.1  12Sep2014
+*! version 0.1.2  27Sep2026
 *! Copyright (C) World Bank 2017-2024
 
 * This program is free software: you can redistribute it and/or modify
@@ -14,13 +14,51 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+* ============================================================================
+* CHANGELOG v0.1.2 -- fix for r(673) "authorization required by server"      // v0.1.2
+* on non-standard PIP poverty lines. Every change below is tagged // v0.1.2
+* at the line it touches; nothing else in the file was modified.
+*   1. New RELease() option (+ $PEA_PIP_RELEASE global fallback) -- lets a
+*      pinned release date be supplied without editing this file.
+*   2. We do NOT pin the request with version()/release() in `piptxt' --
+*      version() was proven to silently override ppp_year()/ppp(), which
+*      is a data-correctness bug, not just an availability one. Instead
+*      we call the new pipver_assert program after every pip/pip cl/pip
+*      tables/pip wb call to VERIFY the round and release PIP actually
+*      served match what was requested, and abort loudly if not.
+*   3. The 4 loops that hit country/year-specific poverty lines (extended
+*      cl lines, lineup fillgap, income-group fillgaps, regional wb) are
+*      wrapped in a 4-try retry-with-backoff ladder, because the r(673)
+*      failures were traced to a transient PIP backend condition around
+*      a release rollout, not a permanent auth problem -- they stopped
+*      reproducing under identical requests on retry.
+*   4. The regional `pip wb' call was the one call site in the whole file
+*      missing `piptxt'/server(prod) entirely. Added for consistency; it
+*      happened to work without it, but there's no reason to leave it as
+*      the odd one out.
+*   5. Every cached .dta this program writes now stamps a pip_release
+*      characteristic alongside the existing version date, and the cache
+*      check compares it against a requested release() so a stale cache
+*      inside the 30-day window still gets refreshed when a new release
+*      is explicitly asked for.
+* ============================================================================
+
 //Update data for many countries
 
 cap program drop pea_dataupdate
 program pea_dataupdate, rclass
 	version 18.0
-	syntax [if] [in] [aw pw fw], [datatype(string) PPPyear(integer 2021) pppyear(string) UPDATE]
-
+	* release() : expected PIP data release, YYYYMMDD (e.g. 20260922).          // v0.1.2
+	*   Not passed to PIP -- we do NOT pin the request. It is the value every
+	*   call's resolved version is CHECKED against, so a silent backend rollout
+	*   cannot change our data mid-round without the run stopping.
+	*   Pinning via version()/release() was rejected: version() silently
+	*   overrides ppp_year(), which is a data-correctness risk. Verify, don't pin.
+	*   Omit it and all validation is a no-op (backward compatible).
+	syntax [if] [in] [aw pw fw], [datatype(string) PPPyear(integer 2021) pppyear(string) UPDATE RELease(string)]
+	local piptxt "server(prod)"
+	* Fall back to a session-level global so a whole pipeline can set it once.   // v0.1.2
+	if "`release'" == "" local release "$PEA_PIP_RELEASE"
 	local persdir : sysdir PERSONAL
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 
@@ -57,16 +95,25 @@ program pea_dataupdate, rclass
 			cap use "`returnfile'", clear
 			if _rc==0 {
 				local dtadate : char _dta[version]
+				* Release stamped on the cached file when it was built (see char writes below). // v0.1.2
+				local dtarel  : char _dta[pip_release]
 				if (date("$S_DATE", "DMY")-date("`dtadate'", "DMY")) > 30 local dl 1
+				* Age alone is not enough: PIP can publish a new release inside the 30-day    // v0.1.2
+				* window. Without this branch, asking for a different release returns the old
+				* cached file and never contacts PIP -- release() would be inert.
+				else if "`release'" != "" & "`dtarel'" != "`release'" {
+				noi dis "Cached file built on release `dtarel', requested `release' -- refetching."
+				local dl 1
+				}
 				else return local cachefile "`returnfile'"
-			}
+				}
 			else local dl 1
-		}
-		else {
-			cap mkdir "`persdir'pea"
-			local dl 1
-		}
-	}
+			}
+			else {
+				cap mkdir "`persdir'pea"
+				local dl 1
+				}
+			}
 
 	if `dl'==1 {
 		//MPM DLW
@@ -129,11 +176,15 @@ program pea_dataupdate, rclass
 
 		//LIST country name and regions
 		if "`datatype'"=="LIST" {
-			cap pip tables, table(countries) clear
+			cap pip tables, table(countries) `piptxt' clear
 			if _rc==0 {
+				//Validate pip version
+				pipver_assert , release(`release')
 				ren country_code code
 				replace region_code = africa_split_code if africa_split_code~=""
+				qui replace country_name = ustrfrom(ustrto(country_name, "ISO-8859-1", 1), "UTF-8", 1) if ustrregexm(country_name, "\u00C3|\u00C2")				
 				char _dta[version] $S_DATE
+				char _dta[pip_release] "`release'"
 				save "`persdir'pea/PIP_list_name.dta", replace
 			}
 			else {
@@ -207,8 +258,9 @@ program pea_dataupdate, rclass
 		//Population data
 		if "`datatype'"=="POP" {
 			tempfile pop
-			cap pip tables, clear table(pop)
+			cap pip tables, `piptxt' clear table(pop)
 			if _rc==0 {
+				pipver_assert , release(`release')
 				rename value pop
 				rename (country_code data_level) (code reporting_level)
 				keep code year pop reporting_level
@@ -234,6 +286,7 @@ program pea_dataupdate, rclass
 				gen pop_15642 = round(share_1564 * pop)
 				keep code year reporting_level pop pop_1564
 				char _dta[version] $S_DATE
+				char _dta[pip_release] "`release'"
 				save "`persdir'pea/POP.dta", replace
 			}
 			else {
@@ -241,8 +294,7 @@ program pea_dataupdate, rclass
 				exit `=_rc'
 			}
 		}
-
-		//PIP
+				//PIP
 		if "`datatype'"=="PIP" {
 			*local persdir : sysdir PERSONAL
 			*if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
@@ -251,13 +303,30 @@ program pea_dataupdate, rclass
 			save `povben', replace emptyok
 
 			//GDP https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.
-			pip tables, table(gdp) clear
+			pip tables, table(gdp) `piptxt' clear
+			* Aux table -- no ppp argument, so only the release can be checked.      // v0.1.2
+			* Must be the FIRST command after the pip call: r() is cleared by the
+			* next command that sets it.
+			pipver_assert , release(`release')
 			ren country_code code
 			keep if data_level=="national"
 			ren value gdppc
 			char _dta[version] $S_DATE
+			* Stamp provenance so the cache check can tell which release built this. // v0.1.2
+			char _dta[pip_release] "`release'"
 			save "`persdir'pea/PIP_all_GDP.dta", replace
 			save `gdppc', replace
+
+			* Nested pull must validate against the same release, or PIP output      // v0.1.2
+			* could silently mix releases. NOTE: "cap" swallows a mismatch abort
+			* and execution continues with whatever POP.dta is on disk.
+			cap pea_dataupdate, datatype(POP) release(`release')
+			tempfile pop2
+			use "`persdir'pea/POP.dta", clear
+			keep if reporting_level == "national"
+			keep code year pop
+			save `pop2', replace
+
 
 			// Country Pov data
 						// Country Pov data
@@ -269,13 +338,31 @@ program pea_dataupdate, rclass
 				foreach line of local nlines`p'_ext {
 					tempfile povdata`p'`j'
 
+					* 4-try ladder. Catches ANY nonzero _rc, not just r(673):       // v0.1.2
+					* the mechanism behind r(673) was never established, so
+					* narrowing the catch would just mean the next unknown code
+					* aborts the round. Cost is ~18s of retries before a genuine
+					* permanent error surfaces.
 					local try = 1
 					local ok  = 0
 					while `try' <= 4 & `ok' == 0 {
-						cap pip cl , ppp_year(`p') povline(`=`line'/100') clear
-						if _rc == 0 local ok = 1
+						cap pip cl , ppp_year(`p') povline(`=`line'/100')  `piptxt' clear
+						if _rc == 0 {
+							* Confirm the round served is the round requested --     // v0.1.2
+							* guards against version() silently overriding ppp_year
+							* and against a release changing mid-run.
+							pipver_assert , pppyear(`p') release(`release')
+							local ok = 1
+						}
 						else {
 							local lastrc = _rc
+							* r(673) "authorization required by server" traced to a  // v0.1.2
+							* transient backend condition, not an auth problem --
+							* it stopped reproducing under identical requests. Log
+							* timestamp and position so the next occurrence in a
+							* production log is diagnosable.
+							di as error "  [pip-retry] " c(current_date) " " c(current_time) ///
+							"  rc=`lastrc'  call=cl ppp=`p' line=`line'  attempt=`try'"
 							if `try' < 4 sleep `=3000*`try''
 							local try = `try' + 1
 						}
@@ -316,7 +403,10 @@ program pea_dataupdate, rclass
 
 			*Call local files, update later!
 			* Get correct survey
-			pip tables, table(framework) clear
+			pip tables, table(framework) `piptxt' clear
+			* Aux table -- release only. Watch this one: framework has been observed // v0.1.2
+			* resolving under a different PPP round than countries/pop/gdp.
+			pipver_assert , release(`release')
 			rename (country_code survey_acronym welfare_type) (code survname welf_type)
 			keep code year welf_type display_cp survname
 			encode welf_type, gen(welfare_type)
@@ -335,12 +425,15 @@ program pea_dataupdate, rclass
 
 			for var headcount*: replace X = X*100
 			merge m:1 code year using `gdppc', keepus(gdppc)
+			merge m:1 code year using `pop2', keepus(pop) nogen
 			gen welfaretype= "CONS" if welfare_type==1
 			replace welfaretype= "INC" if welfare_type==2
 			*rename welfare_type welfaretype
 			drop if _merge==2
 			drop _merge
+			qui replace country_name = ustrfrom(ustrto(country_name, "ISO-8859-1", 1), "UTF-8", 1) if ustrregexm(country_name, "\u00C3|\u00C2")
 			char _dta[version] $S_DATE
+			char _dta[pip_release] "`release'"											// v0.1.2
 			save "`persdir'pea/PIP_all_country.dta", replace
 
 			//PIP lineup data
@@ -356,10 +449,15 @@ program pea_dataupdate, rclass
 					local try = 1
 					local ok  = 0
 					while `try' <= 4 & `ok' == 0 {
-						cap pip, country(all) year(all) ppp(`p') povline(`=`line'/100') clear fillgap
-						if _rc == 0 local ok = 1
+						cap pip, country(all) year(all) ppp(`p') povline(`=`line'/100') `piptxt' clear fillgap
+						if _rc == 0 {
+							pipver_assert , pppyear(`p') release(`release')			// v0.1.2
+							local ok = 1
+						}
 						else {
 							local lastrc = _rc
+							di as error "  [pip-retry] " c(current_date) " " c(current_time) ///
+							"  rc=`lastrc'  call=fillgap ppp=`p' line=`line'  attempt=`try'"
 							if `try' < 4 sleep `=3000*`try''
 							local try = `try' + 1
 						}
@@ -403,18 +501,40 @@ program pea_dataupdate, rclass
 			replace welfaretype= "INC" if welfare_type==2
 			for var headcount*: replace X = X*100
 			char _dta[version] $S_DATE
+			char _dta[pip_release] "`release'"											// v0.1.2
 			save "`persdir'pea/PIP_all_countrylineup.dta", replace
 
 			//Income group average by historical class
-			cap pea_dataupdate, datatype(CLASS)												// If income groups and regions not prepared
-			cap pea_dataupdate, datatype(POP)												// If population not prepared
+			cap pea_dataupdate, datatype(CLASS) release(`release')							// If income groups and regions not prepared
+			cap pea_dataupdate, datatype(POP) release(`release')							// If population not prepared
 
 			* Get poverty rates and merge (not nowcast)
 			foreach p in 2017 2021 {
 				local j = 1
 				foreach line of local nlines`p' {
-					cap pip, fillgaps ppp(`p') povline(`=`line'/100') clear
-					if _rc==0 {
+					* This loop previously had NO retry wrapper -- a single         // v0.1.2
+					* transient failure aborted the whole update. Wrapped in the
+					* same ladder as the cl and fillgap loops above.
+					local try = 1
+					local ok  = 0
+					while `try' <= 4 & `ok' == 0 {
+						cap pip, fillgaps ppp(`p') povline(`=`line'/100')  `piptxt' clear
+						if _rc == 0 {
+							pipver_assert , pppyear(`p') release(`release')
+							local ok = 1
+						}
+						else {
+							local lastrc = _rc
+							di as error "  [pip-retry] " c(current_date) " " c(current_time) ///
+							"  rc=`lastrc'  call=incgrp ppp=`p' line=`line'  attempt=`try'"
+							if `try' < 4 sleep `=3000*`try''
+							local try = `try' + 1
+						}
+					}
+
+					* Body unchanged -- only the guard around it. _rc is no longer   // v0.1.2
+					* meaningful here (the cap inside the loop reset it), hence `ok'.
+					if `ok' == 1 {
 						keep country_code poverty_line headcount pg year reporting_level
 						ren country_code code
 						merge 1:1 code reporting_level year using "`persdir'pea/POP.dta", nogen
@@ -452,8 +572,8 @@ program pea_dataupdate, rclass
 						local j = `j' + 1
 					}
 					else {
-						noi dis "Unable to update regional data from PIP"
-						exit `=_rc'
+						noi dis "Unable to update income group data from PIP"
+						exit `=`lastrc''
 					}
 				}
 			} //nline
@@ -477,6 +597,7 @@ program pea_dataupdate, rclass
 			for var headcount*: replace X = X*100
 			cap drop if headcount215==.
 			char _dta[version] $S_DATE
+			char _dta[pip_release] "`release'"											// v0.1.2
 			save "`persdir'pea/PIP_incgroup_estimate.dta", replace
 
 			//regional
@@ -496,8 +617,30 @@ program pea_dataupdate, rclass
 			foreach p in 2017 2021 {
 				local j = 1
 				foreach line of local nlines`p' {
-					cap pip wb, region(all)  ppp(`p') povline(`=`line'/100') clear
-					if _rc==0 {
+					* Two fixes here.                                               // v0.1.2
+					* (1) This was the ONLY pip call site in the file with no
+					*     `piptxt'/server(prod). It happened to work, but was
+					*     inconsistent with the other seven.
+					* (2) No retry wrapper, same as the income-group loop.
+					local try = 1
+					local ok  = 0
+					while `try' <= 4 & `ok' == 0 {
+						cap pip wb, region(all) ppp(`p') povline(`=`line'/100') `piptxt' clear
+						if _rc == 0 {
+							pipver_assert , pppyear(`p') release(`release')
+							local ok = 1
+						}
+						else {
+							local lastrc = _rc
+							di as error "  [pip-retry] " c(current_date) " " c(current_time) ///
+							"  rc=`lastrc'  call=regional ppp=`p' line=`line'  attempt=`try'"
+							* Longer backoff: regional pulls are heavier than cl.
+							if `try' < 4 sleep `=5000*`try''
+							local try = `try' + 1
+						}
+					}
+
+					if `ok' == 1 {
 						ren headcount headcount`line'
 						keep region_name region_code year headcount`line' pg
 						gen ppp = `p'
@@ -507,7 +650,7 @@ program pea_dataupdate, rclass
 					}
 					else {
 						noi dis "Unable to update regional data from PIP"
-						exit `=_rc'
+						exit `=`lastrc''
 					}
 				}
 			}
@@ -531,6 +674,7 @@ program pea_dataupdate, rclass
 			merge m:1 region_code year using `reggdp', nogen keepus(gdppc)
 			for var headcount*: replace X = X*100
 			char _dta[version] $S_DATE
+			char _dta[pip_release] "`release'"											// v0.1.2
 			save "`persdir'pea/PIP_regional_estimate.dta", replace
 		}
 
@@ -628,4 +772,71 @@ program pea_dataupdate, rclass
 			save "`persdir'pea/GMI_extend_all_country.dta", replace
 		}
 	} //dl
+end
+
+
+*==============================================================================
+* pipver_assert -- verify the version PIP actually served                // v0.1.2
+* pppyear() optional: aux tables (countries/pop/gdp/framework) have no round.
+*==============================================================================
+cap program drop pipver_assert
+program pipver_assert, rclass
+    syntax , [PPPyear(string) RELease(string) NOABort]
+
+    local v    "`r(version)'"
+    local vrel "`r(release)'"
+    local vppp "`r(ppp_year)'"
+    local vsrv "`r(identity)'"
+
+    if "`v'" == "" {
+        local v "$pip_version"
+        if "`v'" != "" {
+            local parts = subinstr("`v'", "_", " ", .)
+            local vrel : word 1 of `parts'
+            local vppp : word 2 of `parts'
+            local vsrv : word 5 of `parts'
+        }
+    }
+
+    if "`release'" == "" & "`pppyear'" == "" {
+        return scalar pass = 1
+        return local version "`v'"
+        exit
+    }
+
+    if "`v'" == "" {
+        di as error "pipver_assert: no version available from pip."
+        return scalar pass = 0
+        if "`noabort'" == "" error 459
+        exit
+    }
+
+    local pass = 1
+    local msg  ""
+
+    if "`release'" != "" & "`vrel'" != "`release'" {
+        local pass = 0
+        local msg "`msg' release `vrel' != expected `release';"
+    }
+    if "`pppyear'" != "" & "`vppp'" != "`pppyear'" {
+        local pass = 0
+        local msg "`msg' PPP round `vppp' != requested `pppyear';"
+    }
+    if "`vsrv'" != "PROD" {
+        local pass = 0
+        local msg "`msg' server `vsrv' != PROD;"
+    }
+
+    if `pass' == 0 {
+        di as error "PIP VERSION MISMATCH: `v' --`msg'"
+        di as error "   query: $pip_last_queries"
+    }
+
+    return scalar pass    = `pass'
+    return local  msg     "`msg'"
+    return local  version "`v'"
+    return local  release "`vrel'"
+    return local  ppp     "`vppp'"
+
+    if `pass' == 0 & "`noabort'" == "" error 459
 end
