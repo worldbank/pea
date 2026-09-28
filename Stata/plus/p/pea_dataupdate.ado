@@ -84,7 +84,7 @@ program pea_dataupdate, rclass
 		else if "`datatype'"=="EXPOSURE" local returnfile "`persdir'pea/exposure.dta"
 		else if "`datatype'"=="LIST" local returnfile "`persdir'pea/PIP_list_name.dta"
 		else if "`datatype'"=="UNESCO" local returnfile "`persdir'pea/UNESCO.dta"
-		else if "`datatype'"=="CLASS" local returnfile "`persdir'pea/CLASS.dta"
+		else if "`datatype'"=="CLASS" local returnfile "`persdir'pea/CLASS_incg_region.dta"
 		else {
 			di "`returnfile'"
 			noi dis "`datatype' is not defined"
@@ -150,6 +150,15 @@ program pea_dataupdate, rclass
 		* Get income groups and regions
 			tempfile inc_group
 			use "`persdir'pea/CLASS.dta", clear
+
+			* CLASS.dta arrives from outside the package and has been seen with
+			* double-encoded UTF-8 in economy names (CÃ´te d'Ivoire, TÃ¼rkiye).
+			* Repair on read: the next drop will have the same problem.
+			qui ds, has(type string)
+			local strvars "`r(varlist)'"
+			foreach v of local strvars {
+				qui replace `v' = ustrfrom(ustrto(`v', "ISO-8859-1", 1), "UTF-8", 1) if ustrregexm(`v', "\u00C3|\u00C2")
+			}
 
 				rename (year_data economy) (year country_name)
 	**Changes based on modification to the CLASS file
