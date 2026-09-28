@@ -67,7 +67,7 @@ lists the national poverty lines used in the analysis.
      
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
+Default is 2021.
 
 {p 4 4 2} 
 {opt SVY}: triggers 'svy set' in Stata. If the data is not svy set, no standard errors will be produced.

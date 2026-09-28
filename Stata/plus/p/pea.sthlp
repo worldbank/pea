@@ -122,32 +122,38 @@ datalibweb, country(GNB) year(2018 2021) type(gmd) mod(all) clear
 // Main tables code:
 
 {p 4 4 2}
-pea tables [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN GMB) missing setting(GMD) spells(2018 2021)
+pea tables [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) pppy(2017) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN GMB) missing setting(GMD) spells(2018 2021)
 
 {p 4 4 2}
 // Appendix tables code:
 
 {p 4 4 2}
-pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN GMB) missing setting(GMD) spells(2018 2021)
+pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) pppy(2017) year(year) byind(urban subnatvar) onew(welfppp) oneline(pline685) benchmark(SEN GMB) missing setting(GMD) spells(2018 2021)
 
 {p 4 4 2}
 // Appendix tables code without setting(GMD)
 
 {p 4 4 2}
-pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) benchmark(SEN GMB LIB) onew(welfppp) onel(pline215) missing spells(2018 2021)
+// Without setting(GMD), first create the variables setting(GMD) would have made:
+
+	gen head    = relationharm==1 if relationharm~=.
+	gen nowork  = lstatus==2|lstatus==3 if lstatus~=.
+	gen married = marital==1 if marital~=.
+
+pea core [aw=weight_p], c(GNB) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) pppy(2017) year(year) byind(urban subnatvar) age(age) male(male) hhhead(head) edu(educat4) urban(urban) married(married) school(school) services(imp_wat_rec imp_san_rec electricity) assets(tv car cellphone computer fridge) hhsize(hsize) hhid(hhid) pid(pid) industrycat4(industrycat4) lstatus(nowork) empstat(empstat) benchmark(SEN GMB LBR) onew(welfppp) onel(pline215) missing spells(2018 2021)
 
 {p 4 4 2}
 // Figures code:
 
 {p 4 4 2}
-pea figures [aw=weight_p], c(GNB) year(year natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) onew(welfppp) oneline(pline215) byind(urban) benchmark(CIV GHA GMB SEN AGA) spells(2010 2018; 2018 2021) setting(GMD) urban(urban)	within(3) comparability(comparability) combine welfaretype(CONS) nonotes palette(viridis)
+pea figures [aw=weight_p], c(GNB) year(year) natw(welfare) natp(natline) pppw(welfppp) pppp(pline365 pline215 pline685) pppy(2017) onew(welfppp) oneline(pline215) byind(urban) benchmark(CIV GHA GMB SEN AGO) spells(2018 2021) setting(GMD) urban(urban) welfaretype(CONS) nonotes palette(viridis)
 
 {p 4 4 2}
 // Defining own color palette
 
 {p 4 4 2}
 local custom_palette = "#337ab7 #5cb85c #5bc0de #f0ad4e #d9534f #e6e6e6 #286090 #449d44 #31b0d5 #ec971f #c9302c"
-pea figure2 [aw=weight_p], c(GNB) year(year) onew(welfppp) onel(pline215) benchmark(CIV GHA GMB SEN) palette(`custom_palette')
+pea figure2 [aw=weight_p], c(GNB) year(year) onel(pline215) pppw(welfppp) pppy(2017) benchmark(CIV GHA GMB SEN) palette(`custom_palette')
 
 
 {marker references}{...}
