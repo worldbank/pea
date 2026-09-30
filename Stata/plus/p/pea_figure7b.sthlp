@@ -49,7 +49,7 @@ computes poverty statistics, and exports figures/poverty analysis results.
 
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
+Default is 2021.
 
 {p 4 4 2}
 {opt age(varname numeric)}: Variable that defines age groups for subgroup analysis.

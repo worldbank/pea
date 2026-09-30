@@ -1,4 +1,4 @@
-*! version 0.1.2  27Sep2026
+*! version 0.1.3  30Sep2026
 *! Copyright (C) World Bank 2017-2024
 
 * This program is free software: you can redistribute it and/or modify
@@ -602,9 +602,22 @@ program pea_dataupdate, rclass
 			}
 			use `povdata2017', clear
 			append using `povdata2021'
-
+			* Drop rows with no poverty value at any line.
+			* The previous test was "headcount215==.", which only works for the
+			* 2017 round: 2021-PPP rows carry headcount300/420/830 and never a
+			* headcount215, so headcount215 was missing for every 2021 row and
+			* the whole round was deleted here, after being built correctly
+			* above. PIP_incgroup_estimate.dta therefore held 2017 only, and
+			* pea_table10 returned an empty income-group row at pppyear(2021),
+			* which is the package default.
 			for var headcount*: replace X = X*100
-			cap drop if headcount215==.
+			
+			egen byte _nhc = rownonmiss(headcount*)
+			drop if _nhc == 0
+			drop _nhc
+			drop if incgroup_historical == ""
+
+
 			char _dta[version] $S_DATE
 			char _dta[pip_release] "`release'"											// v0.1.2
 			save "`persdir'pea/PIP_incgroup_estimate.dta", replace
@@ -680,7 +693,11 @@ program pea_dataupdate, rclass
 
 			use `povdata2017', clear
 			append using `povdata2021'
-			merge m:1 region_code year using `reggdp', nogen keepus(gdppc)
+			* keep(1 3): master rows and matches only.
+			* `reggdp' is built from the GDP table, which covers region-years
+			* with no poverty data. Without keep(), those arrive as using-only
+			* rows carrying a gdppc but no ppp and no headcounts.
+			merge m:1 region_code year using `reggdp', nogen keepus(gdppc) keep(1 3)
 			for var headcount*: replace X = X*100
 			char _dta[version] $S_DATE
 			char _dta[pip_release] "`release'"											// v0.1.2

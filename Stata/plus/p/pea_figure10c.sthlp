@@ -44,7 +44,7 @@ help for {hi:pea table10c}{right:January 2025}
 
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
+Default is 2021.
 
 {p 4 4 2}  
 {opt BENCHmark(string)}: is a list of benchmark countries for comparison (e.g., "India, Bhutan").  

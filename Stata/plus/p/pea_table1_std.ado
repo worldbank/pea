@@ -23,6 +23,7 @@ program pea_table1_std, rclass
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
+	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all

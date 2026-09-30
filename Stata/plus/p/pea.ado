@@ -1,4 +1,4 @@
-*! version 0.1.1  12Sep2014
+*! version 0.1.2  29Sep2026
 *! Copyright (C) World Bank 2017-2024 
 *! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>
 * This program is free software: you can redistribute it and/or modify
@@ -26,6 +26,28 @@ program pea, rclass
 	qui save `__datax', replace emptyok
 	
 	noi _pea_logo
+
+		* Package vintage. UPDATE THIS LINE ON EVERY PUSH TO GITHUB.
+	* This is the package release date users see, so it must be
+	* changed as part of pushing, not left to drift.
+	local pea_pushed "September 29, 2026"
+	local pea_cycle  "SM26"
+	local dot = ustrunescape("\u00B7")
+	local msg "Package updated `pea_pushed' `dot' `pea_cycle' data cycle"
+	* ustrlen, not strlen: the separator is multibyte and strlen would
+	* count bytes, making the rule two characters too long.
+	local n = ustrlen("`msg'")
+	local rule : di _dup(`n') "*"
+	noi di ""
+	noi di as result "  `rule'"
+	noi di as result "  {bf:`msg'}"
+	noi di as result "  `rule'"
+	noi di ""
+	
+	* Clear putexcel state left by a previous pea command in this
+	* session. Without this, "pea figures" followed by "pea figure2"
+	* fails intermittently with r(603) on a shared excel() target.
+	cap putexcel clear
 	//run pea setup first
 	cap mata: mata describe pea_setup
 	if _rc~=0 pea_setup

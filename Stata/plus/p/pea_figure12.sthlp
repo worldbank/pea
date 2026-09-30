@@ -48,7 +48,7 @@ specifies the name of the country or region for which this visualization is gene
    
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
+Default is 2021.
 
 {p 4 4 2} {opt spells(string)}:
  defines the time spells (ranges of years) for which the analysis should be computed. Example: `spells("2000;2004")`.

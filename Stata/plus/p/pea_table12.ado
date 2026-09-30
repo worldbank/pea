@@ -23,6 +23,7 @@ program pea_table12, rclass
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
+	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 
 	//load data if defined
 	if "`using'"~="" {
