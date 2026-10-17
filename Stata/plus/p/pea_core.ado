@@ -1,9 +1,4 @@
-/* Potential problems: The syntax declares several inputs as optional, but the preparation block assumes they exist
-pppwelfare() is used even if it was not supplied.
-onewelfare() is used even if it was not supplied.
-oneline() is used even if it was not supplied.
-Solution: Validate variables required for the core package near the beginning.
- Alternatively, if all these inputs are genuinely required, remove their optional status through explicit validation. */
+
 
 cap program drop pea_core
 program pea_core, rclass
