@@ -1,41 +1,70 @@
-*! version 0.1.2  29Sep2026
-*! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 cap program drop pea
 program pea, rclass
-	version 18.0
+version 18.0
+
+*================================================================
+* Main entry point for the PEA package
+*
+* This program:
+*   1. Parses the user-supplied subcommand
+*   2. Displays package/version information
+*   3. Initializes the PEA environment if needed
+*   4. Restores the user's active dataset
+*   5. Dispatches execution to a pea_* subcommand
+*
+* Most analytical work is implemented in the individual pea_*
+* modules. This file primarily acts as a command dispatcher.
+*================================================================
+	
+* Disclaimers & credits 
+
+	*! version 0.1.2  29Sep2026
+	*! Copyright (C) World Bank 2017-2024 
+	*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez 
+	*<ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>.
+	*! Modifications by Daylan Alberto Salmeron Gomez; Maria Fernanda Gonzalez Icaza
+
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation, either version 3 of the License, or
+	* (at your option) any later version.
+
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	* GNU General Public License for more details.
+
+	* You should have received a copy of the GNU General Public License
+	* along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+*================================================================
+
+ * Preserve caller version when invoking subcommands.
 	local version : di "version " string(_caller()) ":"
+	
+* Parse command line and identify requested subcommand
 	set prefix pea
 	gettoken subcmd 0 : 0, parse(" :,=[]()+-")
 	local l = strlen("`subcmd'")
 	
+* Preserve active dataset during package initialization.
+    * Some setup routines may temporarily alter the data in memory.
 	qui	tempfile __datax
 	qui save `__datax', replace emptyok
-	
 	noi _pea_logo
 
-		* Package vintage. UPDATE THIS LINE ON EVERY PUSH TO GITHUB.
-	* This is the package release date users see, so it must be
-	* changed as part of pushing, not left to drift.
+*---------------------------------------------------------------
+* Package version information
+*---------------------------------------------------------------
+* IMPORTANT: Update these values whenever a new package release is pushed.
+* The release date shown here is what users see when loading PEA.
 	local pea_pushed "September 29, 2026"
 	local pea_cycle  "SM26"
 	local dot = ustrunescape("\u00B7")
 	local msg "Package updated `pea_pushed' `dot' `pea_cycle' data cycle"
-	* ustrlen, not strlen: the separator is multibyte and strlen would
-	* count bytes, making the rule two characters too long.
+	
+* Use ustrlen(), not strlen(), because the separator character
+    * is multibyte. strlen() would count bytes rather than characters.
 	local n = ustrlen("`msg'")
 	local rule : di _dup(`n') "*"
 	noi di ""
@@ -44,17 +73,47 @@ program pea, rclass
 	noi di as result "  `rule'"
 	noi di ""
 	
-	* Clear putexcel state left by a previous pea command in this
-	* session. Without this, "pea figures" followed by "pea figure2"
-	* fails intermittently with r(603) on a shared excel() target.
+*---------------------------------------------------------------
+* Session cleanup and initialization
+*---------------------------------------------------------------
+ * Reset any active putexcel connection left by a previous PEA
+    * command. This prevents intermittent r(603) errors when
+    * successive commands write to the same Excel workbook.
 	cap putexcel clear
+	
+* Ensure Mata helper functions and package state have been
+    * initialized before any subcommand is executed.
 	//run pea setup first
 	cap mata: mata describe pea_setup
 	if _rc~=0 pea_setup
 	
+* Restore original dataset.
 	use `__datax', clear
 	
-	//setup like the below	
+*---------------------------------------------------------------
+* Subcommand dispatch
+*
+* Available command groups:
+*
+*   Core workflow:
+*       core
+*       dataupdate
+*       tables
+*       slides
+*
+*   Individual tables:
+*       table1-table16
+*       tableA2
+*       tableC1
+*
+*   Individual figures:
+*       figure1-figure17
+*       figureC1
+*
+*   Batch generation:
+*       figures
+*---------------------------------------------------------------
+
 	if ("`subcmd'"=="core") { //upload relelated tasks
 		pea_core `0'
 	}	
@@ -207,7 +266,20 @@ program pea, rclass
 	else if ("`subcmd'"=="figure17") {
 		pea_figure17 `0'		
     }
-	else { //none of the above
+	
+	
+else { //none of the above
+*-----------------------------------------------------------
+* Fallback mechanism
+*
+* If the subcommand is not explicitly listed above, attempt
+* to locate and execute a program named:
+*
+*      pea_<subcommand>
+*
+* This allows package extensions to be added without
+* modifying the central dispatcher.
+*-----------------------------------------------------------
 		if ("`subcmd'"=="") {
 			di as smcl as err "syntax error"
 			di as smcl as err "{p 4 4 2}"
@@ -221,9 +293,10 @@ program pea, rclass
 			if (_rc==1) exit 1
 			di as smcl as err "unrecognized subcommand:  {bf:pea `subcmd'}"
 			exit 199
-			/*NOTREACHED*/
 		}
 		`version' pea_`subcmd' `0'
 	}
 	return add
 end
+
+*================================================================
