@@ -269,14 +269,12 @@ version 18.0
 	
 	
 else { //none of the above
+
 *-----------------------------------------------------------
 * Fallback mechanism
 *
 * If the subcommand is not explicitly listed above, attempt
-* to locate and execute a program named:
-*
-*      pea_<subcommand>
-*
+* to locate and execute a program named:  pea_<subcommand>
 * This allows package extensions to be added without
 * modifying the central dispatcher.
 *-----------------------------------------------------------

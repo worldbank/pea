@@ -1,31 +1,54 @@
-*! version 0.1.2  29Sep2026
-*! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 cap program drop pea_tables
 program pea_tables, rclass
-	version 18.0
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) LATEST WITHIN3 BENCHmark(string) spells(string) earnage(integer 15) minobs(numlist) SVY std(string) PPPyear(integer 2021) VULnerability(real 1.5)]	
+version 18.0
+
+*==============================================================================
+* pea_tables
+*
+* Generate the standard PEA table package and compile outputs into a
+* single Excel workbook.
+*   1. Validate user inputs and poverty-line definitions.
+*   2. Prepare welfare, poverty, and benchmarking indicators.
+*   3. Create and initialize the Excel workbook.
+*   4. Run individual table modules.
+*   5. Assemble outputs and hyperlinks in the Contents sheet.
+
+*==============================================================================
+* Disclaimers & credits 
+
+	*! version 0.1.2  29Sep2026
+	*! Copyright (C) World Bank 2017-2024 
+	*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez 
+	*<ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>.
+	*! Modifications by Daylan Alberto Salmeron Gomez; Maria Fernanda Gonzalez Icaza
+
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation, either version 3 of the License, or
+	* (at your option) any later version.
+
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	* GNU General Public License for more details.
+
+	* You should have received a copy of the GNU General Public License
+	* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*==============================================================================
 	
-	//Check PPPyear
+syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) LATEST WITHIN3 BENCHmark(string) spells(string) earnage(integer 15) minobs(numlist) SVY std(string) PPPyear(integer 2021) VULnerability(real 1.5)]	
+	
+*----------------------------------------------------------------------
+* Validate PPP round and international poverty line definitions.
+*----------------------------------------------------------------------
 	_pea_ppp_check, ppp(`pppyear')
-	
-	//Check value of poverty lines (international ones)
 	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
-	//house cleaning
+*----------------------------------------------------------------------
+* Initialize output workbook.
+* Create a temporary workbook if excel() is not specified; otherwise
+* verify that the supplied workbook exists.
+*----------------------------------------------------------------------
 	qui if "`excel'"=="" {
 		tempfile xlsxout 	
 		local path "`xlsxout'"		
@@ -45,12 +68,15 @@ program pea_tables, rclass
 		else local excelout "`excel'"
 	}
 	
+* Apply default vulnerability threshol* if not specified.
 	if "`vulnerability'"=="" {
 		local vulnerability = 1.5
 		noi di in yellow "Default multiple of poverty line to define vulnerability is 1.5"
 	}
 	
-	//Title sheet
+*----------------------------------------------------------------------
+* Create Contents sheet and workbook structure.
+*----------------------------------------------------------------------
 	qui {
 		putexcel set "`excelout'", replace sheet("Contents")
 		putexcel C5 = "Poverty and Equity Assessments 3.0", bold font( "", 16)
@@ -59,14 +85,16 @@ program pea_tables, rclass
 		putexcel (A1:AZ100), fpattern(solid, white)
 		putexcel save
 	}
-	
+	* Benchmarking options are mutually exclusive.
 	if "`latest'"~="" & "`within3'"~="" {
-		noi dis as error "Either latest or wtihin3, not both options"
+		noi dis as error "Either latest or within3, not both options"
 		error 1
 	}
 	if "`latest'"=="" & "`within3'"=="" local latest latest
 	
-	//load setting
+*----------------------------------------------------------------------
+* Load standard variable mappings for predefined settings.
+*----------------------------------------------------------------------
 	qui if "`setting'"=="GMD" {
 		_pea_vars_set, setting(GMD)
 		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets relationharm
@@ -75,11 +103,20 @@ program pea_tables, rclass
 		}	
 	}
 	
+*----------------------------------------------------------------------
+* Prepare analysis dataset.
+*   - standardize poverty-line ordering
+*   - identify survey weights,
+*   - validate survey settings,
+*   - create poverty and inequality indicators,
+*   - generate variables used across multiple tables.
+*----------------------------------------------------------------------
 	qui {
 		local country "`=upper("`country'")'"
 		cap drop code
 		gen code = "`country'"
-		//order the lines
+		
+* Sort poverty lines from lowest to highest threshold.	
 		if "`ppppovlines'"~="" {
 			_pea_pline_order, povlines(`ppppovlines')
 			local ppppovlines `=r(sorted_line)'
@@ -87,7 +124,6 @@ program pea_tables, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
 		if "`natpovlines'"~="" {
 			_pea_pline_order, povlines(`natpovlines')
 			local natpovlines `=r(sorted_line)'
@@ -95,8 +131,7 @@ program pea_tables, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
-		//Weights
+* Extract survey weights; use equal weights if none are supplied.
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
 			tempvar w
@@ -104,16 +139,17 @@ program pea_tables, rclass
 			local wvar `w'
 		}
 		
-		//SVY setting
+* Verify survey design settings when svy is specified.
 		local svycheck = 0
 		if "`svy'"~="" _pea_svycheck, std(`std')
 		
-		//missing observation check
+* Define the analysis sample and exclude observations with missing values 
+* in required welfare, poverty-line, weight, and year variables.
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
 		markout `touse' `flist' 
 		
-		//reset to the floor
+* Apply the minimum PPP welfare floor.
 		if "`pppwelfare'"~="" {
 			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
 			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
@@ -125,11 +161,11 @@ program pea_tables, rclass
 		save `datalbl', replace
 		use `dataori', clear
 
-		//FGT
+* Generate poverty indicators (FGT measures).
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
 		
-		//B40 T60 Mean - only for one distribution
+* Generate shared prosperity and distributi*nal indicators.
 		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
 		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
@@ -146,6 +182,13 @@ program pea_tables, rclass
 
 	global tablecount = 11
 	local ok = 0
+	
+*----------------------------------------------------------------------
+* Generate PEA tables.
+* Each table is executed independently so that failure of one module
+* does not prevent the remaining tables from being produced.
+*----------------------------------------------------------------------
+	
 	//table 1
 	qui use `data1', clear
 	cap pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") oneline(`oneline') onewelfare(`onewelfare') `svy' std(`std') pppyear(`pppyear') vulnerability(`vulnerability')
