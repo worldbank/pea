@@ -478,18 +478,12 @@ program pea_figures, rclass
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
 		
-		putexcel C${tablecount} = hyperlink("#Figure16!A1", "Figure 16: Profiles of the poor by demographic composition")
-		global tablecount = ${tablecount} + 1
-		/* Only one figure currently
-		putexcel C${tablecount} = hyperlink("#Figure16b!A1", "Figure 16b: Profiles of the poor by economic composition (treemap)")
+		putexcel C${tablecount} = hyperlink("#Figure16a!A1", "Figure 16a: Profiles of the poor by demographic composition")
 		global tablecount = ${tablecount} + 1
 		
-		putexcel C${tablecount} = hyperlink("#Figure16c!A1", "Figure 16c: Profiles of the poor by demographic composition (bar)")
+		putexcel C${tablecount} = hyperlink("#Figure16b!A1", "Figure 16b: Profiles of the poor by economic composition")
 		global tablecount = ${tablecount} + 1
 		
-		putexcel C${tablecount} = hyperlink("#Figure16d!A1", "Figure 16d: Profiles of the poor by economic composition (bar)")
-		global tablecount = ${tablecount} + 1
-		*/
 		putexcel save	
 	}
 	else noi dis in red "Figure 16. Profiles of the poor .......................................... Not done"
