@@ -804,6 +804,9 @@ if `dl'==1 {
 			
 	* Inequality indicators.		
 		local datayear = real(substr("$S_DATE", -4, .))
+		
+		// PROBLEM! datayear is reset to the current year. This undoes the fallback at lines 93–96, which moves to the previous year when the current year's GMI data are not yet on DLW. 
+		
 			cap dlw, country(WLD) type(GMI) year(`datayear') mod(INE) files
 			if _rc==0 {
 				drop if strpos(filename, "BIN") > 0 & survname == "EU-SILC"		// Drop EU-SILC binned data
