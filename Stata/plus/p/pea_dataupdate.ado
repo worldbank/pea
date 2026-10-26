@@ -162,26 +162,27 @@ if `dl'==1 {
 * MPM: multidimensional poverty indicators from DLW
 		if "`datatype'"=="MPM" {
 			cap dlw, country(WLD) type(GMI) year(`datayear') mod(MPM) files
-			if _rc==0 {
-* keep if ppp==`pppyear' 
+			local rc = _rc
+			if `rc'==0 {
 * Intentionally not filtered by PPP year. Store all available PPP rounds and 
 * apply PPP-specific filtering in downstream analyses.
-			if _N>0 {
-				char _dta[version] $S_DATE
-				replace welftype = "CONS" if welftype == "C" | welftype == "c"
-				replace welftype = "INC" if welftype == "I" | welftype == "i"
-				save "`persdir'pea/WLD_GMI_MPM.dta", replace
-			}
-			else {
-				noi dis as error "No data is available for the requested PPP year, `pppyear'."
-				exit `=_rc'
-			}
+				if _N>0 {
+					char _dta[version] $S_DATE
+					replace welftype = "CONS" if welftype == "C" | welftype == "c"
+					replace welftype = "INC" if welftype == "I" | welftype == "i"
+					save "`persdir'pea/WLD_GMI_MPM.dta", replace
+				}
+				else {
+					noi dis as error "No MPM data returned from DLW for `datayear'."
+					exit 2000
+				}
 			}
 			else {
 				noi dis as error "Unable to update MPM data from DLW"
-				exit `=_rc'
+				exit `rc'
 			}
 		}
+		
 * UNESCO education indicators
 		if "`datatype'"=="UNESCO" {
 			dlw, country(Support) year(2005) type(GMDRAW) filename(UNESCO.dta) surveyid($surid) files clear nometa
