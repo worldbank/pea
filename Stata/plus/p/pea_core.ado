@@ -207,7 +207,7 @@ syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist 
 		noi dis in green "Figure C.1. Trends and nowcast of the national poverty rate .............. Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
-		putexcel C${tablecount} = hyperlink("#FigureC1!A1", "Figure C.1. Trends and nowcast of the national poverty rate")		
+		putexcel C${tablecount} = hyperlink("#FigureC.1!A1", "Figure C.1. Trends and nowcast of the national poverty rate")		
 		global tablecount = ${tablecount} + 1
 		putexcel save	
 	}
@@ -220,7 +220,7 @@ syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist 
 		noi dis in green "Table C.1. Key Poverty, Shared Prosperity and Labor Market Indicators .... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
-		putexcel C${tablecount} = hyperlink("#TableC1!A1", "Table C.1. Key Poverty, Shared Prosperity and Labor Market Indicators")		
+		putexcel C${tablecount} = hyperlink("#TableC.1!A1", "Table C.1. Key Poverty, Shared Prosperity and Labor Market Indicators")		
 		global tablecount = ${tablecount} + 1
 		putexcel save	
 	}
@@ -233,7 +233,7 @@ syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist 
 		noi dis in green "Table C.2. Key labor market indicators ................................... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
-		putexcel C${tablecount} = hyperlink("#TableC2!A1", "Table C.2. Key labor market indicators")
+		putexcel C${tablecount} = hyperlink("#TableC.2!A1", "Table C.2. Key labor market indicators")
 		global tablecount = ${tablecount} + 1	
 		putexcel save	
 	}
