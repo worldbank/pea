@@ -1,7 +1,3 @@
-cap program drop pea
-program pea, rclass
-version 18.0
-
 *================================================================
 * Main entry point for the PEA package
 *
@@ -38,6 +34,9 @@ version 18.0
 	* along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 *================================================================
+cap program drop pea
+program pea, rclass
+version 18.0
 
  * Preserve caller version when invoking subcommands.
 	local version : di "version " string(_caller()) ":"
@@ -45,12 +44,7 @@ version 18.0
 * Parse command line and identify requested subcommand
 	set prefix pea
 	gettoken subcmd 0 : 0, parse(" :,=[]()+-")
-	local l = strlen("`subcmd'")
-	
-* Preserve active dataset during package initialization.
-    * Some setup routines may temporarily alter the data in memory.
-	//qui	tempfile __datax
-	//qui save `__datax', replace emptyok
+	//local l = strlen("`subcmd'") // NEVER USED TO BE DELETED
 	noi _pea_logo
 
 *---------------------------------------------------------------
@@ -76,10 +70,8 @@ version 18.0
 *---------------------------------------------------------------
 * Session cleanup and initialization
 *---------------------------------------------------------------
- * Reset any active putexcel connection left by a previous PEA
 	cap putexcel clear
 	
-* Ensure Mata helper functions and package state have been
 	cap mata: mata describe pea_setup
 	if _rc~=0 {
 		preserve
@@ -107,7 +99,6 @@ version 18.0
 			exit 199
 		}
 		`version' pea_`subcmd' `0'
-	//}
 	return add
 end
 
