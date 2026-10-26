@@ -1,30 +1,40 @@
-*! version 0.1.1  12Sep2014
-*! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
+*================================================================
+* Running all PEA Figures
+*================================================================
+* Disclaimers & credits 
 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
+	*! version 0.1.2  29Sep2026
+	*! Copyright (C) World Bank 2017-2024 
+	*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez 
+	*<ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>.
+	*! Modifications by Daylan Alberto Salmeron Gomez; Maria Fernanda Gonzalez Icaza
 
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation, either version 3 of the License, or
+	* (at your option) any later version.
 
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	* GNU General Public License for more details.
+
+	* You should have received a copy of the GNU General Public License
+	* along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+*================================================================
 cap program drop pea_figures
 program pea_figures, rclass
-	version 18.0	
+version 18.0	
 
 	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) within(integer 3) COMBINE COMParability(varname numeric) BENCHmark(string) spells(string) NOEQUALSPACING YRange(string) trim(string) BAR RELATIVECHANGE ineqind(string) idpl(varname numeric) earnage(integer 15) scheme(string) palette(string) welfaretype(string) PPPyear(integer 2021)]
 	
-	//Check PPPyear
+* -------------------------------------------------------------------------	
+* Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
 	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
-	
-	//load setting
+* -------------------------------------------------------------------------	
+* Load setting
 	qui if "`setting'"=="GMD" {
 		_pea_vars_set, setting(GMD)
 		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets
@@ -32,8 +42,8 @@ program pea_figures, rclass
 			local `st' "${pea_`st'}"
 		}		
 	}
-	
-	//house cleaning
+* -------------------------------------------------------------------------	
+* House cleaning
 	if "`within'"=="" local within 3
 	if `within'>10 {
 		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
@@ -50,9 +60,9 @@ program pea_figures, rclass
 			exit 1
 		}
 	}
-		
-	//variable checks
-	//missing rate of key variables
+* -------------------------------------------------------------------------	
+* Variable checks
+* Missing rate of key variables
 	qui if "`excel'"=="" {
 		tempfile xlsxout 	
 		local path "`xlsxout'"		
@@ -71,8 +81,8 @@ program pea_figures, rclass
 		}
 		else local excelout "`excel'"
 	}
-	
-	//Title sheet
+* -------------------------------------------------------------------------	
+* Title sheet
 	qui {
 		putexcel set "`excelout'", replace sheet("Contents")
 		putexcel C5 = "Poverty and Equity Assessments 3.0", bold font( "", 16)
@@ -80,11 +90,11 @@ program pea_figures, rclass
 		putexcel C10 = "Generated Figures:"
 		putexcel (A1:AZ100), fpattern(solid, white)
 		putexcel save
-	
 		local country "`=upper("`country'")'"
 		cap drop code
 		gen code = "`country'"
-		//order the lines
+* -------------------------------------------------------------------------	
+* Order poverty lines 
 		if "`ppppovlines'"~="" {
 			_pea_pline_order, povlines(`ppppovlines')
 			local ppppovlines `=r(sorted_line)'
@@ -92,7 +102,6 @@ program pea_figures, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
 		if "`natpovlines'"~="" {
 			_pea_pline_order, povlines(`natpovlines')
 			local natpovlines `=r(sorted_line)'
@@ -100,37 +109,38 @@ program pea_figures, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
-		//Weights
+* -------------------------------------------------------------------------	
+* Weights
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
 			tempvar w
 			gen `w' = 1
 			local wvar `w'
 		}
-		
-		//missing observation check
+* -------------------------------------------------------------------------	
+* Missing observation check
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
 		markout `touse' `flist' 
-		
-		//reset to the floor
+* -------------------------------------------------------------------------	
+* Reset to the floor
 		if "`pppwelfare'"~="" {
 			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
 			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
-		}
-		
+		}	
+* -------------------------------------------------------------------------	
+* Save working data
 		tempfile dataori0 datalbl
 		save `dataori0', replace
 		des, replace clear
 		save `datalbl', replace
 		use `dataori0', clear
-	
-		//FGT
+* -------------------------------------------------------------------------	
+* Poverty and Inequality Indicators
+* FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
-		
-		//Gini and PG
+* Gini and PG
 		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
 		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 		clonevar _Gini_`distwelf' = `distwelf' if `touse'
@@ -138,18 +148,19 @@ program pea_figures, rclass
 		*replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}		
 		gen double _prosgap_`pppwelfare' = ${prosgline_}/`pppwelfare' if `touse'
 		gen double _pop = `wvar'
-		
-		//B40 T60 Mean - only for one distribution
+* B40 T60 Mean - only for one distribution
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
-
 		tempfile data1 data2
 		save `data1', replace
-	} //qui
-	
-	//trigger
-	global tablecount = 11
-	
-	//Figure 1
+	} 
+
+*-----------------------------------------------------------------------------
+* Call all figures one by one
+local ok = 0
+* Trigger
+global tablecount = 11
+
+* Figure 1
 	qui use `data1', clear	
 	cap pea_figure1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted urban(`urban') comparability(`comparability') `combine' `noequalspacing' yrange(`yrange') `bar' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -171,7 +182,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 1. Poverty rates by year .......................................... Not done"
 	
-	//Figure 2
+* Figure 2
 	qui use `data1', clear
 	cap pea_figure2 [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') fgtvars yrange(`yrange') pppw(`pppwelfare') oneline(`oneline') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -187,7 +198,7 @@ program pea_figures, rclass
 		if _rc == 200 noi dis in red  "Value of poverty line in  oneline() option is not among the standard poverty lines for the `pppyear' PPP. Please enter a valid international poverty line for Figure 2."
 	}
 	
-	//Figure 3a
+* Figure 3a
 	qui use `dataori0', clear
 	cap pea_figure3a [aw=`wvar'], year(`year') welfare(`onewelfare') comparability(`comparability') spells(`spells') yrange(`yrange') trim(`trim') scheme(`scheme') palette(`palette') excel("`excelout'")
 	qui if _rc==0 {
@@ -200,7 +211,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 3a. Growth Incidence Curves over time ............................. Not done"
 	
-	//Figure 3b
+* Figure 3b
 	qui use `dataori0', clear
 	cap pea_figure3b [aw=`wvar'], year(`year') welfare(`onewelfare') comparability(`comparability') spells(`spells') yrange(`yrange') trim(`trim') by(`urban') scheme(`scheme') palette(`palette') excel("`excelout'")
 	qui if _rc==0 {
@@ -213,7 +224,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 3b. Growth Incidence Curves by area ............................... Not done"
 	
-	//Figure 4
+* Figure 4
 	qui use `dataori0', clear
 	cap pea_figure4 [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') comparability(`comparability') spells(`spells') idpl(`idpl') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -229,7 +240,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 4. Datt-Ravallion and Shorrocks-Kolenikov decompositions .......... Not done"
 	
-	//Figure 5a
+* Figure 5a
 	qui use `dataori0', clear
 	cap pea_figure5a [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') comparability(`comparability') spells(`spells') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -242,7 +253,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 5a. Huppi-Ravallion decomposition (urban/rural) ................... Not done"
 	
-	//Figure 5b
+* Figure 5b
 	qui use `dataori0', clear
 	cap pea_figure5b [aw=`wvar'], year(`year') onew(`onewelfare') onel(`oneline') comparability(`comparability') spells(`spells') industrycat4(`industrycat4') hhhead(`hhhead') hhid(`hhid') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -255,7 +266,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 5b. Huppi-Ravallion decomposition (sectoral) ...................... Not done"	
 	
-	//Figure 6
+* Figure 6
 	qui use `dataori0', clear	
 	cap pea_figure6 [aw=`wvar'], c(`country') year(`year') oneline(`oneline') onewelfare(`onewelfare') comparability(`comparability') spells(`spells')  scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -268,7 +279,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 6. GDP - Poverty elasticity ....................................... Not done"
 	
-	//Figure 7a
+* Figure 7a
 	qui use `data1', clear	
 	cap pea_figure7a [aw=`wvar'], onewelfare(`onewelfare') oneline(`oneline') year(`year') fgtvars age(`age') male(`male') edu(`edu') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -281,7 +292,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 7a. Share of poor and population by demographic groups ............ Not done"
 	
-	//Figure 7b
+* Figure 7b
 	qui use `data1', clear	
 	cap pea_figure7b [aw=`wvar'], onewelfare(`onewelfare') oneline(`oneline') year(`year') fgtvars age(`age') male(`male') edu(`edu') urban(`urban') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -294,7 +305,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 7b. Share of poor and non-poor by demographic groups .............. Not done"	
 	
-	//Figure 8
+* Figure 8
 	qui use `data1', clear	
 	cap pea_figure8 [aw=`wvar'], onewelfare(`onewelfare') oneline(`oneline') year(`year') fgtvars yrange(`yrange') age(`age') male(`male') scheme(`scheme') palette(`palette') pppyear(`pppyear') excel("`excelout'") 
 		qui if _rc==0 {
@@ -307,7 +318,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 8. Poverty rates by sex and age groups ............................ Not done"	
 	
-	//Figure 9a
+* Figure 9a
 	qui use `dataori0', clear	
 	cap pea_figure9a [aw=`wvar'], year(`year') onewelfare(`onewelfare') comparability(`comparability') `noequalspacing' yrange(`yrange') ineqind(`ineqind') `bar' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -320,7 +331,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 9a. Inequality by year ............................................ Not done"
 	
-	//Figure 9b
+* Figure 9b
 	qui use `dataori0', clear	
 	cap pea_figure9b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') welfaretype(`welfaretype') within(`within') yrange(`yrange') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -333,7 +344,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 9b. Gini and GDP per capita scatter ............................... Not done"
 	
-	//Figure 9c
+* Figure 9c
 	qui use `dataori0', clear	
 	cap pea_figure9c [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') welfaretype(`welfaretype') within(`within') yrange(`yrange') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -346,7 +357,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 9c. Benchmark countries ranked by Gini index ...................... Not done"
 
-	//Figure 9d
+* Figure 9d
 	qui use `dataori0', clear	
 	cap pea_figure9d [aw=`wvar'], year(`year') onewelfare(`onewelfare') comparability(`comparability') `noequalspacing' yrange(`yrange') `bar' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -359,7 +370,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 9d. Welfare percentiles over time ................................. Not done"
 	
-	//Figure 10a
+* Figure 10a
 	qui use `dataori0', clear	
 	cap pea_figure10a [aw=`wvar'], year(`year') onewelfare(`onewelfare') urban(`urban') comparability(`comparability') `noequalspacing' yrange(`yrange') `bar' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -372,7 +383,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 10a. Prosperity gap by year and area .............................. Not done"
 	
-	//Figure 10b
+* Figure 10b
 	qui use `dataori0', clear	
 	cap pea_figure10b [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') yrange(`yrange') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -385,7 +396,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 10b. Prosperity gap (line-up) and GDP per capita scatter .......... Not done"
 	
-	//Figure 10c
+* Figure 10c
 	qui use `dataori0', clear	
 	cap pea_figure10c [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') yrange(`yrange') within(`within') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -398,7 +409,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 10c. Prosperity gap (survey) and GDP per capita scatter ........... Not done"
 	
-	//Figure 10d
+* Figure 10d
 	qui use `dataori0', clear	
 	cap pea_figure10d [aw=`wvar'], c(`country') year(`year') benchmark(`benchmark') onewelfare(`onewelfare') scheme(`scheme') yrange(`yrange') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -411,9 +422,9 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 10d. Prosperity gap over time in benchmark countries (line-up) .... Not done"
 	
-	//Figure 11 TBC
+* Figure 11 ==> MISSING
 	
-	//Figure 12
+* Figure 12
 	qui use `dataori0', clear
 	cap pea_figure12 [aw=`wvar'], c(`country') year(`year') onew(`onewelfare') comparability(`comparability') spells(`spells') `relativechange' palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -426,7 +437,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 12. Decomposition of growth in prosperity gap ..................... Not done"
 	
-	//Figure 13
+* Figure 13
 	qui use `dataori0', clear
 	cap pea_figure13 [aw=`wvar'], year(`year') onew(`onewelfare') comparability(`comparability') `noequalspacing' palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -439,7 +450,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 13. Distribution of welfare by deciles ............................ Not done"
 	
-	//Figure 14
+* Figure 14
 	qui use `dataori0', clear
 	cap pea_figure14 [aw=`wvar'], c(`country') welfare(`pppwelfare') /*welfare(welfppp)*/ year(`year') benchmark(`benchmark') within(`within') palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -458,7 +469,7 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 14. Multidimensional Poverty Measure .............................. Not done"
 	
-	//Figure 15
+*Figure 15
 	qui use `dataori0', clear	
 	cap pea_figure15, c(`country') scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -471,26 +482,25 @@ program pea_figures, rclass
 	}
 	else noi dis in red "Figure 15. Climate risk and vulnerability ................................ Not done - no data for `country'"
 
+* Figures 16
 	qui use `dataori0', clear	
 	cap pea_figure16 [aw=`wvar'], onew(`onewelfare') onel(`oneline') year(`year')  age(`age') male(`male') edu(`edu') hhhead(`hhhead') hhid(`hhid') pid(`pid') urban(`urban') married(`married') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') hhsize(`hhsize') earnage(`earnage') `missing' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
-		noi dis in green "Figure 16. Profiles of the poor .......................................... Done"
+		noi dis in green "Figure 16 a and b. Profiles of the poor .......................................... Done"
 		local ok = 1
 		putexcel set "`excelout'", modify sheet("Contents")		
-		
 		putexcel C${tablecount} = hyperlink("#Figure16a!A1", "Figure 16a: Profiles of the poor by demographic composition")
 		global tablecount = ${tablecount} + 1
-		
 		putexcel C${tablecount} = hyperlink("#Figure16b!A1", "Figure 16b: Profiles of the poor by economic composition")
 		global tablecount = ${tablecount} + 1
-		
 		putexcel save	
 	}
 	else noi dis in red "Figure 16. Profiles of the poor .......................................... Not done"
 	
-	//Final open	
+* -------------------------------------------------------------------------	
+* Open Excel, only if no file name was specified
 	if `ok'==1 {
-				* Only open Excel when the user did not name an output file.
+		* Only open Excel when the user did not name an output file.
 		* Opening a file the user specified locks it, and any command
 		* run afterwards fails with r(603). Every individual figure
 		* command already guards this the same way.
@@ -503,4 +513,6 @@ program pea_figures, rclass
 	else {
 		noi dis in red "No figures are produced"
 	}
+	
 end
+*=============================================================================
