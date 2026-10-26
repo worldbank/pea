@@ -472,7 +472,7 @@ program pea_figures, rclass
 	else noi dis in red "Figure 15. Climate risk and vulnerability ................................ Not done - no data for `country'"
 
 	qui use `dataori0', clear	
-	cap pea_figure16, onew(`onewelfare') onel(`oneline') year(`year')  age(`age') male(`male') edu(`edu') hhhead(`hhhead') hhid(`hhid') pid(`pid') urban(`urban') married(`married') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') hhsize(`hhsize') earnage(`earnage') missing scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
+	cap pea_figure16 [aw=`wvar'], onew(`onewelfare') onel(`oneline') year(`year')  age(`age') male(`male') edu(`edu') hhhead(`hhhead') hhid(`hhid') pid(`pid') urban(`urban') married(`married') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') hhsize(`hhsize') earnage(`earnage') `missing' scheme(`scheme') palette(`palette') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
 		noi dis in green "Figure 16. Profiles of the poor .......................................... Done"
 		local ok = 1
