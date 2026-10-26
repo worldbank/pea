@@ -79,6 +79,8 @@ version 18.0
 		
 syntax [if] [in] [aw pw fw], [datatype(string) PPPyear(integer 2021) pppyear(string) UPDATE RELease(string)]
 
+// PPPyear(integer 2021) and pppyear(string) both define the same option. The same line is on main, so Stata seems to accept it, but which definition applies is unclear. fix: Keep one of them, PPPyear(integer 2021), and delete line 102?
+
 *----------------------------------*----------------------------------*----
 * Initialize runtime settings*and default values
 *--------------*----------------------------------*------------------------
