@@ -441,7 +441,7 @@ program pea_figures, rclass
 	
 	//Figure 14
 	qui use `dataori0', clear
-	cap pea_figure14 [aw=`wvar'], c(`country') welfare(welfppp) year(`year') benchmark(`benchmark') within(`within') palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
+	cap pea_figure14 [aw=`wvar'], c(`country') welfare(`pppwelfare') /*welfare(welfppp)*/ year(`year') benchmark(`benchmark') within(`within') palette(`palette') scheme(`scheme') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
 		noi dis in green "Figure 14. Multidimensional Poverty Measure .............................. Done"
 		local ok = 1
