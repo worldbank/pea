@@ -324,7 +324,7 @@ if `dl'==1 {
 				rename countrycode code
 
 				merge 1:m code year using `pop', keep(2 3) nogen
-				gen pop_15642 = round(share_1564 * pop)
+				gen pop_1564 = round(share_1564 * pop) // corrected typo
 				keep code year reporting_level pop pop_1564
 				char _dta[version] $S_DATE
 				char _dta[pip_release] "`release'"
