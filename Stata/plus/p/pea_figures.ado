@@ -29,6 +29,14 @@ version 18.0
 
 	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) MISSING Country(string) within(integer 3) COMBINE COMParability(varname numeric) BENCHmark(string) spells(string) NOEQUALSPACING YRange(string) trim(string) BAR RELATIVECHANGE ineqind(string) idpl(varname numeric) earnage(integer 15) scheme(string) palette(string) welfaretype(string) PPPyear(integer 2021)]
 	
+	
+	foreach opt in pppwelfare ppppovlines year welfaretype {
+	if "``opt''"=="" {
+		noi dis as error "Option `opt'() is required"
+		error 198
+		}
+	}
+	
 * -------------------------------------------------------------------------	
 * Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -49,17 +57,7 @@ version 18.0
 		noi dis as error "Surveys older than 10 years should not be used for comparisons. Please use a different value in within()"
 		error 1
 	}
-	if "`welfaretype'"=="" {
-		noi di in red "Please define welfare type as INC or CONS in welfaretype()"
-		exit 1
-	}
-	else {
-		local welfaretype "`=upper("`welfaretype'")'"
-		if "`welfaretype'" ~= "INC" & "`welfaretype'" ~= "CONS" {	// Check that values are correct
-			noi di in red "Please define welfare type as INC or CONS in welfaretype()"
-			exit 1
-		}
-	}
+
 * -------------------------------------------------------------------------	
 * Variable checks
 * Missing rate of key variables

@@ -44,7 +44,14 @@ version 18.0
 *================================================================
 
 syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) ONELine(varname numeric) ONEWelfare(varname numeric) comparability(varname numeric) comparability_peb(varname string) PEB YRange(string) YRange2(string) year_fcast(varname numeric) natpov_fcast(varlist numeric) gdp_fcast(varname numeric)  MISSING Country(string) trim(string) aggregate(string) LATEST WITHIN3 BENCHmark(string) spells(string) minobs(numlist) SVY std(string) PPPyear(integer 2021) VULnerability(real 1.5) NOEQUALSPACING scheme(string) palette(string) CORE]	
-	
+		
+foreach opt in pppwelfare ppppovlines onewelfare oneline year {
+		if "``opt''"=="" {
+			noi dis as error "Option `opt'() is required"
+			error 198
+		}
+	}
+		
 //-----------------------------------------------------------------------
 // Validate PPP assumptions and international poverty lines
 //-----------------------------------------------------------------------
