@@ -1,35 +1,113 @@
-*! version 0.1.1  12Sep2014
-*! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-//Fig 3a. Growth Incidence Curve over time
-
 cap program drop pea_figure3a
 program pea_figure3a, rclass
-	version 18.0
-	syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(varname numeric) setting(string) trim(string) YRange(string) excel(string) save(string) scheme(string) palette(string) ]
+version 18.0
 
-	//load data if defined
-	if "`using'"~="" {
-		cap use "`using'", clear
-		if _rc~=0 {
-			noi di in red "Unable to open the data"
-			exit `=_rc'
-		}
-	}
-		
+*==============================================================================
+* Fig 3a. Growth Incidence Curve over time
+*==============================================================================
+* Disclaimers & credits 
+	
+	*! version 0.1.1  12Sep2014
+	*! Copyright (C) World Bank 2017-2024 
+	*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez 
+	* <ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>.
+	*! Modifications by Daylan Alberto Salmeron Gomez; Maria Fernanda Gonzalez Icaza
+
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation, either version 3 of the License, or
+	* (at your option) any later version.
+
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	* GNU General Public License for more details.
+
+	* You should have received a copy of the GNU General Public License
+	* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*==============================================================================
+* This program:
+*   1. Validates the requested year spells;
+*   2. Restricts the sample to the requested survey years;
+*   3. Checks survey comparability, when comparability() is supplied;
+*   4. Creates percentile-level mean welfare estimates;
+*   5. Calculates annualized growth by percentile;
+*   6. Produces one graph for the full sample and, optionally, for
+*      each subgroup listed in by();
+*   7. Exports graphs, underlying data, and graph code to Excel.
+
+* A spell must contain exactly two years. Multiple spells must be
+* separated by semicolons, for example: spells("2000 2004; 2004 2010")
+
+* Required options:
+*     welfare()    Welfare aggregate
+*     spells()     One or more two-year spells
+*     year()       Survey-year variable
+
+* Optional grouping: by()         Numeric subgroup variables
+
+*=============================================================================*/
+//syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(varname numeric) setting(string) trim(string) YRange(string) excel(string) save(string) scheme(string) palette(string) ]
+    syntax [using/] [if] [in] [aw pw fw],                       ///
+        [                                                        ///
+            Welfare(varname numeric)                             ///
+            spells(string)                                       ///
+            Year(varname numeric)                                ///
+            BY(varlist numeric)                                  ///
+            comparability(varname numeric)                       ///
+            setting(string)                                      ///
+            trim(string)                                         ///
+            YRange(string)                                       ///
+            excel(string)                                        ///
+            save(string)                                         ///
+            scheme(string)                                       ///
+            palette(string)                                      ///
+        ]
+
+*----------------------------------------------------------------
+* Validate required options
+* These options remain optional in syntax for compatibility with
+* existing calls, but the program cannot run without them.
+*----------------------------------------------------------------
+    if "`welfare'" == "" {
+        noisily display as error "welfare() is required"
+        exit 198
+    }
+
+    if "`spells'" == "" {
+        noisily display as error ///
+            `"spells() is required; need at least two years; for example, spells("2000 2004")"'
+        exit 198
+    }
+
+    if "`year'" == "" {
+        noisily display as error "year() is required"
+        exit 198
+    }
+	
+*----------------------------------------------------------------
+* Load dataset, if using was specified
+*----------------------------------------------------------------
+    if `"`using'"' != "" {
+        capture use `"`using'"', clear
+        if _rc {
+            local rc = _rc
+            noisily display as error ///
+                `"Unable to open data file: `using'"'
+            restore
+            exit `rc'
+        }
+    }
+*----------------------------------------------------------------
+* Create sample indicator from user-supplied if/in qualifiers.
+* Subsequent markout commands further restrict this sample by
+* removing observations with missing values in required variables.
+*----------------------------------------------------------------
+marksample touse
+	
+*----------------------------------------------------------------
+* Needs further understanding 
+*----------------------------------------------------------------
 	if "`save'"=="" {
 		tempfile saveout
 		local save `saveout'
@@ -38,16 +116,17 @@ program pea_figure3a, rclass
 		noi dis as error "Cant have both nooutput and excel() options"
 		error 1
 	}
-	if "`spells'"=="" {
-		noi dis as error "Need at least two years, i.e. 2000 2004"
-		error 1
-	}
-	//house cleaning
+
+	
+
+	
+//house cleaning
 	_pea_export_path, excel("`excel'")
 	
 	local x = subinstr("`spells'",";"," ",.)		
 	local keepyears : list uniq x
-	// Prepare spells
+
+// Prepare spells
 	tokenize "`spells'", parse(";")	
 	local i = 1
 	local a = 1
@@ -59,6 +138,7 @@ program pea_figure3a, rclass
 		}	
 		local i = `i' + 1
 	}
+
 	// Comparability
 	local one = 1
 	if "`comparability'" ~= "" {
@@ -167,10 +247,12 @@ program pea_figure3a, rclass
 				}
 			}	
 		}
-		use `data2', clear
+		
+use `data2', clear
 		reshape wide `welfare', i(var var_lvl percentile) j(`year')
 		
-		//label var and group keeping original ordering 
+*--------------------------------------------------------------------------
+* Label var and group keeping original ordering 
 		local i=1
 		local j=1
 		gen var_order = .
@@ -199,21 +281,23 @@ program pea_figure3a, rclass
 				dis "Spell`j': `1'-`2'"		
 				gen gic_`1'_`2' = ((`welfare'`2'/`welfare'`1')^(1/(`2'-`1'))-1)*100
 				local vargic "`vargic' gic_`1'_`2'"
-				local varcount = `:word count `vargic''						// added so that legend element fits if not all spells are comparable
+				local varcount = `:word count `vargic''	// added so that legend element fits if not all spells are comparable
 				la var gic_`1'_`2' "GIC Spell`varcount': `1'-`2'"
 				local varlbl `"`varlbl' `varcount' "`1'-`2'""'
 			}
 		}
-		// Trim sample
+		
+*--------------------------------------------------------------------------
+* Trim sample
 		tokenize "`trim'"
 		drop if percentile < `1'
 		drop if percentile > `2'
-
 		sort var_order group_order percentile
 		return local vargic = "`vargic'"
 		return local varlbl = `"`varlbl'"'
 			
-		//Axis range
+*--------------------------------------------------------------------------
+* Define Axis range
 		if "`yrange'" == "" {
 			local m = 1
 			foreach var of local vargic {
@@ -234,8 +318,9 @@ program pea_figure3a, rclass
 		else {
 			local yrange "ylabel(`yrange')"
 		}
-		
-		//Figure preparation
+	
+*--------------------------------------------------------------------------
+* Figure preparation
 		local figname Figure3a
 		if "`excel'"=="" {
 			local excelout2 "`dirpath'\\`figname'.xlsx"
@@ -249,18 +334,21 @@ program pea_figure3a, rclass
 				
 		local gr 1
 		local u  = 5
-		
-		//Figure
+	
+*--------------------------------------------------------------------------
+* Plot figure 
 		putexcel set "`excelout2'", `act'
 		levelsof group_order, local(grlist)
 		foreach gr of local grlist {
 			tempfile graph`gr'
 			local lbltitle : label group_order `gr'	
 			
-			twoway (connected `vargic' percentile, yline(0, lp(-) lc(black*0.6)) lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr', ///
-				legend(on order(`"`varlbl'"') rows(1) position(6)) `yrange' ///
-				xtitle(Percentile) ytitle("Annualized growth, %") name(ngraph`gr', replace)
-			
+		twoway (connected `vargic' percentile, yline(0, lp(-) lc(black*0.6)) lcolor(${colorpalette}) mcolor(${colorpalette})) if group_order==`gr', ///
+		legend(on order(`"`varlbl'"') rows(1) position(6)) `yrange' ///
+		xtitle(Percentile) ytitle("Annualized growth, %") name(ngraph`gr', replace)
+	
+*--------------------------------------------------------------------------
+* Export data
 			putexcel set "`excelout2'", modify sheet(Figure3a, replace)
 			graph export "`graph`gr''", replace as(png) name(ngraph`gr') wid(1500)
 			putexcel A`u' = image("`graph`gr''")
@@ -279,11 +367,12 @@ program pea_figure3a, rclass
 			putexcel save					
 		}		
 		cap graph close	
-	} //qui	
+	} 
 	
-	// Export data
 	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O11) keepcellfmt firstrow(varlabels)	
 	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O12) keepcellfmt firstrow(variables)	nolabel
 		
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	
+	
 end
+*==============================================================================
