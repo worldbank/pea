@@ -1,6 +1,3 @@
-cap program drop pea_setup
-program pea_setup, rclass
-version 18.0
 *==============================================================================
 * pea_setup
 *
@@ -34,16 +31,26 @@ version 18.0
 	* You should have received a copy of the GNU General Public License
 	* along with this program. If not, see <http://www.gnu.org/licenses/>.
 *==============================================================================
+cap program drop pea_setup
+program pea_setup, rclass
+version 18.0
 
 *----------------------------------------------------------------------
 * Verify required user-written packages and install missing dependencies from SSC.
+* Each package is paired with a file it installs, because some packages
+* (palettes, colrspace, schemepack) have no ado-file with the package name.
+* Keep both lists in the same order when adding a package.
 *----------------------------------------------------------------------
-local packages ineqdeco svylorenz groupfunction drdecomp pip skdecomp schemepack geoplot palettes grc1leg2 colrspace treemap carryforward splitvallabels nicelabels niceloglabels wbopendata alorenz
-	
+	local packages ineqdeco svylorenz groupfunction drdecomp pip skdecomp schemepack geoplot palettes grc1leg2 colrspace treemap carryforward splitvallabels nicelabels niceloglabels wbopendata alorenz
+	local files    ineqdeco.ado svylorenz.ado groupfunction.ado drdecomp.ado pip.ado skdecomp.ado scheme-white_tableau.scheme geoplot.ado colorpalette.ado grc1leg2.ado lcolrspace.mlib treemap.ado carryforward.ado splitvallabels.ado nicelabels.ado niceloglabels.ado wbopendata.ado alorenz.ado
+
 	* Missing packages are installed automatically from SSC.
-	foreach package of local packages  {
- 		cap which `package'
- 		if (_rc) {
+	local n : word count `packages'
+	forvalues i = 1/`n' {
+		local package : word `i' of `packages'
+		local file    : word `i' of `files'
+		cap findfile `file'
+		if (_rc) {
 			cap ssc install `package', replace
 			if _rc~=0 {
 				noi dis "Unable to download the `package' from SSC, maybe check the internet"
@@ -53,7 +60,7 @@ local packages ineqdeco svylorenz groupfunction drdecomp pip skdecomp schemepack
 	}
 	* Additional dependency not distributed through SSC:
 	* https://github.com/vavalomi/stata_tools/tree/master/sedecomposition
-	
+		
 *----------------------------------------------------------------------
 * Create the PEA working directory under the Stata PERSONAL folder.
 *----------------------------------------------------------------------
