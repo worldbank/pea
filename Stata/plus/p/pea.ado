@@ -98,7 +98,20 @@ version 18.0
 			di as smcl as err "unrecognized subcommand:  {bf:pea `subcmd'}"
 			exit 199
 		}
-		`version' pea_`subcmd' `0'
+		
+* Several modules switch to working frames (temp_frame, decomp_results,
+		* decomp_results2, ineq_results, mpmmain) and do not switch back. Return
+		* to the caller's frame afterwards, so a -preserve- issued before pea can
+		* still be restored, and drop the working frames pea created.
+		local startframe `c(frame)'
+		cap noi `version' pea_`subcmd' `0'
+		local rc = _rc
+		qui frame change `startframe'
+		foreach f in temp_frame decomp_results decomp_results2 ineq_results mpmmain {
+			if "`f'"~="`startframe'" cap frame drop `f'
+		}
+		if `rc' exit `rc'
+		//		`version' pea_`subcmd' `0'
 	return add
 end
 
