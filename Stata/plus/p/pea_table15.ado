@@ -43,8 +43,15 @@ program pea_table15, rclass
 	
 	//missing observation check
 	marksample touse
+	
+	tempvar touse0
+	qui gen byte `touse0' = `touse'
+		
 	local flist `"`wvar' `welfare' `year' `comparability'"'
 	markout `touse' `flist' 
+	
+	qui count if `touse0' & !`touse'
+	if r(N)>0 noi di in red "Caution: `r(N)' observations with missing welfare, weight, year or comparability are ignored in Table 15."
 	
 	if "`welfare'"~="" { //reset to the floor
 		replace `welfare' = ${floor_} if `welfare'< ${floor_}
