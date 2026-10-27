@@ -73,7 +73,7 @@ program pea_figure13, rclass
 	qui count if `touse0' & !`touse'
 	if r(N)>0 noi di in red "Caution: `r(N)' observations with missing welfare, weight, year or comparability are ignored in Figure 13."
 	
-	 Observations outside the sample (e.g. missing welfare) have no decile;
+	* Observations outside the sample (e.g. missing welfare) have no decile;
 	* left in, they form a missing-decile group that breaks the reshape below.
 	qui keep if `touse'
 	
