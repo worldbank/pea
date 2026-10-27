@@ -376,7 +376,7 @@ _pea_export_path, excel("`excel'")
 		
 *----------------------------------------------------------------
 * Exclude observations missing any required analysis variable
-*----------------------------------------------------------------
+*---------------------------------------------------------------
     local required_vars ///
         `wvar' `welfare' `year' `by' `comparability'
     markout `touse' `required_vars'
@@ -827,7 +827,7 @@ if "`vargic'" == "" {
     local figure_name "Figure3a"
     local sheet_name  "Figure3a"
     if "`excel'" == "" {
-        local excel_output `"`dirpath'\`figure_name'.xlsx"'
+        local excel_output = "`dirpath'" + "`figure_name'.xlsx"
         capture erase `"`excel_output'"'
         putexcel set `"`excel_output'"', replace
     }
@@ -987,7 +987,16 @@ if "`vargic'" == "" {
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	*/
 	* Open the workbook only when excel() was not given: opening a user-named
 	* file locks it, and later pea commands writing to it fail with r(603).
-	if "`excel'"=="" shell start "" `"`excel_output'"'
+
+		if "`excel'"=="" {
+		cap confirm file `"`excel_output'"'
+		if _rc==0 {
+			noi di as text `"Figure 3a saved in: `excel_output'"'
+			shell start "" `"`excel_output'"'
+		}
+		else noi di as err `"Figure 3a workbook not found at: `excel_output'"'
+	}
+	
 	restore
 end
 *==============================================================================
