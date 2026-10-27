@@ -982,8 +982,9 @@ if "`vargic'" == "" {
 	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O12) keepcellfmt firstrow(variables)	nolabel
 		
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	*/
-	shell explorer "%TEMP%"
-	shell start "" "`excelout'"
+	* Open the workbook only when excel() was not given: opening a user-named
+	* file locks it, and later pea commands writing to it fail with r(603).
+	if "`excel'"=="" shell start "" `"`excel_output'"'
 	restore
 end
 *==============================================================================
