@@ -711,7 +711,7 @@ if "`vargic'" == "" {
 		cap confirm file `"`excel_output'"'
 		if _rc==0 {
 			noi di as text `"Figure 3a saved in: `excel_output'"'
-			shell start "" "`excel_output'"
+			shell start excel "`excel_output'"
 			}
 		else noi di as err `"Figure 3a workbook not found at: `excel_output'"'
 	}
