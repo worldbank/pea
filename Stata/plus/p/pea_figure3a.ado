@@ -982,7 +982,8 @@ if "`vargic'" == "" {
 	export excel * using "`excelout2'", sheet("Figure3a", modify) cell(O12) keepcellfmt firstrow(variables)	nolabel
 		
 	if "`excel'"=="" shell start excel "`dirpath'\\`figname'.xlsx"	*/
-
+	
+	if "`excel'"=="" shell start excel `"`excel_output'"'
 	restore
 end
 *==============================================================================
