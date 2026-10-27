@@ -1,4 +1,4 @@
-cap program drop pea_figure3a
+ cap program drop pea_figure3a
 program pea_figure3a, rclass
 version 18.0
 
@@ -679,7 +679,7 @@ label values group_order pea_group_order
 local vargic
 local varlbl
 forvalues j = 1/`nvalid' {
-    local current_spell `"`validspell`j''"
+    local current_spell `"`validspell`j''"'
     local start_year : word 1 of `current_spell'
     local end_year   : word 2 of `current_spell'
     capture confirm variable `welfare'`start_year'
