@@ -35,14 +35,14 @@ program _pea_vars_set, rclass
 			}
 		}
 		
-		//Head
+//Head
 		cap des relationharm
 		if _rc==0 {
 			qui tab relationharm
 			if r(r)>0 {
-				gen head = relationharm==1 if relationharm~=.
-				la def head 1 "HH head" 
-				la val head head
+				cap gen head = relationharm==1 if relationharm~=.
+				cap la def head 1 "HH head" 
+				cap la val head head
 				global pea_hhhead "head"
 			}
 			else {				
@@ -55,15 +55,15 @@ program _pea_vars_set, rclass
 			error 1
 		}
 		
-		//lstatus
+//lstatus
 		cap des lstatus
 		if _rc==0 {
 			qui tab lstatus
 			if r(r)>0 {
-				gen nowork = lstatus==2|lstatus==3 if lstatus~=.
+				cap gen nowork = lstatus==2|lstatus==3 if lstatus~=.
 				global pea_lstatus "nowork"
-				label define nowork 0 "Working" 1 "Not working (unemployed or out of labor force)"
-				label values nowork nowork
+				cap label define nowork 0 "Working" 1 "Not working (unemployed or out of labor force)"
+				cap label values nowork nowork
 			}
 			else {				
 				noi dis as error "Variable lstatus is missing in the GMD data."				
@@ -77,7 +77,7 @@ program _pea_vars_set, rclass
 			*error 1
 		}
 		
-		gen married = marital==1 if marital~=.
+		cap gen married = marital==1 if marital~=.
 		la var male "By gender"
 		la var urban "Urban or rural"
 		*age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets		

@@ -1,6 +1,3 @@
- cap program drop pea_figure3a
-program pea_figure3a, rclass
-version 18.0
 
 *==============================================================================
 * Fig 3a. Growth Incidence Curve over time
@@ -47,6 +44,12 @@ version 18.0
 * Optional grouping: by()         Numeric subgroup variables
 
 *=============================================================================*/
+cap program drop pea_figure3a
+program pea_figure3a, rclass
+version 18.0
+
+
+
 //syntax [if] [in] [aw pw fw], [Welfare(varname numeric) spells(string) Year(varname numeric) comparability(varname numeric) setting(string) trim(string) YRange(string) excel(string) save(string) scheme(string) palette(string) ]
     syntax [if] [in] [aw pw fw],                       ///
         [                                                        ///
