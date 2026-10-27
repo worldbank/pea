@@ -57,6 +57,10 @@ program pea_table15, rclass
 		replace `welfare' = ${floor_} if `welfare'< ${floor_}
 		noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 	}
+	
+	* Observations outside the sample (e.g. missing welfare) have no decile;
+	* left in, they form a missing-decile group that breaks the reshape below.
+	qui keep if `touse'
 		
 	levelsof `year', local(yearlist)
 	gen __decile = .
