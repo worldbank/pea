@@ -1,31 +1,59 @@
-*! version 0.1.2  29Sep2026
-*! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 cap program drop pea_tables
 program pea_tables, rclass
-	version 18.0
-	syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) LATEST WITHIN3 BENCHmark(string) spells(string) earnage(integer 15) minobs(numlist) SVY std(string) PPPyear(integer 2021) VULnerability(real 1.5)]	
+version 18.0
+
+*==============================================================================
+* pea_tables
+*
+* Generate the standard PEA table package and compile outputs into a
+* single Excel workbook.
+*   1. Validate user inputs and poverty-line definitions.
+*   2. Prepare welfare, poverty, and benchmarking indicators.
+*   3. Create and initialize the Excel workbook.
+*   4. Run individual table modules.
+*   5. Assemble outputs and hyperlinks in the Contents sheet.
+*==============================================================================
+* Disclaimers & credits 
+	*! version  v0.1.3  29Sep2026
+	*! Copyright (C) World Bank 2017-2024 
+	*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez 
+	*<ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>.
+	*! Modifications by Daylan Alberto Salmeron Gomez; Maria Fernanda Gonzalez Icaza
+
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation, either version 3 of the License, or
+	* (at your option) any later version.
+
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	* GNU General Public License for more details.
+
+	* You should have received a copy of the GNU General Public License
+	* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*==============================================================================
 	
-	//Check PPPyear
+syntax [if] [in] [aw pw fw], [* NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric)  Year(varname numeric) SETting(string) excel(string) save(string) BYInd(varlist numeric) age(varname numeric) male(varname numeric) hhhead(varname numeric) edu(varname numeric) urban(varname numeric) married(varname numeric) school(varname numeric) services(varlist numeric) assets(varlist numeric) hhsize(varname numeric) hhid(string) pid(string) industrycat4(varname numeric) industrycat10(varname numeric) lstatus(varname numeric) empstat(varname numeric) relationharm(varname numeric) missing ONELine(varname numeric) ONEWelfare(varname numeric) Country(string) LATEST WITHIN3 BENCHmark(string) spells(string) earnage(integer 15) minobs(numlist) SVY std(string) PPPyear(integer 2021) VULnerability(real 1.5)]	
+	
+		foreach opt in pppwelfare ppppovlines onewelfare oneline year {
+		if "``opt''"=="" {
+			noi dis as error "Option `opt'() is required"
+			error 198
+		}
+	}
+	
+*----------------------------------------------------------------------
+* Validate PPP round and international poverty line definitions.
+*----------------------------------------------------------------------
 	_pea_ppp_check, ppp(`pppyear')
-	
-	//Check value of poverty lines (international ones)
 	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
-	//house cleaning
+*----------------------------------------------------------------------
+* Initialize output workbook.
+* Create a temporary workbook if excel() is not specified; otherwise
+* verify that the supplied workbook exists.
+*----------------------------------------------------------------------
 	qui if "`excel'"=="" {
 		tempfile xlsxout 	
 		local path "`xlsxout'"		
@@ -45,12 +73,15 @@ program pea_tables, rclass
 		else local excelout "`excel'"
 	}
 	
+* Apply default vulnerability threshol* if not specified.
 	if "`vulnerability'"=="" {
 		local vulnerability = 1.5
 		noi di in yellow "Default multiple of poverty line to define vulnerability is 1.5"
 	}
 	
-	//Title sheet
+*----------------------------------------------------------------------
+* Create Contents sheet and workbook structure.
+*----------------------------------------------------------------------
 	qui {
 		putexcel set "`excelout'", replace sheet("Contents")
 		putexcel C5 = "Poverty and Equity Assessments 3.0", bold font( "", 16)
@@ -59,14 +90,16 @@ program pea_tables, rclass
 		putexcel (A1:AZ100), fpattern(solid, white)
 		putexcel save
 	}
-	
+	* Benchmarking options are mutually exclusive.
 	if "`latest'"~="" & "`within3'"~="" {
-		noi dis as error "Either latest or wtihin3, not both options"
+		noi dis as error "Either latest or within3, not both options"
 		error 1
 	}
 	if "`latest'"=="" & "`within3'"=="" local latest latest
 	
-	//load setting
+*----------------------------------------------------------------------
+* Load standard variable mappings for predefined settings.
+*----------------------------------------------------------------------
 	qui if "`setting'"=="GMD" {
 		_pea_vars_set, setting(GMD)
 		local vlist age male hhhead edu urban married school hhid pid hhsize industrycat4 empstat lstatus services assets relationharm
@@ -75,11 +108,20 @@ program pea_tables, rclass
 		}	
 	}
 	
+*----------------------------------------------------------------------
+* Prepare analysis dataset.
+*   - standardize poverty-line ordering
+*   - identify survey weights,
+*   - validate survey settings,
+*   - create poverty and inequality indicators,
+*   - generate variables used across multiple tables.
+*----------------------------------------------------------------------
 	qui {
 		local country "`=upper("`country'")'"
 		cap drop code
 		gen code = "`country'"
-		//order the lines
+		
+* Sort poverty lines from lowest to highest threshold.	
 		if "`ppppovlines'"~="" {
 			_pea_pline_order, povlines(`ppppovlines')
 			local ppppovlines `=r(sorted_line)'
@@ -87,7 +129,6 @@ program pea_tables, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
 		if "`natpovlines'"~="" {
 			_pea_pline_order, povlines(`natpovlines')
 			local natpovlines `=r(sorted_line)'
@@ -95,8 +136,7 @@ program pea_tables, rclass
 				local lbl`var' `=r(lbl`var')'
 			}
 		}
-		
-		//Weights
+* Extract survey weights; use equal weights if none are supplied.
 		local wvar : word 2 of `exp'
 		qui if "`wvar'"=="" {
 			tempvar w
@@ -104,16 +144,17 @@ program pea_tables, rclass
 			local wvar `w'
 		}
 		
-		//SVY setting
+* Verify survey design settings when svy is specified.
 		local svycheck = 0
 		if "`svy'"~="" _pea_svycheck, std(`std')
 		
-		//missing observation check
+* Define the analysis sample and exclude observations with missing values 
+* in required welfare, poverty-line, weight, and year variables.
 		marksample touse
 		local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
 		markout `touse' `flist' 
 		
-		//reset to the floor
+* Apply the minimum PPP welfare floor.
 		if "`pppwelfare'"~="" {
 			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
 			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
@@ -125,11 +166,11 @@ program pea_tables, rclass
 		save `datalbl', replace
 		use `dataori', clear
 
-		//FGT
+* Generate poverty indicators (FGT measures).
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
 		
-		//B40 T60 Mean - only for one distribution
+* Generate shared prosperity and distributi*nal indicators.
 		if "`natwelfare'"~="" & "`pppwelfare'"~="" local distwelf `natwelfare'
 		if "`natwelfare'"=="" & "`pppwelfare'"~="" local distwelf `pppwelfare'
 		_pea_gen_b40 [aw=`wvar'] if `touse', welf(`distwelf') by(`year')
@@ -146,7 +187,14 @@ program pea_tables, rclass
 
 	global tablecount = 11
 	local ok = 0
-	//table 1
+	
+*----------------------------------------------------------------------
+* Generate PEA tables.
+* Each table is executed independently so that failure of one module
+* does not prevent the remaining tables from being produced.
+*----------------------------------------------------------------------
+	
+* Table 1. Core poverty indicators
 	qui use `data1', clear
 	cap pea_table1 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") oneline(`oneline') onewelfare(`onewelfare') `svy' std(`std') pppyear(`pppyear') vulnerability(`vulnerability')
 	qui if _rc==0 {
@@ -159,7 +207,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 1. Core poverty indicators ......................................... Not done"
 	
-	//table 2
+* Table 2. Poverty indicators by geographic area
 	qui use `data1', clear
 	cap pea_table2 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') byind(`byind') minobs(`minobs') fgtvars linesorted excel("`excelout'") `missing' pppyear(`pppyear')
 	qui if _rc==0 {
@@ -173,7 +221,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 2. Core poverty indicators by geographic areas ..................... Not done"
 
-	//table 3
+* Table 3. Poverty rates by demographic subgroup
 	qui use `data1', clear
 	cap pea_table3 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') year(`year') fgtvars linesorted excel("`excelout'") age(`age') male(`male') hhhead(`hhhead') edu(`edu') minobs(`minobs') `missing' pppyear(`pppyear')
 	qui if _rc==0 {
@@ -193,7 +241,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 3. Subgroup poverty rates by gender, age and education ............. Not done"
 	
-	//table 4
+* Table 4. Profiles of the poor
 	qui use `dataori', clear		
 	cap pea_table4 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') edu(`edu') hhhead(`hhhead') urban(`urban') married(`married') school(`school') services(`services') assets(`assets') hhsize(`hhsize') hhid(`hhid') pid(`pid') industrycat4(`industrycat4') industrycat10(`industrycat10') lstatus(`lstatus') empstat(`empstat') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -209,7 +257,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 4. Demographic and labor market profiles of the poor ............... Not done"
 	
-	//table 5 
+* Table 5. Labor-market outcomes
 	qui use `data1', clear
 	cap pea_table5 [aw=`wvar'], welfare(`onewelfare') year(`year') povlines(`oneline') excel("`excelout'") age(`age') male(`male') urban(`urban') edu(`edu') industrycat4(`industrycat4') lstatus(`lstatus') empstat(`empstat') `missing'
 	qui if _rc==0 {
@@ -222,7 +270,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 5. Key labor market outcomes by population group ................... Not done"
 	
-	//table 6
+* Table 6. Multidimensional poverty measure and components
 	qui use `data1', clear
 	cap pea_table6 [aw=`wvar'], c(`country') welfare(`pppwelfare') year(`year')  benchmark(`benchmark') last3 excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -239,7 +287,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 6. Multidimensional poverty measure and components ................. Not done"
 
-	//table 7
+* Table 7. Poverty vulnerability
 	qui use `data1', clear
 	cap pea_table7 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') excel("`excelout'") age(`age') male(`male') vul(`vulnerability') edu(`edu') `missing' pppyear(`pppyear') core
 	qui if _rc==0 {
@@ -252,7 +300,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 7. Poverty vulnerability ........................................... Not done"
 	
-	//table 8
+* Table 8. Core inequality indicators
 	qui use `data1', clear
 	cap pea_table8 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") `missing' pppyear(`pppyear')
 	qui if _rc==0 {
@@ -265,7 +313,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 8. Core inequality indicators ...................................... Not done"
 	
-	//table 9
+* Table 9. Scorecard Vision Indicators
 	qui use `data1', clear
 	cap pea_table9, c(`country') year(`year') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -278,7 +326,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 9. Scorecard Vision Indicators ..................................... Not done"
 	
-	//table 10
+* Table 10. Benchmarking of poverty and inequality
 	qui use `dataori', clear
 	cap pea_table10 [aw=`wvar'], c(`country') welfare(`pppwelfare') povlines(`ppppovlines') year(`year') benchmark(`benchmark') `latest' `within3' linesorted excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -291,7 +339,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 10. Benchmarking of poverty and inequality ......................... Not done"
 
-	//table 12
+* Table 12. Decomposition of poverty changes: growth and redistribution
 	qui use `dataori', clear
 	cap pea_table12 [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -308,7 +356,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 12. Decomposition of poverty changes: growth and redistribution .... Not done"
 	
-	//table 13a
+* Table 13a. Huppi-Ravallion decomposition (urban/rural)
 	if "`urban'"~="" {
 		qui use `dataori', clear
 		cap pea_table13a [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') urban(`urban') excel("`excelout'") pppyear(`pppyear')
@@ -323,7 +371,7 @@ program pea_tables, rclass
 		else noi dis in red "Table 13a. Huppi-Ravallion decomposition (urban/rural) ................... Not done"
 	}
 	
-	//table 13b
+* Table 13b. Huppi-Ravallion decomposition (sectoral)
 	if "`industrycat4'"~="" {
 		qui use `dataori', clear
 		cap pea_table13b [aw=`wvar'], natw(`natwelfare') natp(`natpovlines') pppw(`pppwelfare') pppp(`ppppovlines') spells(`spells') year(`year') industrycat4(`industrycat4') hhhead(`hhhead') hhid(`hhid') excel("`excelout'") pppyear(`pppyear')
@@ -338,7 +386,7 @@ program pea_tables, rclass
 		else noi dis in red "Table 13b. Huppi-Ravallion decomposition (sectoral) ...................... Not done"
 	}	
 	
-	//table 14 relationharm(`relationharm')
+* Table 14 relationharm(`relationharm'). Demographic and economic household typologies
 	qui use `dataori', clear		
 	cap pea_table14 [aw=`wvar'], welfare(`onewelfare') povlines(`oneline') year(`year') `missing' age(`age') male(`male') hhsize(`hhsize') hhid(`hhid') pid(`pid') lstatus(`lstatus') empstat(`empstat') earnage(`earnage') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -351,7 +399,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 14. Demographic and economic household typologies .................. Not done"
 
-	//table 15
+* Table 15. Distribution of welfare by deciles
 	qui use `dataori', clear		
 	cap pea_table15 [aw=`wvar'], welfare(`onewelfare') year(`year') excel("`excelout'") pppyear(`pppyear')
 	qui if _rc==0 {
@@ -364,7 +412,7 @@ program pea_tables, rclass
 	}
 	else noi dis in red "Table 15. Distribution of welfare by deciles ............................. Not done"
 
-	//table 16
+* Table 16. Social Protection Coverage and Adequacy
 	qui use `dataori', clear		
 	cap pea_table16, c(`country') year(`year') benchmark(`benchmark') excel("`excelout'") 
 	qui if _rc==0 {
@@ -377,7 +425,8 @@ program pea_tables, rclass
 	}
 		else {
 		noi dis in red "Table 16. Social Protection Coverage and Adequacy ........................ Not done"
-		* Explain the usual cause instead of leaving the user guessing.       // v0.1.3
+		* Explain the usual cause instead of leaving the user guessing.  
+		* If Table 16 fails, provide a diagnostic message explaining whether the required ASPIRE data are missing.     // v0.1.3
 		local persdir : sysdir PERSONAL
 		if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all
 		cap confirm file "`persdir'pea/ASPIRE performance indicators.dta"
@@ -391,10 +440,12 @@ program pea_tables, rclass
 			if `naspire'==0 noi di in yellow "Note Table 16: `country' does not have ASPIRE indicators, so Table 16 cannot be produced."
 		}
 	}
-	
-	//Final open	
-	//Final open	
-	if "`missing'"=="" {                                                     // v0.1.3
+
+*----------------------------------------------------------------------
+* Finalize workbook and open output file.
+*----------------------------------------------------------------------
+* Notify users when missing categories are excluded from denominators.
+	if "`missing'"=="" {           // v0.1.3
 		noi di in yellow "Note: option missing not specified. Observations with missing values are excluded from the denominators in Tables 2, 3, 4, 5, 7, 8 and 14. Specify missing to count them toward the total."
 	}
 	if `ok'==1 {
@@ -406,3 +457,4 @@ program pea_tables, rclass
 	}
 	
 end
+*==============================================================================

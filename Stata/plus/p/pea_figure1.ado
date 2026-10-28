@@ -1,41 +1,66 @@
-*! version 0.1.1  12Sep2014
-*! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-//Figure 1. Poverty rates by year lines
-//todo: add comparability, add the combine graph option
-
 cap program drop pea_figure1
 program pea_figure1, rclass
-	version 18.0
-	syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NOEQUALSPACING YRange(string) BAR excel(string) save(string) MISSING scheme(string) palette(string) PPPyear(integer 2021)]
+version 18.0
+*==============================================================================
+* pea_figure1: Poverty rates over time*by poverty line.
+* The figure can display:
+*   - national and international poverty lines,
+*   - total and urban/rural poverty rates,
+*   - comparable and non-comparable survey years,
+*   - separate or combined graphs,
+*   - line or bar chart formats.
+*==============================================================================
+* TODO:
+*   - improve handling of survey comparability metadata;
+*   - extend combined-graph formatting options.
+*==============================================================================
+* Disclaimers & credits 
+	*! version 0.1.1  12Sep2014
+	*! Copyright (C) World Bank 2017-2024 
+	*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez 
+	*<ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>.
+	*! Modifications by Daylan Alberto Salmeron Gomez; Maria Fernanda Gonzalez Icaza
 
-	//Check PPPyear
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation, either version 3 of the License, or
+	* (at your option) any later version.
+
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	* GNU General Public License for more details.
+
+	* You should have received a copy of the GNU General Public License
+	* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*================================================================
+
+syntax [if] [in] [aw pw fw], [NATWelfare(varname numeric) NATPovlines(varlist numeric) PPPWelfare(varname numeric) PPPPovlines(varlist numeric) FGTVARS Year(varname numeric) urban(varname numeric) LINESORTED setting(string) COMParability(varname numeric) COMBINE NOOUTPUT NOEQUALSPACING YRange(string) BAR excel(string) save(string) MISSING scheme(string) palette(string) PPPyear(integer 2021)]
+
+*----------------------------------------------------------------------
+* Validate PPP round and international poverty-line definitions.
+*----------------------------------------------------------------------
 	_pea_ppp_check, ppp(`pppyear')
 	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
 	local persdir : sysdir PERSONAL	
 	if "$S_OS"=="Windows" local persdir : subinstr local persdir "/" "\", all	
-	
-	//house cleaning	
+
+*----------------------------------------------------------------------
+* Validate required inputs.
+* Figure 1 always reports poverty rates by sector/urban grouping in
+* addition to the national total.
+*----------------------------------------------------------------------
 	if "`urban'"=="" {
 		noi di in red "Sector/urban variable must be defined in urban()"
 		exit 1
 	}
-	
-	//Comparability
+*----------------------------------------------------------------------
+* Survey comparability settings.
+* The comparability variable identifies survey years that can be linked
+* with line segments. Non-comparable years are displayed as isolated
+* points in the final figure.
+*----------------------------------------------------------------------
 	if "`comparability'"=="" {
 		gen __comp = 1
 		local comparability __comp
@@ -56,20 +81,22 @@ program pea_figure1, rclass
 			exit `=_rc'
 		}
 	}
+*----------------------------------------------------------------------
+* Initialize output workbook and export location.
+*----------------------------------------------------------------------
 	_pea_export_path, excel("`excel'")
 	
-	//Number of groups (for colors)
+	* Determine the number of series to be plotted.
 	qui levelsof `urban', local(group_num)
 	local groups = `:word count `group_num'' + 1
 
-	// Figure colors
-	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
-
-	//variable checks
-	//check plines are not overlapped.
-	//trigger some sub-tables
+	* Initialize graph scheme and color palette.
+	pea_figure_setup, groups("`groups'") scheme("`scheme'") palette("`palette'")	
+	//	groups defines the number of colors chosen, so that there is contrast (e.g. in viridis)
+*----------------------------------------------------------------------
+* Standardize poverty-line ordering and labels.
+*----------------------------------------------------------------------
 	qui {		
-		//order the lines
 		if "`linesorted'"=="" {
 			if "`ppppovlines'"~="" {
 				_pea_pline_order, povlines(`ppppovlines')			
@@ -78,8 +105,7 @@ program pea_figure1, rclass
 					local lbl`var' `=r(lbl`var')'
 				}
 			}
-			
-			if "`natpovlines'"~="" {
+		if "`natpovlines'"~="" {
 				_pea_pline_order, povlines(`natpovlines')
 				local natpovlines `=r(sorted_line)'
 				foreach var of local natpovlines {
@@ -94,15 +120,17 @@ program pea_figure1, rclass
 		}
 	}
 
-	//Weights
+* Use survey weights if supplied; otherwise assign equal weights.	
 	local wvar : word 2 of `exp'
 	qui if "`wvar'"=="" {
 		tempvar w
 		gen `w' = 1
 		local wvar `w'
 	}
-
-	//missing observation check
+*----------------------------------------------------------------------
+* Define the analysis sample and exclude observations missing required
+* welfare, poverty-line, weight, or year variables.
+*----------------------------------------------------------------------
 	marksample touse
 	local flist `"`wvar' `natwelfare' `natpovlines' `pppwelfare' `ppppovlines' `year'"'
 	markout `touse' `flist' 
@@ -111,44 +139,42 @@ program pea_figure1, rclass
 	save	`dataori'
 	qui sum `urban', d
 	local max_val = r(max) + 1
-	
-	// Create fgt
+
+*----------------------------------------------------------------------
+* Generate poverty indicators if they were not supplied by the caller.
+*----------------------------------------------------------------------
 	use `dataori'
 	if "`fgtvars'"=="" { //only create when the fgt are not defined			
 		if "`pppwelfare'"~="" { //reset to the floor
 			replace `pppwelfare' = ${floor_} if `pppwelfare'< ${floor_}
 			noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 		}
-		
-		//FGT
 		if "`natwelfare'"~="" & "`natpovlines'"~="" _pea_gen_fgtvars if `touse', welf(`natwelfare') povlines(`natpovlines')
 		if "`pppwelfare'"~="" & "`ppppovlines'"~="" _pea_gen_fgtvars if `touse', welf(`pppwelfare') povlines(`ppppovlines') 
 	}	
-
-	//variable checks
 	save `data1', replace
 	
-	//FGT national
+* FGT national
 	use `data1', clear
 	groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability')
 	gen `urban' = `max_val' 			
 	save `data2', replace
 	
-	//FGT urban-rural
+* FGT urban-rural
 	foreach var of local urban {
 		use `data1', clear
 		groupfunction  [aw=`wvar'] if `touse', mean(_fgt*) by(`year' `comparability' `var')
 		append using `data2'
 		save `data2', replace
 	}	
-	
 	keep `year' `urban' `comparability' _fgt0*
 	for var _fgt0*: replace X = X*100
-	
-	//Axis range
+*----------------------------------------------------------------------
+* Determine y-axis ranges and label.
+*----------------------------------------------------------------------
 	if "`yrange'" == "" {
 		local ymin = 0
-		foreach var of varlist _fgt* {											// maximum y value of fgt variables
+		foreach var of varlist _fgt* {	// maximum y value of fgt variables
 			qui sum `var'
 			nicelabels `ymin' `r(max)', local(yla)
 			local yrange`var' "ylabel(`yla')"
@@ -159,15 +185,15 @@ program pea_figure1, rclass
 			local yrange`var' "ylabel(`yrange')"
 		}
 	}
-	
-	// Clean and label
+*----------------------------------------------------------------------
+* Apply poverty-line labels for figure titles and legends.	
+*----------------------------------------------------------------------
 	*label values `urban' urban
 	if "`ppppovlines'"~="" {
 		foreach var of local ppppovlines {
 			label var _fgt0_`pppwelfare'_`var' "`lbl`var''"
 		}
 	}
-	
 	if "`natpovlines'"~="" {
 		foreach var of local natpovlines {
 			local natvnum = 1
@@ -176,27 +202,30 @@ program pea_figure1, rclass
 			local natvnum = `natvnum' + 1
 		}
 	}
-	
-	// Figure	
+*----------------------------------------------------------------------
+* Build graph commands, legends, and styling options.
+*----------------------------------------------------------------------
 	qui levelsof `urban'		, local(group_num)
 	qui levelsof `comparability', local(compval)
 	local varlblurb : value label `urban'
-	label define `varlblurb' `max_val' "Total", add  											// Add Total as last entry
-	//Prepare year variable without gaps if specified
+	
+* Add national total as an additional plotting category.
+	label define `varlblurb' `max_val' "Total", add  		
+* Generate year variable without gaps
 	if "`noequalspacing'"=="" {		// Year spacing option
-		egen year_nogap = group(`year'), label(year_nogap)										// Generate year variable without gaps
+		egen year_nogap = group(`year'), label(year_nogap)	
 		local year year_nogap
 	}
 	qui levelsof `year'		 , local(yearval)	
 	local j = 1
 	foreach i of local group_num {
-		local scatter_cmd`i' = `"scatter var `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'					// Colors defined in pea_figure_setup
+* Colors defined in pea_figure_setup		
+		local scatter_cmd`i' = `"scatter var `year' if `urban'== `i', mcolor("${col`j'}") lcolor("${col`j'}") || "'	
 		local scatter_cmd "`scatter_cmd' `scatter_cmd`i''"
 		local label_`i': label(`urban') `i'
 		local legend`i' `"`j' "`label_`i''""'
 		local legend "`legend' `legend`i''"	
-	
-		// If comparability specified, only comparable years are connected
+* If comparability specified, only comparable years are connected
 		foreach co of local compval {
 			local line_cmd`i'`co' = `"line var `year' if `urban'== `i' & `comparability'==`co', mcolor("${col`j'}") lcolor("${col`j'}") || "'
 			local line_cmd "`line_cmd' `line_cmd`i'`co''"
@@ -204,9 +233,7 @@ program pea_figure1, rclass
 		local bcolors "`bcolors' bar(`j', color(${col`j'}))"		
 		local j = `j' + 1			
 	}		
-
 	if "`comparability'"~="__comp" local note_c "Non-connected dots indicate that survey-years are not comparable."	
-
 	if "`excel'"=="" {
 		local excelout2 "`dirpath'\\Figure1.xlsx"
 		local act replace	
@@ -216,19 +243,19 @@ program pea_figure1, rclass
 		local excelout2 "`excelout'"
 		local act modify
 	}	
-	
 	local gr = 1
 	local u  = 5
 	putexcel set "`excelout2'", `act'
-	
-	//change all legend to bottom, and maybe 2 rows
+* Change all legend to bottom, and maybe 2 rows
 	if "`combine'" ~= "" local botlbl "rows(1) position(6)"
-		
+	
+*----------------------------------------------------------------------
+* Generate one graph per poverty line and export to Excel.
+*----------------------------------------------------------------------
 	foreach var of varlist _fgt* {
 		rename `var' var
 		tempfile graph`gr'
 		local lbltitle : variable label var
-		
 		if "`bar'" == "" {
 		twoway `scatter_cmd' `line_cmd'									///	
 				  , legend(order("`legend'") `botlbl') 				    ///
@@ -244,7 +271,6 @@ program pea_figure1, rclass
 				`yrange`var''											///
 				name(ngraph`gr', replace)								
 		}
-		
 		local graphnames "`graphnames' ngraph`gr'"
 		if "`combine'" == "" {
 			putexcel set "`excelout2'", modify sheet(Figure1_`gr', replace)	  
@@ -261,16 +287,17 @@ program pea_figure1, rclass
 			putexcel O8 = `"twoway `scatter_cmd' `line_cmd', legend(order("`legend'") `botlbl') ytitle("Poverty rate (percent, `lbltitle')") xtitle("") xlabel("`yearval'", valuelabel) `yrange`var''"'
 						
 			if "`excel'"~="" putexcel I1 = hyperlink("#Contents!A1", "Back to Contents")	
-					
 			putexcel save	
-			// Export data
+* Export data
 			export excel * using "`excelout2'", sheet("Figure1_`gr'", modify) cell(O11) keepcellfmt firstrow(variables)	
 		}
 		local gr = `gr' + 1
 		rename var `var'
 	}
-
-	if "`combine'" ~= "" {  // If combine specified, export combined graph
+*----------------------------------------------------------------------
+* Combine poverty-line graphs into a single figure when requested.
+*----------------------------------------------------------------------
+	if "`combine'" ~= "" {  
 		tempfile graph`gr'
 		grc1leg2  `graphnames', ycommon lrows(1) ytol1title rows(2) legscale(*0.8) name(ngraphcomb, replace)		
 		*graph combine `graphnames', note(`note') name(ngraphcomb, replace)
@@ -292,8 +319,11 @@ program pea_figure1, rclass
 		putexcel save
 		export excel * using "`excelout2'", sheet("Figure1", modify) cell(O11) keepcellfmt firstrow(variables) nolabel
 	}
-	
 	cap graph close	
-	
+*----------------------------------------------------------------------
+* Open output workbook when a temporary file was created.
+*----------------------------------------------------------------------
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure1.xlsx"	
+	
 end	
+*==============================================================================
