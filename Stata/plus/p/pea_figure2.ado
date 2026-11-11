@@ -1,26 +1,34 @@
-*! version 0.1.1  12Sep2014
-*! Copyright (C) World Bank 2017-2024 
-*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>; Sandra Carolina Segovia Juarez <ssegoviajuarez@worldbank.org>
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-
+cap program drop pea_figure2
+program pea_figure2, rclass
+version 18.0
+*==============================================================================
+	
 //Figure 2. Poverty and GDP per capita scatter
 //Note on helpfile: only work for the international poverty lines, to be exact 2.15, 3.65, 6.85, 2017 PPP
 
-cap program drop pea_figure2
-program pea_figure2, rclass
-	version 18.0
-	syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) PPPWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2021)]	
+
+*==============================================================================
+* Disclaimers & credits 
+	*! version 0.1.2  29Sep2026
+	*! Copyright (C) World Bank 2017-2024 
+	*! Minh Cong Nguyen <mnguyen3@worldbank.org>; Sandra Carolina Segovia Juarez 
+	*<ssegoviajuarez@worldbank.org>; Henry Stemmler <hstemmler@worldbank.org>.
+	*! Modifications by Daylan Alberto Salmeron Gomez; Maria Fernanda Gonzalez Icaza
+
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation, either version 3 of the License, or
+	* (at your option) any later version.
+
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	* GNU General Public License for more details.
+
+	* You should have received a copy of the GNU General Public License
+	* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*================================================================
+syntax [if] [in] [aw pw fw], [Country(string) Year(varname numeric) BENCHmark(string) ONELine(varname numeric) PPPWelfare(varname numeric) FGTVARS YRange(string) scheme(string) palette(string) save(string) excel(string) PPPyear(integer 2021)]	
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
@@ -130,17 +138,34 @@ program pea_figure2, rclass
 	qui levelsof b_in_list, local(benchmark_data)
 	local b_data_count = `:word count `benchmark_data''
 	
-	// Merge regions
+		
+		// Merge regions
 	merge m:1 code using "`persdir'pea/PIP_list_name.dta", keep(1 3) keepusing(region country_name)
-	levelsof _merge, local(mcode)
-	assert _merge != 1			// Check if region codes merge
+	qui count if _merge==1
+	if r(N) > 0 {                                                        // v0.1.2
+		qui levelsof code if _merge==1, local(noregion) clean
+		noi di in yellow "Note: `r(N)' economies are in the PIP line-up but not in " ///
+			"PIP_list_name (no survey). Grouped as 'Other countries': `noregion'"
+	}
+	replace country_name = code if missing(country_name)                 // v0.1.2
 	drop _merge 
 	
 	// Merge GDP
 	merge m:1 code year using "`persdir'pea/PIP_all_GDP.dta", keep(1 3) keepusing(gdppc)
-	levelsof _merge, local(mcode)
-	assert _merge != 1			// Check if GDP merges
-	drop _merge 
+	drop _merge
+	qui count if missing(gdppc)
+	if r(N) > 0 {                                                        // v0.1.2
+		qui levelsof code if missing(gdppc), local(nogdp) clean
+		noi di in yellow "Note: no GDP per capita for `r(N)' economies; " ///
+			"excluded from the figure: `nogdp'"
+		drop if missing(gdppc)
+	}
+	qui count if country_code == "`country'"                             // v0.1.2
+	if r(N) == 0 {
+		noi di in red "No GDP per capita for `country' -- cannot draw this figure."
+		exit 2000
+	}
+
 	
 	// Merge in PEA poverty rate
 	merge 1:1 country_code year using `pea_pov'
@@ -276,3 +301,4 @@ program pea_figure2, rclass
 	if "`excel'"=="" shell start excel "`dirpath'\\Figure2.xlsx"	
 	
 end
+*==============================================================================

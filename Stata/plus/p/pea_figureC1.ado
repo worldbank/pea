@@ -38,31 +38,18 @@ program pea_figureC1, rclass
 		cap gen comparability_peb = "Yes"
 		local comparability_peb comparability_peb
 	}
-
-	if "`year_fcast'"~="" {
-		qui sum `year_fcast'
-		if _rc==0 {
-			noi di in red "Option year_fcast() specified, but variable does not contain values."
-			exit `=_rc'
+	* Check that each forecast variable, if given, has at least one value
+	foreach opt in year_fcast natpov_fcast gdp_fcast {
+		if "``opt''"~="" {
+			foreach v of varlist ``opt'' {
+				qui count if !missing(`v')
+				if r(N)==0 {
+					noi di in red "Option `opt'() specified, but variable `v' does not contain values."
+					exit 2000
+				}
+			}
 		}
 	}
-	
-	if "`natpov_fcast'"~="" {
-		qui sum `natpov_fcast'
-		if _rc==0 {
-			noi di in red "Option natpov_fcast() specified, but variable does not contain values."
-			exit `=_rc'
-		}
-	}
-	
-	if "`gdp_fcast'"~="" {
-		qui sum `gdp_fcast'
-		if _rc==0 {
-			noi di in red "Option gdp_fcast() specified, but variable does not contain values."
-			exit `=_rc'
-		}
-	}
-	
 	
 	if "`using'"~="" {
 		cap use "`using'", clear

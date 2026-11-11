@@ -66,8 +66,16 @@ program pea_figure13, rclass
 	
 	//missing observation check
 	marksample touse
+	tempvar touse0
+	qui gen byte `touse0' = `touse'
 	local flist `"`wvar' `onewelfare' `year' `comparability'"'
-	markout `touse' `flist' 
+	markout `touse' `flist'
+	qui count if `touse0' & !`touse'
+	if r(N)>0 noi di in red "Caution: `r(N)' observations with missing welfare, weight, year or comparability are ignored in Figure 13."
+	
+	* Observations outside the sample (e.g. missing welfare) have no decile;
+	* left in, they form a missing-decile group that breaks the reshape below.
+	qui keep if `touse'
 	
 	levelsof `year', local(yearlist)
 	gen __decile = .
@@ -83,6 +91,7 @@ program pea_figure13, rclass
 		}
 		drop `qwlf'
 	}
+			
 	gen double __welfweight = `onewelfare'*`wvar'
 	tempfile dataori datalbl data2 data2b
 	save `dataori', replace

@@ -23,6 +23,7 @@ program pea_tableA2, rclass
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
+	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
 	if "`using'"~="" {
 		cap use "`using'", clear

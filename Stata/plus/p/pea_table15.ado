@@ -43,13 +43,24 @@ program pea_table15, rclass
 	
 	//missing observation check
 	marksample touse
+	
+	tempvar touse0
+	qui gen byte `touse0' = `touse'
+		
 	local flist `"`wvar' `welfare' `year' `comparability'"'
 	markout `touse' `flist' 
+	
+	qui count if `touse0' & !`touse'
+	if r(N)>0 noi di in red "Caution: `r(N)' observations with missing welfare, weight, year or comparability are ignored in Table 15."
 	
 	if "`welfare'"~="" { //reset to the floor
 		replace `welfare' = ${floor_} if `welfare'< ${floor_}
 		noi di in yellow "Welfare in `pppyear' PPP is adjusted to a floor of ${floor_}"
 	}
+	
+	* Observations outside the sample (e.g. missing welfare) have no decile;
+	* left in, they form a missing-decile group that breaks the reshape below.
+	qui keep if `touse'
 		
 	levelsof `year', local(yearlist)
 	gen __decile = .

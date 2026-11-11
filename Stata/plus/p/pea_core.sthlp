@@ -190,7 +190,7 @@ Default under setting(GMD): pid
 
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
+Default is 2021.
      
 {p 4 4 2} 
 {opt SVY}: triggers 'svy set' in Stata. If the data is not svy set, no standard errors will be produced. Only relevant for Table A.1.

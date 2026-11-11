@@ -54,7 +54,7 @@ The command supports {opt aweight}s, {opt fweight}s, and {opt pweight}s. See {he
  
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
+Default is 2021.
 
 {p 4 4 2} 
 {opt excel(string)}:

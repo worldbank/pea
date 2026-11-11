@@ -49,7 +49,7 @@ help for {hi:pea figure8}{right:January 2025}
    
 {p 4 4 2}
 {opt PPPyear(integer)}: specifies which year PPPs are based on (e.g. 2017 or 2011).
-Default is 2017.
+Default is 2021.
    
 {p 4 4 2}  
 {opt NOEQUALSPACING}: Optional. Adjusts year spacing on x-axis to be proportional to the distance between years. Default is that years are evenly spaced in the visualization.

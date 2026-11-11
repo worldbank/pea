@@ -23,6 +23,7 @@ program pea_table3, rclass
 	
 	//Check PPPyear
 	_pea_ppp_check, ppp(`pppyear')
+	_pea_povlines_check, ppp(`pppyear') povlines(`ppppovlines')
 	
 	//house cleaning
 	_pea_export_path, excel("`excel'")
